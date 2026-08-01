@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  /* Fonts */
+  --font-sans: var(--font-plus-jakarta-sans), var(--font-inter), sans-serif;
+  
+  /* Brand Colors (Emerald) */
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #22c55e;
+  --color-brand-600: #16a34a;
+  --color-brand-700: #15803d;
+  --color-brand-800: #166534;
+  --color-brand-900: #14532d;
+
+  /* Primary Colors (Indigo - Dashboard) */
+  --color-primary: #4f46e5;
+  
+  /* Premium Colors (Teal/Emerald - Student Info) */
+  --color-premium-50: #f0f9ff;
+  --color-premium-600: #0d9488;
+  --color-premium-900: #0f172a;
+
+  /* Dark Mode Specifics */
+  --color-darkBg: #0f172a;
+  --color-darkCard: #1e293b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  
+  --color-brand-50: var(--color-brand-50);
+  --color-brand-100: var(--color-brand-100);
+  --color-brand-200: var(--color-brand-200);
+  --color-brand-300: var(--color-brand-300);
+  --color-brand-400: var(--color-brand-400);
+  --color-brand-500: var(--color-brand-500);
+  --color-brand-600: var(--color-brand-600);
+  --color-brand-700: var(--color-brand-700);
+  --color-brand-800: var(--color-brand-800);
+  --color-brand-900: var(--color-brand-900);
+
+  --color-primary: var(--color-primary);
+  
+  --color-premium-50: var(--color-premium-50);
+  --color-premium-600: var(--color-premium-600);
+  --color-premium-900: var(--color-premium-900);
+
+  --color-darkBg: var(--color-darkBg);
+  --color-darkCard: var(--color-darkCard);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}

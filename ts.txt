@@ -1,0 +1,160 @@
+// --- 1. center generale ---
+Table centers {
+  center_id uuid [pk]
+  name varchar
+  address text
+  director_id uuid [ref: - directors.director_id]
+  branding_config jsonb
+  created_at timestamp
+}
+//-- bdel directeur b owner ---
+Table directors {
+  director_id uuid [pk]
+  user_id uuid [ref: - users.user_id]
+  professional_id varchar
+  hired_at timestamp
+}
+
+// --- 2 (directeur Managers rir hada wax ikon wahd wla bzaf) ---
+Table group_managers {
+  manager_id uuid [pk]
+  user_id uuid [ref: - users.user_id]
+  assigned_at timestamp
+}
+
+// --- 3. group wla departement dyal center kola center 3ndo bzaf dyal les group---
+//--- hana bdlha b group des center---
+Table groups {
+  group_id uuid [pk]
+  center_id uuid [ref: > centers.center_id]
+  manager_id uuid [ref: > group_managers.manager_id]
+  name varchar // exemple center 1
+  age_category varchar // under_24m, 2_4y, after_school
+  max_capacity int 
+}
+
+Table rooms {
+  room_id uuid [pk]
+  group_id uuid [ref: > groups.group_id]
+  name varchar
+  room_capacity int 
+  current_occupancy int [default: 0]
+  // Total des points actuels basé sur la répartition du poids des enfants(300, 200, 125, 100)
+  current_total_points int [default: 0] 
+  required_educators int [default: 0]
+}
+
+// --- 4. nas li radi ikhdemo b app---
+Table users {
+  user_id uuid [pk]
+  center_id uuid [ref: > centers.center_id]
+  email varchar [unique]
+  password_hash text
+  full_name varchar
+  role varchar // director, group_manager, educator, parent
+  is_active boolean
+}
+
+Table educators {
+  educator_id uuid [pk]
+  user_id uuid [ref: - users.user_id]
+  qualification_level varchar 
+  is_on_duty boolean [default: false]
+}
+
+Table room_assignments {
+  id uuid [pk]
+  educator_id uuid [ref: > educators.educator_id]
+  room_id uuid [ref: > rooms.room_id]
+  assigned_at timestamp [default: `now()`]
+  is_active boolean [default: true]
+}
+
+// --- 5. الأطفال وقائمة الانتظار ---
+Table children {
+  child_id uuid [pk]
+  room_id uuid [ref: > rooms.room_id]
+  first_name varchar
+  last_name varchar
+  birth_date date
+  status varchar // active, inactive
+  // قيمة الطفل في النسبة (Points):
+  // 300 (أقل من 24 شهر), 200 (سنتين), 125 (3 سنوات), 100 (4 سنوات)
+  ratio_points_value int 
+}
+
+Table parent_child {
+  id uuid [pk]
+  parent_id uuid [ref: > users.user_id]
+  child_id uuid [ref: > children.child_id]
+  relationship_type varchar
+}
+
+Table waitlist {
+  waitlist_id uuid [pk]
+  center_id uuid [ref: > centers.center_id]
+  group_id uuid [ref: > groups.group_id]
+  child_name varchar
+  parent_id uuid [ref: > users.user_id]
+  status varchar // pending, notified
+  created_at timestamp [default: `now()`]
+}
+
+// --- 6. العمليات والتدقيق (Real-time Audit) ---
+Table attendance {
+  attendance_id uuid [pk]
+  child_id uuid [ref: > children.child_id]
+  room_id uuid [ref: > rooms.room_id]
+  status varchar 
+  check_in_time timestamp
+  check_out_time timestamp
+}
+
+Table ratio_audit_logs {
+  log_id uuid [pk]
+  room_id uuid [ref: > rooms.room_id]
+  timestamp timestamp [default: `now()`]
+  total_points int // مجموع النقاط التراكمي في لحظة التسجيل
+  educators_required int
+  educators_present int
+  is_compliant boolean // هل النسبة محترمة أم هناك تجاوز؟
+  action_trigger varchar // مثال: 'child_checkin', 'educator_checkout'
+}
+
+// --- 7. التواصل والتنبيهات ---
+Table notifications {
+  notification_id uuid [pk]
+  user_id uuid [ref: > users.user_id] // les users li 3ndna
+  title varchar
+  message text
+  type varchar // ratio_alert, waitlist_available, new_message
+  priority varchar // critical, high, normal
+  is_read boolean [default: false]
+  link_to_entity_id uuid
+  created_at timestamp [default: `now()`]
+}
+
+Table communication_reports {
+  report_id uuid [pk]
+  sender_id uuid [ref: > users.user_id]
+  receiver_id uuid [ref: > users.user_id]
+  interaction_type varchar // dir_to_manager, manager_to_educator, etc.
+  subject varchar
+  content text
+  created_at timestamp
+}
+
+// --- 8. التقارير والتدريبات ---
+Table daily_reports {
+  report_id uuid [pk]
+  child_id uuid [ref: > children.child_id]
+  educator_id uuid [ref: > educators.educator_id]
+  is_published_to_parents boolean [default: false]
+}
+
+Table portfolios {
+  entry_id uuid [pk]
+  child_id uuid [ref: > children.child_id]
+  educator_id uuid [ref: > educators.educator_id]
+  media_url text
+}

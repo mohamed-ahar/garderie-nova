@@ -1,0 +1,172 @@
+Module : Respect des ratios légaux – Nouveau-Brunswick
+1. Objectif du module
+
+Ce module a pour objectif de calculer automatiquement le nombre minimal d’éducateurs requis selon la réglementation officielle du Nouveau-Brunswick, en fonction :
+
+de l’âge des enfants présents,
+
+du nombre d’enfants par groupe,
+
+des ratios légaux en vigueur.
+
+Le système doit être temps réel, auditable, et sécurisé contre les dépassements de ratio.
+
+2. Principe général de calcul
+
+Pour certaines tranches d’âge, le calcul se fait à l’aide d’un système de valeurs cumulatives, plutôt qu’un simple comptage linéaire.
+
+👉 Chaque enfant contribue une valeur numérique.
+👉 Chaque éducateur peut couvrir un plafond maximal de valeur.
+👉 Le nombre d’éducateurs requis est toujours arrondi à l’entier supérieur (ceil).
+
+3. Groupes d’âge et règles de calcul
+A. Moins de 24 mois (0–23 mois)
+
+Ratio légal
+
+1 éducateur pour 3 enfants
+
+Valeur par enfant
+
+300 points par enfant
+
+Plafond par éducateur
+
+900 points maximum
+
+Règle
+
+Tant que la valeur totale ≤ 900 → 1 éducateur
+
+Au-delà → ajouter un éducateur supplémentaire
+
+Formule
+
+educateurs_requis = ceil(total_valeurs / 900)
+
+
+Exemples
+
+1 enfant → 300 → 1 éducateur
+
+3 enfants → 900 → 1 éducateur
+
+5 enfants → 1500 → 2 éducateurs
+
+B. Enfants de 2 à 4 ans (calcul cumulatif)
+
+⚠️ Important :
+Les enfants de 2, 3 et 4 ans sont calculés ensemble dans un seul total cumulatif.
+
+Valeur par âge
+Âge	Ratio	Valeur par enfant
+2 ans	1:5	200
+3 ans	1:8	125
+4 ans	1:10	100
+
+Plafond par éducateur
+
+1050 points cumulés
+
+Règle
+
+Si la valeur cumulée ≤ 1050 → 1 éducateur
+
+Sinon → ajouter des éducateurs
+
+Formule
+
+total_valeurs =
+(nb_2ans × 200) +
+(nb_3ans × 125) +
+(nb_4ans × 100)
+
+educateurs_requis = ceil(total_valeurs / 1050)
+
+
+Exemple
+
+2 enfants de 2 ans → 400
+
+3 enfants de 3 ans → 375
+
+2 enfants de 4 ans → 200
+Total = 975 → 1 éducateur
+
+C. Après l’école (5 ans et plus)
+
+Ratio légal
+
+1 éducateur pour 15 enfants
+
+Règle
+
+Calcul direct sans valeur cumulative
+
+Formule
+
+educateurs_requis = ceil(nombre_enfants_presents / 15)
+
+
+Exemples
+
+15 enfants → 1 éducateur
+
+16 enfants → 2 éducateurs
+
+4. Tableaux de bord (Dashboards)
+A. Dashboard par département
+
+Chaque département (pouponnière, 2–4 ans, après-école, etc.) doit afficher :
+
+Nombre d’enfants présents
+
+Valeur cumulative (si applicable)
+
+Nombre d’éducateurs requis
+
+Nombre d’éducateurs présents
+
+Statut de conformité (OK / DÉPASSEMENT)
+
+B. Alertes visuelles
+
+🔴 Alerte immédiate si :
+
+éducateurs présents < éducateurs requis
+
+🟢 Conforme si les ratios sont respectés
+
+Les alertes doivent être :
+
+visibles en temps réel,
+
+bloquantes si configuré (ex. empêcher l’ajout d’un enfant).
+
+5. Dashboard global
+
+Un tableau consolidé regroupant tous les départements :
+
+Total enfants (par tranche d’âge)
+
+Total éducateurs requis
+
+Total éducateurs présents
+
+Indicateur global de conformité
+
+Vue de pilotage pour la direction
+
+6. Historique et audit
+
+Le système doit conserver un historique horodaté :
+
+ratios calculés,
+
+effectifs enfants/éducateurs,
+
+dépassements éventuels,
+
+utilisateur ou action déclencheuse.
+
+👉 Objectif : audit réglementaire et traçabilité légale.

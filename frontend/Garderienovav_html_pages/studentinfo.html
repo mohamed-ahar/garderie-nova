@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails Étudiant | GarderieNova Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: {
+                        premium: {
+                            50: '#f0f9ff',
+                            600: '#0d9488', // Teal/Emerald Premium
+                            900: '#0f172a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.08), transparent),
+                        radial-gradient(circle at bottom left, rgba(5, 150, 105, 0.05), transparent);
+            background-color: #f8fafc;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.04);
+        }
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .profile-ring {
+            background: linear-gradient(45deg, #10b981, #3b82f6);
+            padding: 4px;
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-900 dark:text-slate-100 min-h-screen">
+
+    <nav class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
+        <button onclick="window.history.back()" class="group flex items-center gap-3 px-4 py-2 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-all hover:pr-6">
+            <i class="fa-solid fa-chevron-left text-xs group-hover:-translate-x-1 transition-transform"></i>
+            <span class="text-sm font-bold tracking-tight">Tableau de bord</span>
+        </button>
+        
+        <div class="flex gap-4">
+            <button class="w-11 h-11 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-500 hover:text-premium-600 transition-all">
+                <i class="fa-solid fa-share-nodes"></i>
+            </button>
+            <button class="flex items-center gap-2 px-6 py-2.5 bg-premium-900 dark:bg-white text-white dark:text-premium-900 rounded-2xl font-bold text-sm shadow-xl transition-all hover:scale-[1.02]">
+                <i class="fa-solid fa-file-pdf"></i>
+                Exporter Dossier
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 pb-20">
+        
+        <div class="glass-panel rounded-[3rem] p-10 mb-8 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+            
+            <div class="flex flex-col lg:flex-row items-center lg:items-end gap-10 relative">
+                <div class="relative">
+                    <div class="w-40 h-40 rounded-[2.5rem] profile-ring shadow-2xl overflow-hidden">
+                        <img class="w-full h-full object-cover rounded-[2.3rem] bg-white" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Liam" alt="Student">
+                    </div>
+                    <div class="absolute -bottom-3 -right-3 bg-white dark:bg-slate-900 p-3 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800">
+                        <i class="fa-solid fa-camera text-emerald-600"></i>
+                    </div>
+                </div>
+
+                <div class="flex-1 text-center lg:text-left">
+                    <div class="flex flex-col lg:flex-row lg:items-center gap-4 mb-4">
+                        <h1 class="text-5xl font-black tracking-tighter">Liam Anderson</h1>
+                        <span class="inline-flex px-4 py-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-black uppercase tracking-widest">En classe</span>
+                    </div>
+                    <div class="flex flex-wrap justify-center lg:justify-start gap-6 text-slate-500 dark:text-slate-400 font-medium">
+                        <div class="flex items-center gap-2"><i class="fa-solid fa-calendar-day text-premium-600"></i> 4 ans, 3 mois</div>
+                        <div class="flex items-center gap-2"><i class="fa-solid fa-id-card text-premium-600"></i> ID: NB-2025-081</div>
+                        <div class="flex items-center gap-2"><i class="fa-solid fa-door-open text-premium-600"></i> Salle: Pré-K Sud</div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button class="w-14 h-14 flex items-center justify-center rounded-3xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 border border-emerald-100 dark:border-emerald-500/20 hover:bg-emerald-600 hover:text-white transition-all">
+                        <i class="fa-solid fa-phone"></i>
+                    </button>
+                    <button class="w-14 h-14 flex items-center justify-center rounded-3xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 border border-blue-100 dark:border-blue-500/20 hover:bg-blue-600 hover:text-white transition-all">
+                        <i class="fa-solid fa-envelope"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <div class="lg:col-span-7 space-y-8">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-panel p-8 rounded-[2.5rem] hover:shadow-2xl transition-all group">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-orange-500/10 text-orange-600 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-hand-dots"></i>
+                            </div>
+                            <h3 class="font-black text-lg tracking-tight">Santé & Alertes</h3>
+                        </div>
+                        <ul class="space-y-3">
+                            <li class="flex items-center gap-3 text-sm font-bold text-slate-600 dark:text-slate-300">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Allergie: Arachides (Sévère)
+                            </li>
+                            <li class="flex items-center gap-3 text-sm font-bold text-slate-600 dark:text-slate-300">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Asthme (Inhalateur requis)
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="glass-panel p-8 rounded-[2.5rem] hover:shadow-2xl transition-all group">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-500/10 text-blue-600 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-shield-heart"></i>
+                            </div>
+                            <h3 class="font-black text-lg tracking-tight">Garde & Parents</h3>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-sm font-black text-slate-900 dark:text-white">Sarah & Mike Anderson</p>
+                            <p class="text-[11px] font-bold text-slate-400 uppercase">Garde partagée autorisée</p>
+                            <p class="text-xs text-premium-600 font-bold mt-2 underline cursor-pointer">Voir documents juridiques</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-8 rounded-[3rem]">
+                    <div class="flex justify-between items-center mb-10">
+                        <h3 class="text-xl font-black tracking-tight">Performances & Éveil</h3>
+                        <select class="bg-slate-50 dark:bg-slate-800 border-none text-xs font-bold rounded-xl px-4 py-2 outline-none">
+                            <option>Derniers 30 jours</option>
+                            <option>Dernier trimestre</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-7 gap-4">
+                        <div class="h-32 bg-emerald-500/20 rounded-2xl border-b-4 border-emerald-500 flex flex-col items-center justify-center gap-2">
+                            <span class="text-[10px] font-black text-emerald-700 uppercase">Social</span>
+                            <span class="text-xl font-black text-emerald-900 dark:text-emerald-400">9.2</span>
+                        </div>
+                        <div class="h-32 bg-blue-500/20 rounded-2xl border-b-4 border-blue-500 flex flex-col items-center justify-center gap-2">
+                            <span class="text-[10px] font-black text-blue-700 uppercase">Langue</span>
+                            <span class="text-xl font-black text-blue-900 dark:text-blue-400">8.5</span>
+                        </div>
+                        <div class="h-32 bg-purple-500/20 rounded-2xl border-b-4 border-purple-500 flex flex-col items-center justify-center gap-2">
+                            <span class="text-[10px] font-black text-purple-700 uppercase">Motricité</span>
+                            <span class="text-xl font-black text-purple-900 dark:text-purple-400">7.8</span>
+                        </div>
+                        </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5">
+                <div class="glass-panel rounded-[3rem] p-10 h-full">
+                    <h3 class="text-2xl font-black tracking-tighter mb-8">Flux d'Activité <span class="text-slate-300 ml-2">Live</span></h3>
+                    
+                    <div class="space-y-10 relative">
+                        <div class="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-emerald-500 via-slate-200 to-transparent dark:via-slate-800"></div>
+                        
+                        <div class="relative flex gap-8 group">
+                            <div class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 shadow-xl flex items-center justify-center text-emerald-600 z-10 border border-slate-100 dark:border-slate-800 transition-all group-hover:scale-110">
+                                <i class="fa-solid fa-utensils"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Aujourd'hui, 12:30</span>
+                                <h4 class="font-bold text-slate-900 dark:text-white text-md">Repas terminé</h4>
+                                <p class="text-sm text-slate-500 mt-1">A mangé 100% de son plat de pâtes et légumes. Très enthousiaste.</p>
+                            </div>
+                        </div>
+
+                        <div class="relative flex gap-8 group">
+                            <div class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 shadow-xl flex items-center justify-center text-blue-600 z-10 border border-slate-100 dark:border-slate-800 transition-all group-hover:scale-110">
+                                <i class="fa-solid fa-moon"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Aujourd'hui, 13:45</span>
+                                <h4 class="font-bold text-slate-900 dark:text-white text-md">Début de sieste</h4>
+                                <p class="text-sm text-slate-500 mt-1">S'est endormi calmement après l'histoire.</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-12 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
+                            <p class="text-xs font-bold text-slate-400 uppercase mb-4 text-center">Ajouter une note rapide</p>
+                            <div class="flex gap-2">
+                                <button class="flex-1 p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm hover:border-emerald-500 border border-transparent transition-all"><i class="fa-solid fa-smile text-emerald-500"></i></button>
+                                <button class="flex-1 p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm hover:border-red-500 border border-transparent transition-all"><i class="fa-solid fa-frown text-red-500"></i></button>
+                                <button class="flex-1 p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm hover:border-blue-500 border border-transparent transition-all"><i class="fa-solid fa-bed text-blue-500"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>
