@@ -47,9 +47,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-SIMPLE_JWT = {
-    'USER_ID_FIELD': 'uuid',
-}
+
 ROOT_URLCONF = "backend.urls"
 
 
@@ -68,6 +66,7 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "AUTH_HEADER_TYPES": ("Bearer",),
+    "USER_ID_FIELD": "user_id",
 }
 
 TEMPLATES = [

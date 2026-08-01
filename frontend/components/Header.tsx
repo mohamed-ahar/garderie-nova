@@ -1,13 +1,45 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import api from '../lib/axios';
+
+interface User {
+  full_name: string;
+  role_display: string;
+  email: string;
+}
 
 export default function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
+  const router = useRouter();
   const [time, setTime] = useState('');
   const [date, setDate] = useState('');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
+    // Check local storage for theme
+    const savedTheme = localStorage.getItem('garderie_theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      setIsDark(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setIsDark(false);
+      document.documentElement.classList.remove('dark');
+    }
+
+    const fetchUser = async () => {
+      try {
+        const response = await api.get('/api/me/');
+        setUser(response.data);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
+
+    fetchUser();
+
     const updateClock = () => {
       const now = new Date();
       setTime(now.toLocaleTimeString());
@@ -23,8 +55,23 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
     return () => clearInterval(interval);
   }, []);
 
+  const handleSignOut = (e: React.MouseEvent) => {
+    e.preventDefault();
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    router.push('/login');
+  };
+
   const toggleTheme = () => {
-    document.documentElement.classList.toggle('dark');
+    const newDark = !isDark;
+    setIsDark(newDark);
+    if (newDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('garderie_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('garderie_theme', 'light');
+    }
   };
 
   const toggleFullScreen = () => {
@@ -112,7 +159,11 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
                         <i className="fa-solid fa-expand text-slate-500 text-xs"></i>
                     </button>
                     <button onClick={toggleTheme} className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:text-emerald-500 transition-all active:scale-90 group shadow-sm">
-                        <i className="fa-solid fa-moon text-slate-500 text-xs"></i>
+                        {isDark ? (
+                            <i className="fa-solid fa-sun text-slate-500 text-xs"></i>
+                        ) : (
+                            <i className="fa-solid fa-moon text-slate-500 text-xs"></i>
+                        )}
                     </button>
                 </div>
 
@@ -123,8 +174,8 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
                             <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full"></div>
                         </div>
                         <div className="hidden sm:block text-left">
-                            <p className="text-[11px] font-bold text-slate-800 dark:text-slate-100 leading-tight">Walid</p>
-                            <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-medium uppercase tracking-tighter">Pro Plan</p>
+                            <p className="text-[11px] font-bold text-slate-800 dark:text-slate-100 leading-tight">{user ? user.full_name : 'Loading...'}</p>
+                            <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-medium uppercase tracking-tighter">{user ? user.role_display : '...'}</p>
                         </div>
                         <i className="fa-solid fa-chevron-down text-[8px] text-slate-400 group-hover:translate-y-0.5 transition-transform"></i>
                     </button>
@@ -132,17 +183,17 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
                     {userMenuOpen && (
                         <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-slate-900 rounded-[1.5rem] border border-slate-200 dark:border-emerald-500/20 shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-5 duration-200">
                             <div className="p-5 bg-gradient-to-br from-slate-50 to-white dark:from-emerald-950/20 dark:to-slate-900 border-b border-slate-100 dark:border-slate-800">
-                                <p className="text-sm font-black text-slate-800 dark:text-white">Walid</p>
-                                <p className="text-xs text-slate-500 dark:text-emerald-400/60">alex@nexus.com</p>
+                                <p className="text-sm font-black text-slate-800 dark:text-white">{user ? user.full_name : 'Loading...'}</p>
+                                <p className="text-xs text-slate-500 dark:text-emerald-400/60">{user ? user.email : '...'}</p>
                             </div>
                             <div className="p-2.5">
                                 <a href="#" className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-xl transition-colors group">
                                     <i className="fa-solid fa-user-circle text-lg opacity-40 group-hover:opacity-100"></i> Profile
                                 </a>
                                 <div className="my-2 border-t border-slate-100 dark:border-slate-800"></div>
-                                <a href="/" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors">
+                                <button onClick={handleSignOut} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors">
                                     <i className="fa-solid fa-power-off"></i> Sign Out
-                                </a>
+                                </button>
                             </div>
                         </div>
                     )}
