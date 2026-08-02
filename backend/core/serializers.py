@@ -1,49 +1,111 @@
 from rest_framework import serializers
+from datetime import date
 from .models import User, Group, Room, Center, Child, EducatorProfile, StaffAssignment
 
+
 class UserSerializer(serializers.ModelSerializer):
-    role_display = serializers.CharField(source='get_role_type_display', read_only=True)
-    
+    role_display = serializers.CharField(source="get_role_type_display", read_only=True)
+
     class Meta:
         model = User
-        fields = ('user_id', 'email', 'full_name', 'role_type', 'role_display')
+        fields = ("user_id", "email", "full_name", "role_type", "role_display")
+
 
 class CenterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Center
-        fields = '__all__'
+        fields = "__all__"
+
 
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
-        fields = '__all__'
+        fields = "__all__"
+
 
 class GroupSerializer(serializers.ModelSerializer):
-    ratio_category_display = serializers.CharField(source='get_ratio_category_display', read_only=True)
-    room_name = serializers.CharField(source='room.name', read_only=True)
+    room_name = serializers.CharField(source="room.name", read_only=True)
     center = serializers.PrimaryKeyRelatedField(read_only=True)
+    children_ages = serializers.SerializerMethodField()
 
     class Meta:
         model = Group
-        fields = '__all__'
+        fields = "__all__"
+
+    def get_children_ages(self, obj):
+        ages = []
+        today = date.today()
+        for child in obj.enrolled_children.all():
+            age_months = (
+                (today.year - child.birth_date.year) * 12
+                + today.month
+                - child.birth_date.month
+            )
+            if age_months < 24:
+                ages.append(f"{age_months}m")
+            else:
+                years = age_months // 12
+                rem_months = age_months % 12
+                if rem_months > 0:
+                    ages.append(f"{years}y {rem_months}m")
+                else:
+                    ages.append(f"{years}y")
+        return ages
+
 
 class ChildSerializer(serializers.ModelSerializer):
+    age_label = serializers.SerializerMethodField()
+
     class Meta:
         model = Child
-        fields = ['child_id', 'first_name', 'last_name', 'birth_date', 'profile_photo_url', 'assigned_group']
+        fields = [
+            "child_id",
+            "first_name",
+            "last_name",
+            "birth_date",
+            "profile_photo_url",
+            "assigned_group",
+            "age_label",
+        ]
+
+    def get_age_label(self, obj):
+        today = date.today()
+        age_months = (
+            (today.year - obj.birth_date.year) * 12 + today.month - obj.birth_date.month
+        )
+        if age_months < 24:
+            return f"{age_months}m"
+        else:
+            years = age_months // 12
+            rem_months = age_months % 12
+            if rem_months > 0:
+                return f"{years}y {rem_months}m"
+            else:
+                return f"{years}y"
+
 
 class EducatorSerializer(serializers.ModelSerializer):
-    full_name = serializers.CharField(source='user.full_name', read_only=True)
-    user_id = serializers.UUIDField(source='user.user_id', read_only=True)
-    
+    full_name = serializers.CharField(source="user.full_name", read_only=True)
+    user_id = serializers.UUIDField(source="user.user_id", read_only=True)
+
     class Meta:
         model = EducatorProfile
-        fields = ['user_id', 'full_name', 'qualification_level', 'color_code']
+        fields = ["user_id", "full_name", "color_code"]
+
 
 class StaffAssignmentSerializer(serializers.ModelSerializer):
-    educator_name = serializers.CharField(source='educator.user.full_name', read_only=True)
-    
+    educator_name = serializers.CharField(
+        source="educator.user.full_name", read_only=True
+    )
+
     class Meta:
         model = StaffAssignment
-        fields = ['assignment_id', 'educator', 'educator_name', 'group', 'check_in_time', 'check_out_time', 'is_active']
-
+        fields = [
+            "assignment_id",
+            "educator",
+            "educator_name",
+            "group",
+            "check_in_time",
+            "check_out_time",
+            "is_active",
+        ]

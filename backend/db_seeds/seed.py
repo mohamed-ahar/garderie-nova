@@ -1,17 +1,33 @@
+from multiprocessing import parent_process
 import os
 import django
 import random
 from datetime import timedelta, date
 from django.utils import timezone
+import random
 from core.models import (
-    User, OwnerProfile, DirectorProfile, EducatorProfile, ParentProfile,
-    Organization, Center, Room, Group, 
-    Child, ParentChildRelationship, AttendanceLog
+    User,
+    OwnerProfile,
+    DirectorProfile,
+    EducatorProfile,
+    ParentProfile,
+    Organization,
+    Center,
+    Room,
+    Group,
+    Child,
+    ParentChildRelationship,
+    AttendanceLog,
 )
+from names_generator import generate_name
+
+n_educators = 4
+n_parents = 20
+n_children = 20
+
 
 def clean_db():
     print("🧹 Cleaning old data...")
-    # Delete in specific order to avoid foreign key errors
     AttendanceLog.objects.all().delete()
     ParentChildRelationship.objects.all().delete()
     Child.objects.all().delete()
@@ -22,134 +38,98 @@ def clean_db():
     User.objects.all().delete()
     print("✅ Database cleaned.")
 
+
 def create_users():
     print("👥 Creating Users...")
-    
-    # 1. Network Owner
+
     owner_user = User.objects.create_user(
-        email='owner@nova.com', 
-        password='password123',
-        full_name='Jean Owner',
-        phone_number='555-0001',
-        role_type='owner'
+        email="owner@nova.com",
+        password="password123",
+        full_name="Jean Owner",
+        phone_number="555-0001",
+        role_type="owner",
     )
     OwnerProfile.objects.create(user=owner_user, office_address="100 Main St")
 
-    # 2. Director
     dir_user = User.objects.create_user(
-        email='director@nova.com', 
-        password='password123',
-        full_name='Sarah Director',
-        phone_number='555-0002',
-        role_type='director'
+        email="director@nova.com",
+        password="password123",
+        full_name="Sarah Director",
+        phone_number="555-0002",
+        role_type="director",
     )
-    DirectorProfile.objects.create(user=dir_user, qualification_cert="Master ECE", hired_at=date(2020, 1, 1))
+    DirectorProfile.objects.create(
+        user=dir_user, qualification_cert="Master ECE", hired_at=date(2020, 1, 1)
+    )
+    educators = []
+    for i in range(n_educators):
+        educators.append(
+            User.objects.create_user(
+                email=f"educator{i}@nova.com",
+                password="password123",
+                full_name=f"Educator {i}",
+                role_type="educator",
+                phone_number="555-1001",
+            )
+        )
+    parents = []
+    for i in range(n_parents):
+        parents.append(
+            User.objects.create_user(
+                email=f"parent{i}@gmail.com",
+                password="password123",
+                full_name="Sophie Parent",
+                role_type="parent",
+                phone_number="555-2001",
+            )
+        )
+        ParentProfile.objects.create(user=parents[i], home_address="123 Maple St")
 
-    # 3. Educators
-    edu1 = User.objects.create_user(
-        email='emma@nova.com', password='password123', full_name='Emma Educator', role_type='educator', phone_number='555-1001'
-    )
-    edu2 = User.objects.create_user(
-        email='lucas@nova.com', password='password123', full_name='Lucas Assistant', role_type='educator', phone_number='555-1002'
-    )
+    return owner_user, dir_user, educators, parents
 
-    # 4. Parents
-    par1 = User.objects.create_user(
-        email='mom@gmail.com', password='password123', full_name='Sophie Parent', role_type='parent', phone_number='555-2001'
-    )
-    ParentProfile.objects.create(user=par1, home_address="123 Maple St")
-
-    par2 = User.objects.create_user(
-        email='dad@gmail.com', password='password123', full_name='Marc Parent', role_type='parent', phone_number='555-2002'
-    )
-    ParentProfile.objects.create(user=par2, home_address="456 Oak Ave")
-
-    return owner_user, dir_user, [edu1, edu2], [par1, par2]
 
 def run_seed():
     clean_db()
     owner, director, educators, parents = create_users()
 
-    print("🏢 Creating Organization & Center...")
-    # Create Org
-    org = Organization.objects.create(name="Garderie Nova Inc.", owner=owner.owner_profile)
+    org = Organization.objects.create(
+        name="Garderie Nova Inc.", owner=owner.owner_profile
+    )
 
-    # Create Center
     center = Center.objects.create(
         organization=org,
         name="Nova Downtown",
         address="500 King Street, Moncton, NB",
-        director=director.director_profile
+        director=director.director_profile,
     )
-
-    # Assign Educators to this center
-    EducatorProfile.objects.create(user=educators[0], center=center, qualification_level="Level 2", color_code="#EF4444")
-    EducatorProfile.objects.create(user=educators[1], center=center, qualification_level="Level 1", color_code="#3B82F6")
-
-    print("🚪 Creating Rooms & Groups...")
-    
-    # Room 1: Infants
-    r1 = Room.objects.create(center=center, name="Blue Room (Infants)", fire_capacity=10)
-    g1 = Group.objects.create(
-        center=center, room=r1, name="The Little Stars", 
-        ratio_category='UNDER_24M'
-    )
-
-    # Room 2: Mixed
-    r2 = Room.objects.create(center=center, name="Green Room (Mixed)", fire_capacity=20)
-    g2 = Group.objects.create(
-        center=center, room=r2, name="The Explorers", 
-        ratio_category='MIXED_2_TO_4'
-    )
-
-    # Room 3: School Age
-    r3 = Room.objects.create(center=center, name="Gymnasium", fire_capacity=30)
-    g3 = Group.objects.create(
-        center=center, room=r3, name="After School Club", 
-        ratio_category='SCHOOL_AGE_5_PLUS'
-    )
-
-    print("👶 Creating Children with NB Ratio Points...")
-    
+    for i in range(n_educators):
+        EducatorProfile.objects.create(
+            user=educators[i],
+            center=center,
+            color_code="#EF4444",
+        )
+    rooms = [
+        Room.objects.create(center=center, name=generate_name(), fire_capacity=10)
+        for i in range(10)
+    ]
     today = date.today()
-    
-    # Child 1: Baby (6 months old) -> 300 Points
-    c1 = Child.objects.create(
-        center=center, assigned_group=g1, first_name="Baby", last_name="Liam",
-        birth_date=today - timedelta(days=180), current_ratio_weight=300
-    )
-    
-    # Child 2: 2 Year Old -> 200 Points
-    c2 = Child.objects.create(
-        center=center, assigned_group=g2, first_name="Toddler", last_name="Noah",
-        birth_date=today - timedelta(days=365*2 + 10), current_ratio_weight=200
-    )
-
-    # Child 3: 3 Year Old -> 125 Points
-    c3 = Child.objects.create(
-        center=center, assigned_group=g2, first_name="Kid", last_name="Emma",
-        birth_date=today - timedelta(days=365*3 + 10), current_ratio_weight=125
-    )
-
-    # Child 4: 4 Year Old -> 100 Points
-    c4 = Child.objects.create(
-        center=center, assigned_group=g2, first_name="Big", last_name="Olivia",
-        birth_date=today - timedelta(days=365*4 + 10), current_ratio_weight=100
-    )
-
-    # Child 5: School Age -> Count Based
-    c5 = Child.objects.create(
-        center=center, assigned_group=g3, first_name="Student", last_name="Lucas",
-        birth_date=today - timedelta(days=365*7), current_ratio_weight=1
-    )
-
-    print("🔗 Linking Parents...")
-    # Link Mom to Baby and Toddler
-    ParentChildRelationship.objects.create(parent=parents[0].parent_profile, child=c1, relationship_type="Mother", is_emergency_contact=True)
-    ParentChildRelationship.objects.create(parent=parents[0].parent_profile, child=c2, relationship_type="Mother", is_emergency_contact=True)
-    
-    # Link Dad to Kid Emma
-    ParentChildRelationship.objects.create(parent=parents[1].parent_profile, child=c3, relationship_type="Father", is_emergency_contact=True)
+    for i in range(n_children):
+        first_name, _ = generate_name(style="capital").split(" ")
+        last_name = f"Child {i}"
+        c1 = Child.objects.create(
+            center=center,
+            assigned_group=None,
+            first_name=first_name,
+            last_name=last_name,
+            birth_date=today - timedelta(days=180 * int(random.uniform(0, 20))),
+        )
+        print("🔗 Linking Parent : ", i)
+        ParentChildRelationship.objects.create(
+            parent=parents[0].parent_profile,
+            child=c1,
+            relationship_type="Mother",
+            is_emergency_contact=True,
+        )
 
     print("✅ SEEDING COMPLETE!")
     print("------------------------------------------------")
@@ -160,5 +140,6 @@ def run_seed():
     print(f"Parent: mom@gmail.com / password123")
     print("------------------------------------------------")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     run_seed()

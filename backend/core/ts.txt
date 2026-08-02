@@ -43,7 +43,6 @@ Table educators {
   user_id uuid [pk, ref: - users.user_id]
   center_id uuid [ref: > centers.center_id]
   
-  qualification_level varchar // "Level 1", "ECE"
   color_code varchar // For calendar UI
   is_active_in_ratio boolean // Do they count towards legal limits?
 }

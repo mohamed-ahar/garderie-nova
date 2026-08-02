@@ -101,9 +101,7 @@ class AssignChildView(APIView):
         child.assigned_group = group
         child.save()
         
-        # Update group occupancy
-        group.current_occupancy = Child.objects.filter(assigned_group=group).count()
-        group.save()
+        group.recalculate_ratios()
 
         return Response({'status': 'assigned'}, status=status.HTTP_200_OK)
 
@@ -120,8 +118,7 @@ class RemoveChildView(APIView):
             
             # Update group occupancy
             group = get_object_or_404(Group, group_id=group_id)
-            group.current_occupancy = Child.objects.filter(assigned_group=group).count()
-            group.save()
+            group.recalculate_ratios()
             
             return Response({'status': 'removed'}, status=status.HTTP_200_OK)
         return Response({'error': 'Child not in this group'}, status=status.HTTP_400_BAD_REQUEST)
@@ -143,7 +140,7 @@ class AssignEducatorView(APIView):
         
         # Update group educator count
         group.current_educators = StaffAssignment.objects.filter(group=group, is_active=True).count()
-        group.save()
+        group.recalculate_ratios()
 
         return Response({'status': 'assigned'}, status=status.HTTP_200_OK)
 
@@ -162,7 +159,7 @@ class RemoveEducatorView(APIView):
             
         # Update group educator count
         group.current_educators = StaffAssignment.objects.filter(group=group, is_active=True).count()
-        group.save()
+        group.recalculate_ratios()
 
         return Response({'status': 'removed'}, status=status.HTTP_200_OK)
 

@@ -10,6 +10,9 @@ interface Group {
   ratio_category_display: string;
   current_occupancy: number;
   current_educators: number;
+  current_total_points: number;
+  required_educators: number;
+  is_compliant: boolean;
 }
 
 interface Child {
@@ -17,6 +20,8 @@ interface Child {
   first_name: string;
   last_name: string;
   profile_photo_url: string;
+  age_label: string;
+  current_ratio_weight: number;
 }
 
 interface Educator {
@@ -153,15 +158,32 @@ export default function GroupManagePage({ params }: { params: Promise<{ id: stri
               <div>
                   <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{group.name}</h1>
                   <p className="text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider text-xs mt-1">{group.ratio_category_display}</p>
+                  <div className="mt-4 flex items-center gap-3">
+                      <span className={`px-4 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider ${group.is_compliant ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'}`}>
+                          {group.is_compliant ? 'Compliant' : 'Ratio Issue'}
+                      </span>
+                      {!group.is_compliant && (
+                          <span className="text-xs font-bold text-red-500">
+                             Need {group.required_educators} Educators
+                          </span>
+                      )}
+                  </div>
               </div>
               <div className="flex gap-4">
-                  <div className="px-6 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-center">
-                      <p className="text-xs font-black text-slate-400 uppercase tracking-wider">Children</p>
-                      <p className="text-2xl font-black text-slate-900 dark:text-white">{group.current_occupancy}</p>
+                  <div className="px-6 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-center min-w-[100px]">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Total Ratio</p>
+                      <p className="text-2xl font-black text-slate-900 dark:text-white">{group.current_total_points}</p>
+                      <p className="text-[10px] text-slate-500 font-bold">Points</p>
                   </div>
-                  <div className="px-6 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-center">
-                      <p className="text-xs font-black text-slate-400 uppercase tracking-wider">Educators</p>
-                      <p className="text-2xl font-black text-slate-900 dark:text-white">{group.current_educators}</p>
+                   <div className="px-6 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-center min-w-[100px]">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Required</p>
+                      <p className="text-2xl font-black text-slate-900 dark:text-white">{group.required_educators}</p>
+                      <p className="text-[10px] text-slate-500 font-bold">Educators</p>
+                  </div>
+                  <div className="px-6 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-center min-w-[100px]">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Present</p>
+                      <p className={`text-2xl font-black ${group.current_educators < group.required_educators ? 'text-red-500' : 'text-emerald-500'}`}>{group.current_educators}</p>
+                      <p className="text-[10px] text-slate-500 font-bold">Educators</p>
                   </div>
               </div>
           </div>
@@ -208,7 +230,7 @@ export default function GroupManagePage({ params }: { params: Promise<{ id: stri
           <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col">
               <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
                   <h2 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
-                      <i className="fa-solid fa-children text-rose-500"></i> Children
+                      <i className="fa-solid fa-children text-rose-500"></i> Children <span className="text-xs text-slate-400 ml-2">({group.current_occupancy})</span>
                   </h2>
                   <button onClick={() => setShowChildModal(true)} className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors shadow-sm">
                       <i className="fa-solid fa-plus text-xs"></i>
@@ -227,6 +249,10 @@ export default function GroupManagePage({ params }: { params: Promise<{ id: stri
                                       </div>
                                       <div>
                                           <p className="text-sm font-bold text-slate-900 dark:text-white">{child.first_name} {child.last_name}</p>
+                                          <div className="flex items-center gap-2 mt-0.5">
+                                             <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-lg">{child.age_label}</span>
+                                             <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-lg">Ratio: {child.current_ratio_weight}</span>
+                                          </div>
                                       </div>
                                   </div>
                                   <button onClick={() => removeChild(child.child_id)} className="text-slate-400 hover:text-red-500 transition-colors p-2">
@@ -287,6 +313,7 @@ export default function GroupManagePage({ params }: { params: Promise<{ id: stri
                               </div>
                               <div>
                                   <p className="font-bold text-slate-800 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">{c.first_name} {c.last_name}</p>
+                                  <p className="text-xs text-slate-500">{c.age_label}</p>
                               </div>
                           </button>
                         ))

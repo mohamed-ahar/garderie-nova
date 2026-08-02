@@ -17,7 +17,7 @@ export default function DashboardLayout({
       
       <div className={`lg:ml-72 min-h-screen transition-all duration-500 ease-in-out`}>
         <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-        <main className="p-2 md:p-10 space-y-10 max-w-[1600px] mx-auto">
+        <main className="p-2 md:p-6 space-y-10 max-w-[1600px] mx-auto">
             {children}
         </main>
       </div>

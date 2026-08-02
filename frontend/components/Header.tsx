@@ -202,7 +202,7 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
         </div>
 
         {/* Bottom Nav Section */}
-        <div className="px-6 md:px-10 py-2 flex items-center justify-center bg-slate-50/50 dark:bg-slate-800/20">
+        <div className="px-6 md:px-10 py-2 flex items-center justify-center bg-slate-50/50 dark:bg-slate-800/20 hidden">
             <nav className="flex items-center gap-2 md:gap-3 p-2 bg-slate-900/90 backdrop-blur-2xl rounded-[2rem] border border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.4)] overflow-hidden max-w-full">
                 <a href="#" className="relative flex items-center gap-3 md:gap-4 px-5 md:px-8 py-3 rounded-[1.5rem] bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-[0_10px_20px_rgba(16,185,129,0.3)] group/nav overflow-hidden shrink-0 transition-transform active:scale-95">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/nav:animate-[shimmer_2s_infinite]"></div>

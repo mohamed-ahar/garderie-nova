@@ -14,6 +14,8 @@ interface Group {
   current_occupancy: number;
   current_educators: number;
   is_compliant: boolean;
+  children_ages: string[];
+  required_educators: number;
 }
 
 interface Room {
@@ -204,6 +206,9 @@ export default function GroupsPage() {
                   Occupancy
                 </th>
                 <th className="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                  Children Ages
+                </th>
+                <th className="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
                   Status
                 </th>
                 <th className="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">
@@ -215,7 +220,7 @@ export default function GroupsPage() {
               {loading ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-8 py-8 text-center text-slate-500"
                   >
                     Loading groups...
@@ -224,7 +229,7 @@ export default function GroupsPage() {
               ) : groups.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-8 py-8 text-center text-slate-500"
                   >
                     No groups found. Create one to get started.
@@ -270,6 +275,20 @@ export default function GroupsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-5">
+                      <div className="flex flex-wrap gap-1 max-w-[150px]">
+                        {group.children_ages && group.children_ages.length > 0 ? (
+                           <>
+                           {group.children_ages.slice(0, 4).map((age, i) => (
+                              <span key={i} className="text-[10px] px-1.5 py-0.5 bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 rounded text-blue-600 dark:text-blue-400 font-bold whitespace-nowrap">{age}</span>
+                           ))}
+                           {group.children_ages.length > 4 && <span className="text-[10px] text-slate-400 font-bold px-1">+{group.children_ages.length - 4}</span>}
+                           </>
+                        ) : (
+                            <span className="text-xs text-slate-400 italic">No children</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
                       <div className="flex items-center gap-2">
                         <span
                           className={`w-2 h-2 rounded-full ${
@@ -283,7 +302,7 @@ export default function GroupsPage() {
                               : "text-red-600 dark:text-red-400"
                           }`}
                         >
-                          {group.is_compliant ? "Compliant" : "Issue"}
+                          {group.is_compliant ? "Compliant" : `Issue (Req: ${group.required_educators})`}
                         </span>
                       </div>
                     </td>
