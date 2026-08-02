@@ -280,6 +280,8 @@ class Group(models.Model):
         else:
             self.required_educators = integer_part
 
+        self.current_total_points = int(total_educators_factor * 1000)
+
         if highest_factor_in_group > 0:
             # n7esbo l max capacity 3la hsab a3la ratio factor f grp
             self.calculated_max_capacity = int(2.0 / highest_factor_in_group)

@@ -7,12 +7,12 @@ import api from '../../../../lib/axios';
 interface Group {
   group_id: string;
   name: string;
-  ratio_category_display: string;
   current_occupancy: number;
   current_educators: number;
   current_total_points: number;
   required_educators: number;
   is_compliant: boolean;
+  calculated_max_capacity: number;
 }
 
 interface Child {
@@ -21,7 +21,6 @@ interface Child {
   last_name: string;
   profile_photo_url: string;
   age_label: string;
-  current_ratio_weight: number;
 }
 
 interface Educator {
@@ -140,10 +139,6 @@ export default function GroupManagePage({ params }: { params: Promise<{ id: stri
 
   if (!group) return <div className="p-8 text-center">Loading...</div>;
 
-  // Filter available children (not already in THIS group - simplified logic, ideally filter those in NO group)
-  // For now, list all, but maybe disable those already assigned.
-  // Actually, backend ChildListView returns all in center.
-  // Let's just filter out those already in assignedChildren list for the modal UI
   const availableChildren = allChildren.filter(c => !assignedChildren.find(ac => ac.child_id === c.child_id));
   const availableEducators = allEducators.filter(e => !assignedEducators.find(ae => ae.user_id === e.user_id));
 
@@ -157,33 +152,35 @@ export default function GroupManagePage({ params }: { params: Promise<{ id: stri
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
                   <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{group.name}</h1>
-                  <p className="text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider text-xs mt-1">{group.ratio_category_display}</p>
+                  <p className="text-slate-500 font-bold uppercase tracking-wider text-[10px] mt-1">
+                      Capacité Max: <span className="text-emerald-600 dark:text-emerald-400">{group.calculated_max_capacity} enfants</span>
+                  </p>
                   <div className="mt-4 flex items-center gap-3">
                       <span className={`px-4 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider ${group.is_compliant ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'}`}>
-                          {group.is_compliant ? 'Compliant' : 'Ratio Issue'}
+                          {group.is_compliant ? 'Conforme' : 'Non Conforme'}
                       </span>
                       {!group.is_compliant && (
                           <span className="text-xs font-bold text-red-500">
-                             Need {group.required_educators} Educators
+                             {group.current_educators < group.required_educators ? `Besoin de ${group.required_educators} éducateurs` : 'Vérifiez le mixage ou la capacité'}
                           </span>
                       )}
                   </div>
               </div>
               <div className="flex gap-4">
                   <div className="px-6 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-center min-w-[100px]">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Total Ratio</p>
-                      <p className="text-2xl font-black text-slate-900 dark:text-white">{group.current_total_points}</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Ratio Total</p>
+                      <p className="text-2xl font-black text-slate-900 dark:text-white">{(group.current_total_points / 1000).toFixed(3)}</p>
                       <p className="text-[10px] text-slate-500 font-bold">Points</p>
                   </div>
                    <div className="px-6 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-center min-w-[100px]">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Required</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Requis</p>
                       <p className="text-2xl font-black text-slate-900 dark:text-white">{group.required_educators}</p>
-                      <p className="text-[10px] text-slate-500 font-bold">Educators</p>
+                      <p className="text-[10px] text-slate-500 font-bold">Éducateurs</p>
                   </div>
                   <div className="px-6 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-center min-w-[100px]">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Present</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Présents</p>
                       <p className={`text-2xl font-black ${group.current_educators < group.required_educators ? 'text-red-500' : 'text-emerald-500'}`}>{group.current_educators}</p>
-                      <p className="text-[10px] text-slate-500 font-bold">Educators</p>
+                      <p className="text-[10px] text-slate-500 font-bold">Éducateurs</p>
                   </div>
               </div>
           </div>
@@ -194,7 +191,7 @@ export default function GroupManagePage({ params }: { params: Promise<{ id: stri
           <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col">
               <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
                   <h2 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
-                      <i className="fa-solid fa-user-tie text-emerald-500"></i> Educators
+                      <i className="fa-solid fa-user-tie text-emerald-500"></i> Éducateurs
                   </h2>
                   <button onClick={() => setShowEducatorModal(true)} className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors shadow-sm">
                       <i className="fa-solid fa-plus text-xs"></i>
@@ -202,7 +199,7 @@ export default function GroupManagePage({ params }: { params: Promise<{ id: stri
               </div>
               <div className="p-4 flex-1 overflow-y-auto max-h-[500px]">
                   {assignedEducators.length === 0 ? (
-                      <p className="text-center text-slate-400 py-8 text-sm">No educators assigned.</p>
+                      <p className="text-center text-slate-400 py-8 text-sm">Aucun éducateur assigné.</p>
                   ) : (
                       <div className="space-y-3">
                           {assignedEducators.map(educator => (
@@ -230,7 +227,7 @@ export default function GroupManagePage({ params }: { params: Promise<{ id: stri
           <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col">
               <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
                   <h2 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
-                      <i className="fa-solid fa-children text-rose-500"></i> Children <span className="text-xs text-slate-400 ml-2">({group.current_occupancy})</span>
+                      <i className="fa-solid fa-children text-rose-500"></i> Enfants <span className="text-xs text-slate-400 ml-2">({group.current_occupancy}/{group.calculated_max_capacity})</span>
                   </h2>
                   <button onClick={() => setShowChildModal(true)} className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors shadow-sm">
                       <i className="fa-solid fa-plus text-xs"></i>
@@ -238,7 +235,7 @@ export default function GroupManagePage({ params }: { params: Promise<{ id: stri
               </div>
               <div className="p-4 flex-1 overflow-y-auto max-h-[500px]">
                   {assignedChildren.length === 0 ? (
-                      <p className="text-center text-slate-400 py-8 text-sm">No children enrolled.</p>
+                      <p className="text-center text-slate-400 py-8 text-sm">Aucun enfant inscrit.</p>
                   ) : (
                       <div className="space-y-3">
                           {assignedChildren.map(child => (
@@ -251,7 +248,6 @@ export default function GroupManagePage({ params }: { params: Promise<{ id: stri
                                           <p className="text-sm font-bold text-slate-900 dark:text-white">{child.first_name} {child.last_name}</p>
                                           <div className="flex items-center gap-2 mt-0.5">
                                              <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-lg">{child.age_label}</span>
-                                             <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-lg">Ratio: {child.current_ratio_weight}</span>
                                           </div>
                                       </div>
                                   </div>

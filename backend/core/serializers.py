@@ -55,6 +55,8 @@ class GroupSerializer(serializers.ModelSerializer):
 
 class ChildSerializer(serializers.ModelSerializer):
     age_label = serializers.SerializerMethodField()
+    group_name = serializers.CharField(source="assigned_group.name", read_only=True)
+    parents = serializers.SerializerMethodField()
 
     class Meta:
         model = Child
@@ -65,7 +67,11 @@ class ChildSerializer(serializers.ModelSerializer):
             "birth_date",
             "profile_photo_url",
             "assigned_group",
+            "group_name",
             "age_label",
+            "medical_info",
+            "status",
+            "parents",
         ]
 
     def get_age_label(self, obj):
@@ -82,6 +88,18 @@ class ChildSerializer(serializers.ModelSerializer):
                 return f"{years}y {rem_months}m"
             else:
                 return f"{years}y"
+
+    def get_parents(self, obj):
+        relationships = obj.parent_relationships.all()
+        parents_data = []
+        for rel in relationships:
+            parents_data.append({
+                "full_name": rel.parent.user.full_name,
+                "relationship_type": rel.relationship_type,
+                "is_emergency_contact": rel.is_emergency_contact,
+                "phone": rel.parent.user.phone_number
+            })
+        return parents_data
 
 
 class EducatorSerializer(serializers.ModelSerializer):

@@ -7,8 +7,6 @@ import api from "../../../lib/axios";
 interface Group {
   group_id: string;
   name: string;
-  ratio_category: string;
-  ratio_category_display: string;
   room: string | null;
   room_name: string;
   current_occupancy: number;
@@ -16,6 +14,7 @@ interface Group {
   is_compliant: boolean;
   children_ages: string[];
   required_educators: number;
+  calculated_max_capacity: number;
 }
 
 interface Room {
@@ -30,7 +29,6 @@ export default function GroupsPage() {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    ratio_category: "UNDER_24M",
     room: "",
   });
 
@@ -70,7 +68,6 @@ export default function GroupsPage() {
     try {
       const payload: any = {
         name: formData.name,
-        ratio_category: formData.ratio_category,
       };
       if (formData.room) {
         payload.room = formData.room;
@@ -78,7 +75,7 @@ export default function GroupsPage() {
 
       await api.post("/api/groups/", payload);
       setShowForm(false);
-      setFormData({ name: "", ratio_category: "UNDER_24M", room: "" });
+      setFormData({ name: "", room: "" });
       fetchGroups();
     } catch (error) {
       console.error("Error creating group:", error);
@@ -91,10 +88,10 @@ export default function GroupsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-black text-emerald-600 dark:text-white tracking-tighter">
-            Group Management
+            Gestion des Groupes
           </h1>
           <p className="text-slate-500 text-sm dark:text-slate-400 font-medium">
-            Manage daycare groups and ratios.
+            Gérez les groupes de la garderie et les ratios.
           </p>
         </div>
         <button
@@ -102,54 +99,34 @@ export default function GroupsPage() {
           className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-sm font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/25 active:scale-95"
         >
           <i className={`fa-solid ${showForm ? "fa-minus" : "fa-plus"}`}></i>
-          {showForm ? "Cancel" : "Add Group"}
+          {showForm ? "Annuler" : "Ajouter un Groupe"}
         </button>
       </div>
 
       {showForm && (
         <div className="mb-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl p-8 animate-in fade-in slide-in-from-top-4">
           <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6">
-            Create New Group
+            Créer un Nouveau Groupe
           </h2>
           <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2"
-              >
-                Group Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all dark:text-white"
-                placeholder="e.g., Tiny Turtles"
-              />
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label
-                  htmlFor="ratio_category"
+                  htmlFor="name"
                   className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2"
                 >
-                  Ratio Category
+                  Nom du Groupe
                 </label>
-                <select
-                  id="ratio_category"
-                  name="ratio_category"
-                  value={formData.ratio_category}
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  value={formData.name}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all dark:text-white"
-                >
-                  <option value="UNDER_24M">Under 24 Months</option>
-                  <option value="MIXED_2_TO_4">Mixed 2-4 Years</option>
-                  <option value="SCHOOL_AGE_5_PLUS">School Age 5+</option>
-                </select>
+                  placeholder="ex: Les Petites Tortues"
+                />
               </div>
 
               <div>
@@ -157,7 +134,7 @@ export default function GroupsPage() {
                   htmlFor="room"
                   className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2"
                 >
-                  Assigned Room
+                  Salle Assignée
                 </label>
                 <select
                   id="room"
@@ -166,7 +143,7 @@ export default function GroupsPage() {
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all dark:text-white"
                 >
-                  <option value="">-- Select Room --</option>
+                  <option value="">-- Sélectionner une Salle --</option>
                   {rooms.map((room) => (
                     <option key={room.room_id} value={room.room_id}>
                       {room.name}
@@ -181,7 +158,7 @@ export default function GroupsPage() {
                 type="submit"
                 className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/25 transition-all active:scale-95"
               >
-                Create Group
+                Créer le Groupe
               </button>
             </div>
           </form>
@@ -194,22 +171,19 @@ export default function GroupsPage() {
             <thead>
               <tr className="bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
                 <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                  Group Name
+                  Nom du Groupe
                 </th>
                 <th className="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                  Category
+                  Salle
                 </th>
                 <th className="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                  Room
+                  Occupation
                 </th>
                 <th className="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                  Occupancy
+                  Âges des Enfants
                 </th>
                 <th className="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                  Children Ages
-                </th>
-                <th className="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                  Status
+                  Statut
                 </th>
                 <th className="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">
                   Actions
@@ -220,19 +194,19 @@ export default function GroupsPage() {
               {loading ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={6}
                     className="px-8 py-8 text-center text-slate-500"
                   >
-                    Loading groups...
+                    Chargement des groupes...
                   </td>
                 </tr>
               ) : groups.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={6}
                     className="px-8 py-8 text-center text-slate-500"
                   >
-                    No groups found. Create one to get started.
+                    Aucun groupe trouvé.
                   </td>
                 </tr>
               ) : (
@@ -242,10 +216,7 @@ export default function GroupsPage() {
                     className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors"
                   >
                     <td className="px-8 py-5">
-                      <a
-                        key={group.group_id}
-                        href={`/dashboard/groups/${group.group_id}`}
-                      >
+                      <Link href={`/dashboard/groups/${group.group_id}`}>
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-lg">
                             {group.name.charAt(0)}
@@ -254,24 +225,19 @@ export default function GroupsPage() {
                             {group.name}
                           </span>
                         </div>
-                      </a>
-                    </td>
-                    <td className="px-6 py-5">
-                      <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold rounded-lg uppercase">
-                        {group.ratio_category_display}
-                      </span>
+                      </Link>
                     </td>
                     <td className="px-6 py-5">
                       <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                        {group.room_name || "Unassigned"}
+                        {group.room_name || "Non assignée"}
                       </span>
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-slate-900 dark:text-white">
-                          {group.current_occupancy}
+                          {group.current_occupancy}/{group.calculated_max_capacity}
                         </span>
-                        <span className="text-xs text-slate-400">Children</span>
+                        <span className="text-xs text-slate-400">Enfants</span>
                       </div>
                     </td>
                     <td className="px-6 py-5">
@@ -284,7 +250,7 @@ export default function GroupsPage() {
                            {group.children_ages.length > 4 && <span className="text-[10px] text-slate-400 font-bold px-1">+{group.children_ages.length - 4}</span>}
                            </>
                         ) : (
-                            <span className="text-xs text-slate-400 italic">No children</span>
+                            <span className="text-xs text-slate-400 italic">Aucun enfant</span>
                         )}
                       </div>
                     </td>
@@ -302,7 +268,7 @@ export default function GroupsPage() {
                               : "text-red-600 dark:text-red-400"
                           }`}
                         >
-                          {group.is_compliant ? "Compliant" : `Issue (Req: ${group.required_educators})`}
+                          {group.is_compliant ? "Conforme" : `Alerte (R: ${group.required_educators})`}
                         </span>
                       </div>
                     </td>
@@ -311,7 +277,7 @@ export default function GroupsPage() {
                         href={`/dashboard/groups/${group.group_id}`}
                         className="inline-flex items-center justify-center px-4 py-2 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-xl hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors"
                       >
-                        Manage
+                        Gérer
                       </Link>
                     </td>
                   </tr>

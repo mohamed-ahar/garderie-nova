@@ -76,6 +76,21 @@ class ChildListView(generics.ListAPIView):
             return Child.objects.filter(center=center)
         return Child.objects.none()
 
+class ChildDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ChildSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'child_id'
+
+    def get_queryset(self):
+        # Allow access to children in the user's scope
+        user = self.request.user
+        if user.role_type == 'owner':
+            return Child.objects.all()
+        elif user.role_type == 'director' and hasattr(user, 'director_profile'):
+             return Child.objects.filter(center=user.director_profile.managed_center)
+        # TODO: Add logic for educators/parents
+        return Child.objects.none()
+
 class EducatorListView(generics.ListAPIView):
     serializer_class = EducatorSerializer
     permission_classes = [IsAuthenticated]

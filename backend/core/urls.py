@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     CurrentUserView, GroupListCreateView, GroupDetailView, RoomListView, CenterListView,
-    ChildListView, EducatorListView, AssignChildView, RemoveChildView,
+    ChildListView, ChildDetailView, EducatorListView, AssignChildView, RemoveChildView,
     AssignEducatorView, RemoveEducatorView, GroupChildrenView, GroupEducatorsView
 )
 
@@ -23,5 +23,6 @@ urlpatterns = [
     path('centers/', CenterListView.as_view(), name='center_list'),
     
     path('children/available/', ChildListView.as_view(), name='child_list'), # Assuming all for now
+    path('children/<uuid:child_id>/', ChildDetailView.as_view(), name='child_detail'),
     path('educators/available/', EducatorListView.as_view(), name='educator_list'),
 ]

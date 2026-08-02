@@ -2,12 +2,71 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { use } from 'react';
+import { use, useEffect, useState } from 'react';
+import api from '@/lib/axios';
+
+interface Parent {
+    full_name: string;
+    relationship_type: string;
+    is_emergency_contact: boolean;
+    phone: string;
+}
+
+interface Child {
+    child_id: string;
+    first_name: string;
+    last_name: string;
+    birth_date: string;
+    profile_photo_url: string | null;
+    assigned_group: string | null;
+    group_name: string | null;
+    age_label: string;
+    medical_info: Record<string, any>;
+    status: string;
+    parents: Parent[];
+}
 
 export default function StudentProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   // Unwrap params using React.use()
   const { id } = use(params);
+
+  const [student, setStudent] = useState<Child | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+      const fetchStudent = async () => {
+          try {
+              const response = await api.get(`/api/children/${id}/`);
+              setStudent(response.data);
+          } catch (err) {
+              console.error("Failed to fetch student:", err);
+              setError("Impossible de charger les données de l'enfant.");
+          } finally {
+              setLoading(false);
+          }
+      };
+
+      if (id) {
+          fetchStudent();
+      }
+  }, [id]);
+
+  if (loading) {
+      return <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+      </div>;
+  }
+
+  if (error || !student) {
+      return <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+          <div className="text-center">
+              <p className="text-red-500 font-bold mb-4">{error || "Enfant introuvable"}</p>
+              <Link href="/dashboard" className="px-4 py-2 bg-emerald-500 text-white rounded-xl">Retour au tableau de bord</Link>
+          </div>
+      </div>;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans"
@@ -41,7 +100,9 @@ export default function StudentProfilePage({ params }: { params: Promise<{ id: s
                 <div className="flex flex-col lg:flex-row items-center lg:items-end gap-10 relative">
                     <div className="relative">
                         <div className="w-40 h-40 rounded-[2.5rem] bg-gradient-to-tr from-emerald-500 to-blue-500 p-1 shadow-2xl overflow-hidden">
-                            <img className="w-full h-full object-cover rounded-[2.3rem] bg-white" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Liam" alt="Student" />
+                            <img className="w-full h-full object-cover rounded-[2.3rem] bg-white" 
+                                 src={student.profile_photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.first_name}`} 
+                                 alt="Student" />
                         </div>
                         <div className="absolute -bottom-3 -right-3 bg-white dark:bg-slate-900 p-3 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800">
                             <i className="fa-solid fa-camera text-emerald-600"></i>
@@ -50,13 +111,15 @@ export default function StudentProfilePage({ params }: { params: Promise<{ id: s
 
                     <div className="flex-1 text-center lg:text-left">
                         <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-4">
-                            <h1 className="text-5xl font-black tracking-tighter capitalize">{id.replace('-', ' ') || 'Liam Anderson'}</h1>
-                            <span className="inline-flex px-4 py-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-black uppercase tracking-widest">En classe</span>
+                            <h1 className="text-5xl font-black tracking-tighter capitalize">{student.first_name} {student.last_name}</h1>
+                            <span className="inline-flex px-4 py-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-black uppercase tracking-widest">
+                                {student.status}
+                            </span>
                         </div>
                         <div className="flex flex-wrap justify-center lg:justify-start gap-6 text-slate-500 dark:text-slate-400 font-medium">
-                            <div className="flex items-center gap-2"><i className="fa-solid fa-calendar-day text-premium-600"></i> 4 ans, 3 mois</div>
-                            <div className="flex items-center gap-2"><i className="fa-solid fa-id-card text-premium-600"></i> ID: NB-2025-081</div>
-                            <div className="flex items-center gap-2"><i className="fa-solid fa-door-open text-premium-600"></i> Salle: Pré-K Sud</div>
+                            <div className="flex items-center gap-2"><i className="fa-solid fa-calendar-day text-premium-600"></i> {student.age_label}</div>
+                            <div className="flex items-center gap-2"><i className="fa-solid fa-id-card text-premium-600"></i> ID: {student.child_id.slice(0, 8).toUpperCase()}</div>
+                            <div className="flex items-center gap-2"><i className="fa-solid fa-door-open text-premium-600"></i> Groupe: {student.group_name || "Non assigné"}</div>
                         </div>
                     </div>
 
@@ -85,12 +148,15 @@ export default function StudentProfilePage({ params }: { params: Promise<{ id: s
                                 <h3 className="font-black text-lg tracking-tight">Santé & Alertes</h3>
                             </div>
                             <ul className="space-y-3">
-                                <li className="flex items-center gap-3 text-sm font-bold text-slate-600 dark:text-slate-300">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span> Allergie: Arachides (Sévère)
-                                </li>
-                                <li className="flex items-center gap-3 text-sm font-bold text-slate-600 dark:text-slate-300">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Asthme (Inhalateur requis)
-                                </li>
+                                {Object.keys(student.medical_info).length > 0 ? (
+                                    Object.entries(student.medical_info).map(([key, value]) => (
+                                        <li key={key} className="flex items-center gap-3 text-sm font-bold text-slate-600 dark:text-slate-300">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span> {key}: {String(value)}
+                                        </li>
+                                    ))
+                                ) : (
+                                    <li className="text-sm text-slate-400 italic">Aucune information médicale.</li>
+                                )}
                             </ul>
                         </div>
 
@@ -101,10 +167,18 @@ export default function StudentProfilePage({ params }: { params: Promise<{ id: s
                                 </div>
                                 <h3 className="font-black text-lg tracking-tight">Garde & Parents</h3>
                             </div>
-                            <div className="space-y-1">
-                                <p className="text-sm font-black text-slate-900 dark:text-white">Sarah & Mike Anderson</p>
-                                <p className="text-[11px] font-bold text-slate-400 uppercase">Garde partagée autorisée</p>
-                                <p className="text-xs text-premium-600 font-bold mt-2 underline cursor-pointer">Voir documents juridiques</p>
+                            <div className="space-y-3">
+                                {student.parents.length > 0 ? (
+                                    student.parents.map((parent, idx) => (
+                                        <div key={idx} className="border-b border-slate-100 dark:border-slate-800 pb-2 last:border-0 last:pb-0">
+                                            <p className="text-sm font-black text-slate-900 dark:text-white">{parent.full_name}</p>
+                                            <p className="text-[11px] font-bold text-slate-400 uppercase">{parent.relationship_type} {parent.is_emergency_contact && "(Urgence)"}</p>
+                                            {parent.phone && <p className="text-xs text-slate-500">{parent.phone}</p>}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-sm text-slate-400 italic">Aucun parent associé.</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -120,15 +194,15 @@ export default function StudentProfilePage({ params }: { params: Promise<{ id: s
                         <div className="grid grid-cols-3 gap-4">
                             <div className="h-32 bg-emerald-500/20 rounded-2xl border-b-4 border-emerald-500 flex flex-col items-center justify-center gap-2">
                                 <span className="text-[10px] font-black text-emerald-700 uppercase">Social</span>
-                                <span className="text-xl font-black text-emerald-900 dark:text-emerald-400">9.2</span>
+                                <span className="text-xl font-black text-emerald-900 dark:text-emerald-400">N/A</span>
                             </div>
                             <div className="h-32 bg-blue-500/20 rounded-2xl border-b-4 border-blue-500 flex flex-col items-center justify-center gap-2">
                                 <span className="text-[10px] font-black text-blue-700 uppercase">Langue</span>
-                                <span className="text-xl font-black text-blue-900 dark:text-blue-400">8.5</span>
+                                <span className="text-xl font-black text-blue-900 dark:text-blue-400">N/A</span>
                             </div>
                             <div className="h-32 bg-purple-500/20 rounded-2xl border-b-4 border-purple-500 flex flex-col items-center justify-center gap-2">
                                 <span className="text-[10px] font-black text-purple-700 uppercase">Motricité</span>
-                                <span className="text-xl font-black text-purple-900 dark:text-purple-400">7.8</span>
+                                <span className="text-xl font-black text-purple-900 dark:text-purple-400">N/A</span>
                             </div>
                         </div>
                     </div>
