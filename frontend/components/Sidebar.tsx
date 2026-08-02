@@ -93,6 +93,10 @@ export default function Sidebar({ isOpen, toggleSidebar }: { isOpen: boolean; to
                             <i className="fa-solid fa-chart-line mr-3 opacity-70"></i>
                             <span>Center Management</span>
                         </Link>
+                        <Link href="/dashboard/groups" className="flex items-center px-4 py-3 text-[12px] font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
+                            <i className="fa-solid fa-users-rectangle mr-3 opacity-70"></i>
+                            <span>Group Management</span>
+                        </Link>
                     </div>
                 </div>
             </li>

@@ -1,0 +1,300 @@
+"use client";
+
+import { useState, useEffect, use } from 'react';
+import Link from 'next/link';
+import api from '../../../../lib/axios';
+
+interface Group {
+  group_id: string;
+  name: string;
+  ratio_category_display: string;
+  current_occupancy: number;
+  current_educators: number;
+}
+
+interface Child {
+  child_id: string;
+  first_name: string;
+  last_name: string;
+  profile_photo_url: string;
+}
+
+interface Educator {
+  user_id: string;
+  full_name: string;
+  qualification_level: string;
+}
+
+export default function GroupManagePage({ params }: { params: Promise<{ id: string }> }) {
+  const unwrappedParams = use(params);
+  const groupId = unwrappedParams.id;
+  const [group, setGroup] = useState<Group | null>(null);
+  const [assignedChildren, setAssignedChildren] = useState<Child[]>([]);
+  const [assignedEducators, setAssignedEducators] = useState<Educator[]>([]);
+  
+  const [allChildren, setAllChildren] = useState<Child[]>([]);
+  const [allEducators, setAllEducators] = useState<Educator[]>([]);
+  
+  const [showChildModal, setShowChildModal] = useState(false);
+  const [showEducatorModal, setShowEducatorModal] = useState(false);
+
+  useEffect(() => {
+    fetchGroupDetails();
+    fetchAssignedChildren();
+    fetchAssignedEducators();
+    fetchAllChildren();
+    fetchAllEducators();
+  }, [groupId]);
+
+  const fetchGroupDetails = async () => {
+    try {
+      const response = await api.get(`/api/groups/${groupId}/`);
+      setGroup(response.data);
+    } catch (error) {
+      console.error('Error fetching group:', error);
+    }
+  };
+
+  const fetchAssignedChildren = async () => {
+    try {
+      const response = await api.get(`/api/groups/${groupId}/children/`);
+      setAssignedChildren(response.data);
+    } catch (error) {
+        console.error('Error fetching assigned children', error);
+    }
+  };
+
+  const fetchAssignedEducators = async () => {
+     try {
+        const response = await api.get(`/api/groups/${groupId}/educators/`);
+        setAssignedEducators(response.data);
+     } catch (error) {
+         console.error('Error fetching assigned educators', error);
+     }
+  };
+  
+  const fetchAllChildren = async () => {
+      try {
+          const response = await api.get('/api/children/available/');
+          setAllChildren(response.data);
+      } catch (error) {
+          console.error('Error fetching all children', error);
+      }
+  };
+
+  const fetchAllEducators = async () => {
+      try {
+          const response = await api.get('/api/educators/available/');
+          setAllEducators(response.data);
+      } catch (error) {
+          console.error('Error fetching all educators', error);
+      }
+  };
+
+  const assignChild = async (childId: string) => {
+      try {
+          await api.post(`/api/groups/${groupId}/assign_child/`, { child_id: childId });
+          fetchAssignedChildren();
+          fetchGroupDetails(); // Update counts
+          setShowChildModal(false);
+      } catch (error) {
+          console.error('Error assigning child', error);
+      }
+  };
+
+  const removeChild = async (childId: string) => {
+      try {
+           await api.post(`/api/groups/${groupId}/remove_child/`, { child_id: childId });
+           fetchAssignedChildren();
+           fetchGroupDetails();
+      } catch (error) {
+          console.error('Error removing child', error);
+      }
+  };
+
+  const assignEducator = async (userId: string) => {
+      try {
+          await api.post(`/api/groups/${groupId}/assign_educator/`, { user_id: userId });
+          fetchAssignedEducators();
+          fetchGroupDetails();
+          setShowEducatorModal(false);
+      } catch (error) {
+          console.error('Error assigning educator', error);
+      }
+  };
+
+  const removeEducator = async (userId: string) => {
+      try {
+          await api.post(`/api/groups/${groupId}/remove_educator/`, { user_id: userId });
+          fetchAssignedEducators();
+          fetchGroupDetails();
+      } catch (error) {
+          console.error('Error removing educator', error);
+      }
+  };
+
+  if (!group) return <div className="p-8 text-center">Loading...</div>;
+
+  // Filter available children (not already in THIS group - simplified logic, ideally filter those in NO group)
+  // For now, list all, but maybe disable those already assigned.
+  // Actually, backend ChildListView returns all in center.
+  // Let's just filter out those already in assignedChildren list for the modal UI
+  const availableChildren = allChildren.filter(c => !assignedChildren.find(ac => ac.child_id === c.child_id));
+  const availableEducators = allEducators.filter(e => !assignedEducators.find(ae => ae.user_id === e.user_id));
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <Link href="/dashboard/groups" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-600 mb-6 transition-colors">
+         <i className="fa-solid fa-arrow-left"></i> Back to Groups
+      </Link>
+
+      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-xl border border-slate-100 dark:border-slate-800 mb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div>
+                  <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{group.name}</h1>
+                  <p className="text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider text-xs mt-1">{group.ratio_category_display}</p>
+              </div>
+              <div className="flex gap-4">
+                  <div className="px-6 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-center">
+                      <p className="text-xs font-black text-slate-400 uppercase tracking-wider">Children</p>
+                      <p className="text-2xl font-black text-slate-900 dark:text-white">{group.current_occupancy}</p>
+                  </div>
+                  <div className="px-6 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-center">
+                      <p className="text-xs font-black text-slate-400 uppercase tracking-wider">Educators</p>
+                      <p className="text-2xl font-black text-slate-900 dark:text-white">{group.current_educators}</p>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* EDUCATORS SECTION */}
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col">
+              <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
+                  <h2 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
+                      <i className="fa-solid fa-user-tie text-emerald-500"></i> Educators
+                  </h2>
+                  <button onClick={() => setShowEducatorModal(true)} className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors shadow-sm">
+                      <i className="fa-solid fa-plus text-xs"></i>
+                  </button>
+              </div>
+              <div className="p-4 flex-1 overflow-y-auto max-h-[500px]">
+                  {assignedEducators.length === 0 ? (
+                      <p className="text-center text-slate-400 py-8 text-sm">No educators assigned.</p>
+                  ) : (
+                      <div className="space-y-3">
+                          {assignedEducators.map(educator => (
+                              <div key={educator.user_id} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                  <div className="flex items-center gap-3">
+                                      <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold">
+                                          {educator.full_name.charAt(0)}
+                                      </div>
+                                      <div>
+                                          <p className="text-sm font-bold text-slate-900 dark:text-white">{educator.full_name}</p>
+                                          <p className="text-[10px] text-slate-500 uppercase font-bold">{educator.qualification_level}</p>
+                                      </div>
+                                  </div>
+                                  <button onClick={() => removeEducator(educator.user_id)} className="text-slate-400 hover:text-red-500 transition-colors p-2">
+                                      <i className="fa-solid fa-xmark"></i>
+                                  </button>
+                              </div>
+                          ))}
+                      </div>
+                  )}
+              </div>
+          </div>
+
+          {/* CHILDREN SECTION */}
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col">
+              <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
+                  <h2 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
+                      <i className="fa-solid fa-children text-rose-500"></i> Children
+                  </h2>
+                  <button onClick={() => setShowChildModal(true)} className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors shadow-sm">
+                      <i className="fa-solid fa-plus text-xs"></i>
+                  </button>
+              </div>
+              <div className="p-4 flex-1 overflow-y-auto max-h-[500px]">
+                  {assignedChildren.length === 0 ? (
+                      <p className="text-center text-slate-400 py-8 text-sm">No children enrolled.</p>
+                  ) : (
+                      <div className="space-y-3">
+                          {assignedChildren.map(child => (
+                              <div key={child.child_id} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                  <div className="flex items-center gap-3">
+                                      <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 font-bold overflow-hidden">
+                                          {child.profile_photo_url ? <img src={child.profile_photo_url} alt="" className="w-full h-full object-cover" /> : child.first_name.charAt(0)}
+                                      </div>
+                                      <div>
+                                          <p className="text-sm font-bold text-slate-900 dark:text-white">{child.first_name} {child.last_name}</p>
+                                      </div>
+                                  </div>
+                                  <button onClick={() => removeChild(child.child_id)} className="text-slate-400 hover:text-red-500 transition-colors p-2">
+                                      <i className="fa-solid fa-xmark"></i>
+                                  </button>
+                              </div>
+                          ))}
+                      </div>
+                  )}
+              </div>
+          </div>
+      </div>
+
+      {/* MODALS */}
+      {showEducatorModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+              <div className="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-md p-6 shadow-2xl">
+                  <div className="flex justify-between items-center mb-6">
+                      <h3 className="text-xl font-black text-slate-900 dark:text-white">Assign Educator</h3>
+                      <button onClick={() => setShowEducatorModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
+                          <i className="fa-solid fa-xmark"></i>
+                      </button>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto space-y-2">
+                      {availableEducators.length === 0 ? <p className="text-slate-500 text-center">No available educators found.</p> : 
+                        availableEducators.map(e => (
+                          <button key={e.user_id} onClick={() => assignEducator(e.user_id)} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left group">
+                              <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold">
+                                  {e.full_name.charAt(0)}
+                              </div>
+                              <div>
+                                  <p className="font-bold text-slate-800 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">{e.full_name}</p>
+                                  <p className="text-xs text-slate-500">{e.qualification_level}</p>
+                              </div>
+                          </button>
+                        ))
+                      }
+                  </div>
+              </div>
+          </div>
+      )}
+
+      {showChildModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+              <div className="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-md p-6 shadow-2xl">
+                  <div className="flex justify-between items-center mb-6">
+                      <h3 className="text-xl font-black text-slate-900 dark:text-white">Enroll Child</h3>
+                      <button onClick={() => setShowChildModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
+                          <i className="fa-solid fa-xmark"></i>
+                      </button>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto space-y-2">
+                      {availableChildren.length === 0 ? <p className="text-slate-500 text-center">No available children found.</p> : 
+                        availableChildren.map(c => (
+                          <button key={c.child_id} onClick={() => assignChild(c.child_id)} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left group">
+                              <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold overflow-hidden">
+                                   {c.profile_photo_url ? <img src={c.profile_photo_url} alt="" className="w-full h-full object-cover" /> : c.first_name.charAt(0)}
+                              </div>
+                              <div>
+                                  <p className="font-bold text-slate-800 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">{c.first_name} {c.last_name}</p>
+                              </div>
+                          </button>
+                        ))
+                      }
+                  </div>
+              </div>
+          </div>
+      )}
+    </div>
+  );
+}
