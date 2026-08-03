@@ -5,10 +5,22 @@ from .models import User, Group, Room, Center, Child, EducatorProfile, StaffAssi
 
 class UserSerializer(serializers.ModelSerializer):
     role_display = serializers.CharField(source="get_role_type_display", read_only=True)
+    profile_photo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ("user_id", "email", "full_name", "role_type", "role_display")
+        fields = ("user_id", "email", "full_name", "role_type", "role_display", "profile_photo", "profile_photo_url")
+        extra_kwargs = {
+            'profile_photo': {'write_only': True}
+        }
+
+    def get_profile_photo_url(self, obj):
+        if obj.profile_photo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.profile_photo.url)
+            return obj.profile_photo.url
+        return None
 
 
 class CenterSerializer(serializers.ModelSerializer):
@@ -136,13 +148,35 @@ class ChildSerializer(serializers.ModelSerializer):
 class EducatorSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(source="user.full_name", read_only=True)
     user_id = serializers.UUIDField(source="user.user_id", read_only=True)
+    email = serializers.EmailField(source="user.email", read_only=True)
+    phone_number = serializers.CharField(source="user.phone_number", read_only=True)
+    profile_photo_url = serializers.SerializerMethodField()
     
     current_group_id = serializers.SerializerMethodField()
     current_group_name = serializers.SerializerMethodField()
+    assigned_children = ChildSerializer(many=True, read_only=True)
 
     class Meta:
         model = EducatorProfile
-        fields = ["user_id", "full_name", "color_code", "current_group_id", "current_group_name"]
+        fields = [
+            "user_id", 
+            "full_name", 
+            "email", 
+            "phone_number", 
+            "profile_photo_url", 
+            "current_group_id", 
+            "current_group_name",
+            "is_active_in_ratio",
+            "assigned_children"
+        ]
+
+    def get_profile_photo_url(self, obj):
+        if obj.user.profile_photo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.user.profile_photo.url)
+            return obj.user.profile_photo.url
+        return None
 
     def get_current_group_id(self, obj):
         # Fetch the active assignment

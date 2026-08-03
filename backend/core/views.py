@@ -95,7 +95,7 @@ class ChildListView(generics.ListCreateAPIView):
             pass 
         
         if center:
-            queryset = Child.objects.filter(center=center)
+            queryset = Child.objects.filter(center=center,status__in=['active','pending',"waitlist"])
             status_filter = self.request.query_params.get('status')
             if status_filter:
                 queryset = queryset.filter(status=status_filter)
@@ -127,7 +127,7 @@ class ChildDetailView(generics.RetrieveUpdateDestroyAPIView):
         return Child.objects.none()
 
 
-class EducatorListView(generics.ListAPIView):
+class EducatorListView(generics.ListCreateAPIView):
     serializer_class = EducatorSerializer
     permission_classes = [IsAuthenticated]
 
@@ -141,6 +141,73 @@ class EducatorListView(generics.ListAPIView):
             # Return ALL educators in center
             return EducatorProfile.objects.filter(center=center)
         return EducatorProfile.objects.none()
+
+    def post(self, request, *args, **kwargs):
+        # Custom creation logic for Educator + User
+        full_name = request.data.get('full_name')
+        email = request.data.get('email')
+        phone_number = request.data.get('phone_number')
+        password = request.data.get('password', 'educator123') # Default password if not provided
+
+        if not email or not full_name:
+            return Response({'error': 'Email and Full Name are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = self.request.user
+        center = None
+        if user.role_type == 'director' and hasattr(user, 'director_profile'):
+            center = user.director_profile.managed_center
+        
+        if not center:
+             return Response({'error': 'No center managed by this user'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Create the User
+            new_user = User.objects.create_user(
+                email=email,
+                password=password,
+                full_name=full_name,
+                phone_number=phone_number,
+                role_type='educator'
+            )
+            
+            # Create the EducatorProfile
+            educator = EducatorProfile.objects.create(
+                user=new_user,
+                center=center
+            )
+            
+            serializer = self.get_serializer(educator)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class EducatorDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = EducatorSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "user__user_id" # Lookup by User's UUID
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role_type == "director" and hasattr(user, "director_profile"):
+            return EducatorProfile.objects.filter(center=user.director_profile.managed_center)
+        return EducatorProfile.objects.none()
+
+    def patch(self, request, *args, **kwargs):
+        educator = self.get_object()
+        user_obj = educator.user
+        
+        # Update User fields if provided
+        full_name = request.data.get('full_name')
+        if full_name:
+            user_obj.full_name = full_name
+            
+        profile_photo = request.FILES.get('profile_photo')
+        if profile_photo:
+            user_obj.profile_photo = profile_photo
+            
+        user_obj.save()
+        
+        return super().patch(request, *args, **kwargs)
 
 
 class AssignChildView(APIView):

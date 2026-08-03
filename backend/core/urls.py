@@ -2,7 +2,8 @@ from django.urls import path
 from .views import (
     CurrentUserView, GroupListCreateView, GroupDetailView, RoomListView, CenterListView,
     ChildListView, ChildDetailView, EducatorListView, AssignChildView, RemoveChildView,
-    AssignEducatorView, RemoveEducatorView, GroupChildrenView, GroupEducatorsView, AssignChildEducatorView, UpdateGroupRoomView
+    AssignEducatorView, RemoveEducatorView, GroupChildrenView, GroupEducatorsView, AssignChildEducatorView, UpdateGroupRoomView,
+    EducatorDetailView
 )
 
 urlpatterns = [
@@ -28,4 +29,5 @@ urlpatterns = [
     path('children/available/', ChildListView.as_view(), name='child_list'), # Assuming all for now
     path('children/<uuid:child_id>/', ChildDetailView.as_view(), name='child_detail'),
     path('educators/available/', EducatorListView.as_view(), name='educator_list'),
+    path('educators/<uuid:user__user_id>/', EducatorDetailView.as_view(), name='educator_detail'),
 ]

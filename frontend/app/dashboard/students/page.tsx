@@ -51,7 +51,7 @@ export default function StudentsPage() {
 
   const fetchChildren = async () => {
     try {
-      const response = await api.get('/api/children/available/');
+      const response = await api.get('/api/children/available/?status=active');
       setChildren(response.data);
     } catch (error) {
       console.error('Error fetching children', error);
