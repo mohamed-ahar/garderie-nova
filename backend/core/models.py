@@ -311,6 +311,14 @@ class Child(models.Model):
         Group, on_delete=models.SET_NULL, null=True, related_name="enrolled_children"
     )
 
+    assigned_educator = models.ForeignKey(
+        "EducatorProfile",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assigned_children",
+    )
+
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     birth_date = models.DateField()

@@ -21,6 +21,8 @@ interface Child {
   last_name: string;
   profile_photo_url: string;
   age_label: string;
+  assigned_educator: string | null;
+  educator_name: string | null;
 }
 
 interface Educator {
@@ -137,6 +139,18 @@ export default function GroupManagePage({ params }: { params: Promise<{ id: stri
       }
   };
 
+  const assignEducatorToChild = async (childId: string, educatorId: string) => {
+      try {
+          await api.post(`/api/groups/${groupId}/assign_educator_to_child/`, { 
+              child_id: childId, 
+              user_id: educatorId || null 
+          });
+          fetchAssignedChildren(); 
+      } catch (error) {
+          console.error('Error assigning educator to child', error);
+      }
+  };
+
   if (!group) return <div className="p-8 text-center">Loading...</div>;
 
   const availableChildren = allChildren.filter(c => !assignedChildren.find(ac => ac.child_id === c.child_id));
@@ -239,21 +253,38 @@ export default function GroupManagePage({ params }: { params: Promise<{ id: stri
                   ) : (
                       <div className="space-y-3">
                           {assignedChildren.map(child => (
-                              <div key={child.child_id} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                                  <div className="flex items-center gap-3">
-                                      <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 font-bold overflow-hidden">
-                                          {child.profile_photo_url ? <img src={child.profile_photo_url} alt="" className="w-full h-full object-cover" /> : child.first_name.charAt(0)}
-                                      </div>
-                                      <div>
-                                          <p className="text-sm font-bold text-slate-900 dark:text-white">{child.first_name} {child.last_name}</p>
-                                          <div className="flex items-center gap-2 mt-0.5">
-                                             <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-lg">{child.age_label}</span>
+                              <div key={child.child_id} className="flex flex-col gap-2 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                  <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-3">
+                                          <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 font-bold overflow-hidden">
+                                              {child.profile_photo_url ? <img src={child.profile_photo_url} alt="" className="w-full h-full object-cover" /> : child.first_name.charAt(0)}
+                                          </div>
+                                          <div>
+                                              <p className="text-sm font-bold text-slate-900 dark:text-white">{child.first_name} {child.last_name}</p>
+                                              <div className="flex items-center gap-2 mt-0.5">
+                                                 <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-lg">{child.age_label}</span>
+                                              </div>
                                           </div>
                                       </div>
+                                      <button onClick={() => removeChild(child.child_id)} className="text-slate-400 hover:text-red-500 transition-colors p-2">
+                                          <i className="fa-solid fa-xmark"></i>
+                                      </button>
                                   </div>
-                                  <button onClick={() => removeChild(child.child_id)} className="text-slate-400 hover:text-red-500 transition-colors p-2">
-                                      <i className="fa-solid fa-xmark"></i>
-                                  </button>
+                                  
+                                  {/* Educator Assignment */}
+                                  <div className="mt-2 pl-12 flex items-center gap-2">
+                                      <i className="fa-solid fa-chalkboard-user text-slate-400 text-xs"></i>
+                                      <select 
+                                          value={child.assigned_educator || ""} 
+                                          onChange={(e) => assignEducatorToChild(child.child_id, e.target.value)}
+                                          className="text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                      >
+                                          <option value="">Aucun éducateur</option>
+                                          {assignedEducators.map(edu => (
+                                              <option key={edu.user_id} value={edu.user_id}>{edu.full_name}</option>
+                                          ))}
+                                      </select>
+                                  </div>
                               </div>
                           ))}
                       </div>

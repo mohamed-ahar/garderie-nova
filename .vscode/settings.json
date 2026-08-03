@@ -1,3 +1,34 @@
 {
-    "python-envs.pythonProjects": []
+  "python-envs.pythonProjects": [],
+  "workbench.colorCustomizations": {
+    "editor.background": "#000000",
+    "editor.foreground": "#e5e7eb",
+    "activityBar.background": "#020617",
+    "sideBar.background": "#020617",
+    "statusBar.background": "#020617",
+    "titleBar.activeBackground": "#020617",
+    "editorLineNumber.foreground": "#475569",
+    "editorCursor.foreground": "#22d3ee"
+  },
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": [
+          "entity.name.type",
+          "entity.name.class",
+          "support.class",
+          "entity.name.type.class"
+        ],
+        "settings": {
+          "foreground": "#818cf8" 
+        }
+      },
+      {
+        "scope": ["string", "string.quoted"],
+        "settings": {
+          "foreground": "#94a3b8"
+        }
+      }
+    ]
+  }
 }

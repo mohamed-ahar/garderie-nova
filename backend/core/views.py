@@ -194,3 +194,25 @@ class GroupEducatorsView(generics.ListAPIView):
         group_id = self.kwargs['group_id']
         # Return educators who have an ACTIVE assignment in this group
         return EducatorProfile.objects.filter(assignments__group__group_id=group_id, assignments__is_active=True).distinct()
+
+class AssignChildEducatorView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, group_id):
+        child_id = request.data.get('child_id')
+        user_id = request.data.get('user_id') # Educator's User ID
+        
+        child = get_object_or_404(Child, child_id=child_id)
+        
+        # Security check: ensure child is in the group?
+        if str(child.assigned_group.group_id) != str(group_id):
+             return Response({'error': 'Child not in this group'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if user_id:
+            educator = get_object_or_404(EducatorProfile, user__user_id=user_id)
+            child.assigned_educator = educator
+        else:
+            child.assigned_educator = None
+            
+        child.save()
+        return Response({'status': 'updated'}, status=status.HTTP_200_OK)

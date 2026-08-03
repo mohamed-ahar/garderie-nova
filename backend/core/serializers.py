@@ -56,6 +56,9 @@ class GroupSerializer(serializers.ModelSerializer):
 class ChildSerializer(serializers.ModelSerializer):
     age_label = serializers.SerializerMethodField()
     group_name = serializers.CharField(source="assigned_group.name", read_only=True)
+    educator_name = serializers.CharField(
+        source="assigned_educator.user.full_name", read_only=True
+    )
     parents = serializers.SerializerMethodField()
 
     class Meta:
@@ -67,7 +70,9 @@ class ChildSerializer(serializers.ModelSerializer):
             "birth_date",
             "profile_photo_url",
             "assigned_group",
+            "assigned_educator",
             "group_name",
+            "educator_name",
             "age_label",
             "medical_info",
             "status",
