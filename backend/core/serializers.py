@@ -18,9 +18,21 @@ class CenterSerializer(serializers.ModelSerializer):
 
 
 class RoomSerializer(serializers.ModelSerializer):
+    assigned_group_id = serializers.SerializerMethodField()
+    assigned_group_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Room
         fields = "__all__"
+    
+    def get_assigned_group_id(self, obj):
+        # Assumption: A room has one active group at a time usually, or we take the first one
+        group = obj.active_group.first()
+        return group.group_id if group else None
+
+    def get_assigned_group_name(self, obj):
+        group = obj.active_group.first()
+        return group.name if group else None
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -110,10 +122,22 @@ class ChildSerializer(serializers.ModelSerializer):
 class EducatorSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(source="user.full_name", read_only=True)
     user_id = serializers.UUIDField(source="user.user_id", read_only=True)
+    
+    current_group_id = serializers.SerializerMethodField()
+    current_group_name = serializers.SerializerMethodField()
 
     class Meta:
         model = EducatorProfile
-        fields = ["user_id", "full_name", "color_code"]
+        fields = ["user_id", "full_name", "color_code", "current_group_id", "current_group_name"]
+
+    def get_current_group_id(self, obj):
+        # Fetch the active assignment
+        assignment = obj.assignments.filter(is_active=True).first()
+        return assignment.group.group_id if assignment else None
+
+    def get_current_group_name(self, obj):
+        assignment = obj.assignments.filter(is_active=True).first()
+        return assignment.group.name if assignment else None
 
 
 class StaffAssignmentSerializer(serializers.ModelSerializer):
