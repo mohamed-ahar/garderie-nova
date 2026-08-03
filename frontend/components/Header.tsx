@@ -2,20 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '../lib/axios';
-
-interface User {
-  full_name: string;
-  role_display: string;
-  email: string;
-}
+import { useAuth } from '@/context/AuthContext';
 
 export default function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
   const router = useRouter();
+  const { user, logout } = useAuth();
   const [time, setTime] = useState('');
   const [date, setDate] = useState('');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -28,17 +22,6 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
       setIsDark(false);
       document.documentElement.classList.remove('dark');
     }
-
-    const fetchUser = async () => {
-      try {
-        const response = await api.get('/api/me/');
-        setUser(response.data);
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      }
-    };
-
-    fetchUser();
 
     const updateClock = () => {
       const now = new Date();
@@ -54,13 +37,6 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
     const interval = setInterval(updateClock, 1000);
     return () => clearInterval(interval);
   }, []);
-
-  const handleSignOut = (e: React.MouseEvent) => {
-    e.preventDefault();
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    router.push('/login');
-  };
 
   const toggleTheme = () => {
     const newDark = !isDark;
@@ -88,7 +64,7 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
     <header className="sticky top-0 z-40 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/60">
         <div className="flex items-center justify-between px-6 md:px-10 py-3 border-b border-slate-100 dark:border-slate-800/40">
             
-            {/* Left Section: Toggle & Title */}
+            {/* Left Section: Mobile Toggle & Title */}
             <div className="flex items-center gap-6">
                  <button onClick={toggleSidebar} className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-500 transition-colors shadow-sm">
                     <i className="fa-solid fa-bars"></i>
@@ -170,7 +146,7 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
                 <div className="relative">
                     <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="flex items-center gap-3 p-1 pr-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-500/50 transition-all shadow-sm group">
                         <div className="relative">
-                            <img src="https://img.icons8.com/?size=100&id=11781&format=png&color=40C057" className="w-8 h-8 rounded-xl bg-emerald-50 p-0.5 object-cover" alt="User" />
+                            <img src={user?.profile_photo_url || "https://img.icons8.com/?size=100&id=11781&format=png&color=40C057"} className="w-8 h-8 rounded-xl bg-emerald-50 p-0.5 object-cover" alt="User" />
                             <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full"></div>
                         </div>
                         <div className="hidden sm:block text-left">
@@ -191,7 +167,7 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
                                     <i className="fa-solid fa-user-circle text-lg opacity-40 group-hover:opacity-100"></i> Profile
                                 </a>
                                 <div className="my-2 border-t border-slate-100 dark:border-slate-800"></div>
-                                <button onClick={handleSignOut} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors">
+                                <button onClick={logout} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors">
                                     <i className="fa-solid fa-power-off"></i> Sign Out
                                 </button>
                             </div>

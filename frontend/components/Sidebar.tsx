@@ -3,13 +3,20 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Sidebar({ isOpen, toggleSidebar }: { isOpen: boolean; toggleSidebar: () => void }) {
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+  const { user, hasRole } = useAuth();
 
   const toggleDropdown = (name: string) => {
     setDropdownOpen(dropdownOpen === name ? null : name);
   };
+
+  // Role Checks
+  const isEducator = user?.role_type === 'educator';
+  // Owners, Directors, Vice Directors see everything
+  const isAdmin = hasRole(['owner', 'director', 'vice_director']);
 
   return (
     <aside id="sidebar" className={`fixed left-0 top-0 z-50 h-screen w-72 
@@ -89,22 +96,31 @@ export default function Sidebar({ isOpen, toggleSidebar }: { isOpen: boolean; to
             
                 <div className={`overflow-hidden transition-all duration-500 ease-in-out relative z-20 ${dropdownOpen === 'dashboard' ? 'max-h-96' : 'max-h-0'}`}>
                     <div className="relative ml-2 mr-2 mt-2 bg-slate-800/50 rounded-xl p-2 space-y-1 shadow-inner border border-white/5">
+                        {/* Visible to All (Maybe restricted view for educators, but link is same) */}
                         <Link href="/dashboard" className="flex items-center px-4 py-3 text-[12px] font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
                             <i className="fa-solid fa-chart-line mr-3 opacity-70"></i>
                             <span>Center Management</span>
                         </Link>
+                        
+                        {/* Visible to All */}
                         <Link href="/dashboard/groups" className="flex items-center px-4 py-3 text-[12px] font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
                             <i className="fa-solid fa-users-rectangle mr-3 opacity-70"></i>
                             <span>Group Management</span>
                         </Link>
-                        <Link href="/dashboard/educators" className="flex items-center px-4 py-3 text-[12px] font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
-                            <i className="fa-solid fa-user-tie mr-3 opacity-70"></i>
-                            <span>Educators</span>
-                        </Link>
-                        <Link href="/dashboard/parents" className="flex items-center px-4 py-3 text-[12px] font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-xl transition-all">
-                            <i className="fa-solid fa-house-user mr-3 opacity-70"></i>
-                            <span>Parents</span>
-                        </Link>
+                        
+                        {/* Admin Only */}
+                        {isAdmin && (
+                            <>
+                                <Link href="/dashboard/educators" className="flex items-center px-4 py-3 text-[12px] font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
+                                    <i className="fa-solid fa-user-tie mr-3 opacity-70"></i>
+                                    <span>Educators</span>
+                                </Link>
+                                <Link href="/dashboard/parents" className="flex items-center px-4 py-3 text-[12px] font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-xl transition-all">
+                                    <i className="fa-solid fa-house-user mr-3 opacity-70"></i>
+                                    <span>Parents</span>
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             </li>
@@ -137,10 +153,14 @@ export default function Sidebar({ isOpen, toggleSidebar }: { isOpen: boolean; to
                             <i className="fa-solid fa-chart-line mr-3 opacity-70 text-white"></i>
                             <span className="text-[12px] text-white">Child Profiles</span>
                         </Link>
-                        <Link href="/dashboard/waitlist" className="flex items-center px-4 py-3 text-sm font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
-                            <i className="fa-solid fa-server mr-3 opacity-70 text-white"></i>
-                            <span className="text-[12px] text-white">Waitlist</span>
-                        </Link>
+                        
+                        {/* Admin Only */}
+                        {isAdmin && (
+                            <Link href="/dashboard/waitlist" className="flex items-center px-4 py-3 text-sm font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
+                                <i className="fa-solid fa-server mr-3 opacity-70 text-white"></i>
+                                <span className="text-[12px] text-white">Waitlist</span>
+                            </Link>
+                        )}
                     </div>
                 </div>
             </li>
