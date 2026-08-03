@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from .models import Group, Room, Center, Child, EducatorProfile, StaffAssignment
+from .models import Group, Room, Center, Child, EducatorProfile, StaffAssignment, ParentProfile, ParentChildRelationship
 from .serializers import (
     UserSerializer,
     GroupSerializer,
@@ -12,7 +12,105 @@ from .serializers import (
     ChildSerializer,
     EducatorSerializer,
     StaffAssignmentSerializer,
+    ParentSerializer
 )
+
+
+class ParentListView(generics.ListCreateAPIView):
+    serializer_class = ParentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        # Logic: Find parents whose children are in the director's center
+        if user.role_type == 'director' and hasattr(user, 'director_profile'):
+            center = user.director_profile.managed_center
+            # A bit complex to filter via children, but let's assume we want all parents in the network/system for now or filter by related children
+            return ParentProfile.objects.filter(children_relationships__child__center=center).distinct()
+        return ParentProfile.objects.none()
+
+    def post(self, request, *args, **kwargs):
+        full_name = request.data.get('full_name')
+        email = request.data.get('email')
+        phone_number = request.data.get('phone_number')
+        password = request.data.get('password', 'parent123')
+        home_address = request.data.get('home_address', '')
+
+        if not email or not full_name:
+            return Response({'error': 'Email and Full Name are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            new_user = User.objects.create_user(
+                email=email,
+                password=password,
+                full_name=full_name,
+                phone_number=phone_number,
+                role_type='parent'
+            )
+            
+            parent = ParentProfile.objects.create(
+                user=new_user,
+                home_address=home_address
+            )
+            
+            serializer = self.get_serializer(parent)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class ParentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ParentSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "user__user_id"
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role_type == "director" and hasattr(user, "director_profile"):
+            center = user.director_profile.managed_center
+            return ParentProfile.objects.filter(children_relationships__child__center=center).distinct()
+        return ParentProfile.objects.none()
+
+    def patch(self, request, *args, **kwargs):
+        parent = self.get_object()
+        user_obj = parent.user
+        
+        full_name = request.data.get('full_name')
+        if full_name:
+            user_obj.full_name = full_name
+            
+        profile_photo = request.FILES.get('profile_photo')
+        if profile_photo:
+            user_obj.profile_photo = profile_photo
+            
+        user_obj.save()
+        return super().patch(request, *args, **kwargs)
+
+class LinkChildToParentView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user__user_id):
+        parent = get_object_or_404(ParentProfile, user__user_id=user__user_id)
+        child_id = request.data.get('child_id')
+        relationship_type = request.data.get('relationship_type', 'Parent')
+        is_emergency_contact = request.data.get('is_emergency_contact', False)
+        
+        child = get_object_or_404(Child, child_id=child_id)
+        
+        relationship, created = ParentChildRelationship.objects.get_or_create(
+            parent=parent,
+            child=child,
+            defaults={
+                'relationship_type': relationship_type,
+                'is_emergency_contact': is_emergency_contact
+            }
+        )
+        
+        if not created:
+            relationship.relationship_type = relationship_type
+            relationship.is_emergency_contact = is_emergency_contact
+            relationship.save()
+            
+        return Response({'status': 'linked'}, status=status.HTTP_200_OK)
 
 
 class CurrentUserView(generics.RetrieveAPIView):

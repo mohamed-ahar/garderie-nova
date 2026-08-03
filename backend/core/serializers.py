@@ -1,6 +1,16 @@
 from rest_framework import serializers
 from datetime import date
-from .models import User, Group, Room, Center, Child, EducatorProfile, StaffAssignment
+from .models import (
+    User,
+    Group,
+    Room,
+    Center,
+    Child,
+    EducatorProfile,
+    StaffAssignment,
+    ParentChildRelationship,
+    ParentProfile,
+)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -9,14 +19,20 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("user_id", "email", "full_name", "role_type", "role_display", "profile_photo", "profile_photo_url")
-        extra_kwargs = {
-            'profile_photo': {'write_only': True}
-        }
+        fields = (
+            "user_id",
+            "email",
+            "full_name",
+            "role_type",
+            "role_display",
+            "profile_photo",
+            "profile_photo_url",
+        )
+        extra_kwargs = {"profile_photo": {"write_only": True}}
 
     def get_profile_photo_url(self, obj):
         if obj.profile_photo:
-            request = self.context.get('request')
+            request = self.context.get("request")
             if request:
                 return request.build_absolute_uri(obj.profile_photo.url)
             return obj.profile_photo.url
@@ -36,7 +52,7 @@ class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = "__all__"
-    
+
     def get_assigned_group_id(self, obj):
         # Assumption: A room has one active group at a time usually, or we take the first one
         group = obj.active_group.first()
@@ -106,12 +122,14 @@ class ChildSerializer(serializers.ModelSerializer):
             "parents",
         ]
         extra_kwargs = {
-            'profile_photo': {'write_only': True} # Use profile_photo for upload, profile_photo_url for read
+            "profile_photo": {
+                "write_only": True
+            }  # Use profile_photo for upload, profile_photo_url for read
         }
 
     def get_profile_photo_url(self, obj):
         if obj.profile_photo:
-            request = self.context.get('request')
+            request = self.context.get("request")
             if request:
                 return request.build_absolute_uri(obj.profile_photo.url)
             return obj.profile_photo.url
@@ -136,12 +154,14 @@ class ChildSerializer(serializers.ModelSerializer):
         relationships = obj.parent_relationships.all()
         parents_data = []
         for rel in relationships:
-            parents_data.append({
-                "full_name": rel.parent.user.full_name,
-                "relationship_type": rel.relationship_type,
-                "is_emergency_contact": rel.is_emergency_contact,
-                "phone": rel.parent.user.phone_number
-            })
+            parents_data.append(
+                {
+                    "full_name": rel.parent.user.full_name,
+                    "relationship_type": rel.relationship_type,
+                    "is_emergency_contact": rel.is_emergency_contact,
+                    "phone": rel.parent.user.phone_number,
+                }
+            )
         return parents_data
 
 
@@ -151,7 +171,7 @@ class EducatorSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source="user.email", read_only=True)
     phone_number = serializers.CharField(source="user.phone_number", read_only=True)
     profile_photo_url = serializers.SerializerMethodField()
-    
+
     current_group_id = serializers.SerializerMethodField()
     current_group_name = serializers.SerializerMethodField()
     assigned_children = ChildSerializer(many=True, read_only=True)
@@ -159,20 +179,20 @@ class EducatorSerializer(serializers.ModelSerializer):
     class Meta:
         model = EducatorProfile
         fields = [
-            "user_id", 
-            "full_name", 
-            "email", 
-            "phone_number", 
-            "profile_photo_url", 
-            "current_group_id", 
+            "user_id",
+            "full_name",
+            "email",
+            "phone_number",
+            "profile_photo_url",
+            "current_group_id",
             "current_group_name",
             "is_active_in_ratio",
-            "assigned_children"
+            "assigned_children",
         ]
 
     def get_profile_photo_url(self, obj):
         if obj.user.profile_photo:
-            request = self.context.get('request')
+            request = self.context.get("request")
             if request:
                 return request.build_absolute_uri(obj.user.profile_photo.url)
             return obj.user.profile_photo.url
@@ -186,6 +206,46 @@ class EducatorSerializer(serializers.ModelSerializer):
     def get_current_group_name(self, obj):
         assignment = obj.assignments.filter(is_active=True).first()
         return assignment.group.name if assignment else None
+
+
+class ParentChildRelationshipSerializer(serializers.ModelSerializer):
+    child = ChildSerializer(read_only=True)
+
+    class Meta:
+        model = ParentChildRelationship
+        fields = ["relationship_type", "is_emergency_contact", "child"]
+
+
+class ParentSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(source="user.full_name", read_only=True)
+    user_id = serializers.UUIDField(source="user.user_id", read_only=True)
+    email = serializers.EmailField(source="user.email", read_only=True)
+    phone_number = serializers.CharField(source="user.phone_number", read_only=True)
+    profile_photo_url = serializers.SerializerMethodField()
+    children = ParentChildRelationshipSerializer(
+        source="children_relationships", many=True, read_only=True
+    )
+
+    class Meta:
+        model = ParentProfile
+        fields = [
+            "user_id",
+            "full_name",
+            "email",
+            "phone_number",
+            "profile_photo_url",
+            "home_address",
+            "billing_reference",
+            "children",
+        ]
+
+    def get_profile_photo_url(self, obj):
+        if obj.user.profile_photo:
+            request = self.context.get("request")
+            if request:
+                return request.build_absolute_uri(obj.user.profile_photo.url)
+            return obj.user.profile_photo.url
+        return None
 
 
 class StaffAssignmentSerializer(serializers.ModelSerializer):

@@ -74,11 +74,13 @@ def create_users():
         )
     parents = []
     for i in range(n_parents):
+        first_name = generate_name(style="capital").split(" ")[0]
+        last_name = "Parent "+str(i)
         parents.append(
             User.objects.create_user(
                 email=f"parent{i}@gmail.com",
                 password="password123",
-                full_name="Sophie Parent",
+                full_name=f"{first_name} {last_name}",
                 role_type="parent",
                 phone_number="555-2001",
             )
@@ -106,7 +108,6 @@ def run_seed():
         EducatorProfile.objects.create(
             user=educators[i],
             center=center,
-            color_code="#EF4444",
         )
     rooms = [
         Room.objects.create(center=center, name=generate_name(), fire_capacity=10)
@@ -125,7 +126,7 @@ def run_seed():
         )
         print("🔗 Linking Parent : ", i)
         ParentChildRelationship.objects.create(
-            parent=parents[0].parent_profile,
+            parent=parents[i].parent_profile,
             child=c1,
             relationship_type="Mother",
             is_emergency_contact=True,

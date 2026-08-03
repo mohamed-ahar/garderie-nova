@@ -101,6 +101,10 @@ export default function Sidebar({ isOpen, toggleSidebar }: { isOpen: boolean; to
                             <i className="fa-solid fa-user-tie mr-3 opacity-70"></i>
                             <span>Educators</span>
                         </Link>
+                        <Link href="/dashboard/parents" className="flex items-center px-4 py-3 text-[12px] font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-xl transition-all">
+                            <i className="fa-solid fa-house-user mr-3 opacity-70"></i>
+                            <span>Parents</span>
+                        </Link>
                     </div>
                 </div>
             </li>
