@@ -72,6 +72,7 @@ class ChildSerializer(serializers.ModelSerializer):
         source="assigned_educator.user.full_name", read_only=True
     )
     parents = serializers.SerializerMethodField()
+    profile_photo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Child
@@ -80,6 +81,7 @@ class ChildSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "birth_date",
+            "profile_photo",
             "profile_photo_url",
             "assigned_group",
             "assigned_educator",
@@ -88,8 +90,20 @@ class ChildSerializer(serializers.ModelSerializer):
             "age_label",
             "medical_info",
             "status",
+            "created_at",
             "parents",
         ]
+        extra_kwargs = {
+            'profile_photo': {'write_only': True} # Use profile_photo for upload, profile_photo_url for read
+        }
+
+    def get_profile_photo_url(self, obj):
+        if obj.profile_photo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.profile_photo.url)
+            return obj.profile_photo.url
+        return None
 
     def get_age_label(self, obj):
         today = date.today()

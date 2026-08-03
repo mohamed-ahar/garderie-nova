@@ -126,3 +126,7 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 AUTH_USER_MODEL = "core.User"
+
+import os
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

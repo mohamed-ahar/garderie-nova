@@ -125,14 +125,14 @@ export default function Sidebar({ isOpen, toggleSidebar }: { isOpen: boolean; to
             
                 <div className={`overflow-hidden transition-all duration-500 ease-in-out relative z-20 ${dropdownOpen === 'child' ? 'max-h-96' : 'max-h-0'}`}>
                     <div className="relative ml-2 mr-2 mt-2 bg-slate-800/60 rounded-xl p-2 space-y-1 shadow-inner border border-white/5">
-                        <a href="#" className="flex items-center px-4 py-3 text-sm font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
+                        <Link href="/dashboard/students" className="flex items-center px-4 py-3 text-sm font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
                             <i className="fa-solid fa-chart-line mr-3 opacity-70 text-white"></i>
                             <span className="text-[12px] text-white">Child Profiles</span>
-                        </a>
-                        <a href="#" className="flex items-center px-4 py-3 text-sm font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
+                        </Link>
+                        <Link href="/dashboard/waitlist" className="flex items-center px-4 py-3 text-sm font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
                             <i className="fa-solid fa-server mr-3 opacity-70 text-white"></i>
                             <span className="text-[12px] text-white">Waitlist</span>
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </li>

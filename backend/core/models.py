@@ -325,8 +325,9 @@ class Child(models.Model):
 
     medical_info = models.JSONField(default=dict, blank=True)
 
-    profile_photo_url = models.TextField(blank=True, null=True)
+    profile_photo = models.ImageField(upload_to='children_photos/', blank=True, null=True)
     status = models.CharField(max_length=20, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

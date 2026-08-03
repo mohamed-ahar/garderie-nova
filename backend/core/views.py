@@ -81,23 +81,34 @@ class CenterListView(generics.ListAPIView):
     queryset = Center.objects.all()
 
 
-class ChildListView(generics.ListAPIView):
+class ChildListView(generics.ListCreateAPIView):
     serializer_class = ChildSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
         center = None
-        if user.role_type == "director" and hasattr(user, "director_profile"):
+        if user.role_type == 'director' and hasattr(user, 'director_profile'):
             center = user.director_profile.managed_center
-        elif user.role_type == "owner":
+        elif user.role_type == 'owner':
             # Simplified for now, owners might need to filter by center param
-            pass
-
+            pass 
+        
         if center:
-            # Return ALL children in the center so we can show "Assigned to Other Group" status
-            return Child.objects.filter(center=center)
+            queryset = Child.objects.filter(center=center)
+            status_filter = self.request.query_params.get('status')
+            if status_filter:
+                queryset = queryset.filter(status=status_filter)
+            return queryset
         return Child.objects.none()
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        if user.role_type == 'director' and hasattr(user, 'director_profile') and user.director_profile.managed_center:
+             serializer.save(center=user.director_profile.managed_center)
+        else:
+             # If owner, might need to provide center in request data, but for now fallback or error
+             serializer.save()
 
 
 class ChildDetailView(generics.RetrieveUpdateDestroyAPIView):
