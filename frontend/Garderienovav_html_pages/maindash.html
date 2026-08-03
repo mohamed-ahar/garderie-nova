@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer"
@@ -90,7 +90,7 @@
            transition-all duration-500 ease-in-out -translate-x-full lg:translate-x-0">
         <!--button -->
         <button onclick="toggleSidebar()" 
-        class="absolute -right-4 top-10 z-[70] flex items-center justify-center 
+        class="lg:hidden absolute -right-4 top-10 z-[70] flex items-center justify-center 
                w-8 h-8 group transition-all duration-300 ease-in-out
                bg-slate-900 
                border border-slate-700
@@ -1249,14 +1249,17 @@
         const sidebar = document.getElementById('sidebar');
         const userMenu = document.getElementById('user-menu');
         const themeIcon = document.getElementById('theme-icon');
-        const calendarGrid = document.getElementById('calendar-grid');
+        const calendarGrid = document.getElementById('calendarGrid'); // Fixed ID reference
         const fsIcon = document.getElementById('fullscreen-icon');
 
         // Clock Function
         function updateClock() {
             const now = new Date();
-            document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
-            document.getElementById('current-date').innerText = now.toLocaleDateString('en-US', {
+            const clockElement = document.getElementById('digital-clock');
+            const dateElement = document.getElementById('current-date');
+            
+            if(clockElement) clockElement.innerText = now.toLocaleTimeString();
+            if(dateElement) dateElement.innerText = now.toLocaleDateString('en-US', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
@@ -1297,130 +1300,41 @@
             userMenu.classList.toggle('invisible');
             userMenu.classList.toggle('translate-y-4');
         }
+        
+        function toggleDropdown(button) {
+            const content = button.nextElementSibling;
+            const chevron = button.querySelector('.chevron');
+            const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
 
-        // Calendar Render
-        function renderCalendar() {
-            const daysInMonth = 31; // Simplified for demo
-            const today = new Date().getDate();
+            // Close all other dropdowns
+            document.querySelectorAll('.dropdown-content').forEach(el => el.style.maxHeight = '0px');
+            document.querySelectorAll('.chevron').forEach(el => el.style.transform = 'rotate(0deg)');
 
-            for (let i = 1; i <= daysInMonth; i++) {
-                const isToday = i === today;
-                calendarGrid.innerHTML += `
-                    <div class="h-28 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-darkCard hover:border-green-500 dark:hover:border-green-500 transition-all cursor-pointer group">
-                        <span class="text-sm font-black ${isToday ? 'bg-green-600 text-white w-8 h-8 flex items-center justify-center rounded-lg shadow-lg' : 'text-slate-400'}">${i}</span>
-                        ${i % 7 === 0 ? '<div class="mt-3 w-full h-1 bg-green-500 rounded-full"></div>' : ''}
-                        ${i === 15 ? '<div class="mt-3 w-full h-1 bg-rose-500 rounded-full"></div>' : ''}
-                    </div>
-                `;
+            if (!isOpen) {
+                content.style.maxHeight = content.scrollHeight + "px";
+                if(chevron) chevron.style.transform = 'rotate(90deg)';
             }
         }
 
         // Init
         document.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('theme') === 'dark') {
+            // Check Theme
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
                 themeIcon.className = 'fa-solid fa-sun text-amber-400';
+            } else {
+                document.documentElement.classList.remove('dark');
+                themeIcon.className = 'fa-solid fa-moon text-slate-500';
             }
-            renderCalendar();
+            
+            // Render Calendar if function exists (it's defined in the main content block)
+            if(typeof renderCalendar === 'function') renderCalendar();
         });
 
         // Click Away
         window.onclick = (e) => {
             if (!e.target.closest('.relative')) {
                 userMenu.classList.add('opacity-0', 'invisible', 'translate-y-4');
-            }
-        }
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const dropdownGroups = document.querySelectorAll('.dropdown-group');
-
-            dropdownGroups.forEach(group => {
-                const trigger = group.querySelector('.dropdown-trigger');
-                const content = group.querySelector('.dropdown-content');
-                const chevron = group.querySelector('.chevron');
-
-                trigger.addEventListener('click', () => {
-                    const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
-
-                    // Close all other dropdowns
-                    dropdownGroups.forEach(otherGroup => {
-                        const otherContent = otherGroup.querySelector('.dropdown-content');
-                        const otherChevron = otherGroup.querySelector('.chevron');
-                        otherContent.style.maxHeight = '0px';
-                        otherChevron.style.transform = 'rotate(0deg)';
-                    });
-
-                    // If it was closed, open it now
-                    if (!isOpen) {
-                        content.style.maxHeight = content.scrollHeight + "px";
-                        chevron.style.transform = 'rotate(90deg)';
-                    }
-                });
-            });
-        });
-
-        // Sidebar Toggle Function
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('-translate-x-full');
-        }
-    </script>
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.querySelector('main');
-            const toggleIcon = document.getElementById('toggle-icon');
-            const labels = document.querySelectorAll('.sidebar-label');
-            const navHeading = document.querySelector('nav p');
-
-            // Select all nav links AND the new dropdown links
-            const navButtons = document.querySelectorAll('nav button, nav a, .dropdown-btn');
-            const iconElements = document.querySelectorAll('nav i, .dropdown-btn i');
-
-            if (window.innerWidth >= 1024) {
-                const isFull = sidebar.classList.contains('lg:w-72');
-
-                if (isFull) {
-                    // --- SWITCH TO MINI MODE ---
-                    sidebar.classList.replace('lg:w-72', 'lg:w-28');
-                    mainContent.classList.replace('lg:ml-72', 'lg:ml-28');
-                    toggleIcon.classList.replace('fa-chevron-left', 'fa-chevron-right');
-
-                    labels.forEach(label => label.classList.add('lg:hidden'));
-                    if (navHeading) navHeading.classList.add('lg:hidden');
-
-                    navButtons.forEach(btn => {
-                        btn.classList.add('justify-center', 'px-0');
-                        btn.classList.remove('px-4');
-                    });
-
-                    // Remove margins from icons to center them perfectly
-                    iconElements.forEach(icon => {
-                        icon.classList.remove('lg:mr-3', 'mr-3');
-                    });
-
-                } else {
-                    // --- SWITCH TO FULL MODE ---
-                    sidebar.classList.replace('lg:w-28', 'lg:w-72');
-                    mainContent.classList.replace('lg:ml-28', 'lg:ml-72');
-                    toggleIcon.classList.replace('fa-chevron-right', 'fa-chevron-left');
-
-                    labels.forEach(label => label.classList.remove('lg:hidden'));
-                    if (navHeading) navHeading.classList.remove('lg:hidden');
-
-                    navButtons.forEach(btn => {
-                        btn.classList.remove('justify-center', 'px-0');
-                        btn.classList.add('px-4');
-                    });
-
-                    // Restore margins for icons
-                    iconElements.forEach(icon => {
-                        icon.classList.add('lg:mr-3');
-                    });
-                }
-            } else {
-                sidebar.classList.toggle('-translate-x-full');
             }
         }
     </script>

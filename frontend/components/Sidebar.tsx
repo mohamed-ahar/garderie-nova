@@ -12,18 +12,18 @@ export default function Sidebar({ isOpen, toggleSidebar }: { isOpen: boolean; to
   };
 
   return (
-    <aside id="sidebar" className={`fixed left-0 top-0 z-50 h-screen w-72 lg:w-72 
+    <aside id="sidebar" className={`fixed left-0 top-0 z-50 h-screen w-72 
       bg-slate-900 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 
-      transition-all duration-500 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      transition-all duration-500 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       
-      {/* Toggle Button for Mobile */}
+      {/* Toggle Button for Mobile and Desktop */}
       <button onClick={toggleSidebar} 
-        className="lg:hidden absolute -right-4 top-10 z-[70] flex items-center justify-center 
+        className="absolute -right-4 top-10 z-[70] flex items-center justify-center 
                w-8 h-8 group transition-all duration-300 ease-in-out
                bg-slate-900 border border-slate-700
                rounded-md shadow-lg hover:shadow-emerald-500/30 hover:border-emerald-500/60
                active:scale-90 focus:outline-none overflow-hidden text-white">
-          <i className="fa-solid fa-xmark"></i>
+          <i className={`fa-solid ${isOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
       </button>
 
       <div className="flex flex-col h-full relative">

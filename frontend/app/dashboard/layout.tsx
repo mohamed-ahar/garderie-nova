@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 
@@ -9,14 +9,27 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    const savedState = localStorage.getItem('sidebarOpen');
+    if (savedState !== null) {
+      setSidebarOpen(JSON.parse(savedState));
+    }
+  }, []);
+
+  const handleSidebarToggle = () => {
+    const newState = !sidebarOpen;
+    setSidebarOpen(newState);
+    localStorage.setItem('sidebarOpen', JSON.stringify(newState));
+  };
 
   return (
     <div className="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 font-sans antialiased min-h-screen">
-      <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      <Sidebar isOpen={sidebarOpen} toggleSidebar={handleSidebarToggle} />
       
-      <div className={`lg:ml-72 min-h-screen transition-all duration-500 ease-in-out`}>
-        <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      <div className={`${sidebarOpen ? 'lg:ml-72' : 'lg:ml-0'} min-h-screen transition-all duration-500 ease-in-out`}>
+        <Header toggleSidebar={handleSidebarToggle} />
         <main className="p-2 md:p-6 space-y-10 max-w-[1600px] mx-auto">
             {children}
         </main>

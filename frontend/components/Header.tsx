@@ -20,7 +20,7 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
 
   useEffect(() => {
     // Check local storage for theme
-    const savedTheme = localStorage.getItem('garderie_theme');
+    const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       setIsDark(true);
       document.documentElement.classList.add('dark');
@@ -67,10 +67,10 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
     setIsDark(newDark);
     if (newDark) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('garderie_theme', 'dark');
+      localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('garderie_theme', 'light');
+      localStorage.setItem('theme', 'light');
     }
   };
 
@@ -88,9 +88,9 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
     <header className="sticky top-0 z-40 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/60">
         <div className="flex items-center justify-between px-6 md:px-10 py-3 border-b border-slate-100 dark:border-slate-800/40">
             
-            {/* Left Section: Mobile Toggle & Title */}
+            {/* Left Section: Toggle & Title */}
             <div className="flex items-center gap-6">
-                 <button onClick={toggleSidebar} className="lg:hidden p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                 <button onClick={toggleSidebar} className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-500 transition-colors shadow-sm">
                     <i className="fa-solid fa-bars"></i>
                  </button>
 
@@ -160,7 +160,7 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
                     </button>
                     <button onClick={toggleTheme} className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:text-emerald-500 transition-all active:scale-90 group shadow-sm">
                         {isDark ? (
-                            <i className="fa-solid fa-sun text-slate-500 text-xs"></i>
+                            <i className="fa-solid fa-sun text-amber-400 text-xs"></i>
                         ) : (
                             <i className="fa-solid fa-moon text-slate-500 text-xs"></i>
                         )}
