@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GarderieNova Premium Admin Dashboard{% endblock %}</title>
+    
+    <!-- CDNs from maindash.html -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    },
+                    colors: {
+                        primary: '#4f46e5',
+                        darkBg: '#0f172a',
+                        darkCard: '#1e293b'
+                    },
+                    borderRadius: {
+                        '3xl': '1.5rem'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Ensure the sidebar width changes smoothly */
+        #sidebar {
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Smooth movement for the main content */
+        main {
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Prevent text from wrapping or "glitching" during the animation */
+        .sidebar-label {
+            white-space: nowrap;
+            transition: opacity 0.3s ease;
+        }
+        /* Add a tooltip style if you want (Optional) */
+        #sidebar.lg\:w-20 button:hover::after {
+            content: attr(data-title);
+            position: absolute;
+            left: 100%;
+            margin-left: 20px;
+            color: white;
+            padding: 5px 40px;
+            border-radius: 6px;
+            font-size: 12px;
+            z-index: 50;
+        }
+        * {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .active-link {
+            @apply bg-primary/10 text-primary border-r-4 border-primary;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 20px;
+        }
+    </style>
+    <!-- CSRF Token setup -->
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 font-sans antialiased">
+
+    {% if user.is_authenticated %}
+        {% include 'includes/sidebar.html' %}
+    {% endif %}
+
+    <main class="{% if user.is_authenticated %}lg:ml-72{% endif %} min-h-screen transition-all duration-500 ease-in-out">
+        
+        {% if user.is_authenticated %}
+            {% include 'includes/header.html' %}
+        {% endif %}
+
+        {% if messages %}
+            <div class="px-6 md:px-10 mt-6">
+                {% for message in messages %}
+                    <div class="p-4 mb-2 rounded-2xl shadow-sm border {% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-700{% else %}bg-emerald-50 border-emerald-200 text-emerald-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        // Theme Toggle Logic
+        const themeIcon = document.getElementById('theme-icon');
+        
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            if(themeIcon) {
+                 themeIcon.className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-slate-500';
+            }
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark');
+                if(themeIcon) themeIcon.className = 'fa-solid fa-sun text-amber-400';
+            }
+            
+            // Sidebar Dropdowns
+            const dropdownGroups = document.querySelectorAll('.dropdown-group');
+            dropdownGroups.forEach(group => {
+                const trigger = group.querySelector('.dropdown-trigger');
+                const content = group.querySelector('.dropdown-content');
+                const chevron = group.querySelector('.chevron');
+
+                if(trigger && content && chevron) {
+                    trigger.addEventListener('click', () => {
+                        const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+
+                        // Close all other dropdowns
+                        dropdownGroups.forEach(otherGroup => {
+                            const otherContent = otherGroup.querySelector('.dropdown-content');
+                            const otherChevron = otherGroup.querySelector('.chevron');
+                            if(otherContent) otherContent.style.maxHeight = '0px';
+                            if(otherChevron) otherChevron.style.transform = 'rotate(0deg)';
+                        });
+
+                        // Toggle current
+                        if (!isOpen) {
+                            content.style.maxHeight = content.scrollHeight + "px";
+                            chevron.style.transform = 'rotate(90deg)';
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

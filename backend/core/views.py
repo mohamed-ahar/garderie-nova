@@ -187,10 +187,53 @@ class GroupChildrenView(generics.ListAPIView):
         return Child.objects.filter(assigned_group__group_id=group_id)
 
 class GroupEducatorsView(generics.ListAPIView):
+
     serializer_class = EducatorSerializer
+
     permission_classes = [IsAuthenticated]
 
+
+
     def get_queryset(self):
+
         group_id = self.kwargs['group_id']
+
         # Return educators who have an ACTIVE assignment in this group
+
         return EducatorProfile.objects.filter(assignments__group__group_id=group_id, assignments__is_active=True).distinct()
+
+
+
+# Standard Django Views for Templates
+
+from django.shortcuts import render
+
+from django.contrib.auth.decorators import login_required
+
+
+
+@login_required
+
+
+
+def dashboard(request):
+
+
+
+    return render(request, 'dashboard.html')
+
+
+
+
+
+
+
+@login_required
+
+
+
+def student_info(request):
+
+
+
+    return render(request, 'student_info.html')

@@ -2,10 +2,13 @@ from django.urls import path
 from .views import (
     CurrentUserView, GroupListCreateView, GroupDetailView, RoomListView, CenterListView,
     ChildListView, ChildDetailView, EducatorListView, AssignChildView, RemoveChildView,
-    AssignEducatorView, RemoveEducatorView, GroupChildrenView, GroupEducatorsView
+    AssignEducatorView, RemoveEducatorView, GroupChildrenView, GroupEducatorsView,
+    dashboard, student_info
 )
 
 urlpatterns = [
+    path('dashboard/', dashboard, name='dashboard'),
+    path('student-info/', student_info, name='student_info'),
     path('me/', CurrentUserView.as_view(), name='current_user'),
     path('groups/', GroupListCreateView.as_view(), name='group_list_create'),
     path('groups/<uuid:group_id>/', GroupDetailView.as_view(), name='group_detail'),
