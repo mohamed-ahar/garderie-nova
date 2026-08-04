@@ -1,0 +1,57 @@
+{% extends "core/base.html" %}
+
+{% block title %}Edit Group | GarderieNova{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">Edit Group</h1>
+            <p class="text-slate-500 text-sm dark:text-slate-400 font-medium">Update group details and room assignment.</p>
+        </div>
+        <a href="{% url 'group_list' %}" class="text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
+            Cancel
+        </a>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl p-8 md:p-10">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Group Name -->
+            <div>
+                <label for="name" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Group Name</label>
+                <input type="text" name="name" id="name" value="{{ group.name }}" required 
+                    class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 dark:focus:border-emerald-500 outline-none transition-all dark:text-white placeholder-slate-400">
+            </div>
+
+            <!-- Room Assignment -->
+            <div>
+                <label for="room_id" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Assigned Room</label>
+                <div class="relative">
+                    <select name="room_id" id="room_id" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 dark:focus:border-emerald-500 outline-none transition-all dark:text-white appearance-none cursor-pointer">
+                        <option value="">-- Select a Room --</option>
+                        {% for room in rooms %}
+                            <option value="{{ room.room_id }}" {% if group.room and group.room.room_id == room.room_id %}selected{% endif %}>
+                                {{ room.name }} (Capacity: {{ room.fire_capacity }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 mt-2 ml-1">Assigning a room helps in calculating fire capacity compliance.</p>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-4 flex justify-end">
+                <button type="submit" class="flex items-center gap-2 px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/25 active:scale-95 transition-all">
+                    <i class="fa-solid fa-save"></i>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

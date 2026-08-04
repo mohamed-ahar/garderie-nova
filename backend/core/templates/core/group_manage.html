@@ -1,0 +1,413 @@
+{% extends "core/base.html" %}
+{% block title %}{{ group.name }} | Manage{% endblock %}
+{% block content %}
+    <div class="max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <a href="{% url 'group_list' %}"
+               class="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+                <i class="fa-solid fa-arrow-left"></i> Back to Groups
+            </a>
+            <button onclick="openModal('Delete Group?', 'Are you sure you want to delete {{ group.name|escapejs }}? This action cannot be undone.', '{% url 'group_delete' group.group_id %}', 'delete')"
+                    class="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors text-xs font-bold border border-red-200 dark:border-red-800">
+                <i class="fa-solid fa-trash-can"></i> Delete Group
+            </button>
+        </div>
+        <!-- Header & Stats -->
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-xl border border-slate-100 dark:border-slate-800 mb-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <div class="flex items-center gap-4 mb-2">
+                        <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{{ group.name }}</h1>
+                        <button onclick="document.getElementById('renameModal').classList.remove('hidden')"
+                                class="text-slate-400 hover:text-emerald-500 transition-colors">
+                            <i class="fa-solid fa-pen-to-square text-lg"></i>
+                        </button>
+                        <button onclick="document.getElementById('roomModal').classList.remove('hidden')"
+                                class="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-xs font-bold text-slate-600 dark:text-slate-300 ml-2">
+                            <i class="fa-solid fa-door-open"></i>
+                            {{ group.room.name|default:"Assign Room" }}
+                        </button>
+                    </div>
+                    <p class="text-slate-500 font-bold uppercase tracking-wider text-[10px] mt-1">
+                        Max Capacity: <span class="text-emerald-600 dark:text-emerald-400">{{ group.calculated_max_capacity }} children</span>
+                    </p>
+                    <div class="mt-4 flex items-center gap-3">
+                        {% if group.is_compliant %}
+                            <span class="px-4 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400">
+                                Compliant
+                            </span>
+                        {% else %}
+                            <span class="px-4 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400">
+                                Non-Compliant
+                            </span>
+                            <span class="text-xs font-bold text-red-500">Check Staffing or Capacity</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="flex gap-4 overflow-x-auto pb-2">
+                    <div class="px-6 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-center min-w-[100px]">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Ratio Points</p>
+                        <p class="text-2xl font-black text-slate-900 dark:text-white">{{ group.current_total_points|floatformat:0 }}</p>
+                    </div>
+                    <div class="px-6 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-center min-w-[100px]">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Required</p>
+                        <p class="text-2xl font-black text-slate-900 dark:text-white">{{ group.required_educators }}</p>
+                        <p class="text-[10px] text-slate-500 font-bold">Educators</p>
+                    </div>
+                    <div class="px-6 py-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 text-center min-w-[100px]">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Present</p>
+                        <p class="text-2xl font-black {% if group.current_educators < group.required_educators %}text-red-500{% else %}text-emerald-500{% endif %}">
+                            {{ group.current_educators }}
+                        </p>
+                        <p class="text-[10px] text-slate-500 font-bold">Educators</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Age Distribution -->
+            {% if group.age_distribution %}
+                <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Age Groups</p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for category, count in group.age_distribution.items %}
+                            <div class="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg text-xs font-bold border border-blue-100 dark:border-blue-800/50">
+                                {{ category }}: <span class="ml-1 text-slate-900 dark:text-white font-black">{{ count }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <!-- TABLES SECTION -->
+        <div class="space-y-8">
+            <!-- EDUCATORS TABLE -->
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden">
+                <div class="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                <i class="fa-solid fa-user-tie"></i>
+                            </div>
+                            Educators
+                        </h2>
+                        <p class="text-slate-500 text-sm font-medium mt-1 ml-14">Staff members assigned to this group</p>
+                    </div>
+                    <button onclick="document.getElementById('educatorModal').classList.remove('hidden')"
+                            class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-sm font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/25 active:scale-95">
+                        <i class="fa-solid fa-plus"></i> Add Educator
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
+                                <th class="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Educator</th>
+                                <th class="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact</th>
+                                <th class="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                            {% for educator in assigned_educators %}
+                                <tr class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                    <td class="px-8 py-5">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold">
+                                                {{ educator.user.full_name|first }}
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-bold text-slate-900 dark:text-white">{{ educator.user.full_name }}</p>
+                                                <p class="text-xs text-slate-500 font-medium">ID: {{ educator.user.user_id|truncatechars:8 }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-5">
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ educator.user.email }}</span>
+                                            <span class="text-xs text-slate-500">{{ educator.user.phone_number|default:"No phone" }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-5">
+                                        <form id="remove-educator-{{ educator.user.user_id }}"
+                                              method="post"
+                                              class="inline float-right">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="remove_educator">
+                                            <input type="hidden" name="user_id" value="{{ educator.user.user_id }}">
+                                            <button type="button"
+                                                    class="w-9 h-9 flex items-center justify-center text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 transition-all rounded-xl shadow-sm"
+                                                    onclick="openModal('Remove Educator?', 'Are you sure you want to remove {{ educator.user.full_name|escapejs }}?', 'remove-educator-{{ educator.user.user_id }}', 'delete')">
+                                                <i class="fa-solid fa-trash-can text-xs"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="px-8 py-10 text-center text-slate-500">No educators assigned.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- CHILDREN TABLE -->
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden">
+                <div class="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                                <i class="fa-solid fa-children"></i>
+                            </div>
+                            Children
+                        </h2>
+                        <p class="text-slate-500 text-sm font-medium mt-1 ml-14">
+                            Enrolled children ({{ group.current_occupancy }}/{{ group.calculated_max_capacity }})
+                        </p>
+                    </div>
+                    <button onclick="document.getElementById('childModal').classList.remove('hidden')"
+                            class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-sm font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/25 active:scale-95">
+                        <i class="fa-solid fa-plus"></i> Enroll Child
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
+                                <th class="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Child</th>
+                                <th class="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Age</th>
+                                <th class="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Assigned Educator</th>
+                                <th class="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                            {% for child in assigned_children %}
+                                <tr class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                    <td class="px-8 py-5">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 font-bold overflow-hidden">
+                                                {% if child.profile_photo %}
+                                                    <img src="{{ child.profile_photo.url }}"
+                                                         class="w-full h-full object-cover">
+                                                {% else %}
+                                                    {{ child.first_name|first }}
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-bold text-slate-900 dark:text-white">{{ child.first_name }} {{ child.last_name }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-5">
+                                        <span class="text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg">
+                                            {{ child.age_display }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-5">
+                                        <form method="post" class="w-full max-w-xs">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="assign_child_educator">
+                                            <input type="hidden" name="child_id" value="{{ child.child_id }}">
+                                            <div class="relative">
+                                                <select name="educator_id"
+                                                        onchange="this.form.submit()"
+                                                        class="w-full appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer">
+                                                    <option value="">-- No Educator --</option>
+                                                    {% for edu in assigned_educators %}
+                                                        <option value="{{ edu.user.user_id }}"
+                                                                {% if child.assigned_educator == edu %}selected{% endif %}>
+                                                            {{ edu.user.full_name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                                <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td class="px-8 py-5">
+                                        <form id="remove-child-{{ child.child_id }}"
+                                              method="post"
+                                              class="inline float-right">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="remove_child">
+                                            <input type="hidden" name="child_id" value="{{ child.child_id }}">
+                                            <button type="button"
+                                                    class="w-9 h-9 flex items-center justify-center text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 transition-all rounded-xl shadow-sm"
+                                                    onclick="openModal('Remove Child?', 'Are you sure you want to remove {{ child.first_name|escapejs }} {{ child.last_name|escapejs }} from this group?', 'remove-child-{{ child.child_id }}', 'delete')">
+                                                <i class="fa-solid fa-trash-can text-xs"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="px-8 py-10 text-center text-slate-500">No children enrolled.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Rename Modal -->
+    <div id="renameModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-md p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-slate-900 dark:text-white">Rename Group</h3>
+                <button onclick="document.getElementById('renameModal').classList.add('hidden')"
+                        class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_details">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">New Name</label>
+                        <input type="text"
+                               name="name"
+                               value="{{ group.name }}"
+                               required
+                               class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all dark:text-white">
+                    </div>
+                    <button type="submit"
+                            class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg transition-all">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Room Modal -->
+    <div id="roomModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-md p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-slate-900 dark:text-white">Change Room</h3>
+                <button onclick="document.getElementById('roomModal').classList.add('hidden')"
+                        class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="max-h-80 overflow-y-auto space-y-2">
+                {% for room in rooms %}
+                    {% with occupant=room.active_group.first %}
+                        <form id="change-room-{{ room.room_id }}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="update_details">
+                            <input type="hidden" name="room_id" value="{{ room.room_id }}">
+                            <button type="button"
+                                    onclick="openModal('Change Room', 'Are you sure you want to move to {{ room.name|escapejs }}?{% if occupant and occupant != group %} Warning: It is currently occupied by {{ occupant.name|escapejs }}.{% endif %}', 'change-room-{{ room.room_id }}', 'confirm')"
+                                    class="w-full flex items-center gap-3 p-3 rounded-xl transition-colors text-left group border border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 {% if group.room == room %}bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800{% endif %}">
+                                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold">
+                                    <i class="fa-solid fa-door-closed"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-center">
+                                        <p class="font-bold text-slate-800 dark:text-white">{{ room.name }}</p>
+                                        {% if occupant and occupant != group %}
+                                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                                                Occupied: {{ occupant.name }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-xs text-slate-500">Capacity: {{ room.fire_capacity }}</p>
+                                </div>
+                            </button>
+                        </form>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Educator Modal -->
+    <div id="educatorModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-md p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-slate-900 dark:text-white">Assign Educator</h3>
+                <button onclick="document.getElementById('educatorModal').classList.add('hidden')"
+                        class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="max-h-80 overflow-y-auto space-y-2">
+                {% for edu in other_educators %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="assign_educator">
+                        <input type="hidden" name="user_id" value="{{ edu.user.user_id }}">
+                        <button type="submit"
+                                class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left group">
+                            <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold">
+                                {{ edu.user.full_name|first }}
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-bold text-slate-800 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                                    {{ edu.user.full_name }}
+                                </p>
+                                <p class="text-xs text-slate-500">Available</p>
+                            </div>
+                        </button>
+                    </form>
+                {% empty %}
+                    <p class="text-center text-slate-500">No other educators available.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Child Modal -->
+    <div id="childModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-md p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-slate-900 dark:text-white">Enroll Child</h3>
+                <button onclick="document.getElementById('childModal').classList.add('hidden')"
+                        class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="max-h-80 overflow-y-auto space-y-2">
+                {% for child in other_children %}
+                    <form id="assign-child-{{ child.child_id }}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="assign_child">
+                        <input type="hidden" name="child_id" value="{{ child.child_id }}">
+                        <button type="button"
+                                class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left group"
+                                onclick="openModal('Enroll Child', 'Are you sure you want to move {{ child.first_name|escapejs }} to this group?{% if child.assigned_group %} They are currently in {{ child.assigned_group.name|escapejs }}.{% endif %}', 'assign-child-{{ child.child_id }}', 'confirm')">
+                            <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold overflow-hidden">
+                                {% if child.profile_photo %}
+                                    <img src="{{ child.profile_photo.url }}"
+                                         class="w-full h-full object-cover">
+                                {% else %}
+                                    {{ child.first_name|first }}
+                                {% endif %}
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-bold text-slate-800 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                                    {{ child.first_name }} {{ child.last_name }}
+                                </p>
+                                <p class="text-[10px] text-slate-500 font-bold mb-1">{{ child.age_display }}</p>
+                                {% if child.assigned_group %}
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                        In: {{ child.assigned_group.name }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                        Unassigned
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </button>
+                    </form>
+                {% empty %}
+                    <p class="text-center text-slate-500">No other children available.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
