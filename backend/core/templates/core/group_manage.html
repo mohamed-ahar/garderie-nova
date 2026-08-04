@@ -37,10 +37,16 @@
                                 Compliant
                             </span>
                         {% else %}
-                            <span class="px-4 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400">
-                                Non-Compliant
-                            </span>
-                            <span class="text-xs font-bold text-red-500">Check Staffing or Capacity</span>
+                            <div class="space-y-2">
+                                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400">
+                                    <i class="fa-solid fa-circle-exclamation"></i> Non-Compliant
+                                </span>
+                                <div class="space-y-1.5">
+                                    {% for error in group.get_compliance_errors %}
+                                        <div class="text-xs text-red-600 dark:text-red-400 font-medium">• {{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
@@ -102,6 +108,7 @@
                             <tr class="bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
                                 <th class="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Educator</th>
                                 <th class="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact</th>
+                                <th class="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
                                 <th class="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
                             </tr>
                         </thead>
@@ -115,7 +122,6 @@
                                             </div>
                                             <div>
                                                 <p class="text-sm font-bold text-slate-900 dark:text-white">{{ educator.user.full_name }}</p>
-                                                <p class="text-xs text-slate-500 font-medium">ID: {{ educator.user.user_id|truncatechars:8 }}</p>
                                             </div>
                                         </div>
                                     </td>
@@ -124,6 +130,24 @@
                                             <span class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ educator.user.email }}</span>
                                             <span class="text-xs text-slate-500">{{ educator.user.phone_number|default:"No phone" }}</span>
                                         </div>
+                                    </td>
+                                    <td class="px-6 py-5">
+                                        {% if educator.is_compliant %}
+                                            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400">
+                                                <i class="fa-solid fa-circle-check"></i> Compliant
+                                            </span>
+                                        {% else %}
+                                            <div class="space-y-1">
+                                                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 mb-2">
+                                                    <i class="fa-solid fa-circle-exclamation"></i> Issues Found
+                                                </span>
+                                                <div class="space-y-1">
+                                                    {% for error in educator.compliance_errors %}
+                                                        <div class="text-xs text-red-600 dark:text-red-400 font-medium">• {{ error }}</div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
                                     </td>
                                     <td class="px-8 py-5">
                                         <form id="remove-educator-{{ educator.user.user_id }}"
@@ -134,7 +158,7 @@
                                             <input type="hidden" name="user_id" value="{{ educator.user.user_id }}">
                                             <button type="button"
                                                     class="w-9 h-9 flex items-center justify-center text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 transition-all rounded-xl shadow-sm"
-                                                    onclick="openModal('Remove Educator?', 'Are you sure you want to remove {{ educator.user.full_name|escapejs }}?', 'remove-educator-{{ educator.user.user_id }}', 'delete')">
+                                                    onclick="openModal('Remove Educator?', 'Are you sure you want to remove {{ educator.user.full_name|escapejs }} from this group?\n\nNote: All children assigned to this educator will also be unassigned from them.', 'remove-educator-{{ educator.user.user_id }}', 'delete')">
                                                 <i class="fa-solid fa-trash-can text-xs"></i>
                                             </button>
                                         </form>
@@ -142,7 +166,7 @@
                                 </tr>
                             {% empty %}
                                 <tr>
-                                    <td colspan="3" class="px-8 py-10 text-center text-slate-500">No educators assigned.</td>
+                                    <td colspan="4" class="px-8 py-10 text-center text-slate-500">No educators assigned.</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -206,21 +230,33 @@
                                             {% csrf_token %}
                                             <input type="hidden" name="action" value="assign_child_educator">
                                             <input type="hidden" name="child_id" value="{{ child.child_id }}">
-                                            <div class="relative">
-                                                <select name="educator_id"
-                                                        onchange="this.form.submit()"
-                                                        class="w-full appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer">
-                                                    <option value="">-- No Educator --</option>
-                                                    {% for edu in assigned_educators %}
-                                                        <option value="{{ edu.user.user_id }}"
-                                                                {% if child.assigned_educator == edu %}selected{% endif %}>
-                                                            {{ edu.user.full_name }}
-                                                        </option>
-                                                    {% endfor %}
-                                                </select>
-                                                <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                                            <div class="space-y-2">
+                                                <div class="relative">
+                                                    <select name="educator_id"
+                                                            onchange="this.form.submit()"
+                                                            class="w-full appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer">
+                                                        <option value="">-- No Educator --</option>
+                                                        {% for edu in assigned_educators %}
+                                                            <option value="{{ edu.user.user_id }}"
+                                                                    {% if child.assigned_educator == edu %}selected{% endif %}>
+                                                                {{ edu.user.full_name }}{% if not edu.is_compliant %} ⚠️{% endif %}
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                                                    </div>
                                                 </div>
+                                                {% if child.assigned_educator and not child.assigned_educator.is_compliant %}
+                                                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-2 space-y-1">
+                                                        <p class="text-xs font-bold text-red-700 dark:text-red-400 flex items-center gap-1">
+                                                            <i class="fa-solid fa-exclamation-circle"></i> Educator Issues:
+                                                        </p>
+                                                        {% for error in child.assigned_educator.compliance_errors %}
+                                                            <p class="text-xs text-red-600 dark:text-red-400">• {{ error }}</p>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
                                             </div>
                                         </form>
                                     </td>

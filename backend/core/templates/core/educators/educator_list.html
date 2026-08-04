@@ -1,0 +1,226 @@
+{% extends "core/base.html" %}
+
+{% block title %}Educator Management | GarderieNova{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+        <h1 class="text-3xl font-black text-emerald-600 dark:text-white tracking-tighter">Educator Management</h1>
+        <p class="text-slate-500 text-sm dark:text-slate-400 font-medium">Manage educators, profiles, and assignments.</p>
+    </div>
+    <div class="flex items-center gap-3">
+        <button onclick="openAddModal()" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-sm font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/25 active:scale-95">
+            <i class="fa-solid fa-plus"></i>
+            Add Educator
+        </button>
+    </div>
+</div>
+
+<div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
+                    <th class="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Educator</th>
+                    <th class="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact</th>
+                    <th class="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Center</th>
+                    <th class="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
+                    <th class="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                {% for educator in educators %}
+                <tr class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td class="px-8 py-5">
+                        <div class="flex items-center gap-4">
+                            <a href="{% url 'educator_detail' educator.user.user_id %}" class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:scale-110 transition-transform">
+                                {% if educator.user.profile_photo %}
+                                <img src="{{ educator.user.profile_photo.url }}" class="w-full h-full rounded-2xl object-cover">
+                                {% else %}
+                                <i class="fa-solid fa-user-tie text-sm"></i>
+                                {% endif %}
+                            </a>
+                            <div>
+                                <a href="{% url 'educator_detail' educator.user.user_id %}" class="text-sm font-bold text-slate-900 dark:text-white hover:text-emerald-600 transition-colors">
+                                    {{ educator.user.full_name }}
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-5">
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                                <i class="fa-solid fa-envelope opacity-50"></i>
+                                {{ educator.user.email }}
+                            </div>
+                            {% if educator.user.phone_number %}
+                            <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                                <i class="fa-solid fa-phone opacity-50"></i>
+                                {{ educator.user.phone_number }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="px-6 py-5">
+                         <span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-black rounded-lg uppercase">
+                            {{ educator.center.name }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-5">
+                        {% if educator.is_compliant %}
+                            <span class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black rounded-full border border-emerald-500/20 uppercase tracking-widest shadow-sm">
+                                <i class="fa-solid fa-check text-[8px]"></i> Compliant
+                            </span>
+                        {% else %}
+                            <div class="space-y-2">
+                                <span class="inline-flex items-center gap-2 px-3 py-1 bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-black rounded-full border border-red-500/20 uppercase tracking-widest shadow-sm">
+                                    <i class="fa-solid fa-exclamation text-[8px]"></i> Issues
+                                </span>
+                                <div class="space-y-1">
+                                    {% for error in educator.compliance_errors %}
+                                        <div class="text-xs text-red-600 dark:text-red-400 font-medium whitespace-nowrap">• {{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-8 py-5 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <a href="{% url 'educator_detail' educator.user.user_id %}" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all shadow-sm" title="View Profile">
+                                <i class="fa-solid fa-eye text-xs"></i>
+                            </a>
+                            <a href="{% url 'educator_edit' educator.user.user_id %}" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all shadow-sm" title="Edit">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </a>
+                            <form id="delete-form-{{ educator.user.user_id }}" method="POST" action="{% url 'educator_delete' educator.user.user_id %}" class="inline">
+                                {% csrf_token %}
+                                <button type="button" onclick="openModal('Delete Educator', 'Are you sure you want to delete {{ educator.user.full_name|escapejs }}?', 'delete-form-{{ educator.user.user_id }}', 'delete')" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 transition-all rounded-xl shadow-sm">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-8 py-10 text-center text-slate-500 dark:text-slate-400">
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-300">
+                                <i class="fa-solid fa-user-slash text-2xl"></i>
+                            </div>
+                            <p class="font-medium">No educators found.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Educator Modal -->
+<div id="addEducatorModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-2xl p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-black text-slate-900 dark:text-white">Add New Educator</h3>
+            <button type="button" onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        
+        <form id="addEducatorForm" onsubmit="submitAddEducator(event)">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase text-slate-500">Full Name</label>
+                    <input type="text" name="full_name" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900 dark:text-white">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase text-slate-500">Email</label>
+                    <input type="email" name="email" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900 dark:text-white">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase text-slate-500">Phone</label>
+                    <input type="tel" name="phone_number" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900 dark:text-white">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase text-slate-500">Password</label>
+                    <input type="password" name="password" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900 dark:text-white">
+                </div>
+                {% if centers %}
+                <div class="space-y-2 md:col-span-2">
+                    <label class="text-xs font-bold uppercase text-slate-500">Assign Center</label>
+                    <select name="center_id" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900 dark:text-white">
+                        {% for center in centers %}
+                        <option value="{{ center.center_id }}">{{ center.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div id="formError" class="hidden p-4 mb-6 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm font-bold text-center"></div>
+
+            <div class="flex gap-3 justify-end">
+                <button type="button" onclick="closeAddModal()" class="px-6 py-3 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/30 transition-all active:scale-95">
+                    <i class="fa-solid fa-plus mr-2"></i>Create Educator
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openAddModal() {
+    document.getElementById('addEducatorModal').classList.remove('hidden');
+}
+
+function closeAddModal() {
+    document.getElementById('addEducatorModal').classList.add('hidden');
+    document.getElementById('addEducatorForm').reset();
+    document.getElementById('formError').classList.add('hidden');
+}
+
+async function submitAddEducator(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const errorEl = document.getElementById('formError');
+    
+    // Disable button
+    const btn = form.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Creating...';
+    errorEl.classList.add('hidden');
+
+    try {
+        const response = await fetch("{% url 'educator_add' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            errorEl.textContent = data.message || 'An error occurred.';
+            errorEl.classList.remove('hidden');
+        }
+    } catch (err) {
+        errorEl.textContent = 'Network error. Please try again.';
+        errorEl.classList.remove('hidden');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+</script>
+{% endblock %}

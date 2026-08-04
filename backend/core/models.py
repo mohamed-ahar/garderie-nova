@@ -165,6 +165,104 @@ class EducatorProfile(models.Model):
         Center, on_delete=models.CASCADE, related_name="educators"
     )
     is_active_in_ratio = models.BooleanField(default=True)
+    is_compliant = models.BooleanField(default=True)
+    compliance_errors = models.JSONField(default=list, blank=True)
+
+    def get_age_group_errors(self):
+        """
+        Check if educator has children from multiple age groups.
+        Returns list of error messages if validation fails.
+        """
+        children = self.assigned_children.all()
+        errors = []
+        
+        if not children.exists():
+            return errors
+        
+        has_under_24m = False
+        has_over_24m = False
+        today = date.today()
+
+        for child in children:
+            age_months = (
+                (today.year - child.birth_date.year) * 12
+                + today.month
+                - child.birth_date.month
+            )
+            if today.day < child.birth_date.day:
+                age_months -= 1
+
+            if age_months < 24:
+                has_under_24m = True
+            else:
+                has_over_24m = True
+
+        if has_under_24m and has_over_24m:
+            errors.append("Educator cannot supervise both children under 24 months and older children.")
+        
+        return errors
+
+    def get_ratio_errors(self):
+        """
+        Check if educator ratio is compliant.
+        Returns list of error messages if validation fails.
+        """
+        children = self.assigned_children.all()
+        errors = []
+        
+        if not children.exists():
+            return errors
+
+        total_factor = 0.0
+        today = date.today()
+
+        for child in children:
+            age_months = (
+                (today.year - child.birth_date.year) * 12
+                + today.month
+                - child.birth_date.month
+            )
+            if today.day < child.birth_date.day:
+                age_months -= 1
+
+            factor = 0.0
+            if age_months < 24:
+                factor = 0.333
+            elif 24 <= age_months < 36:
+                factor = 0.200
+            elif 36 <= age_months < 48:
+                factor = 0.125
+            elif 48 <= age_months < 60:
+                factor = 0.100
+            else:
+                factor = 0.067
+            
+            total_factor += factor
+
+        if total_factor > 1.05:
+            errors.append(f"Ratio exceeded for this educator (Points: {total_factor:.3f} / 1.05 max).")
+
+        return errors
+
+    def recalculate_compliance(self):
+        children = self.assigned_children.all()
+        errors = []
+        
+        if not children.exists():
+            self.is_compliant = True
+            self.compliance_errors = []
+            self.save()
+            return True
+
+        # Get validation errors from both checks
+        errors.extend(self.get_age_group_errors())
+        errors.extend(self.get_ratio_errors())
+
+        self.is_compliant = len(errors) == 0
+        self.compliance_errors = errors
+        self.save()
+        print(errors)
+        return self.is_compliant
 
     def __str__(self):
         return f"Educator: {self.user.full_name}"
@@ -294,9 +392,83 @@ class Group(models.Model):
         size_check = self.current_occupancy <= self.calculated_max_capacity
         mixing_check = not (has_under_24m and has_over_24m)
 
-        self.is_compliant = staff_check and size_check and mixing_check
+        # Educator specific checks
+        educator_assignments = self.staff_assignments.filter(is_active=True)
+        all_educators_compliant = True
+        for assignment in educator_assignments:
+            if not assignment.educator.recalculate_compliance():
+                all_educators_compliant = False
+
+        self.is_compliant = staff_check and size_check and mixing_check and all_educators_compliant
 
         self.save()
+
+    def get_compliance_errors(self):
+        """
+        Returns a list of compliance error messages for the group.
+        """
+        children = self.enrolled_children.all()
+        errors = []
+        
+        if not children.exists():
+            return errors
+
+        total_educators_factor = 0.0
+        has_under_24m = False
+        has_over_24m = False
+        highest_factor_in_group = 0.0
+        today = date.today()
+
+        for child in children:
+            age_months = (
+                (today.year - child.birth_date.year) * 12
+                + today.month
+                - child.birth_date.month
+            )
+            if today.day < child.birth_date.day:
+                age_months -= 1
+
+            if age_months < 24:
+                has_under_24m = True
+            else:
+                has_over_24m = True
+
+            factor = 0.0
+            if age_months < 24:
+                factor = 0.333
+            elif 24 <= age_months < 36:
+                factor = 0.200
+            elif 36 <= age_months < 48:
+                factor = 0.125
+            elif 48 <= age_months < 60:
+                factor = 0.100
+            else:
+                factor = 0.067
+            
+            if factor > highest_factor_in_group:
+                highest_factor_in_group = factor
+
+            total_educators_factor += factor
+
+        # Check for age mixing violation
+        if has_under_24m and has_over_24m:
+            errors.append("Cannot mix children under 24 months with older children in the same group.")
+        
+        # Check for staffing issues
+        if self.current_educators < self.required_educators:
+            errors.append(f"Insufficient staff: {self.current_educators} present but {self.required_educators} required.")
+        
+        # Check for capacity issues
+        if self.current_occupancy > self.calculated_max_capacity:
+            errors.append(f"Group capacity exceeded: {self.current_occupancy} children but max {self.calculated_max_capacity} allowed.")
+        
+        # Check for non-compliant educators
+        educator_assignments = self.staff_assignments.filter(is_active=True)
+        for assignment in educator_assignments:
+            if not assignment.educator.is_compliant:
+                errors.append(f"Educator {assignment.educator.user.full_name} has compliance issues.")
+        
+        return errors
 
     @property
     def age_distribution(self):

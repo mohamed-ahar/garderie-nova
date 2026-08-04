@@ -1,9 +1,9 @@
 <aside id="sidebar" class="fixed left-0 top-0 z-50 h-screen w-72 lg:w-72 
     bg-slate-900 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 
-           transition-all duration-500 ease-in-out -translate-x-full lg:translate-x-0">
+           transition-all duration-500 ease-in-out -translate-x-full">
     <!--button -->
     <button onclick="toggleSidebar()" 
-    class="lg:hidden absolute -right-4 top-10 z-[70] flex items-center justify-center 
+    class="absolute -right-4 top-10 z-[70] flex items-center justify-center 
            w-8 h-8 group transition-all duration-300 ease-in-out
            bg-slate-900 
            border border-slate-700
@@ -102,11 +102,11 @@
                     </a>
                     
                     {% if user.role_type == 'owner' or user.role_type == 'director' or user.role_type == 'vice_director' %}
-                    <a href="#" class="flex items-center px-4 py-3 text-[12px] font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all dropdown-btn">
+                    <a href="{% url 'educator_list' %}" class="flex items-center px-4 py-3 text-[12px] font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all dropdown-btn">
                         <i class="fa-solid fa-user-tie lg:mr-3 opacity-70"></i>
                         <span class="sidebar-label">Educators</span>
                     </a>
-        
+
                     <a href="#" class="flex items-center px-4 py-3 text-[12px] font-medium text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all dropdown-btn">
                         <i class="fa-solid fa-house-user lg:mr-3 opacity-70"></i>
                         <span class="sidebar-label">Parents</span>

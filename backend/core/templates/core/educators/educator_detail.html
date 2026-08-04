@@ -1,0 +1,201 @@
+{% extends "core/base.html" %}
+
+{% block title %}Educator Profile | GarderieNova{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-black text-emerald-600 dark:text-white tracking-tighter">{{ educator.user.full_name }}</h1>
+            <p class="text-slate-500 text-sm dark:text-slate-400 font-medium">Educator Profile & Assignments</p>
+        </div>
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+             <a href="{% url 'educator_list' %}" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all order-2 sm:order-1">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span class="hidden sm:inline">Back to List</span>
+            </a>
+            <a href="{% url 'educator_edit' educator.user.user_id %}" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-2xl text-sm font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/25 active:scale-95 order-1 sm:order-2">
+                <i class="fa-solid fa-pen"></i>
+                <span class="hidden sm:inline">Edit Profile</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        <!-- Profile Card -->
+        <div class="lg:col-span-1 space-y-6 lg:space-y-8">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl p-6 lg:p-8">
+                <div class="flex flex-col items-center">
+                    <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xl shadow-indigo-500/30 mb-4 md:mb-6 text-3xl md:text-4xl">
+                        {% if educator.user.profile_photo %}
+                            <img src="{{ educator.user.profile_photo.url }}" alt="{{ educator.user.full_name }}" class="w-full h-full rounded-full object-cover">
+                        {% else %}
+                            <i class="fa-solid fa-user-tie"></i>
+                        {% endif %}
+                    </div>
+                    <h2 class="text-lg md:text-xl font-black text-slate-900 dark:text-white text-center">{{ educator.user.full_name }}</h2>
+                    <p class="text-slate-500 text-xs md:text-sm font-medium text-center">{{ educator.center.name }}</p>
+                    
+                    <div class="w-full mt-6 md:mt-8 space-y-3 md:space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-2 p-3 md:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+                            <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400">
+                                <i class="fa-solid fa-envelope"></i>
+                                <span class="text-xs font-bold uppercase tracking-wider">Email</span>
+                            </div>
+                            <span class="text-xs md:text-sm font-bold text-slate-900 dark:text-white break-all">{{ educator.user.email }}</span>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-2 p-3 md:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+                            <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400">
+                                <i class="fa-solid fa-phone"></i>
+                                <span class="text-xs font-bold uppercase tracking-wider">Phone</span>
+                            </div>
+                            <span class="text-xs md:text-sm font-bold text-slate-900 dark:text-white">{{ educator.user.phone_number|default:"-" }}</span>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-2 p-3 md:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+                            <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400">
+                                <i class="fa-solid fa-clock"></i>
+                                <span class="text-xs font-bold uppercase tracking-wider">Status</span>
+                            </div>
+                            {% if educator.is_active_in_ratio %}
+                            <span class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black rounded-full border border-emerald-500/20 uppercase tracking-widest">
+                                Active
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center gap-2 px-3 py-1 bg-slate-500/10 text-slate-600 dark:text-slate-400 text-[10px] font-black rounded-full border border-slate-500/20 uppercase tracking-widest">
+                                Inactive
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="p-3 md:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+                            <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400 mb-3">
+                                <i class="fa-solid fa-shield-check"></i>
+                                <span class="text-xs font-bold uppercase tracking-wider">Compliance</span>
+                            </div>
+                            {% if educator.is_compliant %}
+                            <span class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black rounded-full border border-emerald-500/20 uppercase tracking-widest">
+                                <i class="fa-solid fa-circle-check"></i> Compliant
+                            </span>
+                            {% else %}
+                            <div class="space-y-2">
+                                <span class="inline-flex items-center gap-2 px-3 py-1 bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-black rounded-full border border-red-500/20 uppercase tracking-widest">
+                                    <i class="fa-solid fa-circle-exclamation"></i> Issues Found
+                                </span>
+                                <div class="space-y-1">
+                                    {% for error in educator.compliance_errors %}
+                                        <div class="text-xs text-red-600 dark:text-red-400 font-medium">• {{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assignments -->
+        <div class="lg:col-span-2 space-y-6 lg:space-y-8">
+            <!-- Current Group Assignment -->
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl p-6 lg:p-8">
+                <h3 class="text-lg md:text-xl font-black text-slate-900 dark:text-white mb-4 md:mb-6 flex items-center gap-3">
+                    <i class="fa-solid fa-users text-emerald-500"></i>
+                    Current Assignment
+                </h3>
+                
+                {% if active_assignment %}
+                <div class="flex flex-col md:flex-row gap-4 md:gap-6 items-start">
+                    <div class="flex-1 w-full bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 md:p-6 border border-slate-100 dark:border-slate-800">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
+                            <div>
+                                <p class="text-xs font-black uppercase text-slate-400 tracking-widest mb-1">Group</p>
+                                <a href="{% url 'group_edit' active_assignment.group.group_id %}" class="text-base md:text-lg font-black text-indigo-600 dark:text-indigo-400 hover:underline">
+                                    {{ active_assignment.group.name }}
+                                </a>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                            <div>
+                                <p class="text-[10px] font-bold uppercase text-slate-400">Room</p>
+                                <p class="text-xs md:text-sm font-bold text-slate-700 dark:text-slate-200">{{ active_assignment.group.room.name|default:"No Room" }}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold uppercase text-slate-400">Assigned Since</p>
+                                <p class="text-xs md:text-sm font-bold text-slate-700 dark:text-slate-200">{{ active_assignment.check_in_time|date:"M d, Y"|default:"Recently" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="p-6 md:p-8 text-center bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+                    <i class="fa-solid fa-user-clock text-3xl md:text-4xl text-slate-300 mb-3"></i>
+                    <p class="text-slate-500 dark:text-slate-400 font-medium text-sm md:text-base">No active group assignment.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Assigned Children -->
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden">
+                <div class="p-6 lg:p-8 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <h3 class="text-lg md:text-xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+                        <i class="fa-solid fa-child text-purple-500"></i>
+                        Assigned Children
+                    </h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs md:text-sm mt-1">Children directly assigned to this educator.</p>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-full">
+                        <thead>
+                            <tr class="bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
+                                <th class="px-4 md:px-8 py-4 md:py-5 text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] md:tracking-[0.2em]">Child</th>
+                                <th class="px-4 md:px-6 py-4 md:py-5 text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] md:tracking-[0.2em]">Age</th>
+                                <th class="px-4 md:px-6 py-4 md:py-5 text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] md:tracking-[0.2em]">Group</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                            {% for child in assigned_children %}
+                            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                <td class="px-4 md:px-8 py-3 md:py-4">
+                                    <div class="flex items-center gap-2 md:gap-3">
+                                        <div class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                            {% if child.profile_photo %}
+                                            <img src="{{ child.profile_photo.url }}" class="w-full h-full object-cover">
+                                            {% else %}
+                                            <i class="fa-solid fa-baby text-slate-400 text-xs md:text-sm"></i>
+                                            {% endif %}
+                                        </div>
+                                        <span class="text-xs md:text-sm font-bold text-slate-900 dark:text-white">{{ child.first_name }} {{ child.last_name }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 md:px-6 py-3 md:py-4">
+                                    <span class="text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">{{ child.age_display }}</span>
+                                </td>
+                                <td class="px-4 md:px-6 py-3 md:py-4">
+                                    {% if child.assigned_group %}
+                                    <span class="px-2 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[10px] md:text-xs font-bold rounded-lg">
+                                        {{ child.assigned_group.name }}
+                                    </span>
+                                    {% else %}
+                                    <span class="text-xs text-slate-400">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="px-8 py-8 text-center text-slate-500 dark:text-slate-400">
+                                    No children assigned.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <html lang="en" class="{{ theme }}">
-
-<head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer"
-    />
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}GarderieNova{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <script>
+    <head>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+              integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+              crossorigin="anonymous"
+              referrerpolicy="no-referrer" />
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>
+            {% block title %}GarderieNova{% endblock %}
+        </title>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+              rel="stylesheet">
+        <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -31,22 +37,75 @@
                 }
             }
         }
-    </script>
-    <style>
-        /* Ensure the sidebar width changes smoothly */
+        </script>
+        <style>
+        #global-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .dark #global-loader {
+            background-color: #0f172a; 
+        }
+
+        #global-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(22, 163, 74, 0.2); 
+            border-top: 5px solid #16a34a; 
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .dark .spinner {
+            border: 5px solid rgba(22, 163, 74, 0.3); 
+            border-top: 5px solid #22c55e; 
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         #sidebar {
             transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        /* Smooth movement for the main content */
+
         main {
             transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-left: 288px;
         }
-        /* Prevent text from wrapping or "glitching" during the animation */
+
+        main.sidebar-hidden {
+            margin-left: 0;
+        }
+
+        @media (max-width: 1024px) {
+            main {
+                margin-left: 0;
+            }
+        }
+
         .sidebar-label {
             white-space: nowrap;
             transition: opacity 0.3s ease;
         }
-        /* Add a tooltip style if you want (Optional) */
+
         #sidebar.lg\:w-20 button:hover::after {
             content: attr(data-title);
             position: absolute;
@@ -71,52 +130,63 @@
         .active-link {
             @apply bg-primary/10 text-primary border-r-4 border-primary;
         }
-    </style>
-    {% block head %}{% endblock %}
-</head>
-
-<body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 font-sans antialiased">
-
-    <!-- Sidebar Inclusion -->
-    {% include "core/sidebar.html" %}
-
-    <main class="lg:ml-72 min-h-screen transition-all duration-500 ease-in-out">
-        <!-- Header Inclusion -->
-        {% include "core/header.html" %}
-
-        <div class="p-6 md:p-10 space-y-10 max-w-[1600px] mx-auto">
-            {% block content %}
-            {% endblock %}
+        </style>
+        {% block head %}{% endblock %}
+    </head>
+    <body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 font-sans antialiased">
+        <div id="global-loader">
+            <div class="spinner"></div>
+            <div style="margin-top: 20px;
+                        font-weight: 700;
+                        color: #16a34a;
+                        letter-spacing: -0.5px">GarderieNova</div>
         </div>
-    </main>
-
-    <!-- Generic Confirmation Modal -->
-    <div id="genericModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity duration-300">
-        <div class="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-md p-8 shadow-2xl transform scale-100 transition-transform duration-300">
-            <div class="text-center">
-                <div id="modalIconContainer" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i id="modalIcon" class="text-2xl"></i>
-                </div>
-                <h3 id="modalTitle" class="text-2xl font-black text-slate-900 dark:text-white mb-2"></h3>
-                <p id="modalBody" class="text-slate-500 dark:text-slate-400 mb-8"></p>
-                
-                <!-- Internal form for URL targets -->
-                <form id="modalForm" method="post" action="" class="hidden">{% csrf_token %}</form>
-
-                <div class="flex gap-3 justify-center">
-                    <button type="button" onclick="closeModal()" class="px-6 py-3 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                        Cancel
-                    </button>
-                    <button id="modalConfirmBtn" type="button" onclick="confirmAction()" class="px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95">
-                        Confirm
-                    </button>
+        {% include "core/sidebar.html" %}
+        <main class="min-h-screen transition-all duration-500 ease-in-out sidebar-hidden">
+            {% include "core/header.html" %}
+            <div class="p-6 md:p-10 space-y-10 max-w-[1600px] mx-auto">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+        <div id="genericModal"
+             class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity duration-300">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-md p-8 shadow-2xl transform scale-100 transition-transform duration-300">
+                <div class="text-center">
+                    <div id="modalIconContainer"
+                         class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i id="modalIcon" class="text-2xl"></i>
+                    </div>
+                    <h3 id="modalTitle"
+                        class="text-2xl font-black text-slate-900 dark:text-white mb-2"></h3>
+                    <p id="modalBody" class="text-slate-500 dark:text-slate-400 mb-8"></p>
+                    <form id="modalForm" method="post" action="" class="hidden">
+                        {% csrf_token %}
+                    </form>
+                    <div class="flex gap-3 justify-center">
+                        <button type="button"
+                                onclick="closeModal()"
+                                class="px-6 py-3 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            Cancel
+                        </button>
+                        <button id="modalConfirmBtn"
+                                type="button"
+                                onclick="confirmAction()"
+                                class="px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95">
+                            Confirm
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <script>
-        // DOM Elements
+        <script>
+            function removeLoader() {
+            const loader = document.getElementById('global-loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                loader.style.visibility = 'hidden';
+            }
+        }
+        window.addEventListener('load', () => setTimeout(removeLoader, 500));
         const sidebar = document.getElementById('sidebar');
         const userMenu = document.getElementById('user-menu');
         const themeIcon = document.getElementById('theme-icon');
@@ -136,7 +206,7 @@
 
             titleEl.textContent = title;
             bodyEl.textContent = body;
-            
+
             // Reset state
             modalTargetFormId = null;
             modalForm.action = '';
@@ -199,7 +269,7 @@
             const now = new Date();
             const clockElement = document.getElementById('digital-clock');
             const dateElement = document.getElementById('current-date');
-            
+
             if(clockElement) clockElement.innerText = now.toLocaleTimeString();
             if(dateElement) dateElement.innerText = now.toLocaleDateString('en-US', {
                 weekday: 'long',
@@ -214,6 +284,8 @@
         // Sidebar Toggle
         function toggleSidebar() {
             sidebar.classList.toggle('-translate-x-full');
+            const main = document.querySelector('main');
+            main.classList.toggle('sidebar-hidden');
         }
 
         // Full Screen Toggle
@@ -234,9 +306,9 @@
             const html = document.documentElement;
             const isDark = html.classList.toggle('dark');
             const newTheme = isDark ? 'dark' : 'light';
-            
+
             if (themeIcon) themeIcon.className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-slate-500';
-            
+
             localStorage.setItem('theme', newTheme);
             document.cookie = "theme=" + newTheme + "; path=/; max-age=31536000"; // 1 year expiry
         }
@@ -249,7 +321,7 @@
                 userMenu.classList.toggle('translate-y-4');
             }
         }
-        
+
         function toggleDropdown(button) {
             const content = button.nextElementSibling;
             const chevron = button.querySelector('.chevron');
@@ -281,7 +353,8 @@
                 userMenu.classList.add('opacity-0', 'invisible', 'translate-y-4');
             }
         }
-    </script>
-    {% block scripts %}{% endblock %}
-</body>
+        </script>
+        {% block scripts %}
+        {% endblock %}
+    </body>
 </html>
