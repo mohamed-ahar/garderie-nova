@@ -6,3 +6,4 @@ djangorestframework-simplejwt
 django-cors-headers
 names-generator
 Pillow
+weasyprint

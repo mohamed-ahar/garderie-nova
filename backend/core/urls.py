@@ -11,6 +11,11 @@ from .views import (
     educator_detail_view,
     educator_edit_view,
     educator_delete_view,
+    parent_list_view,
+    parent_add_view,
+    parent_detail_view,
+    parent_edit_view,
+    parent_delete_view,
 )
 from django.views.generic import RedirectView
 
@@ -27,4 +32,9 @@ urlpatterns = [
     path("educators/<uuid:user_id>/", educator_detail_view, name="educator_detail"),
     path("educators/<uuid:user_id>/edit/", educator_edit_view, name="educator_edit"),
     path("educators/<uuid:user_id>/delete/", educator_delete_view, name="educator_delete"),
+    path("parents/", parent_list_view, name="parent_list"),
+    path("parents/add/", parent_add_view, name="parent_add"),
+    path("parents/<uuid:user_id>/", parent_detail_view, name="parent_detail"),
+    path("parents/<uuid:user_id>/edit/", parent_edit_view, name="parent_edit"),
+    path("parents/<uuid:user_id>/delete/", parent_delete_view, name="parent_delete"),
 ]

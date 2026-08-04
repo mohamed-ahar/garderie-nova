@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db import models
 from django.db.models import Prefetch
-from .models import Group, Room, Child, EducatorProfile, StaffAssignment, User, Center
+from .models import Group, Room, Child, EducatorProfile, StaffAssignment, User, Center, ParentProfile
 
 
 def login_view(request):
@@ -65,7 +65,7 @@ def group_list_view(request):
             groups = Group.objects.filter(center=center).select_related("room")
 
     context = {"groups": groups}
-    return render(request, "core/group_list.html", context)
+    return render(request, "core/groups/group_list.html", context)
 
 
 @login_required(login_url="login")
@@ -114,7 +114,9 @@ def group_edit_view(request, group_id):
             user_id = request.POST.get("user_id")
             educator = get_object_or_404(EducatorProfile, user__user_id=user_id)
             # Remove all children assigned to this educator
-            children = Child.objects.filter(assigned_educator=educator, assigned_group=group)
+            children = Child.objects.filter(
+                assigned_educator=educator, assigned_group=group
+            )
             children.update(assigned_educator=None)
             # Remove educator from group
             StaffAssignment.objects.filter(
@@ -155,7 +157,7 @@ def group_edit_view(request, group_id):
                     child.assigned_educator = None
                     child.save()
                     old_educator.recalculate_compliance()
-                
+
                 # Assign to new educator if provided
                 if educator_id:
                     educator = get_object_or_404(
@@ -166,7 +168,7 @@ def group_edit_view(request, group_id):
                     educator.recalculate_compliance()
                 else:
                     child.save()
-                
+
                 group.recalculate_ratios()
 
         return redirect("group_edit", group_id=group_id)
@@ -174,11 +176,11 @@ def group_edit_view(request, group_id):
     assigned_educators = EducatorProfile.objects.filter(
         assignments__group=group, assignments__is_active=True
     ).select_related("user")
-    
+
     # Recalculate compliance for all assigned educators
     for educator in assigned_educators:
         educator.recalculate_compliance()
-    
+
     assigned_children = (
         group.enrolled_children.all()
         .select_related("assigned_educator__user")
@@ -209,7 +211,7 @@ def group_edit_view(request, group_id):
         "other_educators": other_educators,
         "other_children": other_children,
     }
-    return render(request, "core/group_manage.html", context)
+    return render(request, "core/groups/group_manage.html", context)
 
 
 @login_required(login_url="login")
@@ -259,7 +261,7 @@ def educator_list_view(request):
     # Recalculate compliance for all educators
     for educator in educators:
         educator.recalculate_compliance()
-    
+
     context = {"educators": educators, "centers": centers}
     return render(request, "core/educators/educator_list.html", context)
 
@@ -281,12 +283,18 @@ def educator_add_view(request):
         )  # In a real app, generate or email set link
         center_id = request.POST.get("center_id")
 
-        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.META.get('HTTP_ACCEPT', '')
+        is_ajax = request.headers.get(
+            "x-requested-with"
+        ) == "XMLHttpRequest" or "application/json" in request.META.get(
+            "HTTP_ACCEPT", ""
+        )
 
         # Validation (simplistic)
         if User.objects.filter(email=email).exists():
             if is_ajax:
-                return JsonResponse({"status": "error", "message": "Email already exists."}, status=400)
+                return JsonResponse(
+                    {"status": "error", "message": "Email already exists."}, status=400
+                )
             return render(
                 request,
                 "core/educators/educator_form.html",
@@ -301,7 +309,10 @@ def educator_add_view(request):
         # Create User
         try:
             new_user = User.objects.create_user(
-                email=email, password=password, full_name=full_name, role_type="educator"
+                email=email,
+                password=password,
+                full_name=full_name,
+                role_type="educator",
             )
             new_user.phone_number = phone_number
             new_user.save()
@@ -318,13 +329,21 @@ def educator_add_view(request):
             if target_center:
                 EducatorProfile.objects.create(user=new_user, center=target_center)
                 if is_ajax:
-                    return JsonResponse({"status": "success", "message": "Educator added successfully."})
+                    return JsonResponse(
+                        {"status": "success", "message": "Educator added successfully."}
+                    )
                 return redirect("educator_list")
             else:
                 # Rollback user creation if center issue? Or just show error.
                 new_user.delete()
                 if is_ajax:
-                    return JsonResponse({"status": "error", "message": "Center not found for assignment."}, status=400)
+                    return JsonResponse(
+                        {
+                            "status": "error",
+                            "message": "Center not found for assignment.",
+                        },
+                        status=400,
+                    )
                 return render(
                     request,
                     "core/educators/educator_form.html",
@@ -360,7 +379,7 @@ def educator_detail_view(request, user_id):
 
     # Recalculate compliance for this educator
     educator_profile.recalculate_compliance()
-    
+
     active_assignment = educator_profile.assignments.filter(is_active=True).first()
     assigned_children = educator_profile.assigned_children.all()
 
@@ -424,5 +443,181 @@ def educator_delete_view(request, user_id):
     if request.method == "POST":
         educator_profile.user.delete()
         return redirect("educator_list")
+
+    return render(request, "core/403.html", status=403)
+
+
+@login_required(login_url="login")
+def parent_list_view(request):
+    user = request.user
+    parents = ParentProfile.objects.none()
+    centers = []
+
+    if user.role_type == "owner":
+        parents = ParentProfile.objects.all().select_related("user")
+        centers = Center.objects.all()
+    elif user.role_type in ["director", "vice_director"]:
+        if user.role_type == "director" and hasattr(user, "director_profile"):
+            center = user.director_profile.managed_center
+            if center:
+                parents = ParentProfile.objects.filter(
+                    user__center_association__in=[center]
+                ).select_related("user").distinct() if hasattr(ParentProfile, 'center') else ParentProfile.objects.all().select_related("user")
+        elif user.role_type == "vice_director" and hasattr(
+            user, "vice_director_profile"
+        ):
+            center = user.vice_director_profile.center
+            if center:
+                parents = ParentProfile.objects.filter(
+                    user__center_association__in=[center]
+                ).select_related("user").distinct() if hasattr(ParentProfile, 'center') else ParentProfile.objects.all().select_related("user")
+
+    context = {"parents": parents, "centers": centers}
+    return render(request, "core/parents/parent_list.html", context)
+
+
+@login_required(login_url="login")
+def parent_add_view(request):
+    user = request.user
+
+    # Basic permission check
+    if user.role_type not in ["owner", "director", "vice_director"]:
+        return render(request, "core/403.html", status=403)
+
+    if request.method == "POST":
+        full_name = request.POST.get("full_name")
+        email = request.POST.get("email")
+        phone_number = request.POST.get("phone_number")
+        home_address = request.POST.get("home_address")
+        billing_reference = request.POST.get("billing_reference")
+        password = request.POST.get("password")
+
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.META.get('HTTP_ACCEPT', '')
+
+        # Validation
+        if User.objects.filter(email=email).exists():
+            if is_ajax:
+                return JsonResponse({"status": "error", "message": "Email already exists."}, status=400)
+            return render(
+                request,
+                "core/parents/parent_form.html",
+                {
+                    "error": "Email already exists.",
+                    "centers": (
+                        Center.objects.all() if user.role_type == "owner" else []
+                    ),
+                },
+            )
+
+        # Create User
+        try:
+            new_user = User.objects.create_user(
+                email=email, password=password, full_name=full_name, role_type="parent"
+            )
+            new_user.phone_number = phone_number
+            new_user.save()
+
+            # Create Parent Profile
+            parent_profile = ParentProfile.objects.create(
+                user=new_user,
+                home_address=home_address,
+                billing_reference=billing_reference
+            )
+            
+            if is_ajax:
+                return JsonResponse({"status": "success", "message": "Parent added successfully."})
+            return redirect("parent_list")
+        except Exception as e:
+            if is_ajax:
+                return JsonResponse({"status": "error", "message": str(e)}, status=500)
+            raise e
+
+    # GET
+    centers = []
+    if user.role_type == "owner":
+        centers = Center.objects.all()
+
+    return render(request, "core/parents/parent_form.html", {"centers": centers})
+
+
+@login_required(login_url="login")
+def parent_detail_view(request, user_id):
+    user = request.user
+    parent_profile = get_object_or_404(ParentProfile, user__user_id=user_id)
+
+    # Permission check
+    if user.role_type == "director":
+        # For now, allow any parent to be viewed by director
+        pass
+    elif user.role_type == "vice_director":
+        # For now, allow any parent to be viewed by vice director
+        pass
+    elif user.role_type != "owner":
+        return render(request, "core/403.html", status=403)
+
+    # Get children associated with this parent
+    children_relationships = parent_profile.children_relationships.all()
+
+    context = {
+        "parent": parent_profile,
+        "children_relationships": children_relationships,
+    }
+    return render(request, "core/parents/parent_detail.html", context)
+
+
+@login_required(login_url="login")
+def parent_edit_view(request, user_id):
+    user = request.user
+    parent_profile = get_object_or_404(ParentProfile, user__user_id=user_id)
+    parent_user = parent_profile.user
+
+    # Permission check
+    if user.role_type == "director":
+        pass
+    elif user.role_type == "vice_director":
+        pass
+    elif user.role_type != "owner":
+        return render(request, "core/403.html", status=403)
+
+    if request.method == "POST":
+        full_name = request.POST.get("full_name")
+        email = request.POST.get("email")
+        phone_number = request.POST.get("phone_number")
+        home_address = request.POST.get("home_address")
+        billing_reference = request.POST.get("billing_reference")
+
+        parent_user.full_name = full_name
+        parent_user.email = email
+        parent_user.phone_number = phone_number
+        parent_user.save()
+
+        parent_profile.home_address = home_address
+        parent_profile.billing_reference = billing_reference
+        parent_profile.save()
+
+        return redirect("parent_list")
+
+    return render(
+        request,
+        "core/parents/parent_form.html",
+        {"parent": parent_profile, "is_edit": True},
+    )
+
+
+@login_required(login_url="login")
+def parent_delete_view(request, user_id):
+    user = request.user
+    parent_profile = get_object_or_404(ParentProfile, user__user_id=user_id)
+
+    if user.role_type == "director":
+        pass
+    elif user.role_type == "vice_director":
+        pass
+    elif user.role_type != "owner":
+        return render(request, "core/403.html", status=403)
+
+    if request.method == "POST":
+        parent_profile.user.delete()
+        return redirect("parent_list")
 
     return render(request, "core/403.html", status=403)
