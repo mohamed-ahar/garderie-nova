@@ -1,239 +1,171 @@
-from rest_framework import generics, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
-from .models import Group, Room, Center, Child, EducatorProfile, StaffAssignment
-from .serializers import (
-    UserSerializer, GroupSerializer, RoomSerializer, CenterSerializer,
-    ChildSerializer, EducatorSerializer, StaffAssignmentSerializer
-)
-
-class CurrentUserView(generics.RetrieveAPIView):
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        return self.request.user
-
-class GroupListCreateView(generics.ListCreateAPIView):
-    serializer_class = GroupSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role_type == 'director':
-            if hasattr(user, 'director_profile') and user.director_profile.managed_center:
-                return Group.objects.filter(center=user.director_profile.managed_center)
-        if user.role_type == 'owner':
-             return Group.objects.all()
-        return Group.objects.none()
-
-    def perform_create(self, serializer):
-        user = self.request.user
-        if user.role_type == 'director' and hasattr(user, 'director_profile') and user.director_profile.managed_center:
-             serializer.save(center=user.director_profile.managed_center)
-        else:
-             serializer.save()
-
-class GroupDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_field = 'group_id'
-
-class RoomListView(generics.ListAPIView):
-    serializer_class = RoomSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role_type == 'director' and hasattr(user, 'director_profile') and user.director_profile.managed_center:
-            return Room.objects.filter(center=user.director_profile.managed_center)
-        if user.role_type == 'owner':
-            return Room.objects.all()
-        return Room.objects.none()
-
-class CenterListView(generics.ListAPIView):
-    serializer_class = CenterSerializer
-    permission_classes = [IsAuthenticated]
-    queryset = Center.objects.all()
-
-class ChildListView(generics.ListAPIView):
-    serializer_class = ChildSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        center = None
-        if user.role_type == 'director' and hasattr(user, 'director_profile'):
-            center = user.director_profile.managed_center
-        elif user.role_type == 'owner':
-            # Simplified for now, owners might need to filter by center param
-            pass 
-        
-        if center:
-            return Child.objects.filter(center=center)
-        return Child.objects.none()
-
-class ChildDetailView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = ChildSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_field = 'child_id'
-
-    def get_queryset(self):
-        # Allow access to children in the user's scope
-        user = self.request.user
-        if user.role_type == 'owner':
-            return Child.objects.all()
-        elif user.role_type == 'director' and hasattr(user, 'director_profile'):
-             return Child.objects.filter(center=user.director_profile.managed_center)
-        # TODO: Add logic for educators/parents
-        return Child.objects.none()
-
-class EducatorListView(generics.ListAPIView):
-    serializer_class = EducatorSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        center = None
-        if user.role_type == 'director' and hasattr(user, 'director_profile'):
-            center = user.director_profile.managed_center
-        
-        if center:
-            return EducatorProfile.objects.filter(center=center)
-        return EducatorProfile.objects.none()
-
-class AssignChildView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, group_id):
-        group = get_object_or_404(Group, group_id=group_id)
-        child_id = request.data.get('child_id')
-        child = get_object_or_404(Child, child_id=child_id)
-        
-        child.assigned_group = group
-        child.save()
-        
-        group.recalculate_ratios()
-
-        return Response({'status': 'assigned'}, status=status.HTTP_200_OK)
-
-class RemoveChildView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, group_id):
-        child_id = request.data.get('child_id')
-        child = get_object_or_404(Child, child_id=child_id)
-        
-        if child.assigned_group and str(child.assigned_group.group_id) == str(group_id):
-            child.assigned_group = None
-            child.save()
-            
-            # Update group occupancy
-            group = get_object_or_404(Group, group_id=group_id)
-            group.recalculate_ratios()
-            
-            return Response({'status': 'removed'}, status=status.HTTP_200_OK)
-        return Response({'error': 'Child not in this group'}, status=status.HTTP_400_BAD_REQUEST)
-
-class AssignEducatorView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, group_id):
-        group = get_object_or_404(Group, group_id=group_id)
-        user_id = request.data.get('user_id') # Educator's User ID
-        educator = get_object_or_404(EducatorProfile, user__user_id=user_id)
-        
-        # Create active assignment
-        StaffAssignment.objects.create(
-            educator=educator,
-            group=group,
-            is_active=True
-        )
-        
-        # Update group educator count
-        group.current_educators = StaffAssignment.objects.filter(group=group, is_active=True).count()
-        group.recalculate_ratios()
-
-        return Response({'status': 'assigned'}, status=status.HTTP_200_OK)
-
-class RemoveEducatorView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, group_id):
-        group = get_object_or_404(Group, group_id=group_id)
-        user_id = request.data.get('user_id')
-        educator = get_object_or_404(EducatorProfile, user__user_id=user_id)
-        
-        assignments = StaffAssignment.objects.filter(group=group, educator=educator, is_active=True)
-        for assignment in assignments:
-            assignment.is_active = False
-            assignment.save()
-            
-        # Update group educator count
-        group.current_educators = StaffAssignment.objects.filter(group=group, is_active=True).count()
-        group.recalculate_ratios()
-
-        return Response({'status': 'removed'}, status=status.HTTP_200_OK)
-
-class GroupChildrenView(generics.ListAPIView):
-    serializer_class = ChildSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        group_id = self.kwargs['group_id']
-        return Child.objects.filter(assigned_group__group_id=group_id)
-
-class GroupEducatorsView(generics.ListAPIView):
-
-    serializer_class = EducatorSerializer
-
-    permission_classes = [IsAuthenticated]
-
-
-
-    def get_queryset(self):
-
-        group_id = self.kwargs['group_id']
-
-        # Return educators who have an ACTIVE assignment in this group
-
-        return EducatorProfile.objects.filter(assignments__group__group_id=group_id, assignments__is_active=True).distinct()
-
-
-
-# Standard Django Views for Templates
-
-from django.shortcuts import render
-
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from .models import Group, Room, Child, EducatorProfile, StaffAssignment
 
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        email = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, email=email, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard')
+        else:
+            return render(request, 'core/login.html', {'error': 'Invalid credentials. Please try again.'})
+            
+    return render(request, 'core/login.html')
 
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
-@login_required
+@login_required(login_url='login')
+def dashboard_view(request):
+    context = {
+        'total_attendance': 142,
+        'capacity': 160,
+        'occupancy_percentage': 88,
+        'pending_signatures': 4,
+        'compliance_rate': 92,
+        'observations': 842,
+    }
+    return render(request, 'core/dashboard.html', context)
 
+@login_required(login_url='login')
+def group_list_view(request):
+    user = request.user
+    groups = Group.objects.none()
 
+    if user.role_type == 'owner':
+        groups = Group.objects.all().select_related('room', 'center')
+    elif user.role_type == 'director' and hasattr(user, 'director_profile'):
+        center = user.director_profile.managed_center
+        if center:
+            groups = Group.objects.filter(center=center).select_related('room')
+    elif user.role_type == 'educator' and hasattr(user, 'educator_profile'):
+        center = user.educator_profile.center
+        if center:
+            groups = Group.objects.filter(center=center).select_related('room')
+    
+    context = {
+        'groups': groups
+    }
+    return render(request, 'core/group_list.html', context)
 
-def dashboard(request):
+@login_required(login_url='login')
+def group_edit_view(request, group_id):
+    group = get_object_or_404(Group, group_id=group_id)
+    user = request.user
 
+    # Permission check
+    if user.role_type == 'director' and hasattr(user, 'director_profile'):
+        if group.center != user.director_profile.managed_center:
+             return render(request, 'core/403.html', status=403)
+    elif user.role_type != 'owner':
+         return render(request, 'core/403.html', status=403)
 
+    if request.method == 'POST':
+        action = request.POST.get('action')
 
-    return render(request, 'dashboard.html')
+        if action == 'update_details':
+            name = request.POST.get('name')
+            room_id = request.POST.get('room_id')
+            if name: group.name = name
+            if room_id:
+                room = get_object_or_404(Room, room_id=room_id)
+                if room.center == group.center:
+                    group.room = room
+            group.save()
 
+        elif action == 'assign_educator':
+            user_id = request.POST.get('user_id')
+            educator = get_object_or_404(EducatorProfile, user__user_id=user_id)
+            StaffAssignment.objects.filter(educator=educator, is_active=True).update(is_active=False)
+            StaffAssignment.objects.create(educator=educator, group=group, is_active=True)
+            
+            group.current_educators = StaffAssignment.objects.filter(group=group, is_active=True).count()
+            group.recalculate_ratios()
 
+        elif action == 'remove_educator':
+            user_id = request.POST.get('user_id')
+            educator = get_object_or_404(EducatorProfile, user__user_id=user_id)
+            StaffAssignment.objects.filter(group=group, educator=educator, is_active=True).update(is_active=False)
+            group.current_educators = StaffAssignment.objects.filter(group=group, is_active=True).count()
+            group.recalculate_ratios()
 
+        elif action == 'assign_child':
+            child_id = request.POST.get('child_id')
+            child = get_object_or_404(Child, child_id=child_id)
+            old_group = child.assigned_group
+            child.assigned_group = group
+            child.save()
+            group.recalculate_ratios()
+            if old_group: old_group.recalculate_ratios()
 
+        elif action == 'remove_child':
+            child_id = request.POST.get('child_id')
+            child = get_object_or_404(Child, child_id=child_id)
+            if child.assigned_group == group:
+                child.assigned_group = None
+                child.assigned_educator = None
+                child.save()
+                group.recalculate_ratios()
 
+        elif action == 'assign_child_educator':
+            child_id = request.POST.get('child_id')
+            educator_id = request.POST.get('educator_id')
+            child = get_object_or_404(Child, child_id=child_id)
+            if child.assigned_group == group:
+                if educator_id:
+                    educator = get_object_or_404(EducatorProfile, user__user_id=educator_id)
+                    child.assigned_educator = educator
+                else:
+                    child.assigned_educator = None
+                child.save()
 
+        return redirect('group_edit', group_id=group_id)
 
-@login_required
+    assigned_educators = EducatorProfile.objects.filter(assignments__group=group, assignments__is_active=True).select_related('user')
+    assigned_children = group.enrolled_children.all().select_related('assigned_educator__user').order_by('first_name')
+    
+    all_rooms = Room.objects.filter(center=group.center)
+    
+    # Educators not currently assigned to THIS group it could be in other groups
+    other_educators = EducatorProfile.objects.filter(center=group.center).exclude(assignments__group=group, assignments__is_active=True).select_related('user')
+    
+    # Children not in this group
+    other_children = Child.objects.filter(center=group.center).exclude(assigned_group=group).order_by('first_name')
 
+    context = {
+        'group': group,
+        'rooms': all_rooms,
+        'assigned_educators': assigned_educators,
+        'assigned_children': assigned_children,
+        'other_educators': other_educators,
+        'other_children': other_children,
+    }
+    return render(request, 'core/group_manage.html', context)
 
+@login_required(login_url='login')
+def group_delete_view(request, group_id):
+    group = get_object_or_404(Group, group_id=group_id)
+    user = request.user
 
-def student_info(request):
-
-
-
-    return render(request, 'student_info.html')
+    # Permission check
+    if user.role_type == 'director' and hasattr(user, 'director_profile'):
+        if group.center != user.director_profile.managed_center:
+             return render(request, 'core/403.html', status=403)
+    elif user.role_type != 'owner':
+         return render(request, 'core/403.html', status=403)
+         
+    if request.method == 'POST':
+        group.delete()
+        return redirect('group_list')
+        
+    return render(request, 'core/403.html', status=403)

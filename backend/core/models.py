@@ -42,6 +42,7 @@ class User(AbstractUser):
     email = models.EmailField(_("email address"), unique=True)
     full_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
+    profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
 
     role_type = models.CharField(max_length=20, choices=ROLE_CHOICES)
 
@@ -164,7 +165,6 @@ class EducatorProfile(models.Model):
         Center, on_delete=models.CASCADE, related_name="educators"
     )
     is_active_in_ratio = models.BooleanField(default=True)
-    color_code = models.CharField(max_length=7, default="#3B82F6")
 
     def __str__(self):
         return f"Educator: {self.user.full_name}"
@@ -298,6 +298,38 @@ class Group(models.Model):
 
         self.save()
 
+    @property
+    def age_distribution(self):
+        dist = {
+            "De la naissance à 24 mois": 0,
+            "Deux ans": 0,
+            "Trois ans": 0,
+            "Quatre ans et plus": 0,
+            "Enfants d’âge scolaire": 0
+        }
+        today = date.today()
+        for child in self.enrolled_children.all():
+            age_months = (
+                (today.year - child.birth_date.year) * 12
+                + today.month
+                - child.birth_date.month
+            )
+            if today.day < child.birth_date.day:
+                age_months -= 1
+
+            if age_months <= 24:
+                dist["De la naissance à 24 mois"] += 1
+            elif 24 < age_months < 36:
+                dist["Deux ans"] += 1
+            elif 36 <= age_months < 48:
+                dist["Trois ans"] += 1
+            elif 48 <= age_months < 60:
+                dist["Quatre ans et plus"] += 1
+            else:
+                dist["Enfants d’âge scolaire"] += 1
+        
+        return {k: v for k, v in dist.items() if v > 0}
+
     def __str__(self):
         return self.name
 
@@ -311,14 +343,52 @@ class Child(models.Model):
         Group, on_delete=models.SET_NULL, null=True, related_name="enrolled_children"
     )
 
+    assigned_educator = models.ForeignKey(
+        "EducatorProfile",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assigned_children",
+    )
+
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     birth_date = models.DateField()
 
     medical_info = models.JSONField(default=dict, blank=True)
 
-    profile_photo_url = models.TextField(blank=True, null=True)
+    profile_photo = models.ImageField(upload_to='children_photos/', blank=True, null=True)
     status = models.CharField(max_length=20, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def age_display(self):
+        today = date.today()
+        birth_date = self.birth_date
+        
+        years = today.year - birth_date.year
+        months = today.month - birth_date.month
+        days = today.day - birth_date.day
+
+        if days < 0:
+            months -= 1
+            # Calculate days in previous month
+            last_month = (today.month - 1) if today.month > 1 else 12
+            last_month_year = today.year if today.month > 1 else today.year - 1
+            import calendar
+            _, days_in_last_month = calendar.monthrange(last_month_year, last_month)
+            days += days_in_last_month
+
+        if months < 0:
+            years -= 1
+            months += 12
+
+        parts = []
+        if years > 0: parts.append(f"{years}y")
+        if months > 0: parts.append(f"{months}m")
+        if days > 0: parts.append(f"{days}d")
+        
+        return ", ".join(parts) if parts else "0d"
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

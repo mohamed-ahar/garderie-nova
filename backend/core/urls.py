@@ -1,12 +1,23 @@
 from django.urls import path
 from .views import (
+<<<<<<< HEAD
     CurrentUserView, GroupListCreateView, GroupDetailView, RoomListView, CenterListView,
     ChildListView, ChildDetailView, EducatorListView, AssignChildView, RemoveChildView,
     AssignEducatorView, RemoveEducatorView, GroupChildrenView, GroupEducatorsView,
     dashboard, student_info
+=======
+    login_view,
+    logout_view,
+    dashboard_view,
+    group_list_view,
+    group_edit_view,
+    group_delete_view,
+>>>>>>> next-v
 )
+from django.views.generic import RedirectView
 
 urlpatterns = [
+<<<<<<< HEAD
     path('dashboard/', dashboard, name='dashboard'),
     path('student-info/', student_info, name='student_info'),
     path('me/', CurrentUserView.as_view(), name='current_user'),
@@ -28,4 +39,13 @@ urlpatterns = [
     path('children/available/', ChildListView.as_view(), name='child_list'), # Assuming all for now
     path('children/<uuid:child_id>/', ChildDetailView.as_view(), name='child_detail'),
     path('educators/available/', EducatorListView.as_view(), name='educator_list'),
+=======
+    path("", RedirectView.as_view(url="dashboard/", permanent=False)),
+    path("login/", login_view, name="login"),
+    path("logout/", logout_view, name="logout"),
+    path("dashboard/", dashboard_view, name="dashboard"),
+    path("groups/", group_list_view, name="group_list"),
+    path("groups/<uuid:group_id>/edit/", group_edit_view, name="group_edit"),
+    path("groups/<uuid:group_id>/delete/", group_delete_view, name="group_delete"),
+>>>>>>> next-v
 ]

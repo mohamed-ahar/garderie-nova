@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" class="{{ theme }}">
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer"
+    />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GarderieNova{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    },
+                    colors: {
+                        primary: '#4f46e5',
+                        darkBg: '#0f172a',
+                        darkCard: '#1e293b'
+                    },
+                    borderRadius: {
+                        '3xl': '1.5rem'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Ensure the sidebar width changes smoothly */
+        #sidebar {
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Smooth movement for the main content */
+        main {
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Prevent text from wrapping or "glitching" during the animation */
+        .sidebar-label {
+            white-space: nowrap;
+            transition: opacity 0.3s ease;
+        }
+        /* Add a tooltip style if you want (Optional) */
+        #sidebar.lg\:w-20 button:hover::after {
+            content: attr(data-title);
+            position: absolute;
+            left: 100%;
+            margin-left: 20px;
+            color: white;
+            padding: 5px 40px;
+            border-radius: 6px;
+            font-size: 12px;
+            z-index: 50;
+        }
+        * {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .active-link {
+            @apply bg-primary/10 text-primary border-r-4 border-primary;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+
+<body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 font-sans antialiased">
+
+    <!-- Sidebar Inclusion -->
+    {% include "core/sidebar.html" %}
+
+    <main class="lg:ml-72 min-h-screen transition-all duration-500 ease-in-out">
+        <!-- Header Inclusion -->
+        {% include "core/header.html" %}
+
+        <div class="p-6 md:p-10 space-y-10 max-w-[1600px] mx-auto">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- Generic Confirmation Modal -->
+    <div id="genericModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-md p-8 shadow-2xl transform scale-100 transition-transform duration-300">
+            <div class="text-center">
+                <div id="modalIconContainer" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i id="modalIcon" class="text-2xl"></i>
+                </div>
+                <h3 id="modalTitle" class="text-2xl font-black text-slate-900 dark:text-white mb-2"></h3>
+                <p id="modalBody" class="text-slate-500 dark:text-slate-400 mb-8"></p>
+                
+                <!-- Internal form for URL targets -->
+                <form id="modalForm" method="post" action="" class="hidden">{% csrf_token %}</form>
+
+                <div class="flex gap-3 justify-center">
+                    <button type="button" onclick="closeModal()" class="px-6 py-3 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        Cancel
+                    </button>
+                    <button id="modalConfirmBtn" type="button" onclick="confirmAction()" class="px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const userMenu = document.getElementById('user-menu');
+        const themeIcon = document.getElementById('theme-icon');
+        const fsIcon = document.getElementById('fullscreen-icon');
+
+        let modalTargetFormId = null;
+
+        // Generic Modal Functions
+        function openModal(title, body, target, actionType = 'confirm', fields = {}) {
+            const modal = document.getElementById('genericModal');
+            const titleEl = document.getElementById('modalTitle');
+            const bodyEl = document.getElementById('modalBody');
+            const modalForm = document.getElementById('modalForm');
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+            const iconContainer = document.getElementById('modalIconContainer');
+            const icon = document.getElementById('modalIcon');
+
+            titleEl.textContent = title;
+            bodyEl.textContent = body;
+            
+            // Reset state
+            modalTargetFormId = null;
+            modalForm.action = '';
+            // Clear dynamic inputs from modalForm
+            const existingInputs = modalForm.querySelectorAll('input[type="hidden"]:not([name="csrfmiddlewaretoken"])');
+            existingInputs.forEach(input => input.remove());
+
+            // Determine Target Type
+            if (target && !target.includes('/') && document.getElementById(target)) {
+                // It's a DOM ID
+                modalTargetFormId = target;
+            } else {
+                // It's a URL (or empty), use internal form
+                modalForm.action = target;
+                // Add fields to internal form
+                for (const [key, value] of Object.entries(fields)) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = value;
+                    modalForm.appendChild(input);
+                }
+            }
+
+            // Styling
+            iconContainer.className = 'w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4';
+            confirmBtn.className = 'px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95';
+            icon.className = 'text-2xl';
+
+            if (actionType === 'delete') {
+                iconContainer.classList.add('bg-red-100', 'dark:bg-red-900/30', 'text-red-500', 'dark:text-red-400');
+                icon.classList.add('fa-solid', 'fa-triangle-exclamation');
+                confirmBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'shadow-red-500/30');
+                confirmBtn.textContent = 'Yes, Delete';
+            } else {
+                iconContainer.classList.add('bg-emerald-100', 'dark:bg-emerald-900/30', 'text-emerald-500', 'dark:text-emerald-400');
+                icon.classList.add('fa-solid', 'fa-check');
+                confirmBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700', 'shadow-emerald-500/30');
+                confirmBtn.textContent = 'Confirm';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function confirmAction() {
+            if (modalTargetFormId) {
+                document.getElementById(modalTargetFormId).submit();
+            } else {
+                document.getElementById('modalForm').submit();
+            }
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('genericModal').classList.add('hidden');
+        }
+
+        // Clock Function
+        function updateClock() {
+            const now = new Date();
+            const clockElement = document.getElementById('digital-clock');
+            const dateElement = document.getElementById('current-date');
+            
+            if(clockElement) clockElement.innerText = now.toLocaleTimeString();
+            if(dateElement) dateElement.innerText = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Sidebar Toggle
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        // Full Screen Toggle
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                if (fsIcon) fsIcon.className = 'fa-solid fa-compress text-slate-500';
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    if (fsIcon) fsIcon.className = 'fa-solid fa-expand text-slate-500';
+                }
+            }
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            const newTheme = isDark ? 'dark' : 'light';
+            
+            if (themeIcon) themeIcon.className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-slate-500';
+            
+            localStorage.setItem('theme', newTheme);
+            document.cookie = "theme=" + newTheme + "; path=/; max-age=31536000"; // 1 year expiry
+        }
+
+        // Dropdown Toggle
+        function toggleUserMenu() {
+            if (userMenu) {
+                userMenu.classList.toggle('opacity-0');
+                userMenu.classList.toggle('invisible');
+                userMenu.classList.toggle('translate-y-4');
+            }
+        }
+        
+        function toggleDropdown(button) {
+            const content = button.nextElementSibling;
+            const chevron = button.querySelector('.chevron');
+            const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+
+            // Close all other dropdowns
+            document.querySelectorAll('.dropdown-content').forEach(el => el.style.maxHeight = '0px');
+            document.querySelectorAll('.chevron').forEach(el => el.style.transform = 'rotate(0deg)');
+
+            if (!isOpen) {
+                content.style.maxHeight = content.scrollHeight + "px";
+                if(chevron) chevron.style.transform = 'rotate(90deg)';
+            }
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial icon based on server-rendered class
+            if (document.documentElement.classList.contains('dark')) {
+                if (themeIcon) themeIcon.className = 'fa-solid fa-sun text-amber-400';
+            } else {
+                if (themeIcon) themeIcon.className = 'fa-solid fa-moon text-slate-500';
+            }
+        });
+
+        // Click Away
+        window.onclick = (e) => {
+            if (!e.target.closest('.relative') && userMenu && !userMenu.classList.contains('invisible')) {
+                userMenu.classList.add('opacity-0', 'invisible', 'translate-y-4');
+            }
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

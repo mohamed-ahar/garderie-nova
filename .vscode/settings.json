@@ -1,3 +1,38 @@
 {
-    "python-envs.pythonProjects": []
+  "python-envs.pythonProjects": [],
+  "workbench.colorCustomizations": {
+    "editor.background": "#000000",
+    "editor.foreground": "#e5e7eb",
+    "activityBar.background": "#020617",
+    "sideBar.background": "#020617",
+    "statusBar.background": "#020617",
+    "titleBar.activeBackground": "#020617",
+    "editorLineNumber.foreground": "#475569",
+    "editorCursor.foreground": "#22d3ee",
+    "editor.selectionBackground": "#22d3ee33"
+  },
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": ["entity.name.type", "entity.name.class", "support.class"],
+        "settings": { "foreground": "#d70a3a", "fontStyle": "bold" }
+      },
+      {
+        "scope": ["keyword", "storage.type", "storage.modifier"],
+        "settings": { "foreground": "#c084fc" }
+      },
+      {
+        "scope": ["entity.name.function", "support.function"],
+        "settings": { "foreground": "#354edc" }
+      },
+      {
+        "scope": ["string"],
+        "settings": { "foreground": "#fde047" }
+      },
+      {
+        "scope": ["comment"],
+        "settings": { "foreground": "#52525b", "fontStyle": "italic" }
+      }
+    ]
+  }
 }

@@ -1,0 +1,84 @@
+GarderieNova_Backend/
+│
+├── manage.py
+├── requirements.txt
+├── .env
+├── Dockerfile
+├── docker-compose.yml
+│
+├── garderie_nova/                  # PROJECT CONFIGURATION
+│   ├── settings/
+│   │   ├── base.py
+│   │   ├── development.py
+│   │   └── production.py
+│   ├── urls.py                     # Main routing (api/ vs web/)
+│   ├── asgi.py                     # Websockets (Real-time ratios & Chat)
+│   └── wsgi.py
+│
+├── core/                           # APP 1: USERS, ROLES & CENTERS
+│   ├── models.py                   # User(AbstractUser), Center, EducatorProfile, ParentProfile
+│   ├── services/
+│   │   ├── email_service.py        # Invitations & Password resets
+│   │   └── center_service.py       # Branding (Logos/Colors) per center
+│   ├── decorators.py               # @owner_required, @educator_required, @parent_required
+│   ├── views.py                    # Multi-role Dashboards (Owner/Director)
+│   └── templates/core/
+│       ├── dashboard_owner.py      # Global stats for all centers
+│       ├── dashboard_admin.py      # Center-specific management
+│       └── login.html
+│
+├── children/                       # APP 2: ENROLLMENT & HIERARCHY
+│   ├── models.py                   # Group, Room, Child, ParentChildRelationship
+│   ├── forms.py                    # ChildEnrollmentForm, GroupAssignmentForm
+│   ├── tasks.py                    # Celery: Age transition alerts (e.g., moving to Pouponnière -> 18 months)
+│   └── templates/children/
+│       ├── child_list.html         # Directory of children
+│       └── child_detail.html       # Medical info, emergency contacts
+│
+├── operations/                     # APP 3: ATTENDANCE & ABSENCES (The "Engine")
+│   ├── models.py                   # Attendance, Absence(Sick/Vacation), RatioAuditLog
+│   ├── services/
+│   │   └── ratio_engine.py         # Points calculation (100/125/200/300)
+│   ├── consumers.py                # Websocket for Live Ratio updates
+│   ├── views.py                    # Absence reporting logic, Check-in/out
+│   └── templates/operations/
+│       ├── educator_attendance.html # Educator: Daily roll call & real-time ratios
+│       ├── parent_absence_form.html # Parent: Report absence (Sick/Holiday)
+│       └── ratio_monitor.html      # Director: Real-time compliance view
+│
+├── education/                      # APP 4: PEDAGOGY & DAILY FOLLOW-UP (Suivi)
+│   ├── models.py                   # DailyReport (Meals, Sleep, Mood), Activity, Observation
+│   ├── forms.py                    # DailyReportForm (Bulk or Individual)
+│   ├── views.py                    # Educator entry views / Parent viewing views
+│   └── templates/education/
+│       ├── educator_dashboard.html  # Daily tasks for the room
+│       ├── daily_report_create.html # Educator: Input meals, naps, diapers
+│       └── child_suivi_timeline.html # Parent: The "Feed" of their child's day
+│
+├── communication/                  # APP 5: MESSAGING & ALERTS
+│   ├── models.py                   # Conversation, Message, Notification
+│   ├── consumers.py                # Real-time Chat logic
+│   └── templates/communication/
+│       ├── inbox.html              # Centralized messaging
+│       └── chat_room.html          # Educator <-> Parent private chat
+│
+├── documents/                      # APP 6: COMPLIANCE & PDF
+│   ├── models.py                   # IncidentReport (3-signature workflow), ConsentForms
+│   ├── utils/
+│   │   └── pdf_generator.py        # Generate branded daily reports or incident PDFs
+│   └── templates/documents/
+│       ├── incident_form.html      # Educator logs an injury
+│       └── document_list.html      # Archive of signed forms
+│
+├── static/                         # FRONT-END ASSETS
+│   ├── css/
+│   │   └── main.css                # Tailwind output
+│   ├── js/
+│   │   ├── ratio_ws.js             # Updates ratios without refresh
+│   │   └── presence_handler.js     # Quick-click attendance UI
+│   └── img/                        # Default logos & icons
+│
+└── utils/                          # GLOBAL HELPERS
+    ├── validators.py               # Custom health/age validators
+    ├── context_processors.py       # Inject Center branding into all pages
+    └── constants.py                # Ratio rules & points definitions
