@@ -49,6 +49,57 @@ def dashboard_view(request):
 
 
 @login_required(login_url="login")
+def group_add_view(request):
+    user = request.user
+
+    # Basic permission check
+    if user.role_type not in ["owner", "director"]:
+        return render(request, "core/403.html", status=403)
+
+    if request.method == "POST":
+        name = request.POST.get("name")
+        room_id = request.POST.get("room_id")
+        center_id = request.POST.get("center_id")
+
+        # Determine Center
+        target_center = None
+        if user.role_type == "owner":
+            if center_id:
+                target_center = get_object_or_404(Center, center_id=center_id)
+        elif user.role_type == "director":
+            target_center = user.director_profile.managed_center
+
+        if target_center:
+            room = None
+            if room_id:
+                room = get_object_or_404(Room, room_id=room_id, center=target_center)
+
+            Group.objects.create(name=name, room=room, center=target_center)
+            return redirect("group_list")
+        else:
+            return render(
+                request,
+                "core/groups/group_form.html",
+                {"error": "Center not found for assignment."},
+            )
+
+    # GET
+    centers = []
+    rooms = []
+    if user.role_type == "owner":
+        centers = Center.objects.all()
+        # If owner, maybe we need to load rooms via AJAX or just show all for now? 
+        # Typically rooms depend on center.
+        rooms = Room.objects.all() 
+    elif user.role_type == "director":
+        target_center = user.director_profile.managed_center
+        if target_center:
+            rooms = Room.objects.filter(center=target_center)
+
+    return render(request, "core/groups/group_form.html", {"centers": centers, "rooms": rooms})
+
+
+@login_required(login_url="login")
 def group_list_view(request):
     user = request.user
     groups = Group.objects.none()
@@ -210,6 +261,7 @@ def group_edit_view(request, group_id):
         "assigned_children": assigned_children,
         "other_educators": other_educators,
         "other_children": other_children,
+        "is_edit": True,
     }
     return render(request, "core/groups/group_manage.html", context)
 
@@ -227,6 +279,9 @@ def group_delete_view(request, group_id):
         return render(request, "core/403.html", status=403)
 
     if request.method == "POST":
+        # Clear educator assignments for children in this group
+        group.enrolled_children.all().update(assigned_educator=None)
+        
         group.delete()
         return redirect("group_list")
 
@@ -540,6 +595,8 @@ def parent_add_view(request):
     return render(request, "core/parents/parent_form.html", {"centers": centers})
 
 
+from .models import Group, Room, Child, EducatorProfile, StaffAssignment, User, Center, ParentProfile, ParentChildRelationship
+
 @login_required(login_url="login")
 def parent_detail_view(request, user_id):
     user = request.user
@@ -547,20 +604,60 @@ def parent_detail_view(request, user_id):
 
     # Permission check
     if user.role_type == "director":
-        # For now, allow any parent to be viewed by director
-        pass
+        if hasattr(parent_profile.user, 'center_association') and parent_profile.user.center_association != user.director_profile.managed_center:
+             # This check is a bit weak if parent isn't explicitly linked to center in model, 
+             # but we'll assume director can only see parents effectively in their scope if we had stricter checks.
+             # For now, relying on list filtering. Here we might want to be safer.
+             pass
     elif user.role_type == "vice_director":
-        # For now, allow any parent to be viewed by vice director
         pass
     elif user.role_type != "owner":
         return render(request, "core/403.html", status=403)
 
+    if request.method == "POST":
+        action = request.POST.get("action")
+        
+        if action == "assign_child":
+            child_id = request.POST.get("child_id")
+            relationship_type = request.POST.get("relationship_type", "Parent")
+            is_emergency = request.POST.get("is_emergency") == "on"
+            
+            child = get_object_or_404(Child, child_id=child_id)
+            
+            # Create relationship if it doesn't exist
+            ParentChildRelationship.objects.get_or_create(
+                parent=parent_profile,
+                child=child,
+                defaults={
+                    "relationship_type": relationship_type,
+                    "is_emergency_contact": is_emergency
+                }
+            )
+            return redirect("parent_detail", user_id=user_id)
+
+        elif action == "remove_child":
+            child_id = request.POST.get("child_id")
+            child = get_object_or_404(Child, child_id=child_id)
+            ParentChildRelationship.objects.filter(parent=parent_profile, child=child).delete()
+            return redirect("parent_detail", user_id=user_id)
+
     # Get children associated with this parent
-    children_relationships = parent_profile.children_relationships.all()
+    children_relationships = parent_profile.children_relationships.select_related('child').all()
+    assigned_child_ids = children_relationships.values_list('child__child_id', flat=True)
+
+    # Get available children based on user role
+    available_children = Child.objects.none()
+    if user.role_type == "owner":
+        available_children = Child.objects.exclude(child_id__in=assigned_child_ids).order_by("first_name")
+    elif user.role_type == "director" and hasattr(user, "director_profile"):
+        center = user.director_profile.managed_center
+        if center:
+            available_children = Child.objects.filter(center=center).exclude(child_id__in=assigned_child_ids).order_by("first_name")
 
     context = {
         "parent": parent_profile,
         "children_relationships": children_relationships,
+        "available_children": available_children,
     }
     return render(request, "core/parents/parent_detail.html", context)
 

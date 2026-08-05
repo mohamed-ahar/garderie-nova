@@ -1,27 +1,53 @@
 {% extends "core/base.html" %}
 
-{% block title %}Edit Group | GarderieNova{% endblock %}
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Group | GarderieNova{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto">
     <div class="flex items-center justify-between mb-8">
         <div>
-            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">Edit Group</h1>
-            <p class="text-slate-500 text-sm dark:text-slate-400 font-medium">Update group details and room assignment.</p>
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{% if is_edit %}Edit{% else %}Add New{% endif %} Group</h1>
+            <p class="text-slate-500 text-sm dark:text-slate-400 font-medium">{% if is_edit %}Update group details and room assignment.{% else %}Create a new logical group for children and educators.{% endif %}</p>
         </div>
         <a href="{% url 'group_list' %}" class="text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
             Cancel
         </a>
     </div>
 
+    {% if error %}
+    <div class="mb-6 p-4 bg-rose-50 border border-rose-100 text-rose-600 rounded-2xl text-sm font-bold flex items-center gap-3">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        {{ error }}
+    </div>
+    {% endif %}
+
     <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl p-8 md:p-10">
         <form method="post" class="space-y-6">
             {% csrf_token %}
             
+            <!-- Center (Only for Owners when adding) -->
+            {% if request.user.role_type == "owner" and not is_edit %}
+            <div>
+                <label for="center_id" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Center</label>
+                <div class="relative">
+                    <select name="center_id" id="center_id" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 dark:focus:border-emerald-500 outline-none transition-all dark:text-white appearance-none cursor-pointer">
+                        <option value="">-- Select a Center --</option>
+                        {% for center in centers %}
+                            <option value="{{ center.center_id }}">{{ center.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Group Name -->
             <div>
                 <label for="name" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Group Name</label>
                 <input type="text" name="name" id="name" value="{{ group.name }}" required 
+                    placeholder="e.g. Les Petits Papillons"
                     class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 dark:focus:border-emerald-500 outline-none transition-all dark:text-white placeholder-slate-400">
             </div>
 
@@ -30,10 +56,10 @@
                 <label for="room_id" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Assigned Room</label>
                 <div class="relative">
                     <select name="room_id" id="room_id" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 dark:focus:border-emerald-500 outline-none transition-all dark:text-white appearance-none cursor-pointer">
-                        <option value="">-- Select a Room --</option>
+                        <option value="">-- Select a Room (Optional) --</option>
                         {% for room in rooms %}
                             <option value="{{ room.room_id }}" {% if group.room and group.room.room_id == room.room_id %}selected{% endif %}>
-                                {{ room.name }} (Capacity: {{ room.fire_capacity }})
+                                {{ room.name }} ({{ room.center.name }})
                             </option>
                         {% endfor %}
                     </select>
@@ -47,8 +73,8 @@
             <!-- Submit Button -->
             <div class="pt-4 flex justify-end">
                 <button type="submit" class="flex items-center gap-2 px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/25 active:scale-95 transition-all">
-                    <i class="fa-solid fa-save"></i>
-                    Save Changes
+                    <i class="fa-solid {% if is_edit %}fa-save{% else %}fa-plus{% endif %}"></i>
+                    {% if is_edit %}Save Changes{% else %}Create Group{% endif %}
                 </button>
             </div>
         </form>
