@@ -1,0 +1,114 @@
+{% extends "base.html" %} {% block content %}
+<div class="p-6">
+
+    <div class="relative min-h-[520px] overflow-hidden bg-[#F8F9FA] dark:bg-[#0D0D0E] rounded-[4rem] border border-white dark:border-slate-800 p-2 shadow-[0_50px_100px_rgba(0,0,0,0.03)] mb-12 group">
+
+        <div class="absolute inset-0 z-0">
+            <div class="absolute top-[-20%] left-[-10%] w-[700px] h-[700px] bg-emerald-500/[0.03] dark:bg-emerald-500/[0.05] rounded-full blur-[120px]"></div>
+            <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] dark:opacity-[0.2] pointer-events-none"></div>
+        </div>
+
+        <div class="relative z-10 grid lg:grid-cols-12 gap-16 p-10 md:p-16 items-center">
+
+            <div class="lg:col-span-7 space-y-12">
+                <div class="flex items-center gap-6">
+                    <div class="w-16 h-[1px] bg-slate-200 dark:bg-slate-800"></div>
+                    <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.5em]">GarderierNova Executive v1.0</span>
+                </div>
+
+                <div class="space-y-6">
+                    <h1 class="text-7xl md:text-7xl font-black text-slate-900 dark:text-white leading-[0.8] tracking-tighter">
+                        Absolute<br>
+                        <span class="text-green-500 dark:text-slate-700">Control.</span>
+                    </h1>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <span class="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-500 dark:text-slate-400">
+                                Node Sync: Active
+                            </span>
+                         
+                        </div>
+                    
+                        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                            Welcome back, 
+                            <span class="bg-gradient-to-r from-emerald-600 to-teal-400 bg-clip-text text-transparent">
+                                {{ user.full_name|default:user.username }}
+                            </span>
+                        </h1>
+                    
+                        <p class="text-sm md:text-base text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed flex items-center gap-2">
+                            <i class="fa-solid fa-microchip text-xs opacity-50"></i>
+                            <span>
+                                Your organization's vision is being 
+                                <span class="text-slate-900 dark:text-slate-200 font-semibold underline decoration-emerald-500/30">synchronized</span> 
+                                across all active nodes in real-time.
+                            </span>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-5 relative">
+                <div class="absolute -top-10 -right-10 w-64 h-64 bg-slate-100 dark:bg-slate-900/50 rounded-[3rem] -rotate-6 transition-transform group-hover:rotate-0 duration-700 border border-slate-200 dark:border-slate-800"></div>
+
+                <div class="relative z-20 space-y-6">
+                    <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl p-10 rounded-[3.5rem] border border-white dark:border-slate-800 shadow-[0_30px_60px_rgba(0,0,0,0.05)] transform transition-all duration-700 hover:-translate-y-2">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center border border-slate-100 dark:border-slate-700">
+                                <i class="fa-solid fa-bolt text-emerald-500"></i>
+                            </div>
+                            <div class="flex -space-x-3">
+                                <div class="w-8 h-8 rounded-full border-4 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-800"></div>
+                                <div class="w-8 h-8 rounded-full border-4 border-white dark:border-slate-900 bg-slate-300 dark:bg-slate-700"></div>
+                                <div class="w-8 h-8 rounded-full border-4 border-white dark:border-slate-900 bg-emerald-500"></div>
+                            </div>
+                        </div>
+
+                        <h3 class="text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-2">94.2k</h3>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Platform Interactions</p>
+
+                        <div class="mt-4 flex gap-1 items-end h-8 opacity-20 group-hover:opacity-100 transition-opacity">
+                            <div class="w-full h-2 bg-emerald-500 rounded-full animate-[pulse_2s_infinite]"></div>
+                            <div class="w-full h-4 bg-emerald-500 rounded-full animate-[pulse_2.5s_infinite]"></div>
+                            <div class="w-full h-6 bg-emerald-500 rounded-full animate-[pulse_3s_infinite]"></div>
+                            <div class="w-full h-3 bg-emerald-500 rounded-full animate-[pulse_2.2s_infinite]"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-green-500 p-6 rounded-[2.5rem] flex items-center justify-between shadow-2xl group-hover:translate-x-6 transition-transform duration-500">
+                        <div class="flex items-center gap-4">
+                            <i class="fa-solid fa-shield-halved text-white"></i>
+                            <span class="text-white text-[11px] font-black uppercase tracking-widest">End-to-End Encrypted</span>
+                        </div>
+                        <div class="h-2 w-2 rounded-full bg-white shadow-[0_0_10px_#10b981]"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+   
+
+</div>
+<style>
+    @keyframes grow-width {
+        from {
+            width: 0;
+        }
+        to {
+            width: 88%;
+        }
+    }
+    
+    .animate-grow-width {
+        animation: grow-width 1.5s ease-out forwards;
+    }
+</style>
+{% endblock %}

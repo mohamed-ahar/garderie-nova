@@ -34,5 +34,8 @@
         "settings": { "foreground": "#52525b", "fontStyle": "italic" }
       }
     ]
+  },
+  "files.exclude": {
+    "**/.venv": true
   }
 }

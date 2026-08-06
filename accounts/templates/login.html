@@ -1,0 +1,337 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="light">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title>GarderieNova | Educational Daycare Portal</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+              rel="stylesheet">
+        <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: { 
+                        brand: { 500: '#22c55e', 600: '#16a34a', 700: '#15803d' } 
+                    }
+                }
+            }
+        }
+        </script>
+        <style>
+        #global-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+        html.dark #global-loader { background-color: #020617; }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(34, 197, 94, 0.2);
+            border-left-color: #16a34a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .animate-shake { animation: shake 0.3s ease-in-out 0s 2; }
+        * { transition: background-color 0.3s ease, color 0.3s ease; }
+        
+        /* Ensure no weird scrollbars on mobile */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        </style>
+    </head>
+    <body class="bg-white dark:bg-slate-950 font-sans antialiased">
+        <div id="global-loader">
+            <div class="spinner"></div>
+            <div style="margin-top: 20px;
+                        font-weight: 700;
+                        color: #16a34a;
+                        letter-spacing: -0.5px">GarderieNova</div>
+        </div>
+        <div class="fixed top-6 right-6 z-50 flex items-center gap-3">
+            <div class="relative">
+                <select id="langSwitcher"
+                        onchange="changeLanguage(this.value)"
+                        class="appearance-none bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 pl-4 pr-10 py-2.5 rounded-2xl text-xs font-bold cursor-pointer outline-none focus:ring-2 focus:ring-brand-500 shadow-sm dark:text-white">
+                    <option value="en">English (NB)</option>
+                    <option value="fr">Français (NB)</option>
+                </select>
+            </div>
+            <button id="themeToggle"
+                    class="p-2.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm text-slate-600 dark:text-slate-300 hover:text-brand-600 transition-colors">
+                <i id="themeIcon" class="fa-solid fa-sun text-lg"></i>
+            </button>
+        </div>
+        <div class="flex h-screen items-stretch">
+            <div class="hidden lg:flex w-1/2 bg-slate-950 relative flex-col justify-between p-16 border-r border-slate-800 overflow-hidden">
+                <div class="absolute inset-0 z-0">
+                    <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] animate-pulse">
+                    </div>
+                    <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px]"></div>
+                    <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 pointer-events-none">
+                    </div>
+                    <div class="absolute inset-0 opacity-[0.03]"
+                         style="background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px);
+                                background-size: 50px 50px"></div>
+                </div>
+                <div class="relative z-10 flex items-center gap-4 group cursor-pointer">
+                    <div class="w-12 h-12 bg-white dark:bg-emerald-500 rounded-[1.2rem] flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-transform group-hover:rotate-12 duration-500">
+                        <i class="fa-solid fa-leaf text-2xl text-slate-950"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-2xl font-black tracking-tighter text-white uppercase italic leading-none">GarderieNova</span>
+                        <span class="text-[9px] font-bold text-emerald-500 tracking-[0.4em] uppercase mt-1">Enterprise Edition</span>
+                    </div>
+                </div>
+                <div class="relative z-10">
+                    <div class="mb-8 inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full backdrop-blur-md">
+                        <span class="flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]"></span>
+                        <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">v1.0 GarderieNova</span>
+                    </div>
+                    <h1 class="text-6xl font-black text-white tracking-tighter leading-[0.9] mb-8">
+                        Next-gen
+                        <br>
+                        <span class="bg-gradient-to-r from-emerald-400 via-teal-200 to-slate-400 bg-clip-text text-transparent italic">
+                            Childcare
+                        </span>
+                        <br>
+                        Infrastructure.
+                    </h1>
+                    <p class="text-lg text-slate-400 max-w-md leading-relaxed font-medium mb-10"
+                       data-i18n="hero_desc">
+                        A secure ecosystem built for New Brunswick daycares. Scalable ratios, portfolios, and engagement.
+                    </p>
+                    <div class="p-6 bg-white/5 border border-white/10 rounded-[2.5rem] backdrop-blur-xl shadow-2xl flex items-center gap-6 max-w-sm transform hover:-translate-y-2 transition-all duration-700">
+                        <div class="flex -space-x-4">
+                            <div class="w-12 h-12 rounded-2xl border-4 border-slate-950 bg-slate-800 flex items-center justify-center text-xs font-bold text-white shadow-xl">
+                                NB
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl border-4 border-slate-950 bg-emerald-500 flex items-center justify-center text-slate-950 shadow-xl">
+                                <i class="fa-solid fa-check-double text-sm"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Compliance Status</p>
+                            <p class="text-sm font-bold text-white leading-tight">Regulatory Ready (2026)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative z-10 flex items-end justify-between border-t border-white/5 pt-8">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <div class="flex gap-1">
+                                <i class="fa-solid fa-star text-[10px] text-emerald-400"></i>
+                                <i class="fa-solid fa-star text-[10px] text-emerald-400"></i>
+                                <i class="fa-solid fa-star text-[10px] text-emerald-400"></i>
+                                <i class="fa-solid fa-star text-[10px] text-emerald-400"></i>
+                                <i class="fa-solid fa-star text-[10px] text-emerald-400"></i>
+                            </div>
+                            <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Top Rated Platform</span>
+                        </div>
+                        <p class="text-xs font-medium text-slate-500 italic max-w-xs"
+                           data-i18n="social_proof">The standard for educational centers across the province.</p>
+                    </div>
+                    <div class="flex flex-col items-end opacity-20">
+                        <span class="text-[10px] font-black text-white tracking-[0.3em] uppercase">Security</span>
+                        <span class="text-[10px] font-mono text-white tracking-tighter">AES-256 BIT</span>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-16 bg-white dark:bg-slate-950 overflow-y-auto">
+                <div class="w-full max-w-[440px] animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                    <div class="mb-12 text-center lg:text-left space-y-3">
+                        <h2 class="text-[40px] font-black text-slate-900 dark:text-white leading-tight tracking-tighter"
+                            data-i18n="signin_title">
+                            Secure
+                            <br>
+                            <span class="text-emerald-500">Access.</span>
+                        </h2>
+                        <p class="text-slate-500 dark:text-slate-400 font-medium text-lg leading-relaxed"
+                           data-i18n="signin_subtitle">Enter your credentials to manage your workspace.</p>
+                    </div>
+                    {% if error %}
+                        <div class="animate-shake mb-8 p-5 rounded-3xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/50 flex items-center gap-4 text-red-600 shadow-sm">
+                            <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-shield-xmark text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-xs font-black uppercase tracking-widest opacity-60">Security Alert</p>
+                                <p class="text-sm font-bold leading-tight mt-0.5">{{ error }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <form id="loginForm"
+                          method="POST"
+                          action="{% url 'login' %}"
+                          class="space-y-6">
+                        {% csrf_token %}
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ml-2"
+                                   data-i18n="email_label">Security Identifier</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
+                                    <i class="fa-solid fa-envelope-open-text"></i>
+                                </div>
+                                <input type="text"
+                                       name="email"
+                                       id="id_email"
+                                       required
+                                       class="w-full pl-12 pr-6 py-4.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[1.5rem] focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 outline-none transition-all dark:text-white font-bold placeholder:text-slate-300 dark:placeholder:text-slate-700"
+                                       placeholder="Harry Potter">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center ml-2">
+                                <label class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">
+                                    Access Key
+                                </label>
+                            </div>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
+                                    <i class="fa-solid fa-lock"></i>
+                                </div>
+                                <input type="password"
+                                       name="password"
+                                       id="id_password"
+                                       required
+                                       class="w-full pl-12 pr-6 py-4.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-[1.5rem] focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 outline-none transition-all dark:text-white font-bold placeholder:text-slate-300 dark:placeholder:text-slate-700"
+                                       placeholder="••••••••">
+                            </div>
+                        </div>
+                        <div class="pt-4">
+                            <button id="loginBtn"
+                                    type="submit"
+                                    class="group relative w-full py-5 bg-slate-950 dark:bg-emerald-500 text-white dark:text-slate-950 font-black rounded-[1.5rem] shadow-2xl shadow-emerald-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all overflow-hidden">
+                                <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] skew-x-[-20deg]">
+                                </div>
+                                <div class="flex justify-center items-center gap-3 relative z-10">
+                                    <i id="btnSpinner"
+                                       class="fa-solid fa-circle-notch fa-spin hidden text-lg"></i>
+                                    <span id="btnText"
+                                          class="uppercase tracking-widest text-sm"
+                                          data-i18n="btn_login">Authenticate</span>
+                                    <i class="fa-solid fa-chevron-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                    <div class="mt-12 text-center">
+                        <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                            Protected by GarderieNova Security Protocol
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <style>
+            @keyframes shimmer {
+                100% { transform: translateX(100%); }
+            }
+            .py-4\.5 { padding-top: 1.125rem; padding-bottom: 1.125rem; }
+            </style>
+        </div>
+        <script>
+        function removeLoader() {
+            const loader = document.getElementById('global-loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                loader.style.visibility = 'hidden';
+            }
+        }
+        window.addEventListener('load', () => setTimeout(removeLoader, 500));
+        
+        // ... rest of your original scripts (translations, theme toggle, etc) ...
+        const translations = {
+            en: {
+                hero_1: 'Childcare Management', hero_2: 'optimized', hero_3: 'for NB families.',
+                hero_desc: 'A platform for NB daycares. Manage legal ratios and family engagement.',
+                social_proof: 'Trusted by leading educational centers across the province.',
+                signin_title: 'Portal Login', signin_subtitle: 'Select your role to access your dashboard.',
+                email_label: ' Username', pass_label: 'Password',
+                role_label: 'Access Level', btn_login: 'Access Dashboard',
+                error_title: 'Access Denied'
+            },
+            fr: {
+                hero_1: 'Gestion de Garderie', hero_2: 'optimisée', hero_3: 'pour le N.-B.',
+                hero_desc: 'Une plateforme pour les garderies du N.-B. Gérez les ratios et l\'engagement familial.',
+                social_proof: 'Approuvé par les centres éducatifs de la province.',
+                signin_title: 'Connexion Portail', signin_subtitle: 'Sélectionnez votre rôle pour accéder au tableau de bord.',
+                email_label: 'Courriel Professionnel / Pseudo', pass_label: 'Mot de passe',
+                role_label: 'Niveau d\'accès', btn_login: 'Accéder au tableau de bord',
+                error_title: 'Accès Refusé'
+            }
+        };
+
+        function changeLanguage(lang) {
+            document.documentElement.lang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                if (translations[lang][el.dataset.i18n]) {
+                    el.textContent = translations[lang][el.dataset.i18n];
+                }
+            });
+            localStorage.setItem('garderie_lang', lang);
+        }
+
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('garderie_theme', isDark ? 'dark' : 'light');
+            themeIcon.className = isDark ? 'fa-solid fa-moon text-lg' : 'fa-solid fa-sun text-lg';
+            const loader = document.getElementById('global-loader');
+            if(loader) loader.style.backgroundColor = isDark ? '#020617' : '#ffffff';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const theme = localStorage.getItem('garderie_theme') || 'light';
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-moon text-lg';
+            }
+            const lang = localStorage.getItem('garderie_lang') || 'en';
+            document.getElementById('langSwitcher').value = lang;
+            changeLanguage(lang);
+            themeToggle.addEventListener('click', toggleTheme);
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const btn = document.getElementById('loginBtn');
+            const spinner = document.getElementById('btnSpinner');
+            const text = document.getElementById('btnText');
+            btn.classList.add('opacity-80', 'pointer-events-none');
+            spinner.classList.remove('hidden');
+            const currentLang = localStorage.getItem('garderie_lang') || 'en';
+            text.textContent = currentLang === 'fr' ? 'Vérification...' : 'Verifying Credentials...';
+        });
+        </script>
+    </body>
+</html>

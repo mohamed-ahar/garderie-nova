@@ -1,38 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db import models
 from django.db.models import Prefetch
 from .models import Group, Room, Child, EducatorProfile, StaffAssignment, User, Center, ParentProfile
 
-
-def login_view(request):
-    if request.user.is_authenticated:
-        return redirect("dashboard")
-
-    if request.method == "POST":
-        email = request.POST.get("username")
-        password = request.POST.get("password")
-
-        user = authenticate(request, email=email, password=password)
-
-        if user is not None:
-            login(request, user)
-            return redirect("dashboard")
-        else:
-            return render(
-                request,
-                "core/login.html",
-                {"error": "Invalid credentials. Please try again."},
-            )
-
-    return render(request, "core/login.html")
-
-
-def logout_view(request):
-    logout(request)
-    return redirect("login")
 
 
 @login_required(login_url="login")

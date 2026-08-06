@@ -27,6 +27,7 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     "django.contrib.admin",
     "core.apps.CoreConfig",
+    "accounts.apps.AccountsConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -89,14 +90,21 @@ TEMPLATES = [
 WSGI_APPLICATION = "backend.wsgi.application"
 
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "garderie_nova",
+#         "USER": "gardu",
+#         "PASSWORD": "garderie_nova",
+#         "HOST": "localhost",
+#         "PORT": "5432",
+#     }
+# }
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "garderie_nova",
-        "USER": "gardu",
-        "PASSWORD": "garderie_nova",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -127,7 +135,7 @@ USE_TZ = True
 
 
 STATIC_URL = "static/"
-AUTH_USER_MODEL = "core.User"
+AUTH_USER_MODEL = "accounts.User"
 import os
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

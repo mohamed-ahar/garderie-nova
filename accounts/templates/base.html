@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer"
+    />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GarderieNova Premium Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    },
+                    colors: {
+                        primary: '#4f46e5',
+                        darkBg: '#0f172a',
+                        darkCard: '#1e293b'
+                    },
+                    borderRadius: {
+                        '3xl': '1.5rem'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Ensure the sidebar width changes smoothly */
+        
+        #sidebar {
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Smooth movement for the main content */
+        
+        main {
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Prevent text from wrapping or "glitching" during the animation */
+        
+        .sidebar-label {
+            white-space: nowrap;
+            transition: opacity 0.3s ease;
+        }
+        /* Add a tooltip style if you want (Optional) */
+        /* This helps users know what the icons are when the sidebar is small */
+        
+        #sidebar.lg\:w-20 button:hover::after {
+            content: attr(data-title);
+            position: absolute;
+            left: 100%;
+            margin-left: 20px;
+            color: white;
+            padding: 5px 40px;
+            border-radius: 6px;
+            font-size: 12px;
+            z-index: 50;
+        }
+        
+        * {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .active-link {
+            @apply bg-primary/10 text-primary border-r-4 border-primary;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 font-sans antialiased">
+
+    <aside id="sidebar" class="fixed left-0 top-0 z-50 h-screen w-72 lg:w-72 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-500 ease-in-out -translate-x-full lg:translate-x-0">
+    
+        <button onclick="toggleSidebar()" class="absolute -right-4 top-10 z-[70] flex items-center justify-center w-8 h-8 group transition-all duration-300 ease-in-out bg-slate-900 border border-slate-700 rounded-md shadow-lg hover:shadow-emerald-500/30 hover:border-emerald-500/60 active:scale-90 focus:outline-none overflow-hidden">
+            <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-md"></div>
+            <div class="relative flex items-center justify-center">
+                <i id="toggle-icon" class="fa-solid fa-indent text-[13px] text-slate-400 group-hover:text-emerald-400 transition-all duration-500"></i>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 scale-x-0 group-hover:scale-x-100"></div>
+        </button>
+    
+        <div class="flex flex-col h-full relative">
+            
+            <div class="p-8 flex items-center gap-4 group cursor-pointer">
+                <div class="relative flex-shrink-0">
+                    <div class="absolute inset-0 bg-emerald-500/40 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                    <div class="relative w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl flex items-center justify-center text-white shadow-[0_8px_20px_-6px_rgba(16,185,129,0.5)] overflow-hidden transition-transform duration-500 group-hover:scale-110 group-hover:rotate-[5deg]">
+                        <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                        <i class="fa-solid fa-compass-drafting text-xl z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"></i>
+                        <div class="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-white/20 to-transparent opacity-50"></div>
+                    </div>
+                    <div class="absolute -top-1 -right-1 flex h-4 w-4">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-30"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 border-2 border-white dark:border-slate-900"></span>
+                    </div>
+                </div>
+    
+                <div id="logo-container" class="flex flex-col transition-all duration-500 group cursor-default">
+                    <div class="flex items-center gap-0.5">
+                        <span class="sidebar-label text-xl font-light tracking-tight text-white/90">
+                            Garderie<span class="font-black text-white dark:text-white transition-all duration-300 group-hover:tracking-normal tracking-tighter">Nova</span>
+                        </span>
+                        
+                        <span class="flex h-1.5 w-1.5 translate-y-1">
+                            <span class="animate-ping absolute inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 opacity-40"></span>
+                            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                        </span>
+                    </div>
+                
+                    <div class="sidebar-label flex items-center gap-2 mt-0.5">
+                        <div class="h-[2px] w-2 bg-emerald-500 rounded-full transition-all duration-500 group-hover:w-6 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
+                        
+                        <span class="text-[8px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-[0.4em] leading-none transition-colors duration-300 group-hover:text-emerald-500/80">
+                            Management
+                        </span>
+                    </div>
+                
+                    <div class="absolute -inset-x-4 -inset-y-2 bg-emerald-500/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                </div>
+            </div>
+    
+            <nav class="flex-1 px-4 space-y-4 overflow-y-auto custom-scrollbar">
+                <p class="px-5 text-[10px] text-white dark:text-slate-500 uppercase tracking-[0.2em] opacity-80">
+                    Main Menu
+                </p>
+            
+                <ul class="space-y-2">
+                    {% if user.is_authenticated %}
+                        
+                        {% if user.role_type == 'owner' %}
+                        <li class="dropdown-group relative group">
+                            <div class="absolute inset-0 bg-emerald-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                            <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 text-white overflow-hidden shadow-[0_10px_25px_-5px_rgba(16,185,129,0.4)] transition-all duration-300 active:scale-[0.98]">
+                                <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                                <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
+                                    <i class="fa-solid fa-layer-group text-[14px]"></i>
+                                </div>
+                                <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
+                                    <span class="font-extrabold tracking-wide text-[13.5px]">Network Admin</span>
+                                    <span class="text-[8.5px] font-bold text-emerald-300/90 uppercase tracking-[0.15em]">Owner Dashboard</span>
+                                </div>
+                                <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
+                            </button>
+                            <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                                <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
+                                    <a href="{% url 'create_center' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-plus-minus mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">Create Center</span>
+                                    </a>
+                                    <a href="#" 
+                                    class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
+                                     <i class="fa-solid fa-user-gear mr-3 opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                                     <span class="sidebar-label font-bold">Assign Director</span>
+                                 </a>
+                                    <a href="{% url 'owner_centers_list' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
+                                        <i class="fa-solid fa-layer-group mr-3 opacity-70 group-hover:opacity-100"></i>
+                                        <span class="sidebar-label font-bold">Manage My Centers</span>
+                                    </a>
+                                    <a href="#" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-scale-balanced mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">Compliance (Read-only)</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        {% endif %}
+            
+                        {% if user.role_type == 'director' %}
+                        <li class="dropdown-group relative group">
+                            <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                                <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
+                                    <i class="fa-solid fa-user-tie text-[14px]"></i>
+                                </div>
+                                <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
+                                    <span class="font-extrabold tracking-wide text-[13.5px]">Director Panel</span>
+                                    <span class="text-[8.5px] font-bold text-blue-200/90 uppercase tracking-[0.15em]">Directeur name</span>
+                                </div>
+                                <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
+                            </button>
+                            <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                                <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-users-gear mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">Staff & Rooms</span>
+                                    </a>
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-children mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">Children & Enrollment</span>
+                                    </a>
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-eye mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">Supervision & Validation</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        {% endif %}
+            
+                        {% if user.role_type == 'educator' %}
+                        <li class="dropdown-group relative group">
+                            <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-slate-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                                <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/10 rounded-xl border border-white/20 transition-transform duration-300 group-hover:rotate-[8deg]">
+                                    <i class="fa-solid fa-chalkboard-user text-[14px]"></i>
+                                </div>
+                                <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
+                                    <span class="font-bold text-[14px]">Classroom Hub</span>
+                                    <span class="text-[9px] text-indigo-200 uppercase tracking-widest">Educator</span>
+                                </div>
+                                <i class="sidebar-label fa-solid fa-chevron-down text-[10px] ml-auto transition-transform duration-500 chevron"></i>
+                            </button>
+                            <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                                <div class="mt-2 mx-2 bg-slate-800/60 rounded-xl p-2 space-y-1 border border-white/5">
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-clipboard-check mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">Daily Operations</span>
+                                    </a>
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-people-roof mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">Room View & Ratio</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        {% endif %}
+            
+                        {% if user.role_type == 'parent' %}
+                        <li class="dropdown-group relative group">
+                            <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                                <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:scale-110">
+                                    <i class="fa-solid fa-heart text-[14px]"></i>
+                                </div>
+                                <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
+                                    <span class="font-extrabold tracking-wide text-[13.5px]">My Child</span>
+                                    <span class="text-[8.5px] font-bold text-rose-200 uppercase tracking-[0.15em]">parent name</span>
+                                </div>
+                                <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
+                            </button>
+                            <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                                <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
+                                    <div class="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">View Tracking</div>
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-calendar-day mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">Daily Reports</span>
+                                    </a>
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-stream mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">Timeline (Suivi)</span>
+                                    </a>
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-file-pdf mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">Documents</span>
+                                    </a>
+            
+                                    <div class="px-4 py-2 mt-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Actions</div>
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-bed-pulse mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">Report Absence</span>
+                                    </a>
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-comments mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">Chat with Educator</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        {% endif %}
+            
+                        <li class="pt-4 border-t border-white/5 space-y-1">
+                            <a href="#" class="flex items-center w-full px-5 py-3 text-slate-400 hover:text-emerald-400 transition-colors group">
+                                <i class="fa-solid fa-clipboard-list mr-3 text-[14px] opacity-70 group-hover:opacity-100"></i>
+                                <span class="sidebar-label font-bold text-[13px]">System Logs</span>
+                            </a>
+            
+                            <form action="{% url 'logout' %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="flex items-center w-full px-5 py-3 text-slate-400 hover:text-red-400 transition-colors group">
+                                    <i class="fa-solid fa-right-from-bracket mr-3 text-[14px] opacity-70 group-hover:opacity-100"></i>
+                                    <span class="sidebar-label font-bold text-[13px]">Logout Account</span>
+                                </button>
+                            </form>
+                        </li>
+            
+                    {% endif %}
+                </ul>
+            </nav>
+    
+     
+        </div>
+    </aside>
+
+    <main class="lg:ml-72 min-h-screen transition-all duration-500 ease-in-out bg-slate-50 dark:bg-slate-950">
+     <!--header code khsna tzad f base-->
+        <header class="sticky top-0 z-40 w-full bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/60">
+            <div class="flex items-center justify-between px-6 md:px-10 py-3">
+                
+                <div class="flex items-center gap-6">
+                    <div class="hidden md:flex flex-col relative group/header">
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+                            </div>
+                            <span id="current-date" class="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-700/70 dark:text-emerald-400/80">
+                                October 20, 2023
+                            </span>
+                        </div>
+        
+                        <div class="flex items-center gap-4">
+                            <div class="flex flex-col">
+                                <h2 class="text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tighter leading-none flex items-center gap-2">
+                                    <span class="relative">
+                                        Main
+                                        <span class="absolute -bottom-1.5 left-0 w-0 h-[3px] bg-emerald-500 rounded-full transition-all duration-500 group-hover/header:w-full"></span>
+                                    </span>
+                                    <span class="bg-gradient-to-r from-slate-900 via-slate-600 to-slate-400 dark:from-white dark:via-slate-300 dark:to-slate-500 bg-clip-text text-transparent drop-shadow-sm">
+                                        Dashboard
+                                    </span>
+                                </h2>
+                                <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.25em] mt-2 ml-0.5">
+                                    GarderieNova Management System
+                                </p>
+                            </div>
+                            
+                            <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-100/80 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl transition-all duration-300 hover:bg-slate-200 dark:hover:bg-slate-700/60">
+                                <span class="relative flex h-2 w-2">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-slate-500 dark:bg-slate-400"></span>
+                                </span>
+                                <span class="text-[10px] font-black text-slate-600 dark:text-slate-300 tracking-tighter uppercase">v1.0.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="flex items-center gap-4">
+                    
+                    <div id="clock-container" class="hidden xl:flex items-center gap-4 px-5 py-2 rounded-2xl bg-white/50 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/60 dark:border-emerald-500/10 shadow-[0_4px_15px_rgba(0,0,0,0.05)] group/clock transition-all hover:border-emerald-500/30">
+                        <div class="relative flex items-center justify-center w-2 h-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-40"></span>
+                            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                        </div>
+        
+                        <div class="flex flex-col items-start border-l border-slate-200 dark:border-white/10 pl-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-[9px] font-black text-slate-500 dark:text-emerald-400/80 uppercase tracking-[0.2em] leading-none">Live Terminal</span>
+                                <span class="text-[7px] font-bold px-1 rounded bg-slate-200 dark:bg-emerald-500/20 text-slate-600 dark:text-emerald-300 border border-transparent dark:border-emerald-500/20">AST</span>
+                            </div>
+                            <span id="digital-clock" class="font-mono font-black text-base tabular-nums text-slate-900 dark:text-white tracking-tighter mt-1">22:29:14</span>
+                        </div>
+        
+                        <div class="opacity-0 group-hover/clock:opacity-100 transition-opacity duration-300">
+                            <i class="fa-solid fa-sync fa-spin text-[10px] text-emerald-500/50"></i>
+                        </div>
+                    </div>
+        
+                    <div class="flex items-center gap-1.5 bg-slate-200/50 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <button onclick="toggleFullScreen()" class="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:text-emerald-500 transition-all active:scale-90 shadow-sm">
+                            <i id="fullscreen-icon" class="fa-solid fa-expand text-slate-500 text-xs"></i>
+                        </button>
+                        <button onclick="toggleTheme()" class="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:text-emerald-500 transition-all active:scale-90 shadow-sm">
+                            <i id="theme-icon" class="fa-solid fa-moon text-slate-500 text-xs"></i>
+                        </button>
+                    </div>
+        
+                    <div class="relative inline-block text-left">
+                        <button onclick="toggleUserMenu()" id="user-menu-button" class="flex items-center gap-4 p-2 pr-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 group">
+                            <div class="relative">
+                                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-black text-sm shadow-inner border border-emerald-400/20">
+                                    {{ user.username|slice:":1"|upper }}
+                                </div>
+                                <div class="absolute -bottom-1 -right-1 flex h-3.5 w-3.5">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white dark:border-slate-900"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="hidden lg:block text-left">
+                                <p class="text-[13px] font-black text-slate-900 dark:text-white leading-tight tracking-tight">
+                                    {{ user.full_name|default:user.username }}
+                                </p>
+                                <p class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 opacity-90">
+                                    {{ user.email }}
+                                </p>
+                            </div>
+                            
+                            <div class="h-8 w-px bg-slate-100 dark:bg-slate-800 mx-1 hidden lg:block"></div>
+                            
+                            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 group-hover:text-emerald-500 group-hover:translate-y-0.5 transition-all"></i>
+                        </button>
+                    
+                        <div id="user-menu" class="absolute right-0 mt-4 w-80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-[0_25px_60px_rgba(0,0,0,0.2)] opacity-0 invisible translate-y-4 z-50 overflow-hidden transition-all duration-500">
+                            
+                            <div class="p-7 bg-gradient-to-br from-emerald-50/50 to-transparent dark:from-emerald-950/20">
+                                <div class="flex flex-col items-center text-center">
+                                    <div class="w-16 h-16 rounded-2xl bg-slate-900 dark:bg-emerald-500 flex items-center justify-center text-white font-black text-2xl shadow-2xl shadow-emerald-500/20 mb-4">
+                                        {{ user.username|slice:":1"|upper }}
+                                    </div>
+                                    <h4 class="text-base font-black text-slate-900 dark:text-white leading-none mb-1">
+                                        {{ user.full_name|default:user.username }}
+                                    </h4>
+                                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-4">
+                                        {{ user.email }}
+                                    </p>
+                                    
+                                    <span class="inline-flex items-center px-3 py-1 bg-emerald-100 dark:bg-emerald-500/10 text-[10px] font-black text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-200/50 dark:border-emerald-500/20 uppercase tracking-widest">
+                                        <i class="fa-solid fa-crown mr-1.5 text-[9px]"></i> {{ user.get_role_type_display }}
+                                    </span>
+                                </div>
+                            </div>
+                    
+                            <div class="px-4 pb-8 space-y-1.5">
+                                <div class="h-px bg-slate-100 dark:bg-slate-800 mb-4 mx-4"></div>
+                                <a href="{% url 'personal_profile' %}" 
+                                class="flex items-center gap-4 px-5 py-4 rounded-[1.2rem] hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all group/item border border-transparent hover:border-emerald-100 dark:hover:border-emerald-500/20">
+                                 
+                                 <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-lg opacity-60 group-hover/item:opacity-100 transition-all">
+                                     <i class="fa-solid fa-user-gear"></i>
+                                 </div>
+                             
+                                 <div class="flex flex-col">
+                                     <span class="text-sm font-black">Personal Profile</span>
+                                     <span class="text-[10px] opacity-60">Manage your data</span>
+                                 </div>
+                             </a>
+                    
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </header>
+    <!-- hna radi ndiro content dyalna-->
+    {% block content %}
+    {% endblock %}
+    
+    </main>
+   
+    
+
+    <script>
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const userMenu = document.getElementById('user-menu');
+        const themeIcon = document.getElementById('theme-icon');
+        const calendarGrid = document.getElementById('calendar-grid');
+        const fsIcon = document.getElementById('fullscreen-icon');
+
+        // Clock Function
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('digital-clock').innerText = now.toLocaleTimeString();
+            document.getElementById('current-date').innerText = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Sidebar Toggle
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        // Full Screen Toggle
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                fsIcon.className = 'fa-solid fa-compress text-slate-500';
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    fsIcon.className = 'fa-solid fa-expand text-slate-500';
+                }
+            }
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            themeIcon.className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-slate-500';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // Dropdown Toggle
+        function toggleUserMenu() {
+            userMenu.classList.toggle('opacity-0');
+            userMenu.classList.toggle('invisible');
+            userMenu.classList.toggle('translate-y-4');
+        }
+
+        // Calendar Render
+        function renderCalendar() {
+            const daysInMonth = 31; // Simplified for demo
+            const today = new Date().getDate();
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const isToday = i === today;
+                calendarGrid.innerHTML += `
+                    <div class="h-28 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-darkCard hover:border-green-500 dark:hover:border-green-500 transition-all cursor-pointer group">
+                        <span class="text-sm font-black ${isToday ? 'bg-green-600 text-white w-8 h-8 flex items-center justify-center rounded-lg shadow-lg' : 'text-slate-400'}">${i}</span>
+                        ${i % 7 === 0 ? '<div class="mt-3 w-full h-1 bg-green-500 rounded-full"></div>' : ''}
+                        ${i === 15 ? '<div class="mt-3 w-full h-1 bg-rose-500 rounded-full"></div>' : ''}
+                    </div>
+                `;
+            }
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-sun text-amber-400';
+            }
+            renderCalendar();
+        });
+
+        // Click Away
+        window.onclick = (e) => {
+            if (!e.target.closest('.relative')) {
+                userMenu.classList.add('opacity-0', 'invisible', 'translate-y-4');
+            }
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropdownGroups = document.querySelectorAll('.dropdown-group');
+
+            dropdownGroups.forEach(group => {
+                const trigger = group.querySelector('.dropdown-trigger');
+                const content = group.querySelector('.dropdown-content');
+                const chevron = group.querySelector('.chevron');
+
+                trigger.addEventListener('click', () => {
+                    const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+
+                    // Close all other dropdowns
+                    dropdownGroups.forEach(otherGroup => {
+                        const otherContent = otherGroup.querySelector('.dropdown-content');
+                        const otherChevron = otherGroup.querySelector('.chevron');
+                        otherContent.style.maxHeight = '0px';
+                        otherChevron.style.transform = 'rotate(0deg)';
+                    });
+
+                    // If it was closed, open it now
+                    if (!isOpen) {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        chevron.style.transform = 'rotate(90deg)';
+                    }
+                });
+            });
+        });
+
+        // Sidebar Toggle Function
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+    </script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('main');
+            const toggleIcon = document.getElementById('toggle-icon');
+            const labels = document.querySelectorAll('.sidebar-label');
+            const navHeading = document.querySelector('nav p');
+
+            // Select all nav links AND the new dropdown links
+            const navButtons = document.querySelectorAll('nav button, nav a, .dropdown-btn');
+            const iconElements = document.querySelectorAll('nav i, .dropdown-btn i');
+
+            if (window.innerWidth >= 1024) {
+                const isFull = sidebar.classList.contains('lg:w-72');
+
+                if (isFull) {
+                    // --- SWITCH TO MINI MODE ---
+                    sidebar.classList.replace('lg:w-72', 'lg:w-28');
+                    mainContent.classList.replace('lg:ml-72', 'lg:ml-28');
+                    toggleIcon.classList.replace('fa-chevron-left', 'fa-chevron-right');
+
+                    labels.forEach(label => label.classList.add('lg:hidden'));
+                    if (navHeading) navHeading.classList.add('lg:hidden');
+
+                    navButtons.forEach(btn => {
+                        btn.classList.add('justify-center', 'px-0');
+                        btn.classList.remove('px-4');
+                    });
+
+                    // Remove margins from icons to center them perfectly
+                    iconElements.forEach(icon => {
+                        icon.classList.remove('lg:mr-3', 'mr-3');
+                    });
+
+                } else {
+                    // --- SWITCH TO FULL MODE ---
+                    sidebar.classList.replace('lg:w-28', 'lg:w-72');
+                    mainContent.classList.replace('lg:ml-28', 'lg:ml-72');
+                    toggleIcon.classList.replace('fa-chevron-right', 'fa-chevron-left');
+
+                    labels.forEach(label => label.classList.remove('lg:hidden'));
+                    if (navHeading) navHeading.classList.remove('lg:hidden');
+
+                    navButtons.forEach(btn => {
+                        btn.classList.remove('justify-center', 'px-0');
+                        btn.classList.add('px-4');
+                    });
+
+                    // Restore margins for icons
+                    iconElements.forEach(icon => {
+                        icon.classList.add('lg:mr-3');
+                    });
+                }
+            } else {
+                sidebar.classList.toggle('-translate-x-full');
+            }
+        }
+    </script>
+</body>
+
+</html>

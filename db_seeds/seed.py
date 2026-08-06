@@ -5,12 +5,15 @@ import random
 from datetime import timedelta, date
 from django.utils import timezone
 import random
-from core.models import (
+from accounts.models import (
     User,
     OwnerProfile,
     DirectorProfile,
     EducatorProfile,
     ParentProfile,
+)
+from core import admin
+from core.models import (
     Organization,
     Center,
     Room,
@@ -86,6 +89,13 @@ def create_users():
             )
         )
         ParentProfile.objects.create(user=parents[i], home_address="123 Maple St")
+    admin_user = User.objects.create_superuser(
+        email="admin@nova.com",
+        password="password123",
+        full_name="Super Admin",
+        phone_number="555-9999",
+        role_type="admin",
+    )
 
     return owner_user, dir_user, educators, parents
 
