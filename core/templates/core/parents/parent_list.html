@@ -20,6 +20,70 @@
 </div>
 
 <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden animate-in fade-in duration-500">
+    <!-- Filter Section -->
+    <div class="border-b border-slate-100 dark:border-slate-800 p-6">
+        <div class="flex flex-col gap-4">
+            <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                <div class="flex-1 min-w-0">
+                    <div class="relative">
+                        <input type="text" 
+                               id="searchInput" 
+                               placeholder="Search parents by name, email..." 
+                               class="w-full px-4 py-3 pl-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    </div>
+                </div>
+                <button onclick="resetFilters()" class="px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold text-sm transition-colors whitespace-nowrap">
+                    <i class="fa-solid fa-rotate-left mr-2"></i>Reset Filters
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div>
+                    <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2 block">Billing Reference</label>
+                    <input type="text" 
+                           id="billingFilter" 
+                           placeholder="Filter by billing ref..." 
+                           class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                </div>
+                
+                <div>
+                    <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2 block">Email</label>
+                    <input type="email" 
+                           id="emailFilter" 
+                           placeholder="Filter by email..." 
+                           class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                </div>
+                
+                <div>
+                    <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2 block">Sort By</label>
+                    <select id="sortSelect" class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        <option value="name-asc">Name (A-Z)</option>
+                        <option value="name-desc">Name (Z-A)</option>
+                        <option value="email-asc">Email (A-Z)</option>
+                        <option value="email-desc">Email (Z-A)</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2 block">Entries per Page</label>
+                    <select id="pageSize" class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        <option value="10">10 per page</option>
+                        <option value="25">25 per page</option>
+                        <option value="50">50 per page</option>
+                        <option value="100">100 per page</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between pt-2">
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    Showing <span id="resultCount">{{ parents|length }}</span> parent(s)
+                </span>
+            </div>
+        </div>
+    </div>
+    
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
@@ -109,5 +173,241 @@
             </tbody>
         </table>
     </div>
+    
+    <!-- Pagination Section -->
+    <div id="paginationContainer" class="border-t border-slate-100 dark:border-slate-800 px-6 py-5 bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-2">
+            <button id="prevBtn" onclick="previousPage()" class="px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-sm" title="Previous page">
+                <i class="fa-solid fa-chevron-left mr-2"></i>Previous
+            </button>
+            <div id="pageNumbers" class="flex items-center gap-1"></div>
+            <button id="nextBtn" onclick="nextPage()" class="px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-sm" title="Next page">
+                Next<i class="fa-solid fa-chevron-right ml-2"></i>
+            </button>
+        </div>
+        <div class="text-xs font-semibold text-slate-600 dark:text-slate-400">
+            Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+        </div>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const billingFilter = document.getElementById('billingFilter');
+    const emailFilter = document.getElementById('emailFilter');
+    const sortSelect = document.getElementById('sortSelect');
+    const pageSize = document.getElementById('pageSize');
+    const resultCount = document.getElementById('resultCount');
+    const tbody = document.querySelector('tbody');
+    const tableRows = Array.from(tbody.querySelectorAll('tr')).filter(row => row.querySelector('td'));
+    const emptyRow = tbody.querySelector('tr:has(.fa-user-slash)');
+    
+    // Pagination variables
+    let currentPage = 1;
+    let filteredRows = [];
+
+    // Store original rows data with accurate extraction
+    const rowsData = tableRows.filter(row => !row.querySelector('.fa-user-slash')).map(row => {
+        const cells = row.querySelectorAll('td');
+        // Get the parent name from the second link in first cell (after the avatar link)
+        const nameLink = cells[0]?.querySelectorAll('a')[1];
+        const name = nameLink?.textContent.trim() || '';
+        
+        // Get email by finding the envelope icon's next sibling
+        const emailCell = cells[1];
+        const emailDiv = emailCell?.querySelector('div:has(.fa-envelope)');
+        const email = emailDiv?.textContent.replace(/[\s\n]/g, ' ').trim() || '';
+        
+        // Get billing reference from the 4th cell
+        const billing = cells[3]?.textContent.trim() || '';
+        
+        return {
+            element: row,
+            name: name,
+            email: email,
+            billing: billing
+        };
+    });
+
+    function updatePagination() {
+        const size = parseInt(pageSize.value) || 10;
+        const totalPages = Math.ceil(filteredRows.length / size) || 1;
+        currentPage = Math.min(currentPage, totalPages);
+        
+        // Hide all data rows
+        rowsData.forEach(row => row.element.style.display = 'none');
+
+        // Show rows for current page
+        const startIdx = (currentPage - 1) * size;
+        const endIdx = startIdx + size;
+        const visibleRows = filteredRows.slice(startIdx, endIdx);
+        
+        visibleRows.forEach(row => row.element.style.display = '');
+
+        // Update pagination controls
+        updatePaginationControls(totalPages);
+        
+        // Show/hide empty state
+        if (filteredRows.length === 0 && emptyRow) {
+            emptyRow.style.display = '';
+        } else if (emptyRow) {
+            emptyRow.style.display = 'none';
+        }
+    }
+
+    function updatePaginationControls(totalPages) {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageNumbersDiv = document.getElementById('pageNumbers');
+        const currentPageSpan = document.getElementById('currentPage');
+        const totalPagesSpan = document.getElementById('totalPages');
+        const paginationContainer = document.getElementById('paginationContainer');
+
+        // Update current and total page display
+        currentPageSpan.textContent = currentPage;
+        totalPagesSpan.textContent = totalPages;
+
+        // Update button states
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+
+        // Generate page numbers
+        pageNumbersDiv.innerHTML = '';
+        const maxPageButtons = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+        let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+        
+        if (endPage - startPage < maxPageButtons - 1) {
+            startPage = Math.max(1, endPage - maxPageButtons + 1);
+        }
+
+        if (startPage > 1) {
+            const btn = createPageButton(1);
+            pageNumbersDiv.appendChild(btn);
+            if (startPage > 2) {
+                const dots = document.createElement('span');
+                dots.textContent = '...';
+                dots.className = 'px-2 text-slate-400';
+                pageNumbersDiv.appendChild(dots);
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = createPageButton(i);
+            pageNumbersDiv.appendChild(btn);
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const dots = document.createElement('span');
+                dots.textContent = '...';
+                dots.className = 'px-2 text-slate-400';
+                pageNumbersDiv.appendChild(dots);
+            }
+            const btn = createPageButton(totalPages);
+            pageNumbersDiv.appendChild(btn);
+        }
+
+        // Hide pagination if only one page or no results
+        paginationContainer.style.display = filteredRows.length === 0 || totalPages === 1 ? 'none' : 'flex';
+    }
+
+    function createPageButton(pageNum) {
+        const btn = document.createElement('button');
+        btn.textContent = pageNum;
+        btn.onclick = () => goToPage(pageNum);
+        btn.className = `px-3 py-2 rounded-lg border transition-colors font-semibold text-sm ${
+            currentPage === pageNum
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+        }`;
+        return btn;
+    }
+
+    function goToPage(pageNum) {
+        currentPage = pageNum;
+        updatePagination();
+    }
+
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const billingTerm = billingFilter.value.toLowerCase();
+        const emailTerm = emailFilter.value.toLowerCase();
+        const sortBy = sortSelect.value;
+
+        // Filter rows
+        filteredRows = rowsData.filter(row => {
+            const matchSearch = row.name.toLowerCase().includes(searchTerm) || 
+                               row.email.toLowerCase().includes(searchTerm);
+            const matchBilling = row.billing.toLowerCase().includes(billingTerm) || billingTerm === '';
+            const matchEmail = row.email.toLowerCase().includes(emailTerm) || emailTerm === '';
+            
+            return matchSearch && matchBilling && matchEmail;
+        });
+
+        // Sort rows
+        filteredRows.sort((a, b) => {
+            switch(sortBy) {
+                case 'name-asc':
+                    return a.name.localeCompare(b.name);
+                case 'name-desc':
+                    return b.name.localeCompare(a.name);
+                case 'email-asc':
+                    return a.email.localeCompare(b.email);
+                case 'email-desc':
+                    return b.email.localeCompare(a.email);
+                default:
+                    return 0;
+            }
+        });
+
+        // Reset to first page when filters change
+        currentPage = 1;
+        
+        // Update result count
+        resultCount.textContent = filteredRows.length;
+
+        // Update pagination
+        updatePagination();
+    }
+
+    function resetFilters() {
+        searchInput.value = '';
+        billingFilter.value = '';
+        emailFilter.value = '';
+        sortSelect.value = 'name-asc';
+        pageSize.value = '10';
+        currentPage = 1;
+        applyFilters();
+    }
+
+    // Attach event listeners
+    searchInput.addEventListener('input', applyFilters);
+    billingFilter.addEventListener('input', applyFilters);
+    emailFilter.addEventListener('input', applyFilters);
+    sortSelect.addEventListener('change', applyFilters);
+    pageSize.addEventListener('change', applyFilters);
+
+    // Make functions globally available
+    window.resetFilters = resetFilters;
+    window.previousPage = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            updatePagination();
+        }
+    };
+    window.nextPage = () => {
+        const totalPages = Math.ceil(filteredRows.length / (parseInt(pageSize.value) || 10)) || 1;
+        if (currentPage < totalPages) {
+            currentPage++;
+            updatePagination();
+        }
+    };
+    window.goToPage = goToPage;
+
+    // Initialize pagination on page load
+    applyFilters();
+});
+</script>
 {% endblock %}
