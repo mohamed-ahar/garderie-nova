@@ -12,10 +12,10 @@
             <h1 class="text-4xl font-black text-white tracking-tighter mb-2">Educator Management</h1>
             <p class="text-white/80 text-sm font-medium">Manage educators, profiles, and assignments across your centers.</p>
         </div>
-        <button onclick="openAddModal()" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-2xl text-sm font-bold hover:shadow-xl hover:shadow-blue-500/20 transition-all active:scale-95 whitespace-nowrap">
+        <a href="{% url 'educator_add' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-2xl text-sm font-bold hover:shadow-xl hover:shadow-blue-500/20 transition-all active:scale-95 whitespace-nowrap">
             <i class="fa-solid fa-plus"></i>
             Add Educator
-        </button>
+        </a>
     </div>
 </div>
 
@@ -60,8 +60,8 @@
                     <select id="sortSelect" class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                         <option value="name-asc">Name (A-Z)</option>
                         <option value="name-desc">Name (Z-A)</option>
-                        <option value="email-asc">Email (A-Z)</option>
-                        <option value="email-desc">Email (Z-A)</option>
+                        <option value="center-asc">Center (A-Z)</option>
+                        <option value="center-desc">Center (Z-A)</option>
                     </select>
                 </div>
                 
@@ -201,148 +201,7 @@
     </div>
 </div>
 
-<!-- Add Educator Modal -->
-<div id="addEducatorModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity duration-300">
-    <div class="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-2xl shadow-2xl overflow-y-auto max-h-[90vh] animate-in zoom-in-95 fade-in duration-300">
-        <!-- Modal Header with Gradient -->
-        <div class="bg-gradient-to-r from-blue-600 to-cyan-500 px-8 py-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-            <div class="relative z-10 flex justify-between items-center">
-                <div>
-                    <h3 class="text-2xl font-black text-white mb-1">Add New Educator</h3>
-                    <p class="text-white/80 text-sm font-medium">Create a new educator profile in the system</p>
-                </div>
-                <button type="button" onclick="closeAddModal()" class="text-white/60 hover:text-white transition-colors">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-        </div>
-
-        <form id="addEducatorForm" onsubmit="submitAddEducator(event)" class="p-8">
-            {% csrf_token %}
-            <div class="mb-8">
-                <div class="flex items-center gap-3 mb-5">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-500/20 dark:to-cyan-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                        <i class="fa-solid fa-user text-sm"></i>
-                    </div>
-                    <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Personal Information</h4>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Full Name</label>
-                        <input type="text" name="full_name" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 font-bold text-slate-900 dark:text-white placeholder-slate-400">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Phone</label>
-                        <input type="tel" name="phone_number" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 font-bold text-slate-900 dark:text-white placeholder-slate-400">
-                    </div>
-                </div>
-            </div>
-            <div class="mb-8">
-                <div class="flex items-center gap-3 mb-5">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-500/20 dark:to-cyan-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                        <i class="fa-solid fa-envelope text-sm"></i>
-                    </div>
-                    <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Contact Details</h4>
-                </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Email Address</label>
-                    <input type="email" name="email" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 font-bold text-slate-900 dark:text-white placeholder-slate-400">
-                </div>
-            </div>
-            <div class="mb-8">
-                <div class="flex items-center gap-3 mb-5">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-500/20 dark:to-cyan-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                        <i class="fa-solid fa-lock text-sm"></i>
-                    </div>
-                    <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Security</h4>
-                </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Initial Password</label>
-                    <input type="password" name="password" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 font-bold text-slate-900 dark:text-white placeholder-slate-400">
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">The educator should change this password on first login</p>
-                </div>
-            </div>
-            {% if centers %}
-            <div class="mb-8">
-                <div class="flex items-center gap-3 mb-5">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-500/20 dark:to-cyan-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                        <i class="fa-solid fa-building text-sm"></i>
-                    </div>
-                    <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Center Assignment</h4>
-                </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Assign to Center</label>
-                    <select name="center_id" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 font-bold text-slate-900 dark:text-white">
-                        <option value="">Select a center...</option>
-                        {% for center in centers %}
-                        <option value="{{ center.center_id }}">{{ center.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            {% endif %}
-            <div id="formError" class="hidden p-4 mb-6 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl text-sm font-bold text-center border border-red-200 dark:border-red-500/20"></div>
-            <div class="flex gap-3 justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
-                <button type="button" onclick="closeAddModal()" class="px-6 py-3 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                    Cancel
-                </button>
-                <button type="submit" class="px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:shadow-lg hover:shadow-blue-500/30 shadow-md shadow-blue-500/20 transition-all active:scale-95">
-                    <i class="fa-solid fa-plus mr-2"></i>Create Educator
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <script>
-function openAddModal() {
-    document.getElementById('addEducatorModal').classList.remove('hidden');
-}
-
-function closeAddModal() {
-    document.getElementById('addEducatorModal').classList.add('hidden');
-    document.getElementById('addEducatorForm').reset();
-    document.getElementById('formError').classList.add('hidden');
-}
-
-async function submitAddEducator(e) {
-    e.preventDefault();
-    const form = e.target;
-    const formData = new FormData(form);
-    const errorEl = document.getElementById('formError');
-    const btn = form.querySelector('button[type="submit"]');
-    const originalText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Creating...';
-    errorEl.classList.add('hidden');
-
-    try {
-        const response = await fetch("{% url 'educator_add' %}", {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            window.location.reload();
-        } else {
-            errorEl.textContent = data.message || 'An error occurred.';
-            errorEl.classList.remove('hidden');
-        }
-    } catch (err) {
-        errorEl.textContent = 'Network error. Please try again.';
-        errorEl.classList.remove('hidden');
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-    }
-}
-
 // Filtering and Pagination Logic
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
@@ -366,8 +225,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const nameLink = cells[0]?.querySelectorAll('a')[1];
         const name = nameLink?.textContent.trim() || '';
         
-        // Get center name from 3rd cell
-        const center = cells[2]?.textContent.trim() || '';
+        // Get center name from 3rd cell - extract only the span text content
+        const centerSpan = cells[2]?.querySelector('span');
+        const center = centerSpan?.textContent.trim() || '';
         
         // Get status from 4th cell - check if it contains "Compliant" or "Issues"
         const statusCell = cells[3];
@@ -517,10 +377,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     return a.name.localeCompare(b.name);
                 case 'name-desc':
                     return b.name.localeCompare(a.name);
-                case 'email-asc':
-                    return a.name.localeCompare(b.name);
-                case 'email-desc':
-                    return b.name.localeCompare(a.name);
+                case 'center-asc':
+                    return a.center.localeCompare(b.center);
+                case 'center-desc':
+                    return b.center.localeCompare(a.center);
                 default:
                     return 0;
             }
