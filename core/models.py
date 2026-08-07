@@ -47,8 +47,9 @@ class Room(models.Model):
     room_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     center = models.ForeignKey(Center, on_delete=models.CASCADE, related_name="rooms")
     name = models.CharField(max_length=100)
-    fire_capacity = models.IntegerField(help_text="Strict legal fire limit")
-
+    room_surface = models.DecimalField(max_digits=10, decimal_places=2, help_text="Room surface area in square meters")
+    max_capacity = models.IntegerField(help_text="Maximum capacity based on fire regulations")
+    age_group = models.CharField(max_length=100, blank=True, help_text="Intended age group for the room")
     def __str__(self):
         return self.name
 

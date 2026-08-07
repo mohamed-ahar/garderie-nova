@@ -3,25 +3,30 @@
 {% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Group | GarderieNova{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto">
-    <div class="flex items-center justify-between mb-8">
-        <div>
-            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{% if is_edit %}Edit{% else %}Add New{% endif %} Group</h1>
-            <p class="text-slate-500 text-sm dark:text-slate-400 font-medium">{% if is_edit %}Update group details and room assignment.{% else %}Create a new logical group for children and educators.{% endif %}</p>
+<div class="mb-8 -mx-6 -mt-6 px-6 pt-8 pb-8 bg-gradient-to-br from-blue-600/95 via-blue-500/90 to-cyan-500/85 dark:from-blue-700/80 dark:via-blue-600/75 dark:to-cyan-600/70 relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -mr-48 -mt-48"></div>
+    <div class="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-3xl -ml-36 -mb-36"></div>
+    
+    <div class="relative z-10">
+        <div class="flex items-center gap-3 mb-4">
+            <i class="fa-solid fa-users-rectangle text-white text-lg"></i>
+            <span class="text-white/80 text-xs font-bold uppercase tracking-widest">Group Management</span>
         </div>
-        <a href="{% url 'group_list' %}" class="text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
-            Cancel
-        </a>
+        <h1 class="text-4xl font-black text-white tracking-tighter mb-2">{% if is_edit %}Edit{% else %}Add New{% endif %} Group</h1>
+        <p class="text-white/80 text-sm font-medium">{% if is_edit %}Update group details and room assignment.{% else %}Create a new logical group for children and educators.{% endif %}</p>
     </div>
+</div>
+
+<div class="max-w-2xl mx-auto animate-in fade-in duration-500">
 
     {% if error %}
-    <div class="mb-6 p-4 bg-rose-50 border border-rose-100 text-rose-600 rounded-2xl text-sm font-bold flex items-center gap-3">
+    <div class="mb-6 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl text-sm font-bold flex items-center gap-3">
         <i class="fa-solid fa-circle-exclamation"></i>
         {{ error }}
     </div>
     {% endif %}
 
-    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl p-8 md:p-10">
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-lg p-8 md:p-10">
         <form method="post" class="space-y-6">
             {% csrf_token %}
             

@@ -3,37 +3,40 @@
 {% block title %}Educator Management | GarderieNova{% endblock %}
 
 {% block content %}
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-    <div>
-        <h1 class="text-3xl font-black text-emerald-600 dark:text-white tracking-tighter">Educator Management</h1>
-        <p class="text-slate-500 text-sm dark:text-slate-400 font-medium">Manage educators, profiles, and assignments.</p>
-    </div>
-    <div class="flex items-center gap-3">
-        <button onclick="openAddModal()" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl text-sm font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/25 active:scale-95">
+<div class="mb-8 -mx-6 -mt-6 px-6 pt-8 pb-8 bg-gradient-to-br from-blue-600/95 via-blue-500/90 to-cyan-500/85 relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -mr-48 -mt-48"></div>
+    <div class="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-3xl -ml-36 -mb-36"></div>
+    
+    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-4xl font-black text-white tracking-tighter mb-2">Educator Management</h1>
+            <p class="text-white/80 text-sm font-medium">Manage educators, profiles, and assignments across your centers.</p>
+        </div>
+        <button onclick="openAddModal()" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-2xl text-sm font-bold hover:shadow-xl hover:shadow-blue-500/20 transition-all active:scale-95 whitespace-nowrap">
             <i class="fa-solid fa-plus"></i>
             Add Educator
         </button>
     </div>
 </div>
 
-<div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden">
+<div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden animate-in fade-in duration-500">
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
-                    <th class="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Educator</th>
-                    <th class="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact</th>
-                    <th class="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Center</th>
-                    <th class="px-6 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
-                    <th class="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+                <tr class="bg-gradient-to-r from-blue-50/50 to-cyan-50/50 dark:from-slate-950/50 dark:to-slate-950/50 border-b border-slate-100 dark:border-slate-800">
+                    <th class="px-8 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Educator</th>
+                    <th class="px-6 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Children</th>
+                    <th class="px-6 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Center</th>
+                    <th class="px-6 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Status</th>
+                    <th class="px-8 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-right">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
                 {% for educator in educators %}
-                <tr class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                <tr class="group hover:bg-blue-50/30 dark:hover:bg-blue-500/5 transition-colors">
                     <td class="px-8 py-5">
                         <div class="flex items-center gap-4">
-                            <a href="{% url 'educator_detail' educator.user.user_id %}" class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 hover:scale-110 transition-transform">
+                            <a href="{% url 'educator_detail' educator.user.user_id %}" class="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 hover:scale-110 transition-transform">
                                 {% if educator.user.profile_photo %}
                                 <img src="{{ educator.user.profile_photo.url }}" class="w-full h-full rounded-2xl object-cover">
                                 {% else %}
@@ -41,28 +44,28 @@
                                 {% endif %}
                             </a>
                             <div>
-                                <a href="{% url 'educator_detail' educator.user.user_id %}" class="text-sm font-bold text-slate-900 dark:text-white hover:text-emerald-600 transition-colors">
+                                <a href="{% url 'educator_detail' educator.user.user_id %}" class="text-sm font-bold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                                     {{ educator.user.full_name }}
                                 </a>
                             </div>
                         </div>
                     </td>
                     <td class="px-6 py-5">
-                        <div class="flex flex-col gap-1">
-                            <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-                                <i class="fa-solid fa-envelope opacity-50"></i>
-                                {{ educator.user.email }}
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-bold text-sm">
+                                {{ educator.assigned_children.count }}
                             </div>
-                            {% if educator.user.phone_number %}
-                            <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-                                <i class="fa-solid fa-phone opacity-50"></i>
-                                {{ educator.user.phone_number }}
-                            </div>
-                            {% endif %}
+                            <span class="text-sm text-slate-600 dark:text-slate-300">
+                                {% if educator.assigned_children.count == 1 %}
+                                    child
+                                {% else %}
+                                    children
+                                {% endif %}
+                            </span>
                         </div>
                     </td>
                     <td class="px-6 py-5">
-                         <span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-black rounded-lg uppercase">
+                         <span class="px-3 py-1 bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 text-[11px] font-black rounded-lg uppercase">
                             {{ educator.center.name }}
                         </span>
                     </td>
@@ -89,7 +92,7 @@
                             <a href="{% url 'educator_detail' educator.user.user_id %}" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all shadow-sm" title="View Profile">
                                 <i class="fa-solid fa-eye text-xs"></i>
                             </a>
-                            <a href="{% url 'educator_edit' educator.user.user_id %}" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all shadow-sm" title="Edit">
+                            <a href="{% url 'educator_edit' educator.user.user_id %}" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all shadow-sm" title="Edit">
                                 <i class="fa-solid fa-pen-to-square text-xs"></i>
                             </a>
                             <form id="delete-form-{{ educator.user.user_id }}" method="POST" action="{% url 'educator_delete' educator.user.user_id %}" class="inline">
@@ -105,7 +108,7 @@
                 <tr>
                     <td colspan="5" class="px-8 py-10 text-center text-slate-500 dark:text-slate-400">
                         <div class="flex flex-col items-center gap-3">
-                            <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-300">
+                            <div class="w-16 h-16 bg-blue-100 dark:bg-blue-500/10 rounded-full flex items-center justify-center text-blue-500 dark:text-blue-400">
                                 <i class="fa-solid fa-user-slash text-2xl"></i>
                             </div>
                             <p class="font-medium">No educators found.</p>
@@ -120,52 +123,91 @@
 
 <!-- Add Educator Modal -->
 <div id="addEducatorModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity duration-300">
-    <div class="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-2xl p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-2xl font-black text-slate-900 dark:text-white">Add New Educator</h3>
-            <button type="button" onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
+    <div class="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-2xl shadow-2xl overflow-y-auto max-h-[90vh] animate-in zoom-in-95 fade-in duration-300">
+        <!-- Modal Header with Gradient -->
+        <div class="bg-gradient-to-r from-blue-600 to-cyan-500 px-8 py-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+            <div class="relative z-10 flex justify-between items-center">
+                <div>
+                    <h3 class="text-2xl font-black text-white mb-1">Add New Educator</h3>
+                    <p class="text-white/80 text-sm font-medium">Create a new educator profile in the system</p>
+                </div>
+                <button type="button" onclick="closeAddModal()" class="text-white/60 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
         </div>
-        
-        <form id="addEducatorForm" onsubmit="submitAddEducator(event)">
+
+        <form id="addEducatorForm" onsubmit="submitAddEducator(event)" class="p-8">
             {% csrf_token %}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase text-slate-500">Full Name</label>
-                    <input type="text" name="full_name" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900 dark:text-white">
+            <div class="mb-8">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-500/20 dark:to-cyan-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                        <i class="fa-solid fa-user text-sm"></i>
+                    </div>
+                    <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Personal Information</h4>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Full Name</label>
+                        <input type="text" name="full_name" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 font-bold text-slate-900 dark:text-white placeholder-slate-400">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Phone</label>
+                        <input type="tel" name="phone_number" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 font-bold text-slate-900 dark:text-white placeholder-slate-400">
+                    </div>
+                </div>
+            </div>
+            <div class="mb-8">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-500/20 dark:to-cyan-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                        <i class="fa-solid fa-envelope text-sm"></i>
+                    </div>
+                    <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Contact Details</h4>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase text-slate-500">Email</label>
-                    <input type="email" name="email" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900 dark:text-white">
+                    <label class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Email Address</label>
+                    <input type="email" name="email" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 font-bold text-slate-900 dark:text-white placeholder-slate-400">
+                </div>
+            </div>
+            <div class="mb-8">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-500/20 dark:to-cyan-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                        <i class="fa-solid fa-lock text-sm"></i>
+                    </div>
+                    <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Security</h4>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase text-slate-500">Phone</label>
-                    <input type="tel" name="phone_number" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900 dark:text-white">
+                    <label class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Initial Password</label>
+                    <input type="password" name="password" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 font-bold text-slate-900 dark:text-white placeholder-slate-400">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">The educator should change this password on first login</p>
+                </div>
+            </div>
+            {% if centers %}
+            <div class="mb-8">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-500/20 dark:to-cyan-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                        <i class="fa-solid fa-building text-sm"></i>
+                    </div>
+                    <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Center Assignment</h4>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase text-slate-500">Password</label>
-                    <input type="password" name="password" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900 dark:text-white">
-                </div>
-                {% if centers %}
-                <div class="space-y-2 md:col-span-2">
-                    <label class="text-xs font-bold uppercase text-slate-500">Assign Center</label>
-                    <select name="center_id" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-slate-900 dark:text-white">
+                    <label class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Assign to Center</label>
+                    <select name="center_id" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 font-bold text-slate-900 dark:text-white">
+                        <option value="">Select a center...</option>
                         {% for center in centers %}
                         <option value="{{ center.center_id }}">{{ center.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                {% endif %}
             </div>
-            
-            <div id="formError" class="hidden p-4 mb-6 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm font-bold text-center"></div>
-
-            <div class="flex gap-3 justify-end">
+            {% endif %}
+            <div id="formError" class="hidden p-4 mb-6 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl text-sm font-bold text-center border border-red-200 dark:border-red-500/20"></div>
+            <div class="flex gap-3 justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button type="button" onclick="closeAddModal()" class="px-6 py-3 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                     Cancel
                 </button>
-                <button type="submit" class="px-6 py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/30 transition-all active:scale-95">
+                <button type="submit" class="px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:shadow-lg hover:shadow-blue-500/30 shadow-md shadow-blue-500/20 transition-all active:scale-95">
                     <i class="fa-solid fa-plus mr-2"></i>Create Educator
                 </button>
             </div>
@@ -189,8 +231,6 @@ async function submitAddEducator(e) {
     const form = e.target;
     const formData = new FormData(form);
     const errorEl = document.getElementById('formError');
-    
-    // Disable button
     const btn = form.querySelector('button[type="submit"]');
     const originalText = btn.innerHTML;
     btn.disabled = true;

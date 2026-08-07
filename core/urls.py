@@ -24,6 +24,10 @@ from .views import (
     owner_centers_list,
     create_director_general,
     assign_director_to_center,
+    room_list_view,
+    room_create_view,
+    room_edit_view,
+    room_delete_view,
 )
 
 urlpatterns = [
@@ -52,9 +56,12 @@ urlpatterns = [
     path("center/details/<uuid:center_id>/", center_info_view, name="center_details"),
     path("my-centers/", owner_centers_list, name="owner_centers_list"),
     path("add-director/", create_director_general, name="add_director_general"),
-    path(
-        "center/<uuid:center_id>/assign-director/",
+    path("center/<uuid:center_id>/assign-director/",
         assign_director_to_center,
         name="assign_director",
     ),
+    path("rooms/", room_list_view, name="room_list"),
+    path("rooms/create/", room_create_view, name="room_create"),
+    path("rooms/<uuid:room_id>/edit/", room_edit_view, name="room_edit"),
+    path("rooms/<uuid:room_id>/delete/", room_delete_view, name="room_delete"),
 ]

@@ -1,0 +1,107 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Manage Rooms - GarderieNova{% endblock %}
+
+{% block content %}
+<div class="mb-8 -mx-6 -mt-6 px-6 pt-8 pb-8 bg-gradient-to-br from-blue-600/95 via-blue-500/90 to-cyan-500/85 dark:from-blue-700/80 dark:via-blue-600/75 dark:to-cyan-600/70 relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -mr-48 -mt-48"></div>
+    <div class="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-3xl -ml-36 -mb-36"></div>
+    
+    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-4xl font-black text-white tracking-tighter mb-2">Rooms Management</h1>
+            <p class="text-white/80 text-sm font-medium">Manage and organize your childcare center rooms.</p>
+        </div>
+        <a href="{% url 'room_create' %}"
+           class="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-2xl text-sm font-bold hover:shadow-xl hover:shadow-blue-500/20 transition-all active:scale-95 whitespace-nowrap">
+            <i class="fa-solid fa-plus"></i>
+            Create Room
+        </a>
+    </div>
+</div>
+
+<div class="animate-in fade-in duration-500">
+
+    <!-- Rooms Grid -->
+    {% if rooms %}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {% for room in rooms %}
+                <div class="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-1">{{ room.name }}</h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">
+                                <i class="fa-solid fa-building text-blue-500 mr-2"></i>
+                                {{ room.center.name }}
+                            </p>
+                        </div>
+                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a href="{% url 'room_edit' room.room_id %}"
+                               class="p-2.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                               title="Edit room">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            <button onclick="openDeleteModal('{{ room.room_id }}', '{{ room.name }}')"
+                                    class="p-2.5 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
+                                    title="Delete room">
+                                <i class="fa-solid fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-100 dark:border-blue-900/50">
+                            <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Surface</p>
+                            <p class="text-xl font-black text-slate-900 dark:text-white">{{ room.room_surface }} m²</p>
+                        </div>
+                        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-100 dark:border-blue-900/50">
+                            <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Group</p>
+                            <p class="text-xl font-black text-slate-900 dark:text-white truncate">
+                                {% if room.active_group.first %}
+                                    {{ room.active_group.first.name }}
+                                {% else %}
+                                    <span class="text-slate-400 dark:text-slate-500">No group</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 p-12 text-center bg-slate-50 dark:bg-slate-900/50">
+            <div class="flex justify-center mb-4">
+                <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center">
+                    <i class="fa-solid fa-door-open text-2xl text-blue-500 dark:text-blue-400"></i>
+                </div>
+            </div>
+            <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2">No Rooms Yet</h3>
+            <p class="text-slate-500 dark:text-slate-400 mb-6">Create your first room to get started with managing your childcare center.</p>
+            <a href="{% url 'room_create' %}"
+               class="inline-block px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:shadow-lg hover:shadow-blue-500/30 text-white font-bold rounded-xl transition-all">
+                <i class="fa-solid fa-plus mr-2"></i>Create First Room
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Delete Modal Form (hidden) -->
+<form id="deleteRoomForm" method="POST" action="" class="hidden">
+    {% csrf_token %}
+</form>
+
+<script>
+function openDeleteModal(roomId, roomName) {
+    const deleteUrl = `/rooms/${roomId}/delete/`;
+    document.getElementById('deleteRoomForm').action = deleteUrl;
+    
+    openModal(
+        'Delete Room?',
+        `Are you sure you want to delete "${roomName}"? This action cannot be undone.`,
+        'deleteRoomForm',
+        'delete'
+    );
+}
+</script>
+{% endblock %}

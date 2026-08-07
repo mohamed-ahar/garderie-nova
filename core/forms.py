@@ -1,6 +1,6 @@
 from django import forms
 from accounts.models import Director
-from core.models import Center
+from core.models import Center, Room
 from accounts.models import User
 from django import forms
 from django.contrib.auth import get_user_model
@@ -111,4 +111,26 @@ class AssignDirectorForm(forms.ModelForm):
             )
         
         self.fields['director'].label = "Available Directors (Created by you)"
+
+
+class RoomForm(forms.ModelForm):
+    class Meta:
+        model = Room
+        fields = ['name', 'room_surface','max_capacity','age_group']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all',
+                'placeholder': 'Room name (e.g., Room A)'
+            }),
+            'room_surface': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all',
+                'placeholder': 'Room surface area in m²',
+                'step': '0.01',
+                'min': '0'
+            }),
+        }
+        labels = {
+            'name': 'Room Name',
+            'room_surface': 'Room Surface (m²)',
+        }
     

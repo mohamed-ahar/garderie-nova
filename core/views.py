@@ -3,17 +3,32 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db import models
 from django.db.models import Prefetch
-from .models import Group, Room, Child, Educator, StaffAssignment, User, Center, ParentProfile
+from .models import (
+    Group,
+    Room,
+    Child,
+    Educator,
+    StaffAssignment,
+    User,
+    Center,
+    ParentProfile,
+)
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Organization, Center
-from .forms import CenterCreationForm,DirectorCreationForm,AssignDirectorForm
+from .forms import (
+    CenterCreationForm,
+    DirectorCreationForm,
+    AssignDirectorForm,
+    RoomForm,
+)
 from django.shortcuts import render, get_object_or_404
 from .models import Center, Organization
-from accounts.models import Educator,Director, User
-from django.core.mail import send_mail #hadi mzal mkhdemti biha
+from accounts.models import Educator, Director, User
+from django.core.mail import send_mail  # hadi mzal mkhdemti biha
 from django.conf import settings
+from django.contrib import messages
 
 
 @login_required(login_url="login")
@@ -69,15 +84,17 @@ def group_add_view(request):
     rooms = []
     if user.role_type == "owner":
         centers = Center.objects.all()
-        # If owner, maybe we need to load rooms via AJAX or just show all for now? 
+        # If owner, maybe we need to load rooms via AJAX or just show all for now?
         # Typically rooms depend on center.
-        rooms = Room.objects.all() 
+        rooms = Room.objects.all()
     elif user.role_type == "director":
         target_center = user.director_profile.managed_center
         if target_center:
             rooms = Room.objects.filter(center=target_center)
 
-    return render(request, "core/groups/group_form.html", {"centers": centers, "rooms": rooms})
+    return render(
+        request, "core/groups/group_form.html", {"centers": centers, "rooms": rooms}
+    )
 
 
 @login_required(login_url="login")
@@ -192,9 +209,7 @@ def group_edit_view(request, group_id):
 
                 # Assign to new educator if provided
                 if educator_id:
-                    educator = get_object_or_404(
-                        Educator, user__user_id=educator_id
-                    )
+                    educator = get_object_or_404(Educator, user__user_id=educator_id)
                     child.assigned_educator = educator
                     child.save()
                     educator.recalculate_compliance()
@@ -262,7 +277,7 @@ def group_delete_view(request, group_id):
     if request.method == "POST":
         # Clear educator assignments for children in this group
         group.enrolled_children.all().update(assigned_educator=None)
-        
+
         group.delete()
         return redirect("group_list")
 
@@ -282,17 +297,17 @@ def educator_list_view(request):
         if user.role_type == "director" and hasattr(user, "director_profile"):
             center = user.director_profile.managed_center
             if center:
-                educators = Educator.objects.filter(
-                    center=center
-                ).select_related("user")
+                educators = Educator.objects.filter(center=center).select_related(
+                    "user"
+                )
         elif user.role_type == "vice_director" and hasattr(
             user, "vice_director_profile"
         ):
             center = user.vice_director_profile.center
             if center:
-                educators = Educator.objects.filter(
-                    center=center
-                ).select_related("user")
+                educators = Educator.objects.filter(center=center).select_related(
+                    "user"
+                )
 
     # Recalculate compliance for all educators
     for educator in educators:
@@ -496,17 +511,25 @@ def parent_list_view(request):
         if user.role_type == "director" and hasattr(user, "director_profile"):
             center = user.director_profile.managed_center
             if center:
-                parents = ParentProfile.objects.filter(
-                    user__center_association__in=[center]
-                ).select_related("user").distinct() if hasattr(ParentProfile, 'center') else ParentProfile.objects.all().select_related("user")
+                parents = (
+                    ParentProfile.objects.filter(user__center_association__in=[center])
+                    .select_related("user")
+                    .distinct()
+                    if hasattr(ParentProfile, "center")
+                    else ParentProfile.objects.all().select_related("user")
+                )
         elif user.role_type == "vice_director" and hasattr(
             user, "vice_director_profile"
         ):
             center = user.vice_director_profile.center
             if center:
-                parents = ParentProfile.objects.filter(
-                    user__center_association__in=[center]
-                ).select_related("user").distinct() if hasattr(ParentProfile, 'center') else ParentProfile.objects.all().select_related("user")
+                parents = (
+                    ParentProfile.objects.filter(user__center_association__in=[center])
+                    .select_related("user")
+                    .distinct()
+                    if hasattr(ParentProfile, "center")
+                    else ParentProfile.objects.all().select_related("user")
+                )
 
     context = {"parents": parents, "centers": centers}
     return render(request, "core/parents/parent_list.html", context)
@@ -528,12 +551,18 @@ def parent_add_view(request):
         billing_reference = request.POST.get("billing_reference")
         password = request.POST.get("password")
 
-        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or 'application/json' in request.META.get('HTTP_ACCEPT', '')
+        is_ajax = request.headers.get(
+            "x-requested-with"
+        ) == "XMLHttpRequest" or "application/json" in request.META.get(
+            "HTTP_ACCEPT", ""
+        )
 
         # Validation
         if User.objects.filter(email=email).exists():
             if is_ajax:
-                return JsonResponse({"status": "error", "message": "Email already exists."}, status=400)
+                return JsonResponse(
+                    {"status": "error", "message": "Email already exists."}, status=400
+                )
             return render(
                 request,
                 "core/parents/parent_form.html",
@@ -557,11 +586,13 @@ def parent_add_view(request):
             parent_profile = ParentProfile.objects.create(
                 user=new_user,
                 home_address=home_address,
-                billing_reference=billing_reference
+                billing_reference=billing_reference,
             )
-            
+
             if is_ajax:
-                return JsonResponse({"status": "success", "message": "Parent added successfully."})
+                return JsonResponse(
+                    {"status": "success", "message": "Parent added successfully."}
+                )
             return redirect("parent_list")
         except Exception as e:
             if is_ajax:
@@ -576,7 +607,18 @@ def parent_add_view(request):
     return render(request, "core/parents/parent_form.html", {"centers": centers})
 
 
-from .models import Group, Room, Child, Educator, StaffAssignment, User, Center, ParentProfile, ParentChildRelationship
+from .models import (
+    Group,
+    Room,
+    Child,
+    Educator,
+    StaffAssignment,
+    User,
+    Center,
+    ParentProfile,
+    ParentChildRelationship,
+)
+
 
 @login_required(login_url="login")
 def parent_detail_view(request, user_id):
@@ -585,11 +627,15 @@ def parent_detail_view(request, user_id):
 
     # Permission check
     if user.role_type == "director":
-        if hasattr(parent_profile.user, 'center_association') and parent_profile.user.center_association != user.director_profile.managed_center:
-             # This check is a bit weak if parent isn't explicitly linked to center in model, 
-             # but we'll assume director can only see parents effectively in their scope if we had stricter checks.
-             # For now, relying on list filtering. Here we might want to be safer.
-             pass
+        if (
+            hasattr(parent_profile.user, "center_association")
+            and parent_profile.user.center_association
+            != user.director_profile.managed_center
+        ):
+            # This check is a bit weak if parent isn't explicitly linked to center in model,
+            # but we'll assume director can only see parents effectively in their scope if we had stricter checks.
+            # For now, relying on list filtering. Here we might want to be safer.
+            pass
     elif user.role_type == "vice_director":
         pass
     elif user.role_type != "owner":
@@ -597,43 +643,55 @@ def parent_detail_view(request, user_id):
 
     if request.method == "POST":
         action = request.POST.get("action")
-        
+
         if action == "assign_child":
             child_id = request.POST.get("child_id")
             relationship_type = request.POST.get("relationship_type", "Parent")
             is_emergency = request.POST.get("is_emergency") == "on"
-            
+
             child = get_object_or_404(Child, child_id=child_id)
-            
+
             # Create relationship if it doesn't exist
             ParentChildRelationship.objects.get_or_create(
                 parent=parent_profile,
                 child=child,
                 defaults={
                     "relationship_type": relationship_type,
-                    "is_emergency_contact": is_emergency
-                }
+                    "is_emergency_contact": is_emergency,
+                },
             )
             return redirect("parent_detail", user_id=user_id)
 
         elif action == "remove_child":
             child_id = request.POST.get("child_id")
             child = get_object_or_404(Child, child_id=child_id)
-            ParentChildRelationship.objects.filter(parent=parent_profile, child=child).delete()
+            ParentChildRelationship.objects.filter(
+                parent=parent_profile, child=child
+            ).delete()
             return redirect("parent_detail", user_id=user_id)
 
     # Get children associated with this parent
-    children_relationships = parent_profile.children_relationships.select_related('child').all()
-    assigned_child_ids = children_relationships.values_list('child__child_id', flat=True)
+    children_relationships = parent_profile.children_relationships.select_related(
+        "child"
+    ).all()
+    assigned_child_ids = children_relationships.values_list(
+        "child__child_id", flat=True
+    )
 
     # Get available children based on user role
     available_children = Child.objects.none()
     if user.role_type == "owner":
-        available_children = Child.objects.exclude(child_id__in=assigned_child_ids).order_by("first_name")
+        available_children = Child.objects.exclude(
+            child_id__in=assigned_child_ids
+        ).order_by("first_name")
     elif user.role_type == "director" and hasattr(user, "director_profile"):
         center = user.director_profile.managed_center
         if center:
-            available_children = Child.objects.filter(center=center).exclude(child_id__in=assigned_child_ids).order_by("first_name")
+            available_children = (
+                Child.objects.filter(center=center)
+                .exclude(child_id__in=assigned_child_ids)
+                .order_by("first_name")
+            )
 
     context = {
         "parent": parent_profile,
@@ -701,46 +759,51 @@ def parent_delete_view(request, user_id):
     return render(request, "core/403.html", status=403)
 
 
-#-----------------------------------------------center__info---------------------------------------------------------------------------------
+# -----------------------------------------------center__info---------------------------------------------------------------------------------
 @login_required
 def create_center(request):
-    if request.user.role_type != 'owner':
-        return redirect('login')
+    if request.user.role_type != "owner":
+        return redirect("login")
 
     organization = get_object_or_404(Organization, owner__user=request.user)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CenterCreationForm(request.POST)
         if form.is_valid():
             center = form.save(commit=False)
             center.orginisation = organization
             center.save()
             # Redirect to the success page instead of the dashboard
-            return redirect('center_success', center_id=center.center_id)
+            return redirect("center_success", center_id=center.center_id)
     else:
         form = CenterCreationForm()
 
-    return render(request, 'core/owner/create_center.html', {
-        'form': form,
-        'organization': organization
-    })
+    return render(
+        request,
+        "core/owner/create_center.html",
+        {"form": form, "organization": organization},
+    )
+
 
 @login_required
 def center_success(request, center_id):
     # Fetch the newly created center to show its name
-    center = get_object_or_404(Center, center_id=center_id, organization__owner__user=request.user)
-    return render(request, 'core/owner/center_congrats.html', {'center': center})
+    center = get_object_or_404(
+        Center, center_id=center_id, organization__owner__user=request.user
+    )
+    return render(request, "core/owner/center_congrats.html", {"center": center})
+
+
 @login_required
 def center_info_view(request, center_id):
-    # Security Check: Njibou l-center b l-ID walakin khass darouri 
+    # Security Check: Njibou l-center b l-ID walakin khass darouri
     # ikoun taba3 l-organization dial dak l-user li m-connecti.
     center = get_object_or_404(
-        Center, 
-        center_id=center_id, 
-        organization__owner__user=request.user
+        Center, center_id=center_id, organization__owner__user=request.user
     )
-    
-    return render(request, 'core/owner/center_info.html', {'center': center})
+
+    return render(request, "core/owner/center_info.html", {"center": center})
+
 
 # Ila bghiti lista kamla dial les centers dial dak l-owner:
 @login_required
@@ -748,44 +811,195 @@ def owner_centers_list(request):
     # 'select_related' kat-jib l-data dyal org u director f query whda (Performance)
     centers = Center.objects.filter(
         organization__owner__user=request.user
-    ).select_related('organization', 'director', 'director__user')
-    
+    ).select_related("organization", "director", "director__user")
+
     # Hna n-qdrou n-7sbo ch7al men center 3ando
     centers_count = centers.count()
-    
-    return render(request, 'core/owner/centers_list.html', {
-        'centers': centers,
-        'centers_count': centers_count
-    })
-#---------------------------------------------------------diractor__info-----------------------------------------------------------------------
-#hna dyal send email sir setting 3endak tensa
+
+    return render(
+        request,
+        "core/owner/centers_list.html",
+        {"centers": centers, "centers_count": centers_count},
+    )
+
+
+# ---------------------------------------------------------diractor__info-----------------------------------------------------------------------
+# hna dyal send email sir setting 3endak tensa
 @login_required
 def create_director_general(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         # Pass request.user bach n-rbeto l-director b l-owner
         form = DirectorCreationForm(request.POST, user=request.user)
         if form.is_valid():
             director = form.save()
-            return redirect('owner_centers_list')
+            return redirect("owner_centers_list")
     else:
         form = DirectorCreationForm(user=request.user)
-    
-    return render(request, 'core/owner/create_director.html', {'form': form})
+
+    return render(request, "core/owner/create_director.html", {"form": form})
+
+
 def assign_director_to_center(request, center_id):
     # Kan-jibo l-center w t-akked m-rbot b l-org dyal had l-user
-    center = get_object_or_404(Center, center_id=center_id, organization__owner__user=request.user)
-    
-    if request.method == 'POST':
+    center = get_object_or_404(
+        Center, center_id=center_id, organization__owner__user=request.user
+    )
+
+    if request.method == "POST":
         # Pass user to form in POST
         form = AssignDirectorForm(request.POST, instance=center, user=request.user)
         if form.is_valid():
             form.save()
-            return redirect('owner_centers_list')
+            return redirect("owner_centers_list")
     else:
         # Pass user to form in GET zebi hna finkenti nasiha
         form = AssignDirectorForm(instance=center, user=request.user)
-    
-    return render(request, 'core/owner/assign_director.html', {
-        'form': form,
-        'center': center
-    })
+
+    return render(
+        request, "core/owner/assign_director.html", {"form": form, "center": center}
+    )
+
+
+@login_required(login_url="login")
+def room_list_view(request):
+    user = request.user
+    rooms = Room.objects.all()
+    print(rooms,user)
+    if user.role_type == "owner":
+        rooms = Room.objects.all().select_related("center")
+    elif user.role_type == "director" and hasattr(user, "director_profile"):
+        center = user.director_profile.managed_center
+        if center:
+            rooms = Room.objects.filter(center=center)
+    elif user.role_type == "educator" and hasattr(user, "educator_profile"):
+        center = user.educator_profile.center
+        if center:
+            rooms = Room.objects.filter(center=center)
+
+    context = {"rooms": rooms}
+    return render(request, "core/rooms/room_list.html", context)
+
+
+@login_required(login_url="login")
+def room_create_view(request):
+    user = request.user
+
+    # 1. Strict Permission Check
+    if user.role_type not in ["owner", "director"]:
+        return render(request, "core/403.html", status=403)
+
+    # 2. Logic to identify the Target Center (Context)
+    # Used for read-only display or pre-filling
+    preselected_center = None
+
+    if user.role_type == "director":
+        # Safety: Ensure director actually has a profile/center linked
+        try:
+            preselected_center = user.director_profile.managed_center
+        except AttributeError:
+            messages.error(request, "Your account is not linked to a center.")
+            return redirect("dashboard")
+
+    elif user.role_type == "owner":
+        # If clicked from a "Center Detail" page, grabbing ID from URL
+        # e.g., /rooms/create/?center_id=5
+        cid_param = request.GET.get("center_id")
+        if cid_param:
+            preselected_center = get_object_or_404(Center, center_id=cid_param)
+
+    # 3. Form Handling
+    if request.method == "POST":
+        form = RoomForm(request.POST)
+
+        # Determine the Center being assigned during Save
+        center_to_assign = None
+
+        if user.role_type == "director":
+            # Director: FORCE the center from their profile (ignore POST data manipulation)
+            center_to_assign = preselected_center
+
+        elif user.role_type == "owner":
+            # Owner: Use the center from the dropdown selection in the POST
+            selected_id = request.POST.get("center_id")
+            if selected_id:
+                center_to_assign = get_object_or_404(Center, center_id=selected_id)
+
+        # Validation and Save
+        if form.is_valid():
+            if center_to_assign:
+                room = form.save(commit=False)
+                room.center = center_to_assign
+
+                # Note: Model's .save() method will handle calculating
+                # default capacity based on the Age Group if logic is in models.py
+                room.save()
+
+                messages.success(request, f"Room '{room.name}' created successfully.")
+                return redirect("room_list")
+            else:
+                form.add_error(None, "You must select a valid Center.")
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        # GET request
+        form = RoomForm()
+
+    # 4. Context Data Preparation
+    # Owners need a list of centers for the dropdown
+    centers = Center.objects.all() if user.role_type == "owner" else []
+
+    context = {
+        "form": form,
+        "centers": centers,  # For the <select> dropdown (Owners)
+        "target_center": preselected_center,  # For the Read-Only text (Directors or Pre-filled)
+        "room": None,  # Ensures template knows this is Create, not Edit
+    }
+
+    return render(request, "core/rooms/room_form.html", context)
+
+
+@login_required(login_url="login")
+def room_edit_view(request, room_id):
+    user = request.user
+    room = get_object_or_404(Room, room_id=room_id)
+
+    # Permission check
+    if user.role_type == "owner":
+        pass  # Owners can edit any room
+    elif user.role_type == "director" and hasattr(user, "director_profile"):
+        if room.center != user.director_profile.managed_center:
+            return render(request, "core/403.html", status=403)
+    else:
+        return render(request, "core/403.html", status=403)
+
+    if request.method == "POST":
+        form = RoomForm(request.POST, instance=room)
+        if form.is_valid():
+            form.save()
+            return redirect("room_list")
+    else:
+        form = RoomForm(instance=room)
+
+    context = {"form": form, "room": room}
+    return render(request, "core/rooms/room_form.html", context)
+
+
+@login_required(login_url="login")
+def room_delete_view(request, room_id):
+    user = request.user
+    room = get_object_or_404(Room, room_id=room_id)
+
+    # Permission check
+    if user.role_type == "owner":
+        pass  # Owners can delete any room
+    elif user.role_type == "director" and hasattr(user, "director_profile"):
+        if room.center != user.director_profile.managed_center:
+            return render(request, "core/403.html", status=403)
+    else:
+        return render(request, "core/403.html", status=403)
+
+    if request.method == "POST":
+        room.delete()
+        return redirect("room_list")
+
+    return render(request, "core/rooms/room_confirm_delete.html", {"room": room})

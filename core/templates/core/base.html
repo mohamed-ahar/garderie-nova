@@ -144,7 +144,7 @@
         {% include "core/sidebar.html" %}
         <main class="min-h-screen transition-all duration-500 ease-in-out {% if sidebar_state == 'closed' %}sidebar-hidden{% endif %}">
             {% include "core/header.html" %}
-            <div class="p-6 md:p-10 space-y-10 max-w-[1600px] mx-auto">
+            <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-6 px-4 sm:py-8 sm:px-6 lg:py-10 lg:px-10">
                 {% block content %}{% endblock %}
             </div>
         </main>

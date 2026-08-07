@@ -2,8 +2,9 @@
 __pycache__/
 .env
 .vscode/
-backend/children/migrations/*
-backend/communication/migrations/*
-backend/core/migrations/*
-backend/documents/migrations/*
-backend/education/migrations/*
+children/migrations/*
+communication/migrations/*
+core/migrations/*
+documents/migrations/*
+education/migrations/*
+core/migrations/*
