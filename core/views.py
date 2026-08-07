@@ -789,4 +789,3 @@ def assign_director_to_center(request, center_id):
         'form': form,
         'center': center
     })
-#---------------------------------------------------educator info-----------------------------------------------------------------

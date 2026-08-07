@@ -142,7 +142,7 @@
                         letter-spacing: -0.5px">GarderieNova</div>
         </div>
         {% include "core/sidebar.html" %}
-        <main class="min-h-screen transition-all duration-500 ease-in-out sidebar-hidden">
+        <main class="min-h-screen transition-all duration-500 ease-in-out {% if sidebar_state == 'closed' %}sidebar-hidden{% endif %}">
             {% include "core/header.html" %}
             <div class="p-6 md:p-10 space-y-10 max-w-[1600px] mx-auto">
                 {% block content %}{% endblock %}
@@ -286,6 +286,10 @@
             sidebar.classList.toggle('-translate-x-full');
             const main = document.querySelector('main');
             main.classList.toggle('sidebar-hidden');
+
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            const newState = isClosed ? 'closed' : 'open';
+            document.cookie = "sidebar=" + newState + "; path=/; max-age=31536000"; // 1 year expiry
         }
 
         // Full Screen Toggle
@@ -344,6 +348,17 @@
                 if (themeIcon) themeIcon.className = 'fa-solid fa-sun text-amber-400';
             } else {
                 if (themeIcon) themeIcon.className = 'fa-solid fa-moon text-slate-500';
+            }
+
+            // Restore sidebar state from cookie
+            const sidebarCookie = document.cookie.split('; ').find(row => row.startsWith('sidebar='));
+            if (sidebarCookie) {
+                const sidebarState = sidebarCookie.split('=')[1];
+                if (sidebarState === 'closed' && sidebar) {
+                    sidebar.classList.add('-translate-x-full');
+                    const main = document.querySelector('main');
+                    main.classList.add('sidebar-hidden');
+                }
             }
         });
 

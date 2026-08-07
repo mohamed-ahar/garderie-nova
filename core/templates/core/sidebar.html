@@ -1,5 +1,5 @@
 <aside id="sidebar"
-       class="fixed left-0 top-0 z-50 h-screen w-72 lg:w-72 bg-slate-900 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-500 ease-in-out -translate-x-full">
+       class="fixed left-0 top-0 z-50 h-screen w-72 lg:w-72 bg-slate-900 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-500 ease-in-out {% if sidebar_state == 'closed' %}-translate-x-full{% endif %}">
     <!--button -->
     <button onclick="toggleSidebar()"
             class="absolute -right-4 top-10 z-[70] flex items-center justify-center w-8 h-8 group transition-all duration-300 ease-in-out bg-slate-900 border border-slate-700 rounded-md shadow-lg hover:shadow-emerald-500/30 hover:border-emerald-500/60 active:scale-90 focus:outline-none overflow-hidden">
@@ -52,15 +52,13 @@
         <nav class="flex-1 px-4 space-y-4 overflow-y-auto custom-scrollbar">
             <p class="px-5 text-[10px] text-white dark:text-slate-500 uppercase tracking-[0.2em] opacity-80">Main Menu</p>
             <ul class="space-y-2">
-                {% if user.is_authenticated %}
-                    {% if user.role_type == 'owner' %}
+                    {% if user.is_authenticated %}
+                        
+                        {% if user.role_type == 'owner' %}
                         <li class="dropdown-group relative group">
-                            <div class="absolute inset-0 bg-emerald-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl">
-                            </div>
-                            <button onclick="toggleDropdown(this)"
-                                    class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 text-white overflow-hidden shadow-[0_10px_25px_-5px_rgba(16,185,129,0.4)] transition-all duration-300 active:scale-[0.98]">
-                                <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent">
-                                </div>
+                            <div class="absolute inset-0 bg-emerald-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                            <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 text-white overflow-hidden shadow-[0_10px_25px_-5px_rgba(16,185,129,0.4)] transition-all duration-300 active:scale-[0.98]">
+                                <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                                 <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
                                     <i class="fa-solid fa-layer-group text-[14px]"></i>
                                 </div>
@@ -72,34 +70,50 @@
                             </button>
                             <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
                                 <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
-                                    <a href="{% url 'create_center' %}"
-                                       class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-plus-minus mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">Create Center</span>
+                                    <a href="{% url 'create_center' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-plus mr-3 opacity-70"></i>
+                                        <span class="sidebar-label font-bold">Create Center</span>
                                     </a>
-                                    <a href="#"
-                                       class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
-                                        <i class="fa-solid fa-user-gear mr-3 opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                                        <span class="sidebar-label font-bold">Assign Director</span>
+                                    <a href="{% url 'add_director_general' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
+                                        <i class="fa-solid fa-user-plus mr-3 opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                                        <span class="sidebar-label font-bold">Add New Director</span>
                                     </a>
-                                    <a href="#"
-                                       class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
+                                    <a href="{% url 'owner_centers_list' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
                                         <i class="fa-solid fa-layer-group mr-3 opacity-70 group-hover:opacity-100"></i>
                                         <span class="sidebar-label font-bold">Manage My Centers</span>
-                                    </a>
-                                    <a href="#"
-                                       class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-scale-balanced mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">Compliance (Read-only)</span>
                                     </a>
                                 </div>
                             </div>
                         </li>
-                    {% endif %}
-                    {% if user.role_type == 'director' %}
+                        
+                        {% if centers %}
+                        <li class="mt-6 space-y-2">
+                            <div class="px-4 flex items-center justify-between">
+                                <span class="sidebar-label text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Quick Assign</span>
+                                <div class="h-[1px] flex-grow ml-3 bg-slate-800/50"></div>
+                            </div>
+                        
+                            <div class="space-y-1 px-2">
+                                {% for center in centers %}
+                                <a href="{% url 'assign_director' center.center_id %}" 
+                                   class="flex items-center px-4 py-2.5 text-[11px] text-white/60 hover:bg-slate-800/40 hover:text-emerald-400 rounded-xl transition-all group">
+                                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-lg bg-slate-800/50 group-hover:bg-emerald-500/10 transition-colors mr-3">
+                                        <i class="fa-solid fa-link text-[10px] opacity-50 group-hover:opacity-100"></i>
+                                    </div>
+                                    <div class="sidebar-label flex flex-col overflow-hidden">
+                                        <span class="font-bold truncate">{{ center.name }}</span>
+                                        <span class="text-[8px] text-slate-500 group-hover:text-emerald-400/70 font-medium tracking-tight">Assign Director</span>
+                                    </div>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </li>
+                        {% endif %}
+                        {% endif %}
+            
+                        {% if user.role_type == 'director' %}
                         <li class="dropdown-group relative group">
-                            <button onclick="toggleDropdown(this)"
-                                    class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                            <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                                 <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
                                     <i class="fa-solid fa-user-tie text-[14px]"></i>
                                 </div>
@@ -111,29 +125,34 @@
                             </button>
                             <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
                                 <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
-                                    <a href="#"
-                                       class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
+                                    <a href="{% url 'educator_add' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-users-gear mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">Add educator</span>
+                                    </a>
+                                    <a href="{% url 'educator_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-users-gear mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">list educators</span>
+                                    </a>
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
                                         <i class="fa-solid fa-users-gear mr-3 opacity-70"></i>
                                         <span class="sidebar-label">Staff & Rooms</span>
                                     </a>
-                                    <a href="#"
-                                       class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
+                                    <a href="{% url 'group_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
                                         <i class="fa-solid fa-children mr-3 opacity-70"></i>
                                         <span class="sidebar-label">Children & Enrollment</span>
                                     </a>
-                                    <a href="#"
-                                       class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
                                         <i class="fa-solid fa-eye mr-3 opacity-70"></i>
                                         <span class="sidebar-label">Supervision & Validation</span>
                                     </a>
                                 </div>
                             </div>
                         </li>
-                    {% endif %}
-                    {% if user.role_type == 'educator' %}
+                        {% endif %}
+            
+                        {% if user.role_type == 'educator' %}
                         <li class="dropdown-group relative group">
-                            <button onclick="toggleDropdown(this)"
-                                    class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-slate-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                            <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-slate-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                                 <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/10 rounded-xl border border-white/20 transition-transform duration-300 group-hover:rotate-[8deg]">
                                     <i class="fa-solid fa-chalkboard-user text-[14px]"></i>
                                 </div>
@@ -145,24 +164,22 @@
                             </button>
                             <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
                                 <div class="mt-2 mx-2 bg-slate-800/60 rounded-xl p-2 space-y-1 border border-white/5">
-                                    <a href="#"
-                                       class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
                                         <i class="fa-solid fa-clipboard-check mr-3 opacity-70"></i>
                                         <span class="sidebar-label">Daily Operations</span>
                                     </a>
-                                    <a href="#"
-                                       class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
                                         <i class="fa-solid fa-people-roof mr-3 opacity-70"></i>
                                         <span class="sidebar-label">Room View & Ratio</span>
                                     </a>
                                 </div>
                             </div>
                         </li>
-                    {% endif %}
-                    {% if user.role_type == 'parent' %}
+                        {% endif %}
+            
+                        {% if user.role_type == 'parent' %}
                         <li class="dropdown-group relative group">
-                            <button onclick="toggleDropdown(this)"
-                                    class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                            <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                                 <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:scale-110">
                                     <i class="fa-solid fa-heart text-[14px]"></i>
                                 </div>
@@ -175,53 +192,50 @@
                             <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
                                 <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
                                     <div class="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">View Tracking</div>
-                                    <a href="#"
-                                       class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                         <i class="fa-solid fa-calendar-day mr-3 opacity-70"></i>
                                         <span class="sidebar-label">Daily Reports</span>
                                     </a>
-                                    <a href="#"
-                                       class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                         <i class="fa-solid fa-stream mr-3 opacity-70"></i>
                                         <span class="sidebar-label">Timeline (Suivi)</span>
                                     </a>
-                                    <a href="#"
-                                       class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                         <i class="fa-solid fa-file-pdf mr-3 opacity-70"></i>
                                         <span class="sidebar-label">Documents</span>
                                     </a>
+            
                                     <div class="px-4 py-2 mt-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Actions</div>
-                                    <a href="#"
-                                       class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                         <i class="fa-solid fa-bed-pulse mr-3 opacity-70"></i>
                                         <span class="sidebar-label">Report Absence</span>
                                     </a>
-                                    <a href="#"
-                                       class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                         <i class="fa-solid fa-comments mr-3 opacity-70"></i>
                                         <span class="sidebar-label">Chat with Educator</span>
                                     </a>
                                 </div>
                             </div>
                         </li>
+                        {% endif %}
+            
+                        <li class="pt-4 border-t border-white/5 space-y-1">
+                            <a href="#" class="flex items-center w-full px-5 py-3 text-slate-400 hover:text-emerald-400 transition-colors group">
+                                <i class="fa-solid fa-clipboard-list mr-3 text-[14px] opacity-70 group-hover:opacity-100"></i>
+                                <span class="sidebar-label font-bold text-[13px]">System Logs</span>
+                            </a>
+            
+                            <form action="{% url 'logout' %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="flex items-center w-full px-5 py-3 text-slate-400 hover:text-red-400 transition-colors group">
+                                    <i class="fa-solid fa-right-from-bracket mr-3 text-[14px] opacity-70 group-hover:opacity-100"></i>
+                                    <span class="sidebar-label font-bold text-[13px]">Logout Account</span>
+                                </button>
+                            </form>
+                        </li>
+            
                     {% endif %}
-                    <li class="pt-4 border-t border-white/5 space-y-1">
-                        <a href="#"
-                           class="flex items-center w-full px-5 py-3 text-slate-400 hover:text-emerald-400 transition-colors group">
-                            <i class="fa-solid fa-clipboard-list mr-3 text-[14px] opacity-70 group-hover:opacity-100"></i>
-                            <span class="sidebar-label font-bold text-[13px]">System Logs</span>
-                        </a>
-                        <form action="{% url 'logout' %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit"
-                                    class="flex items-center w-full px-5 py-3 text-slate-400 hover:text-red-400 transition-colors group">
-                                <i class="fa-solid fa-right-from-bracket mr-3 text-[14px] opacity-70 group-hover:opacity-100"></i>
-                                <span class="sidebar-label font-bold text-[13px]">Logout Account</span>
-                            </button>
-                        </form>
-                    </li>
-                {% endif %}
-            </ul>
+                </ul>
         </nav>
     </div>
 </aside>
