@@ -1,4 +1,7 @@
 from django.urls import path
+
+from accounts.views import owner_dashboard
+from django.views.generic import RedirectView
 from .views import (
     dashboard_view,
     group_list_view,
@@ -15,8 +18,13 @@ from .views import (
     parent_detail_view,
     parent_edit_view,
     parent_delete_view,
+    create_center,
+    center_success,
+    center_info_view,
+    owner_centers_list,
+    create_director_general,
+    assign_director_to_center,
 )
-from django.views.generic import RedirectView
 
 urlpatterns = [
     path("", RedirectView.as_view(url="dashboard/", permanent=False)),
@@ -26,13 +34,27 @@ urlpatterns = [
     path("groups/<uuid:group_id>/edit/", group_edit_view, name="group_edit"),
     path("groups/<uuid:group_id>/delete/", group_delete_view, name="group_delete"),
     path("educators/", educator_list_view, name="educator_list"),
-    path("educators/add/", educator_add_view, name="educator_add"),
+    path("educators/create/", educator_add_view, name="educator_add"),
     path("educators/<uuid:user_id>/", educator_detail_view, name="educator_detail"),
     path("educators/<uuid:user_id>/edit/", educator_edit_view, name="educator_edit"),
-    path("educators/<uuid:user_id>/delete/", educator_delete_view, name="educator_delete"),
+    path(
+        "educators/<uuid:user_id>/delete/", educator_delete_view, name="educator_delete"
+    ),
     path("parents/", parent_list_view, name="parent_list"),
     path("parents/add/", parent_add_view, name="parent_add"),
     path("parents/<uuid:user_id>/", parent_detail_view, name="parent_detail"),
     path("parents/<uuid:user_id>/edit/", parent_edit_view, name="parent_edit"),
     path("parents/<uuid:user_id>/delete/", parent_delete_view, name="parent_delete"),
+    # owner
+    path("owner/", owner_dashboard, name="owner_dashboard"),
+    path("center/create/", create_center, name="create_center"),
+    path("center/success/<uuid:center_id>/", center_success, name="center_success"),
+    path("center/details/<uuid:center_id>/", center_info_view, name="center_details"),
+    path("my-centers/", owner_centers_list, name="owner_centers_list"),
+    path("add-director/", create_director_general, name="add_director_general"),
+    path(
+        "center/<uuid:center_id>/assign-director/",
+        assign_director_to_center,
+        name="assign_director",
+    ),
 ]

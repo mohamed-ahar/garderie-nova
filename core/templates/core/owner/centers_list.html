@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="relative min-h-screen bg-[#fcfcfd] dark:bg-slate-950 p-6 md:p-12 overflow-hidden">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-5%] right-[-5%] w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-[5%] left-[-5%] w-[300px] h-[300px] bg-emerald-500/5 rounded-full blur-[80px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-4 relative">
+            <div class="relative space-y-4">
+                <div class="inline-flex items-center gap-3 px-4 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
+                    </span>
+                    <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.3em]">Management Hub</span>
+                    <div class="w-px h-3 bg-slate-200 dark:bg-slate-700"></div>
+                    <span class="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 uppercase">{{ centers|length }} Total Units</span>
+                </div>
+        
+                <div class="space-y-1">
+                    <h1 class="text-5xl lg:text-6xl font-black text-slate-950 dark:text-white tracking-[-0.05em] leading-[0.9]">
+                        My Educational <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-500 to-emerald-400">Centers.</span>
+                    </h1>
+                </div>
+                
+                <p class="text-sm text-slate-500 dark:text-slate-400 font-medium max-w-lg leading-relaxed border-l-2 border-slate-100 dark:border-slate-800 pl-4">
+                    Oversee your infrastructure and manage leadership assignments across your organization with <span class="text-slate-900 dark:text-white font-bold">real-time precision</span>.
+                </p>
+            </div>
+        
+            <div class="flex flex-col md:flex-row items-center gap-6">
+                <div class="group relative overflow-hidden bg-white dark:bg-slate-900 p-7 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all duration-500 hover:shadow-xl hover:border-indigo-500/20">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors"></div>
+                    <div class="relative z-10 flex items-center justify-between gap-8">
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(79,70,229,0.5)]"></div>
+                                <p class="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Total Infrastructure</p>
+                            </div>
+                            <div class="flex items-baseline gap-2">
+                                <h2 class="text-4xl font-black text-slate-950 dark:text-white tracking-tighter leading-none">{{ centers|length }}</h2>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Units Active</span>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <div class="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center border border-slate-100 dark:border-slate-700/50 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-inner">
+                                <i class="fa-solid fa-server text-lg group-hover:scale-110 transition-transform"></i>
+                            </div>
+                            <svg class="absolute -inset-1 w-16 h-16 -rotate-90 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                                <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" fill="transparent" class="text-indigo-500/20" />
+                                <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" fill="transparent" class="text-indigo-500" stroke-dasharray="188" stroke-dashoffset="120" stroke-linecap="round" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-50 dark:border-slate-800/60 flex items-center justify-between">
+                        <span class="text-[9px] font-black text-emerald-500 uppercase tracking-tighter flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-up-right text-[8px]"></i> System Live
+                        </span>
+                        <div class="flex -space-x-2">
+                            <div class="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                            <div class="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600"></div>
+                            <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{% url 'create_center' %}" 
+                   class="group relative inline-flex items-center gap-4 px-8 py-5 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-[2rem] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:-translate-y-1 active:scale-[0.96] overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <span class="relative z-10 flex items-center gap-3 font-black text-xs uppercase tracking-[0.2em]">
+                        <div class="w-8 h-8 rounded-xl bg-white/10 dark:bg-slate-900/5 text-lg flex items-center justify-center group-hover:rotate-90 transition-transform duration-500">
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                        </div>
+                        Add New Center
+                    </span>
+                    <div class="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:animate-shine"></div>
+                </a>
+            </div>
+        </div>
+
+        <div class="h-12 w-full"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+            {% for center in centers %}
+            <div class="group relative">
+                
+                <div class="relative overflow-hidden rounded-[2rem] border transition-all duration-500
+                    {% if not center.director %}
+                        bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50
+                    {% else %}
+                        bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800
+                    {% endif %}">
+        
+                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none
+                        {% if not center.director %}
+                            bg-gradient-to-br from-red-100/50 to-transparent dark:from-red-800/10
+                        {% else %}
+                            bg-gradient-to-br from-indigo-50/50 to-transparent dark:from-indigo-900/10
+                        {% endif %}">
+                    </div>
+        
+                    <div class="p-8 relative z-10">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center border transition-transform duration-500 group-hover:scale-110
+                                    {% if not center.director %}
+                                        bg-red-600 border-red-700 text-white
+                                    {% else %}
+                                        bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-indigo-600 dark:text-indigo-400
+                                    {% endif %}">
+                                    <i class="fa-solid {% if not center.director %}fa-triangle-exclamation{% else %}fa-graduation-cap{% endif %} text-xl"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-[10px] font-black uppercase tracking-widest {% if not center.director %}text-red-500{% else %}text-slate-400{% endif %}">
+                                        Center ID
+                                    </span>
+                                    <span class="font-mono text-xs font-bold {% if not center.director %}text-red-800 dark:text-red-300{% else %}text-slate-600 dark:text-slate-400{% endif %}">
+                                        {{ center.center_id|truncatechars:10 }}
+                                    </span>
+                                </div>
+                            </div>
+        
+                            <div class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter border
+                                {% if not center.director %}
+                                    bg-red-200/50 border-red-300 text-red-700 dark:bg-red-800/30 dark:text-red-300
+                                {% else %}
+                                    bg-emerald-100 border-emerald-200 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400
+                                {% endif %}">
+                                {% if not center.director %}Offline{% else %}Active{% endif %}
+                            </div>
+                        </div>
+        
+                        <div class="mb-8">
+                            <h3 class="text-lg font-black tracking-tight leading-tight mb-2
+                                {% if not center.director %}text-red-900 dark:text-red-50{% else %}text-slate-900 dark:text-white{% endif %}">
+                                {{ center.name }}
+                            </h3>
+                            <p class="text-xs font-medium {% if not center.director %}text-red-700/70 dark:text-red-300/60{% else %}text-slate-500{% endif %}">
+                                Part of <span class="font-bold underline decoration-indigo-500/30">{{ center.org.name }}</span>
+                            </p>
+                        </div>
+        
+                        <div class="rounded-2xl border transition-colors duration-300
+                            {% if not center.director %}
+                                bg-white/60 dark:bg-slate-950/40 border-red-200 dark:border-red-900/50
+                            {% else %}
+                                bg-slate-50 dark:bg-slate-950/40 border-slate-100 dark:border-slate-800
+                            {% endif %}">
+                            
+                            <div class="p-4 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    {% if center.director %}
+                                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden border border-white dark:border-slate-800">
+                                        <span class="text-sm font-black text-slate-600 dark:text-slate-300">
+                                            {{ center.director.user.full_name|slice:":1" }}
+                                        </span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-slate-800 dark:text-slate-200 leading-none mb-1">
+                                            {{ center.director.user.full_name }}
+                                        </span>
+                                        <span class="text-[10px] font-bold text-indigo-500 uppercase">Director</span>
+                                    </div>
+                                    {% else %}
+                                    <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center border border-red-200 dark:border-red-800">
+                                        <i class="fa-solid fa-user-plus text-red-600 dark:text-red-400 text-xs"></i>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-red-600 dark:text-red-400 italic leading-none mb-1">No Director Assigned</span>
+                                        <a href="{% url 'assign_director' center.center_id %}" class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase hover:underline">
+                                            Click to Assign
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-800"></div>
+        
+                                <button class="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
+                                    <i class="fa-solid fa-gear text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes shine {
+        100% { left: 125%; }
+    }
+    .animate-shine {
+        animation: shine 1.2s ease-in-out infinite;
+    }
+</style>
+{% endblock %}

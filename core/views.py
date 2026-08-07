@@ -3,8 +3,17 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db import models
 from django.db.models import Prefetch
-from .models import Group, Room, Child, EducatorProfile, StaffAssignment, User, Center, ParentProfile
+from .models import Group, Room, Child, Educator, StaffAssignment, User, Center, ParentProfile
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Organization, Center
+from .forms import CenterCreationForm,DirectorCreationForm,AssignDirectorForm
+from django.shortcuts import render, get_object_or_404
+from .models import Center, Organization
+from accounts.models import Educator,Director, User
+from django.core.mail import send_mail #hadi mzal mkhdemti biha
+from django.conf import settings
 
 
 @login_required(login_url="login")
@@ -119,7 +128,7 @@ def group_edit_view(request, group_id):
 
         elif action == "assign_educator":
             user_id = request.POST.get("user_id")
-            educator = get_object_or_404(EducatorProfile, user__user_id=user_id)
+            educator = get_object_or_404(Educator, user__user_id=user_id)
             StaffAssignment.objects.filter(educator=educator, is_active=True).update(
                 is_active=False
             )
@@ -135,7 +144,7 @@ def group_edit_view(request, group_id):
 
         elif action == "remove_educator":
             user_id = request.POST.get("user_id")
-            educator = get_object_or_404(EducatorProfile, user__user_id=user_id)
+            educator = get_object_or_404(Educator, user__user_id=user_id)
             # Remove all children assigned to this educator
             children = Child.objects.filter(
                 assigned_educator=educator, assigned_group=group
@@ -184,7 +193,7 @@ def group_edit_view(request, group_id):
                 # Assign to new educator if provided
                 if educator_id:
                     educator = get_object_or_404(
-                        EducatorProfile, user__user_id=educator_id
+                        Educator, user__user_id=educator_id
                     )
                     child.assigned_educator = educator
                     child.save()
@@ -196,7 +205,7 @@ def group_edit_view(request, group_id):
 
         return redirect("group_edit", group_id=group_id)
 
-    assigned_educators = EducatorProfile.objects.filter(
+    assigned_educators = Educator.objects.filter(
         assignments__group=group, assignments__is_active=True
     ).select_related("user")
 
@@ -214,7 +223,7 @@ def group_edit_view(request, group_id):
 
     # Educators not currently assigned to THIS group it could be in other groups
     other_educators = (
-        EducatorProfile.objects.filter(center=group.center)
+        Educator.objects.filter(center=group.center)
         .exclude(assignments__group=group, assignments__is_active=True)
         .select_related("user")
     )
@@ -263,17 +272,17 @@ def group_delete_view(request, group_id):
 @login_required(login_url="login")
 def educator_list_view(request):
     user = request.user
-    educators = EducatorProfile.objects.none()
+    educators = Educator.objects.none()
     centers = []
 
     if user.role_type == "owner":
-        educators = EducatorProfile.objects.all().select_related("user", "center")
+        educators = Educator.objects.all().select_related("user", "center")
         centers = Center.objects.all()
     elif user.role_type in ["director", "vice_director"]:
         if user.role_type == "director" and hasattr(user, "director_profile"):
             center = user.director_profile.managed_center
             if center:
-                educators = EducatorProfile.objects.filter(
+                educators = Educator.objects.filter(
                     center=center
                 ).select_related("user")
         elif user.role_type == "vice_director" and hasattr(
@@ -281,7 +290,7 @@ def educator_list_view(request):
         ):
             center = user.vice_director_profile.center
             if center:
-                educators = EducatorProfile.objects.filter(
+                educators = Educator.objects.filter(
                     center=center
                 ).select_related("user")
 
@@ -354,7 +363,7 @@ def educator_add_view(request):
                 target_center = user.vice_director_profile.center
 
             if target_center:
-                EducatorProfile.objects.create(user=new_user, center=target_center)
+                Educator.objects.create(user=new_user, center=target_center)
                 if is_ajax:
                     return JsonResponse(
                         {"status": "success", "message": "Educator added successfully."}
@@ -392,7 +401,7 @@ def educator_add_view(request):
 @login_required(login_url="login")
 def educator_detail_view(request, user_id):
     user = request.user
-    educator_profile = get_object_or_404(EducatorProfile, user__user_id=user_id)
+    educator_profile = get_object_or_404(Educator, user__user_id=user_id)
 
     # Permission check
     if user.role_type == "director":
@@ -421,7 +430,7 @@ def educator_detail_view(request, user_id):
 @login_required(login_url="login")
 def educator_edit_view(request, user_id):
     user = request.user
-    educator_profile = get_object_or_404(EducatorProfile, user__user_id=user_id)
+    educator_profile = get_object_or_404(Educator, user__user_id=user_id)
     educator_user = educator_profile.user
 
     # Permission check
@@ -456,7 +465,7 @@ def educator_edit_view(request, user_id):
 @login_required(login_url="login")
 def educator_delete_view(request, user_id):
     user = request.user
-    educator_profile = get_object_or_404(EducatorProfile, user__user_id=user_id)
+    educator_profile = get_object_or_404(Educator, user__user_id=user_id)
 
     if user.role_type == "director":
         if educator_profile.center != user.director_profile.managed_center:
@@ -567,7 +576,7 @@ def parent_add_view(request):
     return render(request, "core/parents/parent_form.html", {"centers": centers})
 
 
-from .models import Group, Room, Child, EducatorProfile, StaffAssignment, User, Center, ParentProfile, ParentChildRelationship
+from .models import Group, Room, Child, Educator, StaffAssignment, User, Center, ParentProfile, ParentChildRelationship
 
 @login_required(login_url="login")
 def parent_detail_view(request, user_id):
@@ -690,3 +699,94 @@ def parent_delete_view(request, user_id):
         return redirect("parent_list")
 
     return render(request, "core/403.html", status=403)
+
+
+#-----------------------------------------------center__info---------------------------------------------------------------------------------
+@login_required
+def create_center(request):
+    if request.user.role_type != 'owner':
+        return redirect('login')
+
+    organization = get_object_or_404(Organization, owner__user=request.user)
+
+    if request.method == 'POST':
+        form = CenterCreationForm(request.POST)
+        if form.is_valid():
+            center = form.save(commit=False)
+            center.orginisation = organization
+            center.save()
+            # Redirect to the success page instead of the dashboard
+            return redirect('center_success', center_id=center.center_id)
+    else:
+        form = CenterCreationForm()
+
+    return render(request, 'core/owner/create_center.html', {
+        'form': form,
+        'organization': organization
+    })
+
+@login_required
+def center_success(request, center_id):
+    # Fetch the newly created center to show its name
+    center = get_object_or_404(Center, center_id=center_id, organization__owner__user=request.user)
+    return render(request, 'core/owner/center_congrats.html', {'center': center})
+@login_required
+def center_info_view(request, center_id):
+    # Security Check: Njibou l-center b l-ID walakin khass darouri 
+    # ikoun taba3 l-organization dial dak l-user li m-connecti.
+    center = get_object_or_404(
+        Center, 
+        center_id=center_id, 
+        organization__owner__user=request.user
+    )
+    
+    return render(request, 'core/owner/center_info.html', {'center': center})
+
+# Ila bghiti lista kamla dial les centers dial dak l-owner:
+@login_required
+def owner_centers_list(request):
+    # 'select_related' kat-jib l-data dyal org u director f query whda (Performance)
+    centers = Center.objects.filter(
+        organization__owner__user=request.user
+    ).select_related('organization', 'director', 'director__user')
+    
+    # Hna n-qdrou n-7sbo ch7al men center 3ando
+    centers_count = centers.count()
+    
+    return render(request, 'core/owner/centers_list.html', {
+        'centers': centers,
+        'centers_count': centers_count
+    })
+#---------------------------------------------------------diractor__info-----------------------------------------------------------------------
+#hna dyal send email sir setting 3endak tensa
+@login_required
+def create_director_general(request):
+    if request.method == 'POST':
+        # Pass request.user bach n-rbeto l-director b l-owner
+        form = DirectorCreationForm(request.POST, user=request.user)
+        if form.is_valid():
+            director = form.save()
+            return redirect('owner_centers_list')
+    else:
+        form = DirectorCreationForm(user=request.user)
+    
+    return render(request, 'core/owner/create_director.html', {'form': form})
+def assign_director_to_center(request, center_id):
+    # Kan-jibo l-center w t-akked m-rbot b l-org dyal had l-user
+    center = get_object_or_404(Center, center_id=center_id, organization__owner__user=request.user)
+    
+    if request.method == 'POST':
+        # Pass user to form in POST
+        form = AssignDirectorForm(request.POST, instance=center, user=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('owner_centers_list')
+    else:
+        # Pass user to form in GET zebi hna finkenti nasiha
+        form = AssignDirectorForm(instance=center, user=request.user)
+    
+    return render(request, 'core/owner/assign_director.html', {
+        'form': form,
+        'center': center
+    })
+#---------------------------------------------------educator info-----------------------------------------------------------------

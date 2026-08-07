@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-8 px-6">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-blue-400/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-emerald-400/5 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-5xl w-full grid lg:grid-cols-12 gap-8 items-start">
+        
+        <div class="lg:col-span-5 space-y-6 pt-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+                <i class="fa-solid fa-user-tie text-emerald-500 text-[10px]"></i>
+                <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Management Portal</span>
+            </div>
+
+            <div class="space-y-3">
+                <h1 class="text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
+                    Assign a <br>
+                    <span class="bg-gradient-to-r from-emerald-500 to-blue-600 bg-clip-text text-transparent">Director.</span>
+                </h1>
+                <p class="text-base text-slate-400 font-medium leading-relaxed">
+                    You are assigning a qualified director to manage <span class="text-slate-900 dark:text-white font-bold">{{ center.name }}</span>.
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-3 pt-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-[10px] font-bold shadow-lg">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest tracking-tighter line-through opacity-60">Center Created</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold shadow-lg animate-pulse">2</div>
+                    <span class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest tracking-tighter">Director Assignment</span>
+                </div>
+            </div>
+        </div>
+
+       <div class="lg:col-span-7">
+    <div class="bg-white/80 dark:bg-slate-900/90 backdrop-blur-xl rounded-[2rem] border border-slate-200/60 dark:border-slate-700/50 p-10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] relative overflow-hidden">
+        
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
+
+        <div class="mb-8">
+            <h3 class="text-xs font-bold uppercase tracking-[0.3em] text-blue-600 dark:text-blue-400 mb-1">Assignment Portal</h3>
+            <p class="text-slate-500 dark:text-slate-400 text-sm">Configure and link your resources securely.</p>
+        </div>
+        
+        <form method="POST" class="space-y-6 relative z-10">
+            {% csrf_token %}
+            
+            <div class="space-y-5">
+                {% for field in form %}
+                <div class="relative group">
+                    <label class="flex items-center gap-2 text-[11px] font-bold {% if field.errors %}text-rose-500{% else %}text-slate-500 dark:text-slate-400{% endif %} uppercase tracking-wider mb-2 px-1 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 transition-all">
+                        <span class="opacity-70">#</span>
+                        {{ field.label }}
+                    </label>
+                    
+                    <div class="premium-input-container relative">
+                        <div class="absolute inset-0 bg-blue-500/5 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"></div>
+                        
+                        {{ field }}
+                        
+                        <div class="absolute inset-0 rounded-xl border border-transparent group-focus-within:border-blue-500/30 pointer-events-none transition-all"></div>
+                    </div>
+                    
+                    {% if field.errors %}
+                    <div class="flex items-center gap-2 mt-2 px-2 py-1.5 bg-rose-50 dark:bg-rose-500/10 rounded-lg text-rose-600 dark:text-rose-400">
+                        <i class="fa-solid fa-circle-exclamation text-[11px]"></i>
+                        <p class="text-[10px] font-bold uppercase tracking-tight">{{ field.errors.0 }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="pt-6">
+                <button type="submit" 
+                        class="group relative w-full overflow-hidden bg-slate-950 dark:bg-white text-white dark:text-slate-950 font-bold py-4 px-6 rounded-2xl transition-all hover:shadow-[0_20px_40px_-12px_rgba(59,130,246,0.3)] active:scale-[0.98] flex items-center justify-center gap-3 text-sm tracking-wide">
+                    <div class="absolute inset-0 w-1/2 h-full bg-white/10 skew-x-[-25deg] -translate-x-full group-hover:translate-x-[250%] transition-transform duration-1000"></div>
+                    
+                    <span>Confirm Assignment</span>
+                    <i class="fa-solid fa-arrow-right-long text-[12px] group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800/50 text-center">
+            <a href="{% url 'owner_centers_list' %}" class="inline-flex items-center gap-2 text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 uppercase tracking-[0.2em] transition-all">
+                <i class="fa-solid fa-chevron-left text-[8px]"></i>
+                Cancel Transaction
+            </a>
+        </div>
+
+        <div class="absolute -top-2 -right-2">
+            <div class="relative w-14 h-14 bg-white dark:bg-slate-800 rounded-2xl shadow-xl flex items-center justify-center border border-slate-100 dark:border-slate-700">
+                 <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 opacity-10 rounded-2xl"></div>
+                 <i class="fa-solid fa-link text-blue-600 dark:text-blue-400 text-lg"></i>
+                 <span class="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+<style>
+    /* Premium Styling for Inputs */
+    input, select, textarea {
+        width: 100%;
+        padding: 0.85rem 1.25rem !important;
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 1.25rem !important;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        outline: none;
+        appearance: none; /* For cleaner Select arrows */
+    }
+
+    /* Select specific styling */
+    select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1.25em;
+    }
+
+    .dark input, .dark select, .dark textarea {
+        background-color: #0f172a;
+        border-color: #1e293b;
+        color: #ffffff;
+    }
+
+    input:focus, select:focus {
+        border-color: #3b82f6;
+        background-color: #ffffff;
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.08);
+    }
+
+    .dark input:focus, .dark select:focus {
+        background-color: #020617;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 px-4 md:px-10">
+    
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+        <div class="space-y-1">
+            <div class="flex items-center gap-2 text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Owner Management</span>
+            </div>
+            <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+                Center <span class="text-slate-400">/</span> {{ center.name }}
+            </h1>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="{% url 'owner_dashboard' %}" class="px-6 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-sm font-bold transition-all hover:bg-slate-50">
+                Back to Dashboard
+            </a>
+            <button class="px-6 py-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold shadow-xl shadow-slate-900/10">
+                Edit Details
+            </button>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-2 space-y-8">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 md:p-10 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-8 opacity-5">
+                    <i class="fa-solid fa-building-columns text-9xl"></i>
+                </div>
+                
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-8">General Information</h3>
+                
+                <div class="grid md:grid-cols-2 gap-10">
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Center Name</p>
+                        <p class="text-xl font-black text-slate-900 dark:text-white">{{ center.name }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Affiliated Organization</p>
+                        <p class="text-xl font-black text-slate-900 dark:text-white">{{ center.org.name }}</p>
+                    </div>
+                    <div class="space-y-1 md:col-span-2">
+                        <p class="text-xs font-bold text-slate-400 uppercase mb-2">Unique Identifier (UUID)</p>
+                        <div class="flex items-center gap-3">
+                            <code class="bg-slate-50 dark:bg-slate-800 px-4 py-2 rounded-xl text-blue-500 font-mono text-xs border border-slate-100 dark:border-slate-700">
+                                {{ center.center_id }}
+                            </code>
+                            <button class="text-slate-400 hover:text-blue-500 transition-colors">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-sm">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Director In Charge</h3>
+                    {% if center.director %}
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xl shadow-lg shadow-blue-500/20">
+                            <i class="fa-solid fa-user-tie"></i>
+                        </div>
+                        <div>
+                            <p class="text-lg font-black text-slate-900 dark:text-white">{{ center.director.user.get_full_name }}</p>
+                            <p class="text-xs font-bold text-slate-400">{{ center.director.user.email }}</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 flex items-center gap-3 text-amber-600">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span class="text-sm font-bold">No director assigned yet.</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-sm">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Compliance Quick-View</h3>
+                    <div class="flex items-center justify-between">
+                        <div class="text-center">
+                            <p class="text-2xl font-black text-slate-900 dark:text-white">--</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Rooms</p>
+                        </div>
+                        <div class="w-[1px] h-10 bg-slate-100 dark:bg-slate-800"></div>
+                        <div class="text-center">
+                            <p class="text-2xl font-black text-emerald-500 italic">Active</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Status</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-8">
+            <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-slate-900/20">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 italic underline decoration-blue-500 underline-offset-8">Admin Tools</h3>
+                <div class="space-y-4">
+                    <button class="w-full flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group">
+                        <span class="text-sm font-bold">Manage Rooms</span>
+                        <i class="fa-solid fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                    <button class="w-full flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group">
+                        <span class="text-sm font-bold">Staff Ratios</span>
+                        <i class="fa-solid fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                    <div class="pt-4 mt-4 border-t border-white/5">
+                        <button class="w-full p-4 rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20 text-xs font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all">
+                            Archive Center
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 rounded-[2rem] bg-emerald-500/5 border border-emerald-500/10 flex items-center gap-4">
+                <div class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </div>
+                <p class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
+                    Verified Owner Access
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

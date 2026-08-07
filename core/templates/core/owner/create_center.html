@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-8 px-6">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-blue-400/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-emerald-400/5 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-5xl w-full grid lg:grid-cols-12 gap-8 items-start">
+        
+        <div class="lg:col-span-5 space-y-6 pt-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+                <i class="fa-solid fa-building-circle-plus text-blue-500 text-[10px]"></i>
+                <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Center Registration</span>
+            </div>
+
+            <div class="space-y-3">
+                <h1 class="text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
+                    Expand your<br>
+                    <span class="bg-gradient-to-r from-blue-600 to-emerald-400 bg-clip-text text-transparent">Organization.</span>
+                </h1>
+                <p class="text-base text-slate-400 font-medium leading-relaxed">
+                    Registering a new center under <span class="text-slate-900 dark:text-white font-bold">{{ organization.name }}</span>.
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-3 pt-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold shadow-lg animate-pulse">1</div>
+                    <span class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest tracking-tighter">Basic Details</span>
+                </div>
+                <div class="flex items-center gap-3 opacity-40">
+                    <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-500">2</div>
+                    <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest tracking-tighter">Director Assignment</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-7">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] relative">
+                
+                <form method="POST" class="space-y-5">
+                    {% csrf_token %}
+                    
+                    <div class="space-y-4">
+                        {% for field in form %}
+                        <div class="relative group">
+                            <label class="block text-[10px] font-black {% if field.errors %}text-rose-500{% else %}text-slate-400{% endif %} uppercase tracking-[0.2em] mb-1.5 px-1 group-focus-within:text-blue-500 transition-colors">
+                                {{ field.label }}
+                            </label>
+                            
+                            <div class="premium-input-container">
+                                {{ field }}
+                            </div>
+                            
+                            {% if field.errors %}
+                            <div class="flex items-center gap-1.5 mt-1 px-1 text-rose-500">
+                                <i class="fa-solid fa-caret-up text-[10px]"></i>
+                                <p class="text-[9px] font-bold uppercase tracking-wider">{{ field.errors.0 }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" 
+                                class="group relative w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 px-6 rounded-xl transition-all hover:bg-blue-600 hover:text-white active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 text-sm">
+                            Create New Center
+                            <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-6 pt-6 border-t border-slate-50 dark:border-slate-800 text-center">
+                    <a href="{% url 'owner_dashboard' %}" class="inline-flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-blue-500 uppercase tracking-widest transition-colors">
+                        <i class="fa-solid fa-chevron-left text-[8px]"></i>
+                        Back to Management
+                    </a>
+                </div>
+
+                <div class="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg flex items-center justify-center text-white text-xl rotate-12">
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling updated to be more compact */
+    input, select, textarea {
+        width: 100%;
+        padding: 0.75rem 1rem !important; /* Smaller padding */
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 1rem !important;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        outline: none;
+    }
+
+    .dark input, .dark select, .dark textarea {
+        background-color: #0f172a;
+        border-color: #1e293b;
+        color: #ffffff;
+    }
+
+    input:focus {
+        border-color: #3b82f6;
+        background-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
+    }
+
+    .dark input:focus {
+        background-color: #020617;
+    }
+</style>
+{% endblock %}

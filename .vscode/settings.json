@@ -1,15 +1,23 @@
 {
   "python-envs.pythonProjects": [],
   "workbench.colorCustomizations": {
-    "editor.background": "#000000",
-    "editor.foreground": "#e5e7eb",
+    "editor.background": "#0F111A",
+    "editor.foreground": "#E5E7EB",
+
     "activityBar.background": "#020617",
     "sideBar.background": "#020617",
     "statusBar.background": "#020617",
     "titleBar.activeBackground": "#020617",
-    "editorLineNumber.foreground": "#475569",
-    "editorCursor.foreground": "#22d3ee",
-    "editor.selectionBackground": "#22d3ee33"
+
+    "editorLineNumber.foreground": "#64748B",
+    "editorLineNumber.activeForeground": "#CBD5E1",
+
+    "editorCursor.foreground": "#22D3EE",
+
+    "editor.selectionBackground": "#22D3EE33",
+    "editor.inactiveSelectionBackground": "#22D3EE1F",
+
+    "editorWhitespace.foreground": "#1E293B"
   },
   "editor.tokenColorCustomizations": {
     "textMateRules": [
@@ -37,5 +45,6 @@
   },
   "files.exclude": {
     "**/.venv": true
-  }
+  },
+  "python.terminal.activateEnvironment": false
 }

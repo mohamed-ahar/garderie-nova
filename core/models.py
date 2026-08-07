@@ -4,14 +4,14 @@ from datetime import date
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from accounts.models import User,ParentProfile,EducatorProfile
+from accounts.models import User,ParentProfile,Educator
 
 class Organization(models.Model):
     org_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
 
     owner = models.OneToOneField(
-        "accounts.OwnerProfile", on_delete=models.PROTECT, related_name="owned_organization"
+        "accounts.Owner", on_delete=models.PROTECT, related_name="owned_organization"
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -30,7 +30,7 @@ class Center(models.Model):
     timezone = models.CharField(max_length=50, default="America/Moncton")
 
     director = models.OneToOneField(
-        "accounts.DirectorProfile",
+        "accounts.Director",
         on_delete=models.SET_NULL,
         null=True,
         related_name="managed_center",
@@ -280,7 +280,7 @@ class Child(models.Model):
     )
 
     assigned_educator = models.ForeignKey(
-        "accounts.EducatorProfile",
+        "accounts.Educator",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -371,7 +371,7 @@ class ActivityEducator(models.Model):
         on_delete=models.CASCADE,
         related_name="participating_educators",
     )
-    educator = models.ForeignKey(EducatorProfile, on_delete=models.CASCADE)
+    educator = models.ForeignKey(Educator, on_delete=models.CASCADE)
 
 
 class ActivityMedia(models.Model):
@@ -410,7 +410,7 @@ class StaffAssignment(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False
     )
     educator = models.ForeignKey(
-        EducatorProfile, on_delete=models.CASCADE, related_name="assignments"
+        Educator, on_delete=models.CASCADE, related_name="assignments"
     )
     group = models.ForeignKey(
         Group, on_delete=models.CASCADE, related_name="staff_assignments"

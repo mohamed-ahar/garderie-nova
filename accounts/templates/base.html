@@ -160,25 +160,44 @@
                             <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
                                 <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
                                     <a href="{% url 'create_center' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-plus-minus mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">Create Center</span>
+                                        <i class="fa-solid fa-plus mr-3 opacity-70"></i>
+                                        <span class="sidebar-label font-bold">Create Center</span>
                                     </a>
-                                    <a href="#" 
-                                    class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
-                                     <i class="fa-solid fa-user-gear mr-3 opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                                     <span class="sidebar-label font-bold">Assign Director</span>
-                                 </a>
+                                    <a href="{% url 'add_director_general' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
+                                        <i class="fa-solid fa-user-plus mr-3 opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                                        <span class="sidebar-label font-bold">Add New Director</span>
+                                    </a>
                                     <a href="{% url 'owner_centers_list' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
                                         <i class="fa-solid fa-layer-group mr-3 opacity-70 group-hover:opacity-100"></i>
                                         <span class="sidebar-label font-bold">Manage My Centers</span>
                                     </a>
-                                    <a href="#" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-scale-balanced mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">Compliance (Read-only)</span>
-                                    </a>
                                 </div>
                             </div>
                         </li>
+                        
+                        {% if centers %}
+                        <li class="mt-6 space-y-2">
+                            <div class="px-4 flex items-center justify-between">
+                                <span class="sidebar-label text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Quick Assign</span>
+                                <div class="h-[1px] flex-grow ml-3 bg-slate-800/50"></div>
+                            </div>
+                        
+                            <div class="space-y-1 px-2">
+                                {% for center in centers %}
+                                <a href="{% url 'assign_director' center.center_id %}" 
+                                   class="flex items-center px-4 py-2.5 text-[11px] text-white/60 hover:bg-slate-800/40 hover:text-emerald-400 rounded-xl transition-all group">
+                                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-lg bg-slate-800/50 group-hover:bg-emerald-500/10 transition-colors mr-3">
+                                        <i class="fa-solid fa-link text-[10px] opacity-50 group-hover:opacity-100"></i>
+                                    </div>
+                                    <div class="sidebar-label flex flex-col overflow-hidden">
+                                        <span class="font-bold truncate">{{ center.name }}</span>
+                                        <span class="text-[8px] text-slate-500 group-hover:text-emerald-400/70 font-medium tracking-tight">Assign Director</span>
+                                    </div>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </li>
+                        {% endif %}
                         {% endif %}
             
                         {% if user.role_type == 'director' %}
@@ -195,11 +214,19 @@
                             </button>
                             <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
                                 <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
+                                    <a href="{% url 'educator_add' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-users-gear mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">Add educator</span>
+                                    </a>
+                                    <a href="{% url 'educator_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
+                                        <i class="fa-solid fa-users-gear mr-3 opacity-70"></i>
+                                        <span class="sidebar-label">list educators</span>
+                                    </a>
                                     <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
                                         <i class="fa-solid fa-users-gear mr-3 opacity-70"></i>
                                         <span class="sidebar-label">Staff & Rooms</span>
                                     </a>
-                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
+                                    <a href="{% url 'group_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
                                         <i class="fa-solid fa-children mr-3 opacity-70"></i>
                                         <span class="sidebar-label">Children & Enrollment</span>
                                     </a>

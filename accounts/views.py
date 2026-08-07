@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import DirectorProfile, OwnerProfile, ParentProfile, User
+from .models import Director, Owner, ParentProfile, User
 from core.models import Center
 from django.db.models import Q
 from django.contrib.auth import authenticate, login
@@ -108,9 +108,9 @@ def personal_profile(request):
 
     # Check l-role (khass t-koun lower case 'owner' hit hka dertiha f models)
     if user.role_type == "owner":
-        role_info = OwnerProfile.objects.filter(user=user).first()
+        role_info = Owner.objects.filter(user=user).first()
     elif user.role_type == "director":
-        role_info = DirectorProfile.objects.filter(user=user).first()
+        role_info = Director.objects.filter(user=user).first()
     elif user.role_type == "parent":
         role_info = ParentProfile.objects.filter(user=user).first()
 

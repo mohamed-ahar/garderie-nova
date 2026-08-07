@@ -16,7 +16,7 @@ GarderieNova_Backend/
 │   └── wsgi.py
 │
 ├── core/                           # APP 1: USERS, ROLES & CENTERS
-│   ├── models.py                   # User(AbstractUser), Center, EducatorProfile, ParentProfile
+│   ├── models.py                   # User(AbstractUser), Center, Educator, ParentProfile
 │   ├── services/
 │   │   ├── email_service.py        # Invitations & Password resets
 │   │   └── center_service.py       # Branding (Logos/Colors) per center

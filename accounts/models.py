@@ -77,7 +77,7 @@ class User(AbstractUser):
         return self.user_id
 
 
-class OwnerProfile(models.Model):
+class Owner(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, primary_key=True, related_name="owner_profile"
     )
@@ -87,7 +87,7 @@ class OwnerProfile(models.Model):
         return f"Owner: {self.user.full_name}"
 
 
-class DirectorProfile(models.Model):
+class Director(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
@@ -101,7 +101,7 @@ class DirectorProfile(models.Model):
         return f"Director: {self.user.full_name}"
 
 
-class ViceDirectorProfile(models.Model):
+class ViceDirector(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
@@ -118,7 +118,7 @@ class ViceDirectorProfile(models.Model):
         return f"Vice Director: {self.user.full_name}"
 
 
-class EducatorProfile(models.Model):
+class Educator(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,

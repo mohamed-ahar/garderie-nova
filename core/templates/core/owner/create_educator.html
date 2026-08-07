@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="relative min-h-screen bg-[#fafbfc] dark:bg-slate-950 flex flex-col items-center justify-center py-12 px-6 overflow-hidden">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px] animate-pulse"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-4xl w-full">
+        
+        <div class="text-center mb-12 space-y-4">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm transition-transform hover:scale-105">
+                <i class="fa-solid fa-user-plus text-indigo-500 text-xs"></i>
+                <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.3em]">Staff Registration</span>
+            </div>
+            
+            <h1 class="text-5xl md:text-6xl font-black text-slate-950 dark:text-white tracking-tighter leading-none">
+                New <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">Educator.</span>
+            </h1>
+            <p class="text-slate-500 dark:text-slate-400 font-medium text-lg max-w-xl mx-auto">
+                Register a new educator and assign them to your educational infrastructure.
+            </p>
+        </div>
+
+        <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[3rem] border border-slate-200 dark:border-slate-800 p-3 shadow-[0_30px_100px_-20px_rgba(0,0,0,0.05)]">
+            
+            <form method="POST" class="bg-white dark:bg-slate-950 rounded-[2.5rem] p-8 md:p-10 space-y-8">
+                {% csrf_token %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <div class="space-y-2 group">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 group-focus-within:text-indigo-500 transition-colors">Full Name</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-signature absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 text-xs transition-colors group-focus-within:text-indigo-500"></i>
+                            <input type="text" name="full_name" required placeholder="Ahmed Alami" class="premium-input">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 group">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 group-focus-within:text-indigo-500 transition-colors">Username</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-at absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 text-xs"></i>
+                            <input type="text" name="username" required placeholder="alami_edu" class="premium-input">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 group">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 group-focus-within:text-indigo-500 transition-colors">Specialization</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-briefcase absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 text-xs"></i>
+                            <select name="specialization" class="premium-input appearance-none">
+                                <option value="preschool">Preschool Educator</option>
+                                <option value="primary">Primary Teacher</option>
+                                <option value="sports">Sports Coach</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 space-y-2 group">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 group-focus-within:text-indigo-500 transition-colors">Official Email</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-envelope absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 text-xs"></i>
+                            <input type="email" name="email" required placeholder="educator@organization.com" class="premium-input">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 group">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 group-focus-within:text-indigo-500 transition-colors">Temporary Password</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 text-xs"></i>
+                            <input type="password" name="password" required placeholder="••••••••" class="premium-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-slate-50 dark:border-slate-900 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <a href="{% url 'owner_centers_list' %}" class="flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-indigo-600 uppercase tracking-widest transition-colors">
+                        <i class="fa-solid fa-arrow-left text-[8px]"></i> Cancel Process
+                    </a>
+                    
+                    <button type="submit" class="w-full md:w-auto px-12 py-5 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-3xl font-black text-xs uppercase tracking-[0.3em] hover:bg-indigo-600 dark:hover:bg-indigo-500 hover:text-white transition-all active:scale-[0.97] shadow-xl shadow-indigo-500/10">
+                        Create Educator Account
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="mt-10 flex justify-center items-center gap-8 opacity-40">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-xs text-indigo-500"></i>
+                <span class="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Secure Vault</span>
+            </div>
+            <div class="w-1 h-1 rounded-full bg-slate-300"></div>
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-bolt text-xs text-amber-500"></i>
+                <span class="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Instant Sync</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling for the Premium Large Inputs */
+    .premium-input {
+        width: 100%;
+        height: 60px;
+        padding-left: 3.5rem !important;
+        padding-right: 1.5rem !important;
+        background-color: #f8fafc;
+        border: 2px solid #f1f5f9;
+        border-radius: 1.25rem !important;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #1e293b;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        outline: none;
+    }
+
+    .dark .premium-input {
+        background-color: #020617;
+        border-color: #0f172a;
+        color: #f8fafc;
+    }
+
+    .premium-input:focus {
+        background-color: #ffffff;
+        border-color: #6366f1;
+        box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .dark .premium-input:focus {
+        background-color: #000000;
+    }
+
+    /* Custom select arrow styling */
+    select.premium-input {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1.25rem center;
+        background-size: 1rem;
+    }
+</style>
+{% endblock %}
