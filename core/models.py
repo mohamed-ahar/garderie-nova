@@ -437,6 +437,8 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     read_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return f"Notification for {self.user.username}: {self.title}\n Content: {self.message}"
 
 
 class EvacuationDrill(models.Model):

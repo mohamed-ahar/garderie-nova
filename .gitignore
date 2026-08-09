@@ -2,12 +2,4 @@
 __pycache__/
 .env
 .vscode/
-children/migrations/*
-communication/migrations/*
-core/migrations/*
-documents/migrations/*
-education/migrations/*
-core/migrations/*
-reports/migrations/*
-accounts/migrations/*
 .venv/

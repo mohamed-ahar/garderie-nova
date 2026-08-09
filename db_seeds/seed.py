@@ -256,6 +256,7 @@ def run_seed():
                 first_name=random.choice(FIRST_NAMES),
                 last_name=p_last_name,
                 birth_date=dob,
+                status="waitlist",
             )
 
             ParentChildRelationship.objects.create(
