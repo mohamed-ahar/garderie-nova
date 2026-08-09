@@ -30,6 +30,8 @@ from .views import (
     room_delete_view,
     register_child_view,
     waitlist_view,
+    get_notifications_api,
+    mark_notification_read_api,
 )
 
 urlpatterns = [
@@ -53,6 +55,11 @@ urlpatterns = [
     path("parents/<uuid:user_id>/delete/", parent_delete_view, name="parent_delete"),
     path("parents/register-child/", register_child_view, name="register_child"),
     path("waitlist/", waitlist_view, name="waitlist_manage"),
+    
+    # Notifications API
+    path("api/notifications/", get_notifications_api, name="get_notifications"),
+    path("api/notifications/<uuid:notif_id>/read/", mark_notification_read_api, name="mark_notification_read"),
+    
     # owner
     path("owner/", owner_dashboard, name="owner_dashboard"),
     path("center/create/", create_center, name="create_center"),
