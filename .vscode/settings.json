@@ -1,50 +1,75 @@
 {
   "python-envs.pythonProjects": [],
+  "editor.fontFamily": "fira-code-nerd, FiraCode Nerd Font, Consolas, 'Courier New', monospace",
+  "editor.fontLigatures": true,
   "workbench.colorCustomizations": {
     "editor.background": "#0F111A",
     "editor.foreground": "#E5E7EB",
-
     "activityBar.background": "#020617",
     "sideBar.background": "#020617",
     "statusBar.background": "#020617",
     "titleBar.activeBackground": "#020617",
-
     "editorLineNumber.foreground": "#64748B",
     "editorLineNumber.activeForeground": "#CBD5E1",
-
     "editorCursor.foreground": "#22D3EE",
-
     "editor.selectionBackground": "#22D3EE33",
     "editor.inactiveSelectionBackground": "#22D3EE1F",
-
     "editorWhitespace.foreground": "#1E293B"
   },
   "editor.tokenColorCustomizations": {
     "textMateRules": [
       {
-        "scope": ["entity.name.type", "entity.name.class", "support.class"],
-        "settings": { "foreground": "#d70a3a", "fontStyle": "bold" }
+        "scope": [
+          "entity.name.type",
+          "entity.name.class",
+          "support.class"
+        ],
+        "settings": {
+          "foreground": "#d70a3a",
+          "fontStyle": "bold"
+        }
       },
       {
-        "scope": ["keyword", "storage.type", "storage.modifier"],
-        "settings": { "foreground": "#c084fc" }
+        "scope": [
+          "keyword",
+          "storage.type",
+          "storage.modifier"
+        ],
+        "settings": {
+          "foreground": "#c084fc"
+        }
       },
       {
-        "scope": ["entity.name.function", "support.function"],
-        "settings": { "foreground": "#354edc" }
+        "scope": [
+          "entity.name.function",
+          "support.function"
+        ],
+        "settings": {
+          "foreground": "#354edc"
+        }
       },
       {
-        "scope": ["string"],
-        "settings": { "foreground": "#fde047" }
+        "scope": [
+          "string"
+        ],
+        "settings": {
+          "foreground": "#fde047"
+        }
       },
       {
-        "scope": ["comment"],
-        "settings": { "foreground": "#52525b", "fontStyle": "italic" }
+        "scope": [
+          "comment"
+        ],
+        "settings": {
+          "foreground": "#52525b",
+          "fontStyle": "italic"
+        }
       }
     ]
   },
   "files.exclude": {
     "**/.venv": true
   },
-  "python.terminal.activateEnvironment": false
+  "python.terminal.activateEnvironment": false,
+  "python-envs.defaultEnvManager": "ms-python.python:venv"
 }
