@@ -27,10 +27,12 @@ from .forms import (
 from django.shortcuts import render, get_object_or_404
 from .models import Center, Organization
 from accounts.models import Educator, Director, User
+from reports.models import EnrollmentForm
 from django.core.mail import send_mail  # hadi mzal mkhdemti biha
 from django.conf import settings
 from django.contrib import messages
 from django.utils import timezone
+from django.urls import reverse
 
 
 @login_required(login_url="login")
@@ -1101,14 +1103,22 @@ def waitlist_view(request):
         if action == 'admit':
             child.status = 'active'
             child.save()
+            
+            # Create EnrollmentForm
+            EnrollmentForm.objects.get_or_create(child=child)
+            
+            # Action URL for parent
+            action_url = reverse('enrollment_edit', args=[child.child_id])
+
             for parent_child in ParentChildRelationship.objects.filter(child=child):
                 Notification.objects.create(
                     user=parent_child.parent.user,
-                    title="Child Admitted",
-                    message=f"{child.first_name} {child.last_name} has been successfully admitted from the waitlist.",
+                    title="Enfant admis !",
+                    message=f"Félicitations! {child.first_name} a été admis. Veuillez compléter le formulaire d'inscription.",
+                    action_url=action_url,
                     is_read=False
                 )
-                print("Notification is created")
+            
             messages.success(request, f"{child.first_name} admitted successfully.")
         elif action == 'remove':
              child.delete() 
@@ -1137,6 +1147,7 @@ def get_notifications_api(request):
                 "id": n.notif_id,
                 "title": n.title,
                 "message": n.message,
+                "action_url": n.action_url,
                 "is_read": n.is_read,
                 "created_at": n.created_at.strftime("%b %d, %H:%M"),
             }

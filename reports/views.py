@@ -32,9 +32,9 @@ def enrollment_profile_view(request, child_id=None):
     user = request.user
     
     # Ensure user is a parent (or handle permissions as needed)
-    if user.role_type != 'parent' and not user.is_superuser and False:
+    if user.role_type != 'parent' and not user.is_superuser :
         messages.error(request, "Access denied. Only parents can fill this form.")
-        return redirect('home')
+        return render(request, "core/403.html", status=403)
 
     child = None
     enrollment_form = None
@@ -45,7 +45,7 @@ def enrollment_profile_view(request, child_id=None):
         # Security check: Ensure this parent is related to this child
         if not child.parent_relationships.filter(parent__user=user).exists():
              messages.error(request, "You do not have permission to view this child.")
-             return redirect('home')
+             return render(request, "core/403.html", status=403)
         
         # Try to get existing form, or create a temporary empty one for context
         try:

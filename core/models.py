@@ -434,6 +434,7 @@ class Notification(models.Model):
     )
     title = models.CharField(max_length=200)
     message = models.TextField()
+    action_url = models.CharField(max_length=255, blank=True, null=True)
     is_read = models.BooleanField(default=False)
     read_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

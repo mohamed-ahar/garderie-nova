@@ -86,7 +86,7 @@
                         <template x-for="notif in notifications" :key="notif.id">
                             <div class="p-4 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group cursor-pointer"
                                  :class="{'bg-blue-50/30 dark:bg-blue-900/10': !notif.is_read}"
-                                 @click="markRead(notif.id)">
+                                 @click="handleNotificationClick(notif)">
                                 <div class="flex gap-3">
                                     <div class="flex-shrink-0 mt-1">
                                         <div class="w-2 h-2 rounded-full" :class="notif.is_read ? 'bg-slate-300' : 'bg-blue-500'"></div>
@@ -138,6 +138,13 @@
                                     this.notifications = data.notifications;
                                 })
                                 .catch(error => console.error('Error fetching notifications:', error));
+                        },
+
+                        handleNotificationClick(notif) {
+                            this.markRead(notif.id);
+                            if (notif.action_url) {
+                                window.location.href = notif.action_url;
+                            }
                         },
 
                         markRead(id) {
