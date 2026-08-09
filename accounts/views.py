@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import Director, Owner, ParentProfile, User
-from core.models import Center
+from core.models import Center, ParentChildRelationship, Child
 from django.db.models import Q
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
@@ -87,8 +87,29 @@ def owner_dashboard(request):
 
 @login_required
 def director_dashboard(request):
-    # Idem pour le directeur
-    return render(request, "director_dashboard.html")
+    user = request.user
+    if user.role_type != 'director':
+        return redirect('dashboard_redirect')
+        
+    try:
+        director = user.director_profile
+        center = director.managed_center
+    except:
+        center = None
+    
+    groups = []
+    waitlist = []
+    if center:
+        groups = center.groups.all().order_by('name')
+        waitlist = Child.objects.filter(center=center, status='waitlist').order_by('created_at')
+
+    context = {
+        'center': center,
+        'groups': groups,
+        'waitlist': waitlist,
+        'user': user,
+    }
+    return render(request, "director_dashboard.html", context)
 
 
 @login_required
@@ -98,7 +119,38 @@ def educator_dashboard(request):
 
 @login_required
 def parent_dashboard(request):
-    return render(request, "parent_dashboard.html")
+    user = request.user
+    if user.role_type != 'parent':
+        return redirect('dashboard_redirect')
+        
+    try:
+        profile = user.parent_profile
+    except ParentProfile.DoesNotExist:
+        profile = None
+
+    children = []
+    if profile:
+        relationships = ParentChildRelationship.objects.filter(parent=profile).select_related('child')
+        children = [rel.child for rel in relationships]
+    
+    # Calculate waitlist position
+    for child in children:
+        if child.status == 'waitlist':
+            pos = Child.objects.filter(
+                center=child.center, 
+                status='waitlist', 
+                created_at__lt=child.created_at
+            ).count() + 1
+            child.waitlist_position = pos
+        
+        # Check enrollment safely
+        try:
+            _ = child.enrollment_profile
+            child.has_enrollment_form = True
+        except:
+            child.has_enrollment_form = False
+
+    return render(request, "parent_dashboard.html", {'children': children})
 
 
 @login_required

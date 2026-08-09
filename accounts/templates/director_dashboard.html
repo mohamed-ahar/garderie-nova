@@ -104,6 +104,81 @@
             </div>
         </div>
 
+        <div class="group relative bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 p-8 shadow-2xl transition-all duration-500 mb-8">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Waitlist Management</h3>
+                    <p class="text-sm text-slate-400 font-medium mt-1">Pending registrations requiring review</p>
+                </div>
+                <div class="flex gap-4">
+                    <a href="{% url 'waitlist_manage' %}" class="px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold hover:scale-105 transition-all shadow-lg">
+                        Manage Full List
+                    </a>
+                    <div class="p-3 bg-amber-500/10 rounded-2xl text-amber-500">
+                        <i class="fa-solid fa-clipboard-list text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 dark:border-slate-800 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <th class="py-4 pl-4">Position</th>
+                            <th class="py-4">Child Name</th>
+                            <th class="py-4">Age/Birth Date</th>
+                            <th class="py-4">Registered Date</th>
+                            <th class="py-4">Contact</th>
+                            <th class="py-4 text-right pr-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                        {% for child in waitlist %}
+                        <tr class="group/row hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="py-4 pl-4">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500 text-white font-black text-sm shadow-lg shadow-amber-500/20">
+                                    {{ forloop.counter }}
+                                </span>
+                            </td>
+                            <td class="py-4">
+                                <div class="font-bold text-slate-900 dark:text-white">{{ child.first_name }} {{ child.last_name }}</div>
+                            </td>
+                            <td class="py-4">
+                                <div class="text-sm font-medium text-slate-500">{{ child.birth_date }}</div>
+                                <div class="text-xs text-slate-400">{{ child.age_display }}</div>
+                            </td>
+                            <td class="py-4">
+                                <div class="text-sm font-medium text-slate-500">{{ child.created_at|date:"M d, Y" }}</div>
+                            </td>
+                            <td class="py-4">
+                                {% if child.medical_info.waitlist_contact_phone %}
+                                <div class="text-xs font-medium text-slate-500"><i class="fa-solid fa-phone mr-1"></i> {{ child.medical_info.waitlist_contact_phone }}</div>
+                                {% endif %}
+                                {% if child.medical_info.waitlist_contact_email %}
+                                <div class="text-xs font-medium text-slate-500"><i class="fa-solid fa-envelope mr-1"></i> {{ child.medical_info.waitlist_contact_email }}</div>
+                                {% endif %}
+                                {% with parent_rel=child.parent_relationships.first %}
+                                    {% if parent_rel %}
+                                        <div class="text-xs text-slate-400 mt-1">Parent: {{ parent_rel.parent.user.full_name }}</div>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td class="py-4 text-right pr-4">
+                                <a href="#" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-bold hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20">
+                                    Admit
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="py-8 text-center text-slate-400 italic">No children currently on the waitlist.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="grid lg:grid-cols-12 gap-8 items-start">
             
             <div class="lg:col-span-8 group relative bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 p-8 shadow-2xl transition-all duration-500">

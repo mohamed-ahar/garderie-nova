@@ -898,7 +898,7 @@ def room_create_view(request):
             preselected_center = user.director_profile.managed_center
         except AttributeError:
             messages.error(request, "Your account is not linked to a center.")
-            return redirect("dashboard")
+            return redirect("dashboard_redirect")
 
     elif user.role_type == "owner":
         # If clicked from a "Center Detail" page, grabbing ID from URL
@@ -1003,3 +1003,113 @@ def room_delete_view(request, room_id):
         return redirect("room_list")
 
     return render(request, "core/rooms/room_confirm_delete.html", {"room": room})
+
+
+@login_required(login_url="login")
+def register_child_view(request):
+    user = request.user
+    if user.role_type != "parent":
+        return render(request, "core/403.html", status=403)
+
+    if request.method == "POST":
+        child_name = request.POST.get("child_name")
+        birth_date = request.POST.get("birth_date")
+        contact_phone = request.POST.get("contact_phone")
+        contact_email = request.POST.get("contact_email")
+        center_id = request.POST.get("center_id")
+
+        # Determine Center
+        center = None
+        if center_id:
+             center = Center.objects.filter(center_id=center_id).first()
+        else:
+             center = Center.objects.first()
+        
+        if not center:
+             messages.error(request, "Aucune garderie disponible.")
+             return redirect("dashboard_redirect")
+
+        # Split name
+        parts = child_name.strip().split(" ", 1)
+        first_name = parts[0]
+        last_name = parts[1] if len(parts) > 1 else ""
+
+        # Create Child
+        # Store contact info in medical_info as a temporary storage or metadata since Child model lacks these fields
+        extra_info = {
+            "waitlist_contact_phone": contact_phone,
+            "waitlist_contact_email": contact_email
+        }
+
+        child = Child.objects.create(
+            center=center,
+            first_name=first_name,
+            last_name=last_name,
+            birth_date=birth_date,
+            status="waitlist",
+            medical_info=extra_info
+        )
+
+        # Create Relationship
+        parent_profile = get_object_or_404(ParentProfile, user=user)
+        ParentChildRelationship.objects.create(
+            parent=parent_profile,
+            child=child,
+            relationship_type="Parent", 
+            is_emergency_contact=True 
+        )
+
+        messages.success(request, "Enfant inscrit sur la liste d'attente avec succès.")
+        return redirect("dashboard_redirect")
+
+    centers = Center.objects.all()
+    return render(request, "core/parents/register_child.html", {"centers": centers})
+
+
+@login_required(login_url="login")
+def waitlist_view(request):
+    user = request.user
+    
+    # Permission Check
+    center = None
+    if user.role_type == 'director':
+        try:
+            center = user.director_profile.managed_center
+        except:
+            return render(request, "core/403.html", status=403)
+    elif user.role_type == 'owner':
+        # Simple fallback for owner to view specific center if provided
+        center_id = request.GET.get('center_id')
+        if center_id:
+             center = get_object_or_404(Center, center_id=center_id)
+        else:
+             # Just pick first one for now or show error
+             center = Center.objects.first()
+    else:
+        return render(request, "core/403.html", status=403)
+
+    if not center:
+        return render(request, "core/403.html", status=403)
+
+    if request.method == "POST":
+        action = request.POST.get('action')
+        child_id = request.POST.get('child_id')
+        child = get_object_or_404(Child, child_id=child_id, center=center)
+
+        if action == 'admit':
+            child.status = 'active'
+            child.save()
+            messages.success(request, f"{child.first_name} admitted successfully.")
+        elif action == 'remove':
+             child.delete() 
+             messages.success(request, f"{child.first_name} removed from waitlist.")
+        
+        return redirect('waitlist_manage')
+
+    waitlist_children = Child.objects.filter(center=center, status='waitlist').order_by('created_at')
+
+    context = {
+        'waitlist': waitlist_children,
+        'center': center
+    }
+    return render(request, "core/director/waitlist_manage.html", context)

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-12">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white">Waitlist Management</h1>
+            <p class="text-slate-500 mt-2">Center: <span class="font-bold text-slate-800 dark:text-slate-200">{{ center.name }}</span></p>
+        </div>
+        <a href="{% url 'dashboard' %}" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-xs font-black text-slate-400 uppercase tracking-widest">
+                        <th class="py-5 pl-6">#</th>
+                        <th class="py-5">Child Name</th>
+                        <th class="py-5">Birth Date / Age</th>
+                        <th class="py-5">Registration Date</th>
+                        <th class="py-5">Parent / Contact</th>
+                        <th class="py-5 text-right pr-6">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for child in waitlist %}
+                    <tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td class="py-5 pl-6">
+                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500 text-white font-black text-sm shadow-md">
+                                {{ forloop.counter }}
+                            </span>
+                        </td>
+                        <td class="py-5">
+                            <div class="font-bold text-slate-900 dark:text-white">{{ child.first_name }} {{ child.last_name }}</div>
+                        </td>
+                        <td class="py-5">
+                            <div class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ child.birth_date }}</div>
+                            <div class="text-xs text-slate-400">{{ child.age_display }}</div>
+                        </td>
+                        <td class="py-5">
+                            <div class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ child.created_at|date:"M d, Y" }}</div>
+                            <div class="text-xs text-slate-400">{{ child.created_at|time:"H:i" }}</div>
+                        </td>
+                        <td class="py-5">
+                            {% with parent_rel=child.parent_relationships.first %}
+                                {% if parent_rel %}
+                                    <div class="font-bold text-slate-700 dark:text-slate-300">{{ parent_rel.parent.user.full_name }}</div>
+                                    <div class="text-xs text-slate-500">{{ parent_rel.parent.user.email }}</div>
+                                    <div class="text-xs text-slate-500">{{ parent_rel.parent.user.phone_number }}</div>
+                                {% else %}
+                                    {% if child.medical_info.waitlist_contact_email %}
+                                    <div class="text-xs text-slate-500">{{ child.medical_info.waitlist_contact_email }}</div>
+                                    {% endif %}
+                                    {% if child.medical_info.waitlist_contact_phone %}
+                                    <div class="text-xs text-slate-500">{{ child.medical_info.waitlist_contact_phone }}</div>
+                                    {% endif %}
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td class="py-5 text-right pr-6">
+                            <div class="flex justify-end gap-2">
+                                <form method="POST" onsubmit="return confirm('Are you sure you want to admit this child?');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="child_id" value="{{ child.child_id }}">
+                                    <button type="submit" name="action" value="admit" class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-xs font-bold hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20">
+                                        <i class="fa-solid fa-check mr-1"></i> Admit
+                                    </button>
+                                </form>
+                                <form method="POST" onsubmit="return confirm('Are you sure you want to remove this child from the waitlist? This cannot be undone.');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="child_id" value="{{ child.child_id }}">
+                                    <button type="submit" name="action" value="remove" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-red-50 hover:text-red-500 transition-colors">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="py-12 text-center">
+                            <div class="flex flex-col items-center justify-center text-slate-400">
+                                <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fa-solid fa-clipboard-check text-2xl opacity-50"></i>
+                                </div>
+                                <p class="font-medium">Waitlist is currently empty.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

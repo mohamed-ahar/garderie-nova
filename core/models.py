@@ -298,6 +298,9 @@ class Child(models.Model):
     status = models.CharField(max_length=20, default="active")
     created_at = models.DateTimeField(auto_now_add=True)
 
+    address = models.TextField(blank=True, help_text="Child's residential address")
+    medicare_number = models.CharField(max_length=50, blank=True)
+    medicare_expiry = models.DateField(null=True, blank=True)
     @property
     def age_display(self):
         today = date.today()
@@ -326,7 +329,7 @@ class Child(models.Model):
         if days > 0: parts.append(f"{days}d")
         
         return ", ".join(parts) if parts else "0d"
-
+    
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 

@@ -8,4 +8,6 @@ core/migrations/*
 documents/migrations/*
 education/migrations/*
 core/migrations/*
+reports/migrations/*
+accounts/migrations/*
 .venv/

@@ -28,6 +28,8 @@ from .views import (
     room_create_view,
     room_edit_view,
     room_delete_view,
+    register_child_view,
+    waitlist_view,
 )
 
 urlpatterns = [
@@ -49,6 +51,8 @@ urlpatterns = [
     path("parents/<uuid:user_id>/", parent_detail_view, name="parent_detail"),
     path("parents/<uuid:user_id>/edit/", parent_edit_view, name="parent_edit"),
     path("parents/<uuid:user_id>/delete/", parent_delete_view, name="parent_delete"),
+    path("parents/register-child/", register_child_view, name="register_child"),
+    path("waitlist/", waitlist_view, name="waitlist_manage"),
     # owner
     path("owner/", owner_dashboard, name="owner_dashboard"),
     path("center/create/", create_center, name="create_center"),
