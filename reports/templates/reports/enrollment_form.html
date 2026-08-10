@@ -43,7 +43,7 @@
     <div class="flex justify-between items-end mb-4">
         <div class="w-1/3">
             <!-- Logo Placeholder -->
-            <img src="{% static 'images/logo_nb.png' %}" alt="Brunswick Logo" class="h-12 object-contain">
+            <img src="/media/logo.jpg" alt="Brunswick Logo" class="h-12 object-contain">
         </div>
         <div class="text-right">
             <p>Établissement de garderie éducative</p>
@@ -71,8 +71,8 @@
             <div class="col-span-3 p-1">
                 <div class="flex gap-2">
                     <span class="font-bold">Nom de l'enfant</span>
-                    <input type="text" name="child_first_name" placeholder="Prénom" class="flex-1">
-                    <input type="text" name="child_last_name" placeholder="Nom de famille" class="flex-1">
+                    <input type="text" name="child_first_name" placeholder="Prénom" class="flex-1" value="{{ child.first_name }}">
+                    <input type="text" name="child_last_name" placeholder="Nom de famille" class="flex-1" value="{{ child.last_name }}">
                 </div>
             </div>
             <div class="col-span-1 p-1 border-l border-black">

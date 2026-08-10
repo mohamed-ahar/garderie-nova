@@ -12,6 +12,7 @@
         </div>
     </button>
     <div class="flex flex-col h-full relative">
+        <a href="{% url 'dashboard_redirect' %}" class="cursor-pointer">
         <div class="p-8 flex items-center gap-4 group cursor-pointer">
             <div class="relative flex-shrink-0">
                 <div class="absolute inset-0 bg-emerald-500/40 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700">
@@ -49,6 +50,7 @@
                 </div>
             </div>
         </div>
+        </a>
         <nav class="flex-1 px-4 space-y-4 overflow-y-auto custom-scrollbar">
             <p class="px-5 text-[10px] text-white dark:text-slate-500 uppercase tracking-[0.2em] opacity-80">Main Menu</p>
             <ul class="space-y-2">

@@ -8,7 +8,7 @@ import os
 import json
 import glob
 
-from core.models import Child, ParentChildRelationship, Center
+from dashboard.models import Child, ParentChildRelationship, Center
 from accounts.models import ParentProfile
 from .models import (
     EnrollmentForm, 

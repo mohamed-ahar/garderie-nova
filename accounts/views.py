@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import Director, Owner, ParentProfile, User
-from core.models import Center, ParentChildRelationship, Child
+from dashboard.models import Center, ParentChildRelationship, Child
 from django.db.models import Q
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect

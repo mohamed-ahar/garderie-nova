@@ -109,7 +109,7 @@ class ViceDirector(models.Model):
         related_name="vice_director_profile",
     )
     center = models.ForeignKey(
-        "core.Center", on_delete=models.CASCADE, related_name="vice_directors"
+        "dashboard.Center", on_delete=models.CASCADE, related_name="vice_directors"
     )
 
     specific_permissions = models.JSONField(default=dict)
@@ -126,7 +126,7 @@ class Educator(models.Model):
         related_name="educator_profile",
     )
     center = models.ForeignKey(
-        "core.Center", on_delete=models.CASCADE, related_name="educators"
+        "dashboard.Center", on_delete=models.CASCADE, related_name="educators"
     )
     is_active_in_ratio = models.BooleanField(default=True)
     is_compliant = models.BooleanField(default=True)

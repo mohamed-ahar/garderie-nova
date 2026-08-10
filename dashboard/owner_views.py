@@ -1,8 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.db import models
-from django.db.models import Prefetch
 from .models import (
     Group,
     Room,
@@ -12,40 +10,36 @@ from .models import (
     User,
     Center,
     ParentProfile,
-    Notification
 )
+from .models import (
+    Room,
+    Child,
+    Center,
+    Notification,
+)
+
+
+from django.urls import reverse
+
+from reports.models import EnrollmentForm
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Organization, Center
-from .forms import (
-    CenterCreationForm,
-    DirectorCreationForm,
-    AssignDirectorForm,
-    RoomForm,
-)
+from .models import Center
 from django.shortcuts import render, get_object_or_404
-from .models import Center, Organization
-from accounts.models import Educator, Director, User
-from reports.models import EnrollmentForm
-from django.core.mail import send_mail  # hadi mzal mkhdemti biha
-from django.conf import settings
-from django.contrib import messages
-from django.utils import timezone
-from django.urls import reverse
+from accounts.models import Educator, User
 
-
-@login_required(login_url="login")
-def dashboard_view(request):
-    context = {
-        "total_attendance": 142,
-        "capacity": 160,
-        "occupancy_percentage": 88,
-        "pending_signatures": 4,
-        "compliance_rate": 92,
-        "observations": 842,
-    }
-    return render(request, "core/dashboard.html", context)
+from .models import (
+    Group,
+    Room,
+    Child,
+    Educator,
+    StaffAssignment,
+    User,
+    Center,
+    ParentProfile,
+    ParentChildRelationship,
+)
 
 
 @login_required(login_url="login")
@@ -611,19 +605,6 @@ def parent_add_view(request):
     return render(request, "core/parents/parent_form.html", {"centers": centers})
 
 
-from .models import (
-    Group,
-    Room,
-    Child,
-    Educator,
-    StaffAssignment,
-    User,
-    Center,
-    ParentProfile,
-    ParentChildRelationship,
-)
-
-
 @login_required(login_url="login")
 def parent_detail_view(request, user_id):
     user = request.user
@@ -763,332 +744,25 @@ def parent_delete_view(request, user_id):
     return render(request, "core/403.html", status=403)
 
 
-# -----------------------------------------------center__info---------------------------------------------------------------------------------
-@login_required
-def create_center(request):
-    if request.user.role_type != "owner":
-        return redirect("login")
-
-    organization = get_object_or_404(Organization, owner__user=request.user)
-
-    if request.method == "POST":
-        form = CenterCreationForm(request.POST)
-        if form.is_valid():
-            center = form.save(commit=False)
-            center.orginisation = organization
-            center.save()
-            # Redirect to the success page instead of the dashboard
-            return redirect("center_success", center_id=center.center_id)
-    else:
-        form = CenterCreationForm()
-
-    return render(
-        request,
-        "core/owner/create_center.html",
-        {"form": form, "organization": organization},
-    )
-
-
-@login_required
-def center_success(request, center_id):
-    # Fetch the newly created center to show its name
-    center = get_object_or_404(
-        Center, center_id=center_id, organization__owner__user=request.user
-    )
-    return render(request, "core/owner/center_congrats.html", {"center": center})
-
-
-@login_required
-def center_info_view(request, center_id):
-    # Security Check: Njibou l-center b l-ID walakin khass darouri
-    # ikoun taba3 l-organization dial dak l-user li m-connecti.
-    center = get_object_or_404(
-        Center, center_id=center_id, organization__owner__user=request.user
-    )
-
-    return render(request, "core/owner/center_info.html", {"center": center})
-
-
-# Ila bghiti lista kamla dial les centers dial dak l-owner:
-@login_required
-def owner_centers_list(request):
-    # 'select_related' kat-jib l-data dyal org u director f query whda (Performance)
-    centers = Center.objects.filter(
-        organization__owner__user=request.user
-    ).select_related("organization", "director", "director__user")
-
-    # Hna n-qdrou n-7sbo ch7al men center 3ando
-    centers_count = centers.count()
-
-    return render(
-        request,
-        "core/owner/centers_list.html",
-        {"centers": centers, "centers_count": centers_count},
-    )
-
-
-# ---------------------------------------------------------diractor__info-----------------------------------------------------------------------
-# hna dyal send email sir setting 3endak tensa
-@login_required
-def create_director_general(request):
-    if request.method == "POST":
-        # Pass request.user bach n-rbeto l-director b l-owner
-        form = DirectorCreationForm(request.POST, user=request.user)
-        if form.is_valid():
-            director = form.save()
-            return redirect("owner_centers_list")
-    else:
-        form = DirectorCreationForm(user=request.user)
-
-    return render(request, "core/owner/create_director.html", {"form": form})
-
-
-def assign_director_to_center(request, center_id):
-    # Kan-jibo l-center w t-akked m-rbot b l-org dyal had l-user
-    center = get_object_or_404(
-        Center, center_id=center_id, organization__owner__user=request.user
-    )
-
-    if request.method == "POST":
-        # Pass user to form in POST
-        form = AssignDirectorForm(request.POST, instance=center, user=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect("owner_centers_list")
-    else:
-        # Pass user to form in GET zebi hna finkenti nasiha
-        form = AssignDirectorForm(instance=center, user=request.user)
-
-    return render(
-        request, "core/owner/assign_director.html", {"form": form, "center": center}
-    )
-
-
-@login_required(login_url="login")
-def room_list_view(request):
-    user = request.user
-    rooms = Room.objects.all()
-    print(rooms,user)
-    if user.role_type == "owner":
-        rooms = Room.objects.all().select_related("center")
-    elif user.role_type == "director" and hasattr(user, "director_profile"):
-        center = user.director_profile.managed_center
-        if center:
-            rooms = Room.objects.filter(center=center)
-    elif user.role_type == "educator" and hasattr(user, "educator_profile"):
-        center = user.educator_profile.center
-        if center:
-            rooms = Room.objects.filter(center=center)
-
-    context = {"rooms": rooms}
-    return render(request, "core/rooms/room_list.html", context)
-
-
-@login_required(login_url="login")
-def room_create_view(request):
-    user = request.user
-
-    # 1. Strict Permission Check
-    if user.role_type not in ["owner", "director"]:
-        return render(request, "core/403.html", status=403)
-
-    # 2. Logic to identify the Target Center (Context)
-    # Used for read-only display or pre-filling
-    preselected_center = None
-
-    if user.role_type == "director":
-        # Safety: Ensure director actually has a profile/center linked
-        try:
-            preselected_center = user.director_profile.managed_center
-        except AttributeError:
-            messages.error(request, "Your account is not linked to a center.")
-            return redirect("dashboard_redirect")
-
-    elif user.role_type == "owner":
-        # If clicked from a "Center Detail" page, grabbing ID from URL
-        # e.g., /rooms/create/?center_id=5
-        cid_param = request.GET.get("center_id")
-        if cid_param:
-            preselected_center = get_object_or_404(Center, center_id=cid_param)
-
-    # 3. Form Handling
-    if request.method == "POST":
-        form = RoomForm(request.POST)
-
-        # Determine the Center being assigned during Save
-        center_to_assign = None
-
-        if user.role_type == "director":
-            # Director: FORCE the center from their profile (ignore POST data manipulation)
-            center_to_assign = preselected_center
-
-        elif user.role_type == "owner":
-            # Owner: Use the center from the dropdown selection in the POST
-            selected_id = request.POST.get("center_id")
-            if selected_id:
-                center_to_assign = get_object_or_404(Center, center_id=selected_id)
-
-        # Validation and Save
-        if form.is_valid():
-            if center_to_assign:
-                room = form.save(commit=False)
-                room.center = center_to_assign
-
-                # Note: Model's .save() method will handle calculating
-                # default capacity based on the Age Group if logic is in models.py
-                room.save()
-
-                messages.success(request, f"Room '{room.name}' created successfully.")
-                return redirect("room_list")
-            else:
-                form.add_error(None, "You must select a valid Center.")
-        else:
-            messages.error(request, "Please correct the errors below.")
-    else:
-        # GET request
-        form = RoomForm()
-
-    # 4. Context Data Preparation
-    # Owners need a list of centers for the dropdown
-    centers = Center.objects.all() if user.role_type == "owner" else []
-
-    context = {
-        "form": form,
-        "centers": centers,  # For the <select> dropdown (Owners)
-        "target_center": preselected_center,  # For the Read-Only text (Directors or Pre-filled)
-        "room": None,  # Ensures template knows this is Create, not Edit
-    }
-
-    return render(request, "core/rooms/room_form.html", context)
-
-
-@login_required(login_url="login")
-def room_edit_view(request, room_id):
-    user = request.user
-    room = get_object_or_404(Room, room_id=room_id)
-
-    # Permission check
-    if user.role_type == "owner":
-        pass  # Owners can edit any room
-    elif user.role_type == "director" and hasattr(user, "director_profile"):
-        if room.center != user.director_profile.managed_center:
-            return render(request, "core/403.html", status=403)
-    else:
-        return render(request, "core/403.html", status=403)
-
-    if request.method == "POST":
-        form = RoomForm(request.POST, instance=room)
-        if form.is_valid():
-            form.save()
-            return redirect("room_list")
-    else:
-        form = RoomForm(instance=room)
-
-    context = {"form": form, "room": room}
-    return render(request, "core/rooms/room_form.html", context)
-
-
-@login_required(login_url="login")
-def room_delete_view(request, room_id):
-    user = request.user
-    room = get_object_or_404(Room, room_id=room_id)
-
-    # Permission check
-    if user.role_type == "owner":
-        pass  # Owners can delete any room
-    elif user.role_type == "director" and hasattr(user, "director_profile"):
-        if room.center != user.director_profile.managed_center:
-            return render(request, "core/403.html", status=403)
-    else:
-        return render(request, "core/403.html", status=403)
-
-    if request.method == "POST":
-        room.delete()
-        return redirect("room_list")
-
-    return render(request, "core/rooms/room_confirm_delete.html", {"room": room})
-
-
-@login_required(login_url="login")
-def register_child_view(request):
-    user = request.user
-    if user.role_type != "parent":
-        return render(request, "core/403.html", status=403)
-
-    if request.method == "POST":
-        child_name = request.POST.get("child_name")
-        birth_date = request.POST.get("birth_date")
-        contact_phone = request.POST.get("contact_phone")
-        contact_email = request.POST.get("contact_email")
-        center_id = request.POST.get("center_id")
-
-        # Determine Center
-        center = None
-        if center_id:
-             center = Center.objects.filter(center_id=center_id).first()
-        else:
-             center = Center.objects.first()
-        
-        if not center:
-             messages.error(request, "Aucune garderie disponible.")
-             return redirect("dashboard_redirect")
-
-        # Split name
-        parts = child_name.strip().split(" ", 1)
-        first_name = parts[0]
-        last_name = parts[1] if len(parts) > 1 else ""
-
-        # Create Child
-        # Store contact info in medical_info as a temporary storage or metadata since Child model lacks these fields
-        extra_info = {
-            "waitlist_contact_phone": contact_phone,
-            "waitlist_contact_email": contact_email
-        }
-
-        child = Child.objects.create(
-            center=center,
-            first_name=first_name,
-            last_name=last_name,
-            birth_date=birth_date,
-            status="waitlist",
-            medical_info=extra_info
-        )
-
-        # Create Relationship
-        parent_profile = get_object_or_404(ParentProfile, user=user)
-        ParentChildRelationship.objects.create(
-            parent=parent_profile,
-            child=child,
-            relationship_type="Parent", 
-            is_emergency_contact=True 
-        )
-
-        messages.success(request, "Enfant inscrit sur la liste d'attente avec succès.")
-        return redirect("dashboard_redirect")
-
-    centers = Center.objects.all()
-    return render(request, "core/parents/register_child.html", {"centers": centers})
-
-
 @login_required(login_url="login")
 def waitlist_view(request):
     user = request.user
-    
+
     # Permission Check
     center = None
-    if user.role_type == 'director':
+    if user.role_type == "director":
         try:
             center = user.director_profile.managed_center
         except:
             return render(request, "core/403.html", status=403)
-    elif user.role_type == 'owner':
+    elif user.role_type == "owner":
         # Simple fallback for owner to view specific center if provided
-        center_id = request.GET.get('center_id')
+        center_id = request.GET.get("center_id")
         if center_id:
-             center = get_object_or_404(Center, center_id=center_id)
+            center = get_object_or_404(Center, center_id=center_id)
         else:
-             # Just pick first one for now or show error
-             center = Center.objects.first()
+            # Just pick first one for now or show error
+            center = Center.objects.first()
     else:
         return render(request, "core/403.html", status=403)
 
@@ -1096,19 +770,19 @@ def waitlist_view(request):
         return render(request, "core/403.html", status=403)
 
     if request.method == "POST":
-        action = request.POST.get('action')
-        child_id = request.POST.get('child_id')
+        action = request.POST.get("action")
+        child_id = request.POST.get("child_id")
         child = get_object_or_404(Child, child_id=child_id, center=center)
 
-        if action == 'admit':
-            child.status = 'active'
+        if action == "admit":
+            child.status = "active"
             child.save()
-            
+
             # Create EnrollmentForm
             EnrollmentForm.objects.get_or_create(child=child)
-            
+
             # Action URL for parent
-            action_url = reverse('enrollment_edit', args=[child.child_id])
+            action_url = reverse("enrollment_edit", args=[child.child_id])
 
             for parent_child in ParentChildRelationship.objects.filter(child=child):
                 Notification.objects.create(
@@ -1116,67 +790,17 @@ def waitlist_view(request):
                     title="Enfant admis !",
                     message=f"Félicitations! {child.first_name} a été admis. Veuillez compléter le formulaire d'inscription.",
                     action_url=action_url,
-                    is_read=False
+                    is_read=False,
                 )
-            
-            messages.success(request, f"{child.first_name} admitted successfully.")
-        elif action == 'remove':
-             child.delete() 
-             messages.success(request, f"{child.first_name} removed from waitlist.")
-        
-        return redirect('waitlist_manage')
 
-    waitlist_children = Child.objects.filter(center=center, status='waitlist').order_by('created_at')
+        elif action == "remove":
+            child.delete()
 
-    context = {
-        'waitlist': waitlist_children,
-        'center': center
-    }
+        return redirect("waitlist_manage")
+
+    waitlist_children = Child.objects.filter(center=center, status="waitlist").order_by(
+        "created_at"
+    )
+
+    context = {"waitlist": waitlist_children, "center": center}
     return render(request, "core/director/waitlist_manage.html", context)
-
-
-@login_required
-def get_notifications_api(request):
-    notifications = request.user.notifications.all().order_by("-created_at")[:10]
-    unread_count = request.user.notifications.filter(is_read=False).count()
-    
-    data = {
-        "count": unread_count,
-        "notifications": [
-            {
-                "id": n.notif_id,
-                "title": n.title,
-                "message": n.message,
-                "action_url": n.action_url,
-                "is_read": n.is_read,
-                "created_at": n.created_at.strftime("%b %d, %H:%M"),
-            }
-            for n in notifications
-        ],
-    }
-    return JsonResponse(data)
-
-
-@login_required
-def mark_notification_read_api(request, notif_id):
-    if request.method == "POST":
-        notification = get_object_or_404(Notification, notif_id=notif_id, user=request.user)
-        notification.is_read = True
-        notification.read_at = timezone.now()
-        notification.save()
-        return JsonResponse({"status": "success"})
-    return JsonResponse({"status": "error"}, status=400)
-
-
-@login_required(login_url="login")
-def dashboard_view(request):
-    context = {
-        "total_attendance": 142,
-        "capacity": 160,
-        "occupancy_percentage": 88,
-        "pending_signatures": 4,
-        "compliance_rate": 92,
-        "observations": 842,
-    }
-    return render(request, "core/dashboard.html", context)
-

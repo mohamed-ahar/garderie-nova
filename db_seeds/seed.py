@@ -13,7 +13,7 @@ from accounts.models import (
     Educator,
     ParentProfile,
 )
-from core.models import (
+from dashboard.models import (
     Organization,
     Center,
     Room,

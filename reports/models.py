@@ -3,7 +3,7 @@ from django.utils import timezone
 import uuid
 
 # Import Child from core
-from core.models import Child
+from dashboard.models import Child
 
 class EnrollmentForm(models.Model):
     """

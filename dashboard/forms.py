@@ -1,6 +1,6 @@
 from django import forms
 from accounts.models import Director
-from core.models import Center, Room
+from dashboard.models import Center, Room
 from accounts.models import User
 from django import forms
 from django.contrib.auth import get_user_model

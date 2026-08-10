@@ -408,7 +408,6 @@ class AttendanceLog(models.Model):
 
     ratio_weight_snapshot = models.IntegerField(default=0)
 
-
 class StaffAssignment(models.Model):
     assignment_id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False
@@ -424,9 +423,6 @@ class StaffAssignment(models.Model):
     check_out_time = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
-
-
-
 class Notification(models.Model):
     notif_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
@@ -441,14 +437,12 @@ class Notification(models.Model):
     def __str__(self):
         return f"Notification for {self.user.username}: {self.title}\n Content: {self.message}"
 
-
 class EvacuationDrill(models.Model):
     drill_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     center = models.ForeignKey(Center, on_delete=models.CASCADE, related_name="drills")
     type = models.CharField(max_length=50, default="fire")
     started_at = models.DateTimeField()
     ended_at = models.DateTimeField(null=True, blank=True)
-
 
 class EvacuationCheck(models.Model):
     check_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

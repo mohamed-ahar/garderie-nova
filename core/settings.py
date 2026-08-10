@@ -14,7 +14,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
-    "core.apps.CoreConfig",
+    "dashboard.apps.DashboardConfig",
     "accounts.apps.AccountsConfig",
     "reports",
     "django.contrib.auth",
@@ -38,7 +38,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "backend.urls"
+ROOT_URLCONF = "core.urls"
 
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -70,14 +70,14 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "core.context_processors.theme",
-                "core.context_processors.sidebar",
+                "dashboard.context_processors.theme",
+                "dashboard.context_processors.sidebar",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = "backend.wsgi.application"
+WSGI_APPLICATION = "core.wsgi.application"
 
 
 # DATABASES = {
