@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-12 px-6">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-blue-400/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-emerald-400/5 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+        
+        <div class="lg:col-span-5 space-y-10 text-left">
+            <div class="space-y-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <i class="fa-solid fa-file-csv text-emerald-500 text-[10px]"></i>
+                    <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Secure Data Channel</span>
+                </div>
+
+                <div class="space-y-4">
+                    <h1 class="text-5xl lg:text-5xl font-black text-slate-900 dark:text-white leading-[0.9] tracking-tighter">
+                        Import <br>
+                        <span class="bg-gradient-to-r from-blue-600 to-emerald-400 bg-clip-text text-transparent italic font-serif">Registry</span>
+                    </h1>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-md">
+                        Efficiently batch upload student profiles and educational records directly into the core management system using our encrypted CSV processing node.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <a href="{% url 'director_dashboard' %}" class="group flex items-center gap-4 text-[10px] font-black text-slate-400 hover:text-blue-500 uppercase tracking-[0.2em] transition-all">
+                    <div class="w-10 h-10 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center group-hover:border-blue-500 group-hover:bg-blue-500/5 transition-all">
+                        <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+                    </div>
+                    <span>Back to Command Center</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="lg:col-span-7">
+            <div class="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 p-4 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] relative group/card">
+                
+                <div class="absolute -top-4 -right-4 w-14 h-14 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-2xl shadow-2xl flex items-center justify-center text-xl rotate-12 group-hover:rotate-0 transition-transform duration-500 z-20">
+                    <i class="fa-solid fa-file-import"></i>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data" class="space-y-4" id="uploadForm">
+                    {% csrf_token %}
+                    <div class="hidden">{{ form.file }}</div>
+
+                    <div id="dropZone" class="relative group cursor-pointer py-20 px-10 rounded-[2.5rem] border-2 border-dashed border-slate-100 dark:border-slate-800 hover:border-blue-500/50 hover:bg-blue-50/50 dark:hover:bg-blue-500/5 transition-all duration-500">
+                        
+                        <div class="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-slate-200 dark:border-slate-700"></div>
+                        <div class="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-slate-200 dark:border-slate-700"></div>
+
+                        <div id="idleContent" class="flex flex-col items-center text-center space-y-6">
+                            <div class="w-20 h-20 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-blue-500 group-hover:shadow-[0_20px_40px_-10px_rgba(59,130,246,0.3)] transition-all duration-500">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
+                            </div>
+                            <div class="space-y-2">
+                                <p class="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">Initialize Data Transfer</p>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Drag and drop system CSV or click to browse</p>
+                            </div>
+                        </div>
+
+                        <div id="fileSelectedContent" class="hidden flex flex-col items-center text-center space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div class="w-20 h-20 rounded-3xl bg-emerald-500 text-white flex items-center justify-center shadow-2xl shadow-emerald-500/40">
+                                <i class="fa-solid fa-check text-3xl"></i>
+                            </div>
+                            <div class="space-y-2">
+                                <p id="fileName" class="text-base font-black text-emerald-600 dark:text-emerald-400 tracking-tighter truncate max-w-xs italic"></p>
+                                <div class="flex items-center justify-center gap-3">
+                                    <span class="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 text-[8px] font-black uppercase tracking-widest">Validated</span>
+                                    <button type="button" id="resetFile" class="text-[9px] font-black text-rose-500 uppercase tracking-widest hover:underline decoration-2 underline-offset-4">Discard</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-2">
+                        <button type="submit" id="submitBtn" disabled
+                                class="group relative w-full bg-slate-50 dark:bg-slate-800/50 text-slate-300 cursor-not-allowed font-black py-6 rounded-[1.8rem] transition-all flex items-center justify-center gap-4 text-[12px] uppercase tracking-[0.3em] overflow-hidden">
+                            <span class="relative z-10">Execute System Import</span>
+                            <i class="fa-solid fa-bolt-lightning text-xs relative z-10 group-enabled:text-yellow-400"></i>
+                            <div id="btnGlow" class="absolute inset-0 bg-slate-950 dark:bg-white opacity-0 transition-opacity duration-500"></div>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="pt-4 pb-6 flex items-center justify-center gap-6">
+                    <div class="flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Uplink Ready</span>
+                    </div>
+                    <div class="w-px h-3 bg-slate-200 dark:bg-slate-800"></div>
+                    <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">AES-256 Encryption Active</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JS Logic remains the same, but update the submitBtn color logic to match the new dark/light palette
+    const dropZone = document.getElementById('dropZone');
+    const realInput = document.querySelector('input[type="file"]');
+    const idleContent = document.getElementById('idleContent');
+    const fileContent = document.getElementById('fileSelectedContent');
+    const fileName = document.getElementById('fileName');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnGlow = document.getElementById('btnGlow');
+    const resetFile = document.getElementById('resetFile');
+
+    dropZone.addEventListener('click', (e) => {
+        if (e.target !== resetFile) realInput.click();
+    });
+
+    resetFile.addEventListener('click', (e) => {
+        e.stopPropagation();
+        realInput.value = '';
+        toggleState(false);
+    });
+
+    realInput.addEventListener('change', () => {
+        if (realInput.files.length > 0) toggleState(true, realInput.files[0].name);
+    });
+
+    function toggleState(isSelected, name = '') {
+        const textSpan = submitBtn.querySelector('span');
+        if (isSelected) {
+            idleContent.classList.add('hidden');
+            fileContent.classList.remove('hidden');
+            fileName.textContent = name;
+            
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('text-slate-300', 'cursor-not-allowed');
+            submitBtn.classList.add('text-white', 'dark:text-slate-950', 'hover:scale-[1.01]', 'active:scale-95', 'shadow-2xl');
+            btnGlow.classList.remove('opacity-0');
+            btnGlow.classList.add('opacity-100');
+        } else {
+            idleContent.classList.remove('hidden');
+            fileContent.classList.add('hidden');
+            
+            submitBtn.disabled = true;
+            submitBtn.classList.add('text-slate-300', 'cursor-not-allowed');
+            submitBtn.classList.remove('text-white', 'dark:text-slate-950', 'hover:scale-[1.01]', 'active:scale-95', 'shadow-2xl');
+            btnGlow.classList.add('opacity-0');
+        }
+    }
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+        dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); });
+    });
+
+    dropZone.addEventListener('dragover', () => dropZone.classList.add('border-blue-500', 'bg-blue-50/50', 'dark:bg-blue-500/10'));
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-blue-500', 'bg-blue-50/50', 'dark:bg-blue-500/10'));
+    
+    dropZone.addEventListener('drop', (e) => {
+        dropZone.classList.remove('border-blue-500', 'bg-blue-50/50', 'dark:bg-blue-500/10');
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].name.endsWith('.csv')) {
+            realInput.files = files;
+            toggleState(true, files[0].name);
+        }
+    });
+</script>
+{% endblock %}

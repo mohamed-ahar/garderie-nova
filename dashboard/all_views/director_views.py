@@ -1,11 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import transaction
+import csv
+from datetime import datetime
 
 from ..models import (
     Room,
     Center,
     Organization,
+    Child,
+    ParentChildRelationship,
 )
 
 from ..forms import (
@@ -13,7 +18,10 @@ from ..forms import (
     DirectorCreationForm,
     AssignDirectorForm,
     RoomForm,
+    CSVUploadForm,
 )
+
+from accounts.models import User, ParentProfile
 
 
 # -----------------------------------------------center__info---------------------------------------------------------------------------------
@@ -260,3 +268,92 @@ def room_delete_view(request, room_id):
         return redirect("room_list")
 
     return render(request, "core/rooms/room_confirm_delete.html", {"room": room})
+
+@login_required(login_url="login")
+def import_children_csv(request):
+    if request.user.role_type != "director":
+        return render(request, "core/403.html", status=403)
+
+    try:
+        center = request.user.director_profile.managed_center
+        if not center:
+             messages.error(request, "You are not assigned to any center.")
+             return redirect("dashboard_redirect")
+    except AttributeError:
+        messages.error(request, "Director profile not found.")
+        return redirect("dashboard_redirect")
+
+    form = CSVUploadForm(request.POST or None, request.FILES or None)
+    
+    if request.method == "POST" and form.is_valid():
+        csv_file = form.cleaned_data["file"]
+        decoded_file = csv_file.read().decode('utf-8').splitlines()
+        reader = csv.DictReader(decoded_file)
+
+        errors = []
+        added_children = 0
+
+        try:
+            with transaction.atomic():
+                for i, row in enumerate(reader, start=2):
+                    email = row.get("parent_email", "").strip()
+                    if not email:
+                        errors.append(f"Line {i}: Missing parent email")
+                        continue
+
+                    user, user_created = User.objects.get_or_create(
+                        email=email,
+                        defaults={
+                            "email": email,
+                            "full_name": row.get("parent_full_name", "No Name"),
+                            "role_type": "parent"
+                        }
+                    )
+                    
+                    if user_created:
+                        user.set_unusable_password()
+                        user.save()
+
+                    parent_profile, _ = ParentProfile.objects.get_or_create(
+                        user=user,
+                        defaults={
+                            "home_address": row.get("parent_home_address", ""),
+                            "billing_reference": row.get("parent_billing_reference", "")
+                        }
+                    )
+
+                    try:
+                        date_str = row.get("child_birth_date", "")
+                        birth_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+                    except (ValueError, TypeError):
+                        errors.append(f"Line {i}: Invalid birth date format ({date_str})")
+                        continue
+
+                    child = Child.objects.create(
+                        center=center,
+                        first_name=row.get("child_first_name", ""),
+                        last_name=row.get("child_last_name", ""),
+                        birth_date=birth_date
+                    )
+                    
+                    ParentChildRelationship.objects.create(
+                        parent=parent_profile,
+                        child=child,
+                        relationship_type="Parent",
+                        is_emergency_contact=True 
+                    )
+                    
+                    added_children += 1
+
+        except Exception as e:
+            messages.error(request, f"System Error: {str(e)}")
+            return redirect("import_children_csv")
+
+        if errors:
+            for e in errors: messages.error(request, e)
+        else:
+            messages.success(request, f"Successfully imported {added_children} children.")
+
+        return redirect("import_children_csv")
+
+    return render(request, "core/director/import_children.html", {"form": form})

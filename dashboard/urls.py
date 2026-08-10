@@ -20,6 +20,7 @@ urlpatterns = [
     path(
         "educators/<uuid:user_id>/delete/", educator_delete_view, name="educator_delete"
     ),
+    path("children/import-csv/", import_children_csv, name="import_children_csv"),
     path("parents/", parent_list_view, name="parent_list"),
     path("parents/add/", parent_add_view, name="parent_add"),
     path("parents/<uuid:user_id>/", parent_detail_view, name="parent_detail"),
