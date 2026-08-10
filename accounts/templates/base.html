@@ -142,11 +142,10 @@
                         letter-spacing: -0.5px">GarderieNova</div>
         </div>
         {% include "accounts/includes/sidebar.html" %}
-        <main class="min-h-screen transition-all duration-500 ease-in-out {% if sidebar_state == 'closed' %}sidebar-hidden{% endif %}">
+        <main class=" transition-all duration-500 ease-in-out {% if sidebar_state == 'closed' %}sidebar-hidden{% endif %}">
             {% include "accounts/includes/header.html" %}
-            <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-6 px-4 sm:py-8 sm:px-6 lg:py-10 lg:px-10">
-                {% block content %}{% endblock %}
-            </div>
+            {% block content %}{% endblock %}
+           
         </main>
         <div id="genericModal"
              class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity duration-300">
