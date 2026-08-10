@@ -64,6 +64,8 @@
                                 {% endif %}
                             </div>
                             <p class="text-xs text-slate-400 font-medium mt-1">
+                                <span class="inline-flex items-center text-[11px] font-bold text-blue-600 hover:text-blue-700">{{ child.center.name }} </span>
+                                &bull;
                                 {% if child.status == 'waitlist' %}
                                     Registered: {{ child.created_at|date:"M d, Y" }}
                                 {% else %}
