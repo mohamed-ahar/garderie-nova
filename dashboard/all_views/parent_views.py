@@ -1,22 +1,13 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.mail import send_mail  # hadi mzal mkhdemti biha
-from django.db import models
-from django.db.models import Prefetch
-from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
-from django.utils import timezone
-
-from accounts.models import Director, Educator, User
-from reports.models import EnrollmentForm
-
-from .forms import (AssignDirectorForm, CenterCreationForm,
-                    DirectorCreationForm, RoomForm)
-from .models import (Center, Child, Educator, Group, Notification,
-                     Organization, ParentChildRelationship, ParentProfile,
-                     Room, StaffAssignment, User)
+from ..models import (
+    Center,
+    Child,
+    ParentChildRelationship,
+    ParentProfile,
+)
 
 
 @login_required(login_url="login")
@@ -35,13 +26,13 @@ def register_child_view(request):
         # Determine Center
         center = None
         if center_id:
-             center = Center.objects.filter(center_id=center_id).first()
+            center = Center.objects.filter(center_id=center_id).first()
         else:
-             center = Center.objects.first()
-        
+            center = Center.objects.first()
+
         if not center:
-             messages.error(request, "Aucune garderie disponible.")
-             return redirect("dashboard_redirect")
+            messages.error(request, "Aucune garderie disponible.")
+            return redirect("dashboard_redirect")
 
         # Split name
         parts = child_name.strip().split(" ", 1)
@@ -52,7 +43,7 @@ def register_child_view(request):
         # Store contact info in medical_info as a temporary storage or metadata since Child model lacks these fields
         extra_info = {
             "waitlist_contact_phone": contact_phone,
-            "waitlist_contact_email": contact_email
+            "waitlist_contact_email": contact_email,
         }
 
         child = Child.objects.create(
@@ -61,7 +52,7 @@ def register_child_view(request):
             last_name=last_name,
             birth_date=birth_date,
             status="waitlist",
-            medical_info=extra_info
+            medical_info=extra_info,
         )
 
         # Create Relationship
@@ -69,8 +60,8 @@ def register_child_view(request):
         ParentChildRelationship.objects.create(
             parent=parent_profile,
             child=child,
-            relationship_type="Parent", 
-            is_emergency_contact=True 
+            relationship_type="Parent",
+            is_emergency_contact=True,
         )
 
         messages.success(request, "Enfant inscrit sur la liste d'attente avec succès.")
@@ -78,4 +69,3 @@ def register_child_view(request):
 
     centers = Center.objects.all()
     return render(request, "core/parents/register_child.html", {"centers": centers})
-

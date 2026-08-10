@@ -3,9 +3,9 @@ from django.urls import path
 from accounts.views import owner_dashboard
 from django.views.generic import RedirectView
 from .views import *
-from .parent_views import *
-from .director_views import * 
-from .owner_views import *
+from .all_views.parent_views import *
+from .all_views.director_views import * 
+from .all_views.owner_views import *
 
 urlpatterns = [
     path("", RedirectView.as_view(url="dashboard/", permanent=False)),

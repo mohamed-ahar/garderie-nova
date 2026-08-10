@@ -1,35 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import (
-    Group,
-    Room,
-    Child,
-    Educator,
-    StaffAssignment,
-    User,
-    Center,
-    ParentProfile,
-)
-from .models import (
-    Room,
-    Child,
-    Center,
-    Notification,
-)
-
-
 from django.urls import reverse
-
-from reports.models import EnrollmentForm
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Center
-from django.shortcuts import render, get_object_or_404
-from accounts.models import Educator, User
-
-from .models import (
+from ..models import (
     Group,
     Room,
     Child,
@@ -39,7 +12,9 @@ from .models import (
     Center,
     ParentProfile,
     ParentChildRelationship,
+    Notification,
 )
+from reports.models import EnrollmentForm
 
 
 @login_required(login_url="login")
