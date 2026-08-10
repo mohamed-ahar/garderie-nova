@@ -60,6 +60,7 @@ def login_view(request):
 @login_required
 def dashboard_redirect(request):
     """Had l-view hiya li kat-décidi fin gha ymchi l-user melli y-login"""
+    
     role = request.user.role_type
 
     if role == "owner":
@@ -93,26 +94,35 @@ def director_dashboard(request):
     user = request.user
     if user.role_type != 'director':
         return redirect('dashboard_redirect')
-        
+    
+    # Get the director profile and center
+    center = None
     try:
         director = user.director_profile
         center = director.managed_center
-    except:
+    except Director.DoesNotExist:
+        director = None
+    except Center.DoesNotExist:
         center = None
-    
+
+    # Prepare groups and waitlist
     groups = []
     waitlist = []
     if center:
         groups = center.groups.all().order_by('name')
         waitlist = Child.objects.filter(center=center, status='waitlist').order_by('created_at')
 
+    # Pass a safe flag for the template to use
     context = {
-        'center': center,
+        'user': user,
+        'center': center,        # Required for import CSV link
         'groups': groups,
         'waitlist': waitlist,
-        'user': user,
+        'can_import_csv': center is not None,  # Optional flag for template
     }
+
     return render(request, "director_dashboard.html", context)
+
 
 
 @login_required

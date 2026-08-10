@@ -6,8 +6,15 @@ from .views import *
 from .all_views.parent_views import *
 from .all_views.director_views import * 
 from .all_views.owner_views import *
+from. import views
 
 urlpatterns = [
+    path(
+        'parents/import-children/<uuid:center_id>/',
+        views.import_children_csv,
+        name='import_children_csv'
+    ),
+    
     path("", RedirectView.as_view(url="dashboard/", permanent=False)),
     path("groups/", group_list_view, name="group_list"),
     path("groups/add/", group_add_view, name="group_add"),
@@ -20,13 +27,13 @@ urlpatterns = [
     path(
         "educators/<uuid:user_id>/delete/", educator_delete_view, name="educator_delete"
     ),
-    path("children/import-csv/", import_children_csv, name="import_children_csv"),
     path("parents/", parent_list_view, name="parent_list"),
     path("parents/add/", parent_add_view, name="parent_add"),
     path("parents/<uuid:user_id>/", parent_detail_view, name="parent_detail"),
     path("parents/<uuid:user_id>/edit/", parent_edit_view, name="parent_edit"),
     path("parents/<uuid:user_id>/delete/", parent_delete_view, name="parent_delete"),
     path("parents/register-child/", register_child_view, name="register_child"),
+    
     path("waitlist/", waitlist_view, name="waitlist_manage"),
     
     # Notifications API
@@ -48,4 +55,5 @@ urlpatterns = [
     path("rooms/create/", room_create_view, name="room_create"),
     path("rooms/<uuid:room_id>/edit/", room_edit_view, name="room_edit"),
     path("rooms/<uuid:room_id>/delete/", room_delete_view, name="room_delete"),
+    
 ]

@@ -151,10 +151,22 @@
                                         <i class="fa-solid fa-list-check mr-3 opacity-70"></i>
                                         <span class="sidebar-label">Waitlist Management</span>
                                     </a>
-                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-eye mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">Supervision & Validation</span>
+                                    {% if center %}
+                                    <a href="{% url 'import_children_csv' center.center_id %}"
+                                       class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-600 hover:text-white rounded-lg transition-all group
+                                       {% if request.resolver_match.url_name == 'import_children_csv' %}bg-blue-600 text-white{% endif %}">
+                                       
+                                        <div class="relative mr-3 flex items-center justify-center">
+                                            <i class="fa-solid fa-file-import opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                                            <span class="absolute -top-1 -right-1 w-1.5 h-1.5 bg-emerald-400 rounded-full border border-slate-900 shadow-[0_0_5px_rgba(52,211,153,0.5)]"></span>
+                                        </div>
+                                    
+                                        <span class="sidebar-label font-bold tracking-tight">Data Supervision & Bulk</span>
                                     </a>
+                                    
+                                    {% endif %}
+                                    
+                                 
                                 </div>
                             </div>
                         </li>

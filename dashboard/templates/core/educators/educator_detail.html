@@ -5,189 +5,249 @@
 {% block content %}
 <div class="flex flex-col gap-8">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-black text-emerald-600 dark:text-white tracking-tighter">{{ educator.user.full_name }}</h1>
-            <p class="text-slate-500 text-sm dark:text-slate-400 font-medium">Educator Profile & Assignments</p>
+    <div class="relative w-full max-w-7xl mx-auto py-12 px-12 overflow-hidden">
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] opacity-40"></div>
+            <div class="absolute bottom-[-20%] right-[-10%] w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px] opacity-40"></div>
+            <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
         </div>
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-             <a href="{% url 'educator_list' %}" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all order-2 sm:order-1">
-                <i class="fa-solid fa-arrow-left"></i>
-                <span class="hidden sm:inline">Back to List</span>
-            </a>
-            <a href="{% url 'educator_edit' educator.user.user_id %}" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-2xl text-sm font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/25 active:scale-95 order-1 sm:order-2">
-                <i class="fa-solid fa-pen"></i>
-                <span class="hidden sm:inline">Edit Profile</span>
-            </a>
+    
+        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-end">
+            
+            <div class="lg:col-span-7 space-y-10">
+                <div class="space-y-6">
+                    <div class="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+                        <div class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </div>
+                        <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.25em]">Registry Node: Active</span>
+                    </div>
+    
+                    <div class="space-y-4">
+                        <h1 class="text-6xl lg:text-8xl font-black text-slate-900 dark:text-white leading-[0.85] tracking-[-0.04em]">
+                            {{ educator.user.full_name }}<br>
+                            <span class="bg-gradient-to-br from-emerald-500 via-teal-400 to-blue-500 bg-clip-text text-transparent italic font-serif text-5xl lg:text-7xl">Educator Core</span>
+                        </h1>
+                        <p class="text-lg text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-md border-l-2 border-emerald-500/30 pl-6">
+                            Managing institutional assets, grade distributions, and encrypted student synchronization.
+                        </p>
+                    </div>
+                </div>
+    
+                <div class="pt-4">
+                    <a href="{% url 'educator_list' %}" class="group inline-flex items-center gap-5 text-[11px] font-black text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-all uppercase tracking-[0.2em]">
+                        <div class="w-12 h-12 rounded-2xl border-2 border-slate-200 dark:border-slate-800 flex items-center justify-center group-hover:border-emerald-500/50 group-hover:bg-emerald-500/10 transition-all duration-300">
+                            <i class="fa-solid fa-chevron-left group-hover:-translate-x-1 transition-transform"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span>Exit Registry</span>
+                            <span class="text-[8px] opacity-50">Back to directory</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+    
+            <div class="lg:col-span-5">
+                <div class="relative group">
+                    <div class="absolute -inset-1 bg-gradient-to-tr from-emerald-600 to-blue-500 rounded-[3.5rem] blur-2xl opacity-10 group-hover:opacity-25 transition duration-1000"></div>
+                    
+                    <div class="relative bg-white dark:bg-[#0f172a] rounded-[3rem] border border-slate-200 dark:border-slate-800 p-6 shadow-2xl overflow-hidden">
+                        
+                        <div class="flex justify-between items-center mb-10 px-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-950 shadow-lg">
+                                    <i class="fa-solid fa-fingerprint text-sm"></i>
+                                </div>
+                                <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest">Auth_Token_Verified</span>
+                            </div>
+                            <div class="flex gap-1.5">
+                                <div class="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                                <div class="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                            </div>
+                        </div>
+    
+                        <div class="space-y-4 px-2 pb-4">
+                            <a href="{% url 'educator_edit' educator.user.user_id %}" 
+                               class="group relative w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-7 rounded-[2rem] transition-all flex items-center justify-center gap-5 text-[13px] uppercase tracking-[0.3em] overflow-hidden hover:scale-[1.02] active:scale-[0.98]">
+                                <span class="relative z-10">Modify Profile</span>
+                                <i class="fa-solid fa-wand-magic-sparkles text-xs relative z-10 group-hover:rotate-12 transition-transform"></i>
+                                
+                                <div class="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            </a>
+    
+                            <div class="mt-8 py-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Sync Nominal</span>
+                                </div>
+                                <span class="text-[9px] font-mono text-slate-500 uppercase">Node ID: {{ educator.user.user_id|slice:":8" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-        <!-- Profile Card -->
-        <div class="lg:col-span-1 space-y-6 lg:space-y-8">
-            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl p-6 lg:p-8">
-                <div class="flex flex-col items-center">
-                    <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xl shadow-indigo-500/30 mb-4 md:mb-6 text-3xl md:text-4xl">
-                        {% if educator.user.profile_photo %}
-                            <img src="{{ educator.user.profile_photo.url }}" alt="{{ educator.user.full_name }}" class="w-full h-full rounded-full object-cover">
-                        {% else %}
-                            <i class="fa-solid fa-user-tie"></i>
-                        {% endif %}
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
+    
+        <div class="lg:col-span-4 xl:col-span-3 space-y-8 lg:sticky lg:top-8">
+            <div class="relative group bg-white dark:bg-[#0f172a] rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden p-8">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-slate-50 dark:bg-white/5 rounded-bl-[5rem] -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+                
+                <div class="relative flex flex-col items-center">
+                    <div class="relative mb-6">
+                        <div class="w-32 h-32 md:w-40 md:h-40 rounded-full p-1.5 bg-gradient-to-tr from-indigo-500 via-emerald-400 to-blue-500 shadow-2xl shadow-indigo-500/20">
+                            <div class="w-full h-full rounded-full border-4 border-white dark:border-[#0f172a] overflow-hidden bg-slate-100 dark:bg-slate-800">
+                                {% if educator.user.profile_photo %}
+                                    <img src="{{ educator.user.profile_photo.url }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="w-full h-full flex items-center justify-center text-slate-400 dark:text-slate-600">
+                                        <i class="fa-solid fa-user-tie text-5xl"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="absolute bottom-2 right-2 flex h-6 w-6">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-6 w-6 bg-emerald-500 border-4 border-white dark:border-[#0f172a]"></span>
+                        </div>
                     </div>
-                    <h2 class="text-lg md:text-xl font-black text-slate-900 dark:text-white text-center">{{ educator.user.full_name }}</h2>
-                    <p class="text-slate-500 text-xs md:text-sm font-medium text-center">{{ educator.center.name }}</p>
-                    
-                    <div class="w-full mt-6 md:mt-8 space-y-3 md:space-y-4">
-                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-2 p-3 md:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
-                            <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400">
-                                <i class="fa-solid fa-envelope"></i>
-                                <span class="text-xs font-bold uppercase tracking-wider">Email</span>
-                            </div>
-                            <span class="text-xs md:text-sm font-bold text-slate-900 dark:text-white break-all">{{ educator.user.email }}</span>
+    
+                    <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter text-center leading-tight">
+                        {{ educator.user.full_name }}
+                    </h2>
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 mt-2">{{ educator.center.name }}</p>
+    
+                    <div class="w-full mt-10 space-y-3">
+                        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50">
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Communication</p>
+                            <p class="text-xs font-bold text-slate-900 dark:text-white truncate">{{ educator.user.email }}</p>
+                            <p class="text-xs font-medium text-slate-500 mt-1">{{ educator.user.phone_number|default:"No voice uplink" }}</p>
                         </div>
-                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-2 p-3 md:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
-                            <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400">
-                                <i class="fa-solid fa-phone"></i>
-                                <span class="text-xs font-bold uppercase tracking-wider">Phone</span>
-                            </div>
-                            <span class="text-xs md:text-sm font-bold text-slate-900 dark:text-white">{{ educator.user.phone_number|default:"-" }}</span>
-                        </div>
-                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-2 p-3 md:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
-                            <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400">
-                                <i class="fa-solid fa-clock"></i>
-                                <span class="text-xs font-bold uppercase tracking-wider">Status</span>
-                            </div>
-                            {% if educator.is_active_in_ratio %}
-                            <span class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black rounded-full border border-emerald-500/20 uppercase tracking-widest">
-                                Active
-                            </span>
-                            {% else %}
-                            <span class="inline-flex items-center gap-2 px-3 py-1 bg-slate-500/10 text-slate-600 dark:text-slate-400 text-[10px] font-black rounded-full border border-slate-500/20 uppercase tracking-widest">
-                                Inactive
-                            </span>
-                            {% endif %}
-                        </div>
-                        <div class="p-3 md:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
-                            <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400 mb-3">
-                                <i class="fa-solid fa-shield-check"></i>
-                                <span class="text-xs font-bold uppercase tracking-wider">Compliance</span>
+    
+                        <div class="p-4 rounded-2xl border transition-all {% if educator.is_compliant %}bg-emerald-50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20{% else %}bg-rose-50 dark:bg-rose-500/5 border-rose-200 dark:border-rose-500/20{% endif %}">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">Security Check</span>
+                                <i class="fa-solid {% if educator.is_compliant %}fa-circle-check text-emerald-500{% else %}fa-triangle-exclamation text-rose-500{% endif %} text-xs"></i>
                             </div>
                             {% if educator.is_compliant %}
-                            <span class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black rounded-full border border-emerald-500/20 uppercase tracking-widest">
-                                <i class="fa-solid fa-circle-check"></i> Compliant
-                            </span>
+                                <span class="text-xs font-black text-emerald-700 dark:text-emerald-400 uppercase italic">Verified Nominal</span>
                             {% else %}
-                            <div class="space-y-2">
-                                <span class="inline-flex items-center gap-2 px-3 py-1 bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-black rounded-full border border-red-500/20 uppercase tracking-widest">
-                                    <i class="fa-solid fa-circle-exclamation"></i> Issues Found
-                                </span>
                                 <div class="space-y-1">
                                     {% for error in educator.compliance_errors %}
-                                        <div class="text-xs text-red-600 dark:text-red-400 font-medium">• {{ error }}</div>
+                                        <p class="text-[10px] text-rose-600 dark:text-rose-400 font-bold">• {{ error }}</p>
                                     {% endfor %}
                                 </div>
-                            </div>
                             {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Assignments -->
-        <div class="lg:col-span-2 space-y-6 lg:space-y-8">
-            <!-- Current Group Assignment -->
-            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl p-6 lg:p-8">
-                <h3 class="text-lg md:text-xl font-black text-slate-900 dark:text-white mb-4 md:mb-6 flex items-center gap-3">
-                    <i class="fa-solid fa-users text-emerald-500"></i>
-                    Current Assignment
-                </h3>
-                
+    
+        <div class="lg:col-span-8 xl:col-span-9 space-y-8">
+            
+            <div class="bg-white dark:bg-[#0f172a] rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden p-8 lg:p-10">
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+                            <i class="fa-solid fa-microchip text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">Deployment Status</h3>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">Real-time Group Synchronization</p>
+                        </div>
+                    </div>
+                </div>
+    
                 {% if active_assignment %}
-                <div class="flex flex-col md:flex-row gap-4 md:gap-6 items-start">
-                    <div class="flex-1 w-full bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 md:p-6 border border-slate-100 dark:border-slate-800">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-900/50 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm">
+                                <i class="fa-solid fa-users-viewfinder text-indigo-500"></i>
+                            </div>
                             <div>
-                                <p class="text-xs font-black uppercase text-slate-400 tracking-widest mb-1">Group</p>
-                                <a href="{% url 'group_edit' active_assignment.group.group_id %}" class="text-base md:text-lg font-black text-indigo-600 dark:text-indigo-400 hover:underline">
+                                <p class="text-[9px] font-black text-slate-400 uppercase">Assigned Unit</p>
+                                <a href="{% url 'group_edit' active_assignment.group.group_id %}" class="text-lg font-black text-slate-900 dark:text-white hover:text-indigo-500">
                                     {{ active_assignment.group.name }}
                                 </a>
                             </div>
-                            <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
-                                <i class="fa-solid fa-layer-group"></i>
-                            </div>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                            <div>
-                                <p class="text-[10px] font-bold uppercase text-slate-400">Room</p>
-                                <p class="text-xs md:text-sm font-bold text-slate-700 dark:text-slate-200">{{ active_assignment.group.room.name|default:"No Room" }}</p>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-bold uppercase text-slate-400">Assigned Since</p>
-                                <p class="text-xs md:text-sm font-bold text-slate-700 dark:text-slate-200">{{ active_assignment.check_in_time|date:"M d, Y"|default:"Recently" }}</p>
-                            </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="border-l-2 border-slate-200 dark:border-slate-700 pl-4">
+                            <p class="text-[9px] font-black text-slate-400 uppercase">Sector</p>
+                            <p class="text-sm font-bold text-slate-700 dark:text-slate-200 italic font-serif">{{ active_assignment.group.room.name|default:"Unmapped" }}</p>
+                        </div>
+                        <div class="border-l-2 border-slate-200 dark:border-slate-700 pl-4">
+                            <p class="text-[9px] font-black text-slate-400 uppercase">Runtime</p>
+                            <p class="text-sm font-mono font-bold text-emerald-500">{{ active_assignment.check_in_time|date:"H:i"|default:"00:00" }} UTC</p>
                         </div>
                     </div>
                 </div>
                 {% else %}
-                <div class="p-6 md:p-8 text-center bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
-                    <i class="fa-solid fa-user-clock text-3xl md:text-4xl text-slate-300 mb-3"></i>
-                    <p class="text-slate-500 dark:text-slate-400 font-medium text-sm md:text-base">No active group assignment.</p>
+                <div class="py-12 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800">
+                    <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-satellite-dish text-slate-300 dark:text-slate-600 text-2xl"></i>
+                    </div>
+                    <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest">No Active Nodes Detected</p>
                 </div>
                 {% endif %}
             </div>
-
-            <!-- Assigned Children -->
-            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden">
-                <div class="p-6 lg:p-8 pb-4 border-b border-slate-100 dark:border-slate-800">
-                    <h3 class="text-lg md:text-xl font-black text-slate-900 dark:text-white flex items-center gap-3">
-                        <i class="fa-solid fa-child text-purple-500"></i>
-                        Assigned Children
-                    </h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-xs md:text-sm mt-1">Children directly assigned to this educator.</p>
+    
+            <div class="bg-white dark:bg-[#0f172a] rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+                <div class="px-8 py-8 lg:px-10 border-b border-slate-100 dark:border-slate-800 flex justify-between items-end">
+                    <div>
+                        <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Assigned Children</h3>
+                        <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mt-1">Registry Synchronization: {{ assigned_children|length }} Units</p>
+                    </div>
                 </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse min-w-full">
+    
+                <div class="overflow-x-auto px-4 pb-4">
+                    <table class="w-full text-left border-separate border-spacing-y-2">
                         <thead>
-                            <tr class="bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
-                                <th class="px-4 md:px-8 py-4 md:py-5 text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] md:tracking-[0.2em]">Child</th>
-                                <th class="px-4 md:px-6 py-4 md:py-5 text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] md:tracking-[0.2em]">Age</th>
-                                <th class="px-4 md:px-6 py-4 md:py-5 text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] md:tracking-[0.2em]">Group</th>
+                            <tr class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                                <th class="px-6 py-4">Individual Units</th>
+                                <th class="px-6 py-4">Age Node</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4 text-right">Action</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                        <tbody>
                             {% for child in assigned_children %}
-                            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td class="px-4 md:px-8 py-3 md:py-4">
-                                    <div class="flex items-center gap-2 md:gap-3">
-                                        <div class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                            <tr class="group hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all duration-300">
+                                <td class="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/20 rounded-l-2xl border-y border-l border-transparent group-hover:border-slate-200 dark:group-hover:border-slate-800">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 overflow-hidden ring-2 ring-transparent group-hover:ring-indigo-500/20 transition-all">
                                             {% if child.profile_photo %}
-                                            <img src="{{ child.profile_photo.url }}" class="w-full h-full object-cover">
+                                                <img src="{{ child.profile_photo.url }}" class="w-full h-full object-cover grayscale group-hover:grayscale-0">
                                             {% else %}
-                                            <i class="fa-solid fa-baby text-slate-400 text-xs md:text-sm"></i>
+                                                <div class="w-full h-full flex items-center justify-center text-slate-400"><i class="fa-solid fa-baby"></i></div>
                                             {% endif %}
                                         </div>
-                                        <span class="text-xs md:text-sm font-bold text-slate-900 dark:text-white">{{ child.first_name }} {{ child.last_name }}</span>
+                                        <span class="text-sm font-black text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">{{ child.first_name }} {{ child.last_name }}</span>
                                     </div>
                                 </td>
-                                <td class="px-4 md:px-6 py-3 md:py-4">
-                                    <span class="text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-300">{{ child.age_display }}</span>
+                                <td class="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/20 border-y border-transparent group-hover:border-slate-200 dark:group-hover:border-slate-800">
+                                    <span class="font-mono text-[11px] font-bold text-slate-500">{{ child.age_display }}</span>
                                 </td>
-                                <td class="px-4 md:px-6 py-3 md:py-4">
+                                <td class="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/20 border-y border-transparent group-hover:border-slate-200 dark:group-hover:border-slate-800">
                                     {% if child.assigned_group %}
-                                    <span class="px-2 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[10px] md:text-xs font-bold rounded-lg">
-                                        {{ child.assigned_group.name }}
-                                    </span>
+                                        <span class="px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase rounded-lg border border-emerald-500/20">
+                                            {{ child.assigned_group.name }}
+                                        </span>
                                     {% else %}
-                                    <span class="text-xs text-slate-400">-</span>
+                                        <span class="text-[10px] font-mono text-slate-400">OFFLINE</span>
                                     {% endif %}
                                 </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="3" class="px-8 py-8 text-center text-slate-500 dark:text-slate-400">
-                                    No children assigned.
+                                <td class="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/20 rounded-r-2xl border-y border-r border-transparent group-hover:border-slate-200 dark:group-hover:border-slate-800 text-right">
+                                    <button class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-center hover:bg-indigo-500 hover:text-white transition-all">
+                                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}

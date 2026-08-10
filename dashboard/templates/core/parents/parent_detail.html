@@ -5,20 +5,68 @@
 {% block content %}
 <div class="flex flex-col gap-8">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-black text-emerald-600 dark:text-white tracking-tighter">{{ parent.user.full_name }}</h1>
-            <p class="text-slate-500 text-sm dark:text-slate-400 font-medium">Parent Profile & Information</p>
+    <div class="relative mb-8 p-6 lg:p-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden group">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+    
+        <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div class="flex items-center gap-5">
+                <div class="relative">
+                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                        {% if parent.user.profile_photo %}
+                            <img src="{{ parent.user.profile_photo.url }}" class="w-full h-full rounded-2xl object-cover">
+                        {% else %}
+                            <i class="fa-solid fa-user-group text-2xl md:text-3xl"></i>
+                        {% endif %}
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-md border border-slate-100 dark:border-slate-800">
+                        <i class="fa-solid fa-shield-check text-[10px] text-emerald-500"></i>
+                    </div>
+                </div>
+    
+                <div>
+                    <div class="flex items-center gap-3 mb-1">
+                        <h1 class="text-2xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-none">
+                            {{ parent.user.full_name }}
+                        </h1>
+                        <span class="hidden md:inline-flex px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[9px] font-black text-slate-500 uppercase tracking-widest border border-slate-200 dark:border-slate-700">
+                            Record_ID:{{ parent.user.user_id|slice:":6" }}
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm font-medium">
+                        <i class="fa-solid fa-fingerprint text-emerald-500/50"></i>
+                        Parent Intelligence Profile
+                    </div>
+                </div>
+            </div>
+    
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="{% url 'parent_list' %}" 
+                   class="flex items-center justify-center h-12 w-12 lg:w-auto lg:px-5 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition-all active:scale-95">
+                    <i class="fa-solid fa-chevron-left text-xs lg:mr-2"></i>
+                    <span class="hidden lg:inline text-xs font-black uppercase tracking-widest">Return to Fleet</span>
+                </a>
+    
+                <a href="{% url 'parent_edit' parent.user.user_id %}" 
+                   class="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 h-12 bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 rounded-2xl text-xs font-black uppercase tracking-widest transition-all hover:bg-emerald-600 dark:hover:bg-white shadow-lg shadow-emerald-500/20 active:scale-95 group/btn">
+                    <i class="fa-solid fa-pen-nib transition-transform group-hover/btn:-rotate-12"></i>
+                    <span>Modify Record</span>
+                </a>
+    
+                <button class="flex items-center justify-center h-12 w-12 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-400 hover:text-emerald-500 transition-colors">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                </button>
+            </div>
         </div>
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-             <a href="{% url 'parent_list' %}" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all order-2 sm:order-1">
-                <i class="fa-solid fa-arrow-left"></i>
-                <span class="hidden sm:inline">Back to List</span>
-            </a>
-            <a href="{% url 'parent_edit' parent.user.user_id %}" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-2xl text-sm font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/25 active:scale-95 order-1 sm:order-2">
-                <i class="fa-solid fa-pen"></i>
-                <span class="hidden sm:inline">Edit Profile</span>
-            </a>
+    
+        <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800/50 flex flex-wrap gap-6">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Last_Sync:</span>
+                <span class="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-300">2026-01-17 21:13</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Network_Access:</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[9px] font-bold uppercase tracking-tighter">Authorized</span>
+            </div>
         </div>
     </div>
 
