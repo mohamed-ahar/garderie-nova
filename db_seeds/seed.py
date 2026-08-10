@@ -151,7 +151,8 @@ def run_seed():
 
     print("Creating Directors...")
     directors = []
-    for i in range(3):
+    # Directors for Org 1
+    for i in range(2):
         d_user = User.objects.create_user(
             email=f"director{i+1}@nova.com",
             password="password123",
@@ -160,9 +161,28 @@ def run_seed():
             role_type="director",
         )
         dp = Director.objects.create(
-            user=d_user, qualification_cert="Level 5 ECE", hired_at=date(2020, 1, 15)
+            user=d_user, 
+            qualification_cert="Level 5 ECE", 
+            hired_at=date(2020, 1, 15),
+            organization=org1
         )
         directors.append(dp)
+
+    # Director for Org 2
+    d_user_3 = User.objects.create_user(
+        email=f"director3@nova.com",
+        password="password123",
+        full_name=f"Director {LAST_NAMES[2]}",
+        phone_number="555-0202",
+        role_type="director",
+    )
+    dp_3 = Director.objects.create(
+        user=d_user_3, 
+        qualification_cert="Level 5 ECE", 
+        hired_at=date(2020, 1, 15),
+        organization=org2
+    )
+    directors.append(dp_3)
 
     print("Creating Centers...")
     center1 = Center.objects.create(

@@ -24,6 +24,10 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
+def user_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return '{0}/{1}/{2}'.format(instance.role_type, instance.user_id, filename)
+
 class User(AbstractUser):
     """
     Base User Table. Handles Login (Email/Pass) and common contact info.
@@ -42,7 +46,7 @@ class User(AbstractUser):
     email = models.EmailField(_("email address"), unique=True)
     full_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
-    profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
+    profile_photo = models.ImageField(upload_to=user_directory_path, blank=True, null=True)
 
     role_type = models.CharField(max_length=20, choices=ROLE_CHOICES)
 

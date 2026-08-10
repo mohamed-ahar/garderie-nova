@@ -25,6 +25,9 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 print("hna 0")
+                next_url = request.GET.get('next')
+                if next_url:
+                    return redirect(next_url)
                 return redirect("dashboard_redirect")
 
             else:
@@ -157,6 +160,11 @@ def parent_dashboard(request):
 def personal_profile(request):
     user = request.user
     role_info = None
+
+    if request.method == 'POST' and request.FILES.get('profile_photo'):
+        user.profile_photo = request.FILES['profile_photo']
+        user.save()
+        return redirect('personal_profile')
 
     # Check l-role (khass t-koun lower case 'owner' hit hka dertiha f models)
     if user.role_type == "owner":
