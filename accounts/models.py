@@ -96,6 +96,9 @@ class Director(models.Model):
     )
     qualification_cert = models.CharField(max_length=100, blank=True)
     hired_at = models.DateField(null=True, blank=True)
+    organization = models.ForeignKey(
+        "dashboard.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="directors"
+    )
 
     def __str__(self):
         return f"Director: {self.user.full_name}"

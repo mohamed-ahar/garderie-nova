@@ -28,7 +28,7 @@ def create_center(request):
         form = CenterCreationForm(request.POST)
         if form.is_valid():
             center = form.save(commit=False)
-            center.orginisation = organization
+            center.organization = organization
             center.save()
             # Redirect to the success page instead of the dashboard
             return redirect("center_success", center_id=center.center_id)
