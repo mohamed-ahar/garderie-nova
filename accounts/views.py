@@ -94,33 +94,37 @@ def director_dashboard(request):
     user = request.user
     if user.role_type != 'director':
         return redirect('dashboard_redirect')
-    
-    # Get the director profile and center
-    center = None
+        
     try:
         director = user.director_profile
         center = director.managed_center
-    except Director.DoesNotExist:
-        director = None
-    except Center.DoesNotExist:
+    except:
         center = None
-
-    # Prepare groups and waitlist
+    
     groups = []
     waitlist = []
+    total_educators = 0
+    active_children = 0
+    open_alerts = 0
+
     if center:
         groups = center.groups.all().order_by('name')
         waitlist = Child.objects.filter(center=center, status='waitlist').order_by('created_at')
+        
+        from .models import Educator
+        total_educators = Educator.objects.filter(center=center).count()
+        active_children = Child.objects.filter(center=center, status='active').count()
+        open_alerts = groups.filter(is_compliant=False).count()
 
-    # Pass a safe flag for the template to use
     context = {
-        'user': user,
-        'center': center,        # Required for import CSV link
+        'center': center,
         'groups': groups,
         'waitlist': waitlist,
-        'can_import_csv': center is not None,  # Optional flag for template
+        'user': user,
+        'total_educators': total_educators,
+        'active_children': active_children,
+        'open_alerts': open_alerts,
     }
-
     return render(request, "director_dashboard.html", context)
 
 

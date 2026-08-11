@@ -40,7 +40,7 @@
                     <div class="flex flex-col">
                         <span class="text-[9px] font-black text-cyan-400 uppercase tracking-widest">Total_Capacity</span>
                         <span class="text-xl font-mono font-bold text-white leading-none mt-1">
-                            {{ rooms_total_capacity|default:"0" }}<span class="text-xs opacity-40 ml-1">Rooms</span>
+                            {{ rooms|length|default:"0" }}<span class="text-xs opacity-40 ml-1">Rooms</span>
                         </span>
                     </div>
                     <div class="w-px h-10 bg-white/10"></div>
@@ -50,7 +50,6 @@
                             <div class="w-16 h-1.5 rounded-full bg-white/10 overflow-hidden">
                                 <div class="h-full bg-cyan-500 rounded-full" style="width: 65%;"></div>
                             </div>
-                          
                         </div>
                     </div>
                 </div>

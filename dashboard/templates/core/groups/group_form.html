@@ -3,86 +3,344 @@
 {% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Group | GarderieNova{% endblock %}
 
 {% block content %}
-<div class="mb-8 -mx-6 -mt-6 px-6 pt-8 pb-8 bg-gradient-to-br from-blue-600/95 via-blue-500/90 to-cyan-500/85 dark:from-blue-700/80 dark:via-blue-600/75 dark:to-cyan-600/70 relative overflow-hidden">
-    <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -mr-48 -mt-48"></div>
-    <div class="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-3xl -ml-36 -mb-36"></div>
-    
-    <div class="relative z-10">
-        <div class="flex items-center gap-3 mb-4">
-            <i class="fa-solid fa-users-rectangle text-white text-lg"></i>
-            <span class="text-white/80 text-xs font-bold uppercase tracking-widest">Group Management</span>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-blue-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div class="max-w-5xl mx-auto px-2">
+        <!-- Navigation Breadcrumb -->
+        <a href="{% url 'group_list' %}" class="inline-flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900 hover:text-blue-600 dark:hover:text-blue-400 hover:shadow-sm border border-transparent hover:border-slate-200 dark:hover:border-slate-800 mb-8 transition-all duration-300 group">
+            <div class="flex items-center justify-center w-6 h-6 rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-chevron-left text-[10px] group-hover:-translate-x-0.5 transition-transform"></i>
+            </div>
+            <span class="tracking-tight">Back to Group Registry</span>
+        </a>
+
+        <!-- Header Card with Premium Design -->
+        <div class="relative mb-12">
+            <div class="absolute -top-10 -left-10 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px] dark:bg-indigo-500/5"></div>
+            <div class="absolute -bottom-10 -right-10 w-64 h-64 bg-cyan-500/10 rounded-full blur-[100px] dark:bg-sky-500/5"></div>
+        
+            <div class="relative group">
+                <div class="absolute -inset-[1px] bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 rounded-[2.5rem]"></div>
+                
+                <div class="relative bg-white/80 dark:bg-slate-900/90 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-slate-200/50 dark:shadow-none">
+                    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-3">
+                                <span class="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] border border-blue-100 dark:border-blue-800">
+                                    Operational Unit
+                                </span>
+                                <div class="h-[1px] w-8 bg-slate-200 dark:border-slate-700"></div>
+                                <span class="text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-widest">
+                                    Structure v1.0
+                                </span>
+                            </div>
+        
+                            <h1 class="text-5xl md:text-6xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">
+                                {% if is_edit %}
+                                    Edit <span class="bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">Group</span>
+                                {% else %}
+                                    Add New <span class="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">Group</span>
+                                {% endif %}
+                            </h1>
+        
+                            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium max-w-xl leading-relaxed">
+                                {% if is_edit %}
+                                    Configure structural attributes and room mapping for <span class="text-slate-900 dark:text-slate-200 font-bold underline decoration-blue-500/30 underline-offset-4">{{ group.name }}</span>.
+                                {% else %}
+                                    Initialize a new logical group to manage children ratios and educator assignments.
+                                {% endif %}
+                            </p>
+                        </div>
+        
+                        <div class="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-[240px]">
+                            {% if is_edit %}
+                                <div class="group/chip flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-900 transition-all duration-300">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-900 shadow-sm flex items-center justify-center text-blue-600">
+                                            <i class="fa-solid fa-layer-group text-xs"></i>
+                                        </div>
+                                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight">Status</span>
+                                    </div>
+                                    <span class="text-sm font-black text-emerald-600 dark:text-emerald-400">
+                                        ACTIVE
+                                    </span>
+                                </div>
+                            {% else %}
+                                <div class="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30">
+                                    <div class="flex items-center gap-2 text-indigo-700 dark:text-indigo-400 mb-1">
+                                        <i class="fa-solid fa-sparkles text-xs"></i>
+                                        <span class="text-[10px] font-black uppercase tracking-widest">Configuration</span>
+                                    </div>
+                                    <p class="text-[11px] text-indigo-600/80 dark:text-indigo-400/80 font-medium">Define group hierarchy and spatial assignment.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <h1 class="text-4xl font-black text-white tracking-tighter mb-2">{% if is_edit %}Edit{% else %}Add New{% endif %} Group</h1>
-        <p class="text-white/80 text-sm font-medium">{% if is_edit %}Update group details and room assignment.{% else %}Create a new logical group for children and educators.{% endif %}</p>
-    </div>
-</div>
 
-<div class="max-w-2xl mx-auto animate-in fade-in duration-500">
+        <!-- Error Message -->
+        {% if error %}
+        <div class="mb-8 p-5 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/50 rounded-2xl flex items-start gap-4 text-rose-700 dark:text-rose-300 animate-in fade-in slide-in-from-top duration-300">
+            <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-rose-200 dark:bg-rose-900/50 mt-0.5">
+                <i class="fa-solid fa-exclamation text-sm"></i>
+            </div>
+            <div class="flex-1">
+                <p class="font-bold">Protocol Error</p>
+                <p class="text-sm">{{ error }}</p>
+            </div>
+        </div>
+        {% endif %}
 
-    {% if error %}
-    <div class="mb-6 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-xl text-sm font-bold flex items-center gap-3">
-        <i class="fa-solid fa-circle-exclamation"></i>
-        {{ error }}
-    </div>
-    {% endif %}
-
-    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-lg p-8 md:p-10">
-        <form method="post" class="space-y-6">
+        <!-- Main Form -->
+        <form method="post" class="space-y-8">
             {% csrf_token %}
             
-            <!-- Center (Only for Owners when adding) -->
-            {% if request.user.role_type == "owner" and not is_edit %}
-            <div>
-                <label for="center_id" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Center</label>
-                <div class="relative">
-                    <select name="center_id" id="center_id" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 dark:focus:border-emerald-500 outline-none transition-all dark:text-white appearance-none cursor-pointer">
-                        <option value="">-- Select a Center --</option>
-                        {% for center in centers %}
-                            <option value="{{ center.center_id }}">{{ center.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                        <i class="fa-solid fa-chevron-down text-xs"></i>
+            <!-- Group Identity Section -->
+            <div class="relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-[3rem] blur-2xl opacity-0 group-hover:opacity-100 transition duration-1000"></div>
+            
+                <div class="relative bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col lg:flex-row">
+                    
+                    <div class="w-full lg:w-[320px] bg-slate-50/50 dark:bg-slate-800/30 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800 p-10 flex flex-col justify-between">
+                        <div>
+                            <div class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-white dark:bg-slate-900 shadow-xl shadow-blue-500/10 border border-slate-100 dark:border-slate-700 mb-6 text-blue-600">
+                                <i class="fa-solid fa-users-rectangle text-2xl"></i>
+                            </div>
+                            <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Identity</h2>
+                            <p class="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Define the group's nomenclature and its place within your organization's hierarchy.
+                            </p>
+                        </div>
+            
+                        <div class="mt-10 lg:mt-0">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Registry Status</span>
+                                <i class="fa-solid fa-circle-check text-[10px] text-emerald-500"></i>
+                            </div>
+                            <div class="flex gap-1.5">
+                                <div class="h-1 w-8 rounded-full bg-blue-500"></div>
+                                <div class="h-1 w-8 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <div class="flex-1 p-8 md:p-12 space-y-10">
+                        
+                        <div class="group/field relative">
+                            <div class="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-0 bg-blue-500 group-focus-within/field:h-1/2 transition-all duration-300 rounded-full"></div>
+                            <label for="name" class="block text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2 ml-1">
+                                Group Designation
+                            </label>
+                            <input type="text" name="name" id="name" value="{{ group.name }}" required 
+                                class="w-full bg-transparent border-b-2 border-slate-100 dark:border-slate-800 py-3 text-xl font-bold text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 transition-colors placeholder:text-slate-300 dark:placeholder:text-slate-700"
+                                placeholder="e.g. Les Petits Papillons">
+                        </div>
+
+                        <!-- Center Selection (Only for Owners during Create) -->
+                        {% if request.user.role_type == "owner" and not is_edit %}
+                        <div class="group/field relative">
+                            <label for="center_id" class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
+                                Center Assignment
+                            </label>
+                            <div class="relative">
+                                <select name="center_id" id="center_id" required 
+                                    class="w-full bg-transparent border-b-2 border-slate-100 dark:border-slate-800 py-3 text-lg font-semibold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer">
+                                    <option value="">-- Select Center --</option>
+                                    {% for center in centers %}
+                                        <option value="{{ center.center_id }}">{{ center.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+            
+                        <div class="pt-6 flex flex-wrap items-center gap-6">
+                            <div class="flex -space-x-2">
+                                <div class="w-8 h-8 rounded-full border-2 border-white dark:border-slate-900 bg-emerald-500 flex items-center justify-center text-[10px] text-white">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <div class="w-8 h-8 rounded-full border-2 border-white dark:border-slate-900 bg-blue-500 flex items-center justify-center text-[10px] text-white">
+                                    <i class="fa-solid fa-sitemap"></i>
+                                </div>
+                            </div>
+                            <p class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter">
+                                Group structure enables real-time ratio monitoring
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-            {% endif %}
 
-            <!-- Group Name -->
-            <div>
-                <label for="name" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Group Name</label>
-                <input type="text" name="name" id="name" value="{{ group.name }}" required 
-                    placeholder="e.g. Les Petits Papillons"
-                    class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 dark:focus:border-emerald-500 outline-none transition-all dark:text-white placeholder-slate-400">
-            </div>
+            <!-- Spatial Configuration Section -->
+            <div class="group relative bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 overflow-hidden">
+                
+                <div class="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-colors"></div>
+            
+                <div class="flex flex-col lg:flex-row">
+                    <div class="w-full lg:w-80 bg-slate-50/50 dark:bg-slate-800/30 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800 p-10">
+                        <div class="relative w-16 h-16 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-xl shadow-emerald-500/20 mb-6 group-hover:rotate-6 transition-transform duration-500">
+                            <i class="fa-solid fa-door-open text-2xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-3">Context</h2>
+                        <p class="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Assign the group to a physical room to automate capacity and fire regulation compliance.
+                        </p>
+                    </div>
+            
+                    <div class="flex-1 p-8 md:p-12">
+                        <div class="space-y-8">
+                            <div class="group/field relative">
+                                <label class="block text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] mb-6">
+                                    Room Assignment
+                                </label>
+                                
+                                <!-- Hidden input for form submission -->
+                                <input type="hidden" name="room_id" id="selected_room_id" value="{{ group.room.room_id|default:'' }}">
 
-            <!-- Room Assignment -->
-            <div>
-                <label for="room_id" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Assigned Room</label>
-                <div class="relative">
-                    <select name="room_id" id="room_id" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 dark:focus:border-emerald-500 outline-none transition-all dark:text-white appearance-none cursor-pointer">
-                        <option value="">-- Select a Room (Optional) --</option>
-                        {% for room in rooms %}
-                            <option value="{{ room.room_id }}" {% if group.room and group.room.room_id == room.room_id %}selected{% endif %}>
-                                {{ room.name }} ({{ room.center.name }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="room-selection-grid">
+                                    <!-- None / Unassigned Option -->
+                                    <div class="room-card cursor-pointer relative p-5 rounded-3xl border-2 transition-all duration-300 {% if not group.room %}border-emerald-500 bg-emerald-50/30 dark:bg-emerald-900/10{% else %}border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 hover:border-slate-300 dark:hover:border-slate-700{% endif %}" 
+                                         onclick="selectRoom('', this)">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                                                <i class="fa-solid fa-ban"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Unassigned</h4>
+                                                <p class="text-[10px] text-slate-400 font-bold">No spatial link</p>
+                                            </div>
+                                        </div>
+                                        <div class="absolute top-4 right-4 check-icon {% if group.room %}hidden{% endif %}">
+                                            <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                                        </div>
+                                    </div>
+
+                                    {% for room in rooms %}
+                                    <div class="room-card cursor-pointer relative p-5 rounded-3xl border-2 transition-all duration-300 {% if group.room.room_id == room.room_id %}border-emerald-500 bg-emerald-50/30 dark:bg-emerald-900/10{% else %}border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 hover:border-slate-300 dark:hover:border-slate-700{% endif %}" 
+                                         onclick="selectRoom('{{ room.room_id }}', this)">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                                                <i class="fa-solid fa-house-chimney text-sm"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight truncate">{{ room.name }}</h4>
+                                                <div class="flex items-center gap-2 mt-0.5">
+                                                    <span class="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase">Cap: {{ room.max_capacity }}</span>
+                                                    {% if room.age_group %}
+                                                    <span class="text-[9px] font-black text-emerald-500 uppercase tracking-tighter truncate">{{ room.age_group }}</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="absolute top-4 right-4 check-icon {% if group.room.room_id != room.room_id %}hidden{% endif %}">
+                                            <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                                        </div>
+                                        
+                                        {% if request.user.role_type == 'owner' %}
+                                        <p class="mt-3 text-[8px] font-black text-slate-400 uppercase tracking-widest border-t border-slate-100 dark:border-slate-800 pt-2">
+                                            Center: {{ room.center.name }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+            
+                            <div class="p-5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100/50 dark:border-emerald-900/30 flex gap-4">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-white dark:bg-slate-900 flex items-center justify-center shadow-sm">
+                                    <i class="fa-solid fa-circle-info text-emerald-500 text-xs"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-black text-emerald-800 dark:text-emerald-400 uppercase tracking-tight mb-1">Visual Selection</h4>
+                                    <p class="text-[11px] leading-relaxed text-emerald-700/70 dark:text-emerald-500/70 font-medium">
+                                        Select a room from the grid above. The system will automatically calculate <span class="text-emerald-800 dark:text-emerald-300 font-bold underline decoration-emerald-500/30">Fire Capacity Compliance</span> based on your choice.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <p class="text-xs text-slate-500 mt-2 ml-1">Assigning a room helps in calculating fire capacity compliance.</p>
             </div>
 
-            <!-- Submit Button -->
-            <div class="pt-4 flex justify-end">
-                <button type="submit" class="flex items-center gap-2 px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/25 active:scale-95 transition-all">
-                    <i class="fa-solid {% if is_edit %}fa-save{% else %}fa-plus{% endif %}"></i>
-                    {% if is_edit %}Save Changes{% else %}Create Group{% endif %}
-                </button>
+            <script>
+                function selectRoom(roomId, element) {
+                    // Update hidden input
+                    document.getElementById('selected_room_id').value = roomId;
+                    
+                    // Reset all cards
+                    document.querySelectorAll('.room-card').forEach(card => {
+                        card.classList.remove('border-emerald-500', 'bg-emerald-50/30', 'dark:bg-emerald-900/10');
+                        card.classList.add('border-slate-100', 'dark:border-slate-800', 'bg-slate-50/50', 'dark:bg-slate-950/50');
+                        card.querySelector('.check-icon').classList.add('hidden');
+                    });
+                    
+                    // Highlight selected card
+                    element.classList.add('border-emerald-500', 'bg-emerald-50/30', 'dark:bg-emerald-900/10');
+                    element.classList.remove('border-slate-100', 'dark:border-slate-800', 'bg-slate-50/50', 'dark:bg-slate-950/50');
+                    element.querySelector('.check-icon').classList.remove('hidden');
+                }
+            </script>
+
+            <!-- Action Buttons -->
+            <div class="sticky bottom-8 z-50 mt-12">
+                <div class="absolute inset-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-800/50 rounded-[2.5rem] shadow-2xl shadow-blue-500/10"></div>
+                
+                <div class="relative px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-6">
+                    
+                    <div class="hidden md:flex items-center gap-4 ml-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Logic Ready</span>
+                        </div>
+                        <div class="h-4 w-[1px] bg-slate-200 dark:bg-slate-700"></div>
+                        <p class="text-xs font-bold text-slate-400 dark:text-slate-500">
+                            {% if is_edit %}Updating: {{ group.name }}{% else %}New Group Construction{% endif %}
+                        </p>
+                    </div>
+            
+                    <div class="flex items-center gap-4 w-full md:w-auto">
+                        <a href="{% url 'group_list' %}" class="flex-1 md:flex-none px-8 py-4 text-sm font-black text-slate-500 dark:text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-widest text-center">
+                            Abort
+                        </a>
+            
+                        <button type="submit" class="group relative flex-[2] md:flex-none overflow-hidden rounded-2xl bg-slate-900 dark:bg-blue-600 px-12 py-4 transition-all duration-300 active:scale-95 shadow-xl shadow-blue-500/20">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            
+                            <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+            
+                            <div class="relative z-10 flex items-center justify-center gap-3">
+                                <div class="flex items-center justify-center">
+                                    <i class="fa-solid fa-cloud-arrow-up text-white group-hover:scale-125 group-hover:-translate-y-1 transition-all duration-300"></i>
+                                </div>
+                                <span class="text-sm font-black text-white uppercase tracking-[0.15em]">
+                                    {% if is_edit %}Save Changes{% else %}Create Group{% endif %}
+                                </span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
             </div>
+            
+            <div class="h-12"></div>
         </form>
+
+        <!-- Footer Help Text -->
+        <div class="mt-10 p-5 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 flex items-start gap-3">
+            <i class="fa-solid fa-lightbulb text-blue-600 dark:text-blue-400 mt-1 flex-shrink-0"></i>
+            <div>
+                <p class="text-sm font-bold text-blue-900 dark:text-blue-300 mb-1">System Insight</p>
+                <ul class="text-xs text-blue-800 dark:text-blue-400 space-y-1 list-disc list-inside">
+                    <li>Groups are the primary unit for staff-to-child ratio calculations</li>
+                    <li>Changing a room assignment will immediately update fire capacity alerts</li>
+                    <li>Ensure group names are descriptive for daily reporting</li>
+                </ul>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
