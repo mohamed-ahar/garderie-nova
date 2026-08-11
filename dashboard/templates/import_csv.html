@@ -1,0 +1,187 @@
+{% extends "base.html" %} {% block content %}
+<div class="relative min-h-screen bg-slate-50 dark:bg-[#030712] overflow-hidden py-16 px-6">
+
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-15%] left-[-5%] w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-[160px] opacity-40 animate-pulse"></div>
+        <div class="absolute bottom-[-15%] right-[-5%] w-[700px] h-[700px] bg-emerald-600/10 rounded-full blur-[140px] opacity-40"></div>
+        <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30 mix-blend-overlay"></div>
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-6xl mx-auto space-y-16">
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            <div class="lg:col-span-7 space-y-8">
+                <div class="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 shadow-2xl shadow-blue-500/10">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                    </span>
+                    <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.3em]">Data GardrieNova Protocol v1.0.0</span>
+                </div>
+
+                <h1 class="text-6xl lg:text-7xl font-black text-slate-900 dark:text-white leading-[0.9] tracking-tighter">
+                    Batch <br>
+                    <span class="bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500 bg-clip-text text-transparent italic font-serif">Intelligence</span> Uplink
+                </h1>
+
+                <p class="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-2xl">
+                    Initiate a high-frequency data ingestion sequence. Our architecture leverages a <span class="text-blue-500 font-bold">multi-stage validation pipeline</span> to ensure that every record—once decrypted and parsed—aligns perfectly with
+                    your core organizational schemas.
+                </p>
+            </div>
+
+            <div class="lg:col-span-5 grid grid-cols-2 gap-4">
+                <div class="p-4 rounded-3xl bg-white/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 backdrop-blur-md">
+                    <div class="text-[10px] font-black text-blue-500 uppercase mb-1">Latency</div>
+                    <div class="text-2xl font-mono font-bold dark:text-white">~42ms</div>
+                </div>
+                <div class="p-4 rounded-3xl bg-white/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 backdrop-blur-md">
+                    <div class="text-[10px] font-black text-emerald-500 uppercase mb-1">Encryption</div>
+                    <div class="text-2xl font-mono font-bold dark:text-white">AES-256</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative group">
+            <div class="absolute -inset-2 bg-gradient-to-tr from-blue-600/20 to-emerald-500/20 rounded-[4rem] blur-3xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
+
+            <div class="relative bg-white dark:bg-slate-950/80 rounded-[3.5rem] border border-slate-200 dark:border-slate-800 p-3 shadow-2xl backdrop-blur-3xl overflow-hidden">
+                <div class="flex justify-between items-center px-10 py-6 border-b border-slate-100 dark:border-slate-800/50 mb-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900 shadow-xl">
+                            <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-black dark:text-white uppercase tracking-widest">Ingestion Terminal</div>
+                            <div class="text-[9px] font-mono text-slate-500 uppercase">Ready for transmission</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+                    </div>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data" class="space-y-6" id="uploadForm">
+                    {% csrf_token %}
+                    <input type="file" name="csv_file" class="hidden" id="realInput" accept=".csv" required>
+
+                    <div id="dropZone" class="mx-6 relative group cursor-pointer py-24 px-10 rounded-[2.5rem] bg-slate-50 dark:bg-slate-900/50 border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-blue-500/40 hover:bg-white dark:hover:bg-slate-900 transition-all duration-700">
+                        <div id="idleContent" class="flex flex-col items-center text-center space-y-6">
+                            <div class="relative w-20 h-20 rounded-3xl bg-white dark:bg-slate-800 flex items-center justify-center text-slate-300 group-hover:text-blue-500 group-hover:scale-110 transition-all duration-500 shadow-inner">
+                                <i class="fa-solid fa-file-csv text-4xl"></i>
+                            </div>
+                            <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.4em]">Drag file into secure area</p>
+                        </div>
+
+                        <div id="fileSelectedContent" class="hidden flex flex-col items-center text-center space-y-6 animate-in zoom-in duration-500">
+                            <div class="w-20 h-20 rounded-3xl bg-emerald-500 text-white flex items-center justify-center shadow-2xl shadow-emerald-500/40">
+                                <i class="fa-solid fa-check-double text-4xl"></i>
+                            </div>
+                            <div class="space-y-2">
+                                <p id="fileName" class="text-xl font-black text-slate-900 dark:text-white tracking-tighter"></p>
+                                <button type="button" id="resetFile" class="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:underline">Discard Uplink</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="px-6 pb-6">
+                        <button type="submit" id="submitBtn" disabled class="group relative w-full bg-slate-100 dark:bg-slate-900 text-slate-400 cursor-not-allowed font-black py-8 rounded-[2rem] transition-all flex items-center justify-center gap-6 text-[13px] uppercase tracking-[0.5em] overflow-hidden">
+                            <span class="relative z-10">Execute Global Synchronization</span>
+                            <div id="btnGlow" class="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 opacity-0 transition-opacity duration-700"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-12 pt-8 items-center border-t border-slate-200 dark:border-slate-800/60">
+            <div class="md:col-span-4">
+                <h3 class="text-sm font-black dark:text-white uppercase tracking-[0.2em] mb-4">Structural Compliance</h3>
+                <div class="flex gap-1.5">
+                    <div class="w-8 h-1 bg-blue-500 rounded-full"></div>
+                    <div class="w-4 h-1 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
+                    <div class="w-4 h-1 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
+                </div>
+            </div>
+            <div class="md:col-span-8">
+                <p class="text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium columns-1 md:columns-2 gap-8">
+                    Our ingestion engine utilizes a proprietary <span class="text-slate-900 dark:text-white font-bold">Recursive Validation Algorithm</span>. This process atomizes CSV data into discrete JSON-LD objects, subjecting each node to a rigorous
+                    schema-check against your specific deployment environment. By isolating transactional anomalies before they reach the primary database layer, we maintain a zero-latency throughput while preserving absolute data integrity. Furthermore,
+                    every transmission is encapsulated in a temporary cryptoshelf, ensuring that your batch student profiles remain immutable and protected throughout the entire synchronization cycle.
+                </p>
+            </div>
+        </div>
+
+        <div class="flex justify-center pt-8">
+            <a href="{% url 'director_dashboard' %}" class="flex items-center gap-4 text-[10px] font-black text-slate-400 hover:text-rose-500 uppercase tracking-widest transition-all group">
+                <i class="fa-solid fa-arrow-left group-hover:-translate-x-2 transition-transform"></i> Back to Command Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const realInput = document.getElementById('realInput');
+    const idleContent = document.getElementById('idleContent');
+    const fileContent = document.getElementById('fileSelectedContent');
+    const fileName = document.getElementById('fileName');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnGlow = document.getElementById('btnGlow');
+    const resetFile = document.getElementById('resetFile');
+
+    dropZone.addEventListener('click', (e) => {
+        if (e.target !== resetFile) realInput.click();
+    });
+
+    resetFile.addEventListener('click', (e) => {
+        e.stopPropagation();
+        realInput.value = '';
+        toggleState(false);
+    });
+
+    realInput.addEventListener('change', () => {
+        if (realInput.files.length > 0) toggleState(true, realInput.files[0].name);
+    });
+
+    function toggleState(isSelected, name = '') {
+        if (isSelected) {
+            idleContent.classList.add('hidden');
+            fileContent.classList.remove('hidden');
+            fileName.textContent = name;
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('text-slate-400', 'cursor-not-allowed');
+            submitBtn.classList.add('text-white', 'shadow-2xl', 'shadow-blue-500/20');
+            btnGlow.classList.remove('opacity-0');
+        } else {
+            idleContent.classList.remove('hidden');
+            fileContent.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('text-slate-400', 'cursor-not-allowed');
+            submitBtn.classList.remove('text-white', 'shadow-2xl', 'shadow-blue-500/20');
+            btnGlow.classList.add('opacity-0');
+        }
+    }
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+        dropZone.addEventListener(ev, e => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    });
+
+    dropZone.addEventListener('dragover', () => dropZone.classList.add('border-blue-500', 'bg-blue-50/30', 'dark:bg-blue-500/10'));
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-blue-500', 'bg-blue-50/30', 'dark:bg-blue-500/10'));
+
+    dropZone.addEventListener('drop', (e) => {
+        dropZone.classList.remove('border-blue-500', 'bg-blue-50/30', 'dark:bg-blue-500/10');
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].name.endsWith('.csv')) {
+            realInput.files = files;
+            toggleState(true, files[0].name);
+        }
+    });
+</script>
+{% endblock %}

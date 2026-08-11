@@ -1,0 +1,6 @@
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="csv_file" required />
+
+    <a href="{% url 'import_children_csv' center.id %}">Import CSV</a>
+</form>

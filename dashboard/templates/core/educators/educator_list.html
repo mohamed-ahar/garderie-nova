@@ -3,19 +3,64 @@
 {% block title %}Educator Management | GarderieNova{% endblock %}
 
 {% block content %}
-<div class="mb-8 -mx-6 -mt-6 px-6 pt-8 pb-8 bg-gradient-to-br from-blue-600/95 via-blue-500/90 to-cyan-500/85 relative overflow-hidden">
-    <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -mr-48 -mt-48"></div>
-    <div class="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-3xl -ml-36 -mb-36"></div>
+<div class="relative mb-10 -mx-6 -mt-6 overflow-hidden border-b border-white/10 group">
+    <div class="absolute inset-0 bg-[#020617]"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-indigo-700/80 via-purple-700/60 to-blue-500/40 opacity-90"></div>
     
-    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-4xl font-black text-white tracking-tighter mb-2">Educator Management</h1>
-            <p class="text-white/80 text-sm font-medium">Manage educators, profiles, and assignments across your centers.</p>
+    <div class="absolute top-0 right-0 w-full h-full opacity-20 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+    
+    <div class="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/30 rounded-full blur-[100px] animate-pulse"></div>
+    <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-purple-500/20 rounded-full blur-[80px] animate-pulse" style="animation-delay: 3s;"></div>
+
+    <div class="relative z-10 px-8 pt-10 pb-10">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+            
+            <div class="space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/10">
+                    <div class="flex space-x-1">
+                        <span class="w-1 h-3 bg-indigo-400 rounded-full animate-[bounce_1s_infinite]"></span>
+                        <span class="w-1 h-3 bg-indigo-400 rounded-full animate-[bounce_1s_infinite_0.2s]"></span>
+                        <span class="w-1 h-3 bg-indigo-400 rounded-full animate-[bounce_1s_infinite_0.4s]"></span>
+                    </div>
+                    <span class="text-[10px] font-black text-indigo-200 uppercase tracking-[0.3em]">Personnel_GarderieNova</span>
+                </div>
+                
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-black text-white tracking-tighter leading-none mb-3">
+                        Educator Hub
+                    </h1>
+                    <p class="text-indigo-100/60 text-sm md:text-sm font-medium max-w-xl leading-relaxed">
+                        Orchestrate educator deployments, verify compliance certifications, and monitor classroom ratios in real-time.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-5">
+           
+                <a href="{% url 'educator_add' %}" 
+                   class="group relative inline-flex items-center gap-4 px-8 py-4 bg-indigo-500 text-white rounded-[1.5rem] text-sm font-black transition-all hover:bg-white hover:text-indigo-600 hover:shadow-[0_20px_50px_-10px_rgba(99,102,241,0.5)] active:scale-95 overflow-hidden">
+                    <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                    
+                    <i class="fa-solid fa-user-plus text-base"></i>
+                    <span class="uppercase tracking-[0.15em]">Add Educator</span>
+                </a>
+            </div>
         </div>
-        <a href="{% url 'educator_add' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-2xl text-sm font-bold hover:shadow-xl hover:shadow-blue-500/20 transition-all active:scale-95 whitespace-nowrap">
-            <i class="fa-solid fa-plus"></i>
-            Add Educator
-        </a>
+
+        <div class="flex flex-wrap gap-6 mt-12 border-t border-white/10 pt-8">
+            <button class="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-white/10 text-white text-[11px] font-black tracking-widest border border-white/20">
+                <i class="fa-solid fa-grid-2 text-indigo-400"></i> ALL_STAFF
+            </button>
+            <button class="flex items-center gap-2.5 px-4 py-2 rounded-xl text-white/40 text-[11px] font-black tracking-widest hover:bg-white/5 transition-all">
+                <i class="fa-solid fa-clock-rotate-left"></i> ACTIVE_SHIFT
+            </button>
+            <button class="flex items-center gap-2.5 px-4 py-2 rounded-xl text-white/40 text-[11px] font-black tracking-widest hover:bg-white/5 transition-all">
+                <i class="fa-solid fa-certificate"></i> CERTIFIED
+            </button>
+            <button class="flex items-center gap-2.5 px-4 py-2 rounded-xl text-rose-400/60 text-[11px] font-black tracking-widest hover:bg-rose-500/10 transition-all">
+                <i class="fa-solid fa-shield-xmark"></i> NON_COMPLIANT
+            </button>
+        </div>
     </div>
 </div>
 

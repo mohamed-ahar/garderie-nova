@@ -3,19 +3,64 @@
 {% block title %}Parent Management | GarderieNova{% endblock %}
 
 {% block content %}
-<div class="mb-8 -mx-6 -mt-6 px-6 pt-8 pb-8 bg-gradient-to-br from-blue-600/95 via-blue-500/90 to-cyan-500/85 dark:from-blue-700/80 dark:via-blue-600/75 dark:to-cyan-600/70 relative overflow-hidden">
-    <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -mr-48 -mt-48"></div>
-    <div class="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-3xl -ml-36 -mb-36"></div>
+<div class="relative mb-10 -mx-6 -mt-6 overflow-hidden border-b border-white/10">
+    <div class="absolute inset-0 bg-[#0f172a] dark:bg-black"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-indigo-600/90 via-blue-600/80 to-emerald-500/70 opacity-90"></div>
     
-    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-4xl font-black text-white tracking-tighter mb-2">Parent Management</h1>
-            <p class="text-white/80 text-sm font-medium">Manage parent profiles and family information.</p>
+    <div class="absolute top-[-50%] left-[-10%] w-[70%] h-[150%] bg-blue-400/20 rounded-full blur-[120px] animate-pulse"></div>
+    <div class="absolute bottom-[-50%] right-[-10%] w-[60%] h-[120%] bg-emerald-400/20 rounded-full blur-[100px] animate-pulse" style="animation-delay: 2s;"></div>
+
+    <div class="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+
+    <div class="relative z-10 px-8 pt-10 pb-10">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+            
+            <div class="space-y-3">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span class="text-[10px] font-black text-white uppercase tracking-[0.2em]">Family_Registry_V2</span>
+                </div>
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-black text-white tracking-tighter leading-none">
+                        Parent Management
+                    </h1>
+                    <p class="text-blue-100/70 text-sm md:text-base font-medium mt-2 max-w-md">
+                        Execute administrative controls over parent profiles and relational family data nodes.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="hidden sm:flex items-center gap-4 px-5 py-3 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10">
+                    <div class="text-right">
+                        <p class="text-[9px] font-black text-blue-200/50 uppercase tracking-widest leading-none">Total_Profiles</p>
+                        <p class="text-xl font-mono font-bold text-white">{{ parents.count|default:"--" }}</p>
+                    </div>
+                    <div class="w-px h-8 bg-white/10"></div>
+                    <i class="fa-solid fa-database text-blue-300/50"></i>
+                </div>
+
+                <a href="{% url 'parent_add' %}" 
+                   class="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-slate-900 rounded-2xl text-sm font-black transition-all hover:bg-emerald-400 hover:text-white hover:shadow-[0_20px_40px_-10px_rgba(52,211,153,0.5)] active:scale-95">
+                    <i class="fa-solid fa-plus transition-transform group-hover:rotate-90"></i>
+                    <span class="uppercase tracking-widest">Add Parent</span>
+                    
+                    <div class="absolute inset-0 rounded-2xl border border-white/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </a>
+            </div>
         </div>
-        <a href="{% url 'parent_add' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-2xl text-sm font-bold hover:shadow-xl hover:shadow-blue-500/20 transition-all active:scale-95 whitespace-nowrap">
-            <i class="fa-solid fa-plus"></i>
-            Add Parent
-        </a>
+        
+        <div class="flex gap-8 mt-10 border-t border-white/10 pt-6">
+            <div class="flex items-center gap-2 text-white text-[11px] font-bold opacity-100 border-b-2 border-white pb-2">
+                <i class="fa-solid fa-address-book"></i> ALL_RECORDS
+            </div>
+            <div class="flex items-center gap-2 text-white/40 text-[11px] font-bold hover:opacity-100 transition-opacity cursor-pointer">
+                <i class="fa-solid fa-user-shield"></i> AUTH_PENDING
+            </div>
+            <div class="flex items-center gap-2 text-white/40 text-[11px] font-bold hover:opacity-100 transition-opacity cursor-pointer">
+                <i class="fa-solid fa-box-archive"></i> ARCHIVED
+            </div>
+        </div>
     </div>
 </div>
 
