@@ -77,14 +77,16 @@ def owner_centers_list(request):
     centers = Center.objects.filter(
         organization__owner__user=request.user
     ).select_related("organization", "director", "director__user")
-
+    quick_assign_centers = Center.objects.filter(
+        organization__owner__user=request.user, director__isnull=True
+    )
     # Hna n-qdrou n-7sbo ch7al men center 3ando
     centers_count = centers.count()
 
     return render(
         request,
         "core/owner/centers_list.html",
-        {"centers": centers, "centers_count": centers_count},
+        {"centers": centers, "centers_count": centers_count, "quick_assign_centers": quick_assign_centers},
     )
 
 

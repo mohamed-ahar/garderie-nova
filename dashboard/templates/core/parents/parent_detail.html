@@ -3,6 +3,7 @@
 {% block title %}Parent Profile | GarderieNova{% endblock %}
 
 {% block content %}
+<div class="max-w-5xl mx-auto px-2">
 <div class="flex flex-col gap-8">
     <!-- Header -->
     <div class="relative mb-8 p-6 lg:p-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden group">
@@ -39,7 +40,7 @@
                 </div>
             </div>
     
-            <div class="flex flex-wrap items-center gap-3">
+            <div class="flex flex-wrap items-center justify-end gap-3">
                 <a href="{% url 'parent_list' %}" 
                    class="flex items-center justify-center h-12 w-12 lg:w-auto lg:px-5 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition-all active:scale-95">
                     <i class="fa-solid fa-chevron-left text-xs lg:mr-2"></i>
@@ -286,5 +287,6 @@
             </form>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}

@@ -306,6 +306,7 @@ def educator_add_view(request):
             "password"
         )  # In a real app, generate or email set link
         center_id = request.POST.get("center_id")
+        profile_photo = request.FILES.get("profile_photo")
 
         is_ajax = request.headers.get(
             "x-requested-with"
@@ -339,6 +340,8 @@ def educator_add_view(request):
                 role_type="educator",
             )
             new_user.phone_number = phone_number
+            if profile_photo:
+                new_user.profile_photo = profile_photo
             new_user.save()
 
             # Determine Center
@@ -435,10 +438,15 @@ def educator_edit_view(request, user_id):
         full_name = request.POST.get("full_name")
         email = request.POST.get("email")
         phone_number = request.POST.get("phone_number")
+        profile_photo = request.FILES.get("profile_photo")
 
         educator_user.full_name = full_name
         educator_user.email = email
         educator_user.phone_number = phone_number
+        
+        if profile_photo:
+            educator_user.profile_photo = profile_photo
+            
         educator_user.save()
 
         return redirect("educator_list")
@@ -523,6 +531,7 @@ def parent_add_view(request):
         home_address = request.POST.get("home_address")
         billing_reference = request.POST.get("billing_reference")
         password = request.POST.get("password")
+        profile_photo = request.FILES.get("profile_photo")
 
         is_ajax = request.headers.get(
             "x-requested-with"
@@ -553,6 +562,8 @@ def parent_add_view(request):
                 email=email, password=password, full_name=full_name, role_type="parent"
             )
             new_user.phone_number = phone_number
+            if profile_photo:
+                new_user.profile_photo = profile_photo
             new_user.save()
 
             # Create Parent Profile
@@ -681,10 +692,15 @@ def parent_edit_view(request, user_id):
         phone_number = request.POST.get("phone_number")
         home_address = request.POST.get("home_address")
         billing_reference = request.POST.get("billing_reference")
+        profile_photo = request.FILES.get("profile_photo")
 
         parent_user.full_name = full_name
         parent_user.email = email
         parent_user.phone_number = phone_number
+        
+        if profile_photo:
+            parent_user.profile_photo = profile_photo
+            
         parent_user.save()
 
         parent_profile.home_address = home_address
