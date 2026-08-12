@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
+    'communication',
 ]
 
 MIDDLEWARE = [
@@ -72,6 +73,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "dashboard.context_processors.theme_sidebar.theme",
                 "dashboard.context_processors.theme_sidebar.sidebar",
+                'communication.context_processors.unread_messages_count',
             ],
         },
     },

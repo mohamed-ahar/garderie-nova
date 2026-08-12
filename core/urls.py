@@ -8,6 +8,7 @@ urlpatterns = [
     path("", include("accounts.urls")),
     path("", include("dashboard.urls")),
     path("reports/", include("reports.urls")),
+    path("communication/",include("communication.urls")),
 ]
 
 if settings.DEBUG:
