@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Message
@@ -48,3 +49,8 @@ def delete_message(request, message_id):
     
     
     return redirect(request.META.get('HTTP_REFERER', 'communication:inbox'))
+@login_required
+def unread_count_api(request):
+    # Kan-7sbo l-messages li ba9in ma t-9rawsh dyal l-user li m-connecti daba
+    count = Message.objects.filter(receiver=request.user, is_read=False).count()
+    return JsonResponse({'unread_count': count})
