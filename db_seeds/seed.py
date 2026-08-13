@@ -21,6 +21,7 @@ from dashboard.models import (
     Child,
     ParentChildRelationship,
     AttendanceLog,
+    StaffAssignment,
 )
 
 FIRST_NAMES = [
@@ -230,6 +231,45 @@ def run_seed():
             )
             edu_counter += 1
 
+    print("Creating Groups for Center 1...")
+    c1_rooms = list(Room.objects.filter(center=center1))
+    group_data = [
+        ("Les Petits Amis", c1_rooms[0] if c1_rooms else None),
+        ("Les Explorateurs", c1_rooms[1] if len(c1_rooms) > 1 else None),
+        ("Les Aventuriers", c1_rooms[2] if len(c1_rooms) > 2 else None),
+    ]
+    
+    c1_groups = []
+    for g_name, g_room in group_data:
+        g = Group.objects.create(
+            center=center1,
+            room=g_room,
+            name=g_name,
+            current_occupancy=0,
+            current_educators=0,
+            required_educators=0,
+            is_compliant=True
+        )
+        c1_groups.append(g)
+
+    c1_educators = list(Educator.objects.filter(center=center1))
+    
+    assignments = [
+        (c1_groups[0], [c1_educators[0]]),
+        (c1_groups[1], [c1_educators[1]]),
+        (c1_groups[2], c1_educators[2:4]),
+    ]
+
+    for group, educators in assignments:
+        for edu in educators:
+            StaffAssignment.objects.create(
+                educator=edu,
+                group=group,
+                is_active=True
+            )
+            group.current_educators += 1
+        group.save()
+
     print("Creating Parents...")
     parents = []
     for i in range(40):
@@ -249,7 +289,53 @@ def run_seed():
     today = date.today()
     parent_index = 0
 
-    for center in centers:
+    c1_child_plan = [
+        (3, "infant", c1_groups[0]),
+        (5, "toddler", c1_groups[1]),
+        (16, "preschool", c1_groups[2]), 
+    ]
+
+    for count, age_type, group in c1_child_plan:
+        group_assignments = StaffAssignment.objects.filter(group=group, is_active=True)
+        group_educators = [a.educator for a in group_assignments]
+
+        for k in range(count):
+            if parent_index >= len(parents): parent_index = 0
+            parent = parents[parent_index]
+            p_last_name = parent.user.full_name.split(" ")[-1]
+            
+            if age_type == "infant":
+                months = random.randint(3, 17) # Definitely < 24
+            elif age_type == "toddler":
+                months = random.randint(24, 35) # Definitely 24 <= x < 36
+            else:
+                months = random.randint(36, 59) # Definitely >= 36
+                
+            dob = today - timedelta(days=months * 30)
+            
+            # Distribute child to one of the group's educators
+            assigned_educator = group_educators[k % len(group_educators)] if group_educators else None
+
+            child = Child.objects.create(
+                center=center1,
+                first_name=random.choice(FIRST_NAMES),
+                last_name=p_last_name,
+                birth_date=dob,
+                status="active",
+                assigned_group=group,
+                assigned_educator=assigned_educator
+            )
+
+            ParentChildRelationship.objects.create(
+                parent=parent,
+                child=child,
+                relationship_type=random.choice(["Mother", "Father", "Guardian"]),
+                is_emergency_contact=True,
+            )
+            parent_index += 1
+
+    # Create random children for other centers (2 and 3)
+    for center in centers[1:]:
         for i in range(20):
             if parent_index >= len(parents):
                 parent_index = 0
@@ -287,6 +373,10 @@ def run_seed():
             )
 
             parent_index += 1
+            
+    print("Recalculating ratios for Center 1...")
+    for g in c1_groups:
+        g.recalculate_ratios()
 
     admin = User.objects.create_superuser(
         email="admin@nova.com",
