@@ -11,6 +11,8 @@ from ..models import (
     Organization,
     Child,
     ParentChildRelationship,
+    CenterParentAccess,
+    Notification,
 )
 
 from ..forms import (
@@ -359,3 +361,76 @@ def import_children_csv(request):
         return redirect("import_children_csv")
 
     return render(request, "core/director/import_children.html", {"form": form})
+
+
+@login_required(login_url="login")
+def manage_parent_access_requests(request):
+    user = request.user
+    if user.role_type != "director":
+        return render(request, "core/403.html", status=403)
+    
+    try:
+        center = user.director_profile.managed_center
+        if not center:
+             messages.error(request, "You are not assigned to any center.")
+             return redirect("dashboard_redirect")
+    except AttributeError:
+        messages.error(request, "Director profile not found.")
+        return redirect("dashboard_redirect")
+
+    requests = CenterParentAccess.objects.filter(center=center).order_by('-created_at')
+    
+    return render(request, "core/director/manage_access_requests.html", {
+        "access_requests": requests
+    })
+
+@login_required(login_url="login")
+def update_parent_access(request, request_id):
+    user = request.user
+    if user.role_type != "director":
+        return render(request, "core/403.html", status=403)
+        
+    access_request = get_object_or_404(CenterParentAccess, id=request_id)
+    
+    # Check if this request belongs to the director's center
+    try:
+        center = user.director_profile.managed_center
+        if access_request.center != center:
+             return render(request, "core/403.html", status=403)
+    except AttributeError:
+        return render(request, "core/403.html", status=403)
+
+    if request.method == "POST":
+        action = request.POST.get('action')
+        
+        if action == 'accept':
+            access_request.status = 'accepted'
+            access_request.save()
+            messages.success(request, f"Access granted to {access_request.parent.user.full_name}.")
+            
+            # Notify Parent
+            Notification.objects.create(
+                user=access_request.parent.user,
+                title="Accès accordé",
+                message=f"Votre demande d'accès au centre {center.name} a été acceptée.",
+                action_url="/parents/register-child/" 
+            )
+
+        elif action == 'reject':
+            access_request.status = 'rejected'
+            access_request.save()
+            messages.success(request, f"Access rejected for {access_request.parent.user.full_name}.")
+            
+            # Notify Parent
+            Notification.objects.create(
+                user=access_request.parent.user,
+                title="Accès refusé",
+                message=f"Votre demande d'accès au centre {center.name} a été refusée.",
+                action_url="/parents/request-access/"
+            )
+            
+        elif action == 'revoke':
+             access_request.delete()
+             messages.success(request, f"Access revoked for {access_request.parent.user.full_name}.")
+             
+    return redirect("manage_parent_access_requests")

@@ -33,8 +33,11 @@ urlpatterns = [
     path("parents/<uuid:user_id>/edit/", parent_edit_view, name="parent_edit"),
     path("parents/<uuid:user_id>/delete/", parent_delete_view, name="parent_delete"),
     path("parents/register-child/", register_child_view, name="register_child"),
+    path("parents/request-access/", request_center_access, name="request_center_access"),
     
     path("waitlist/", waitlist_view, name="waitlist_manage"),
+    path("access-requests/", manage_parent_access_requests, name="manage_parent_access_requests"),
+    path("access-requests/<int:request_id>/update/", update_parent_access, name="update_parent_access"),
     
     # Notifications API
     path("api/notifications/", get_notifications_api, name="get_notifications"),

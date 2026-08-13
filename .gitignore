@@ -4,4 +4,3 @@ __pycache__/
 .vscode/
 .venv/
 old_project/*
-accounts/migrations/*

@@ -13,6 +13,7 @@ from ..models import (
     ParentProfile,
     ParentChildRelationship,
     Notification,
+    CenterParentAccess,
 )
 from reports.models import EnrollmentForm
 
@@ -492,25 +493,19 @@ def parent_list_view(request):
         if user.role_type == "director" and hasattr(user, "director_profile"):
             center = user.director_profile.managed_center
             if center:
-                parents = (
-                    ParentProfile.objects.filter(user__center_association__in=[center])
-                    .select_related("user")
-                    .distinct()
-                    if hasattr(ParentProfile, "center")
-                    else ParentProfile.objects.all().select_related("user")
-                )
+                parents = ParentProfile.objects.filter(
+                    center_access_requests__center=center,
+                    center_access_requests__status='accepted'
+                ).select_related("user").distinct()
         elif user.role_type == "vice_director" and hasattr(
             user, "vice_director_profile"
         ):
             center = user.vice_director_profile.center
             if center:
-                parents = (
-                    ParentProfile.objects.filter(user__center_association__in=[center])
-                    .select_related("user")
-                    .distinct()
-                    if hasattr(ParentProfile, "center")
-                    else ParentProfile.objects.all().select_related("user")
-                )
+                parents = ParentProfile.objects.filter(
+                    center_access_requests__center=center,
+                    center_access_requests__status='accepted'
+                ).select_related("user").distinct()
 
     context = {"parents": parents, "centers": centers}
     return render(request, "core/parents/parent_list.html", context)

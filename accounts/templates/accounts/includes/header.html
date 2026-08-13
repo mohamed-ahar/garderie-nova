@@ -35,11 +35,23 @@
                     <div class="flex flex-col">
                         <h2 class="text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tighter leading-none flex items-center gap-2">
                             <span class="relative">
-                                Main
+                                {% if user.role_type == 'director' %}
+                                    {{ user.director_profile.organization.name|default:"Main" }}
+                                {% elif user.role_type == 'educator' %}
+                                    {{ user.educator_profile.center.name|default:"Main" }}
+                                {% elif user.role_type == 'owner' %}
+                                    {{ user.owner_profile.owned_organization.name|default:"Main" }}
+                                {% else %}
+                                    Main
+                                {% endif %}
                                 <span class="absolute -bottom-1.5 left-0 w-0 h-[3px] bg-slate-800 dark:bg-slate-200 rounded-full transition-all duration-500 group-hover/header:w-full"></span>
                             </span>
                             <span class="bg-gradient-to-r from-slate-900 via-slate-600 to-slate-400 dark:from-white dark:via-slate-300 dark:to-slate-500 bg-clip-text text-transparent drop-shadow-sm">
-                                Dashboard
+                                {% if user.role_type == 'director' %}
+                                    {{ user.director_profile.managed_center.name|default:"Dashboard" }}
+                                {% else %}
+                                    Dashboard
+                                {% endif %}
                             </span>
                         </h2>
                         
@@ -134,7 +146,7 @@
                             // Poll every 30 seconds
                             setInterval(() => {
                                 this.fetchNotifications();
-                            }, 30000);
+                            }, 1000);
                         },
 
                         toggle() {

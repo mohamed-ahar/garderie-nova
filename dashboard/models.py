@@ -452,3 +452,26 @@ class EvacuationCheck(models.Model):
     child = models.ForeignKey(Child, on_delete=models.CASCADE)
     status = models.CharField(max_length=50)
     checked_at = models.DateTimeField(auto_now_add=True)
+
+class CenterParentAccess(models.Model):
+    STATUS_CHOICES = (
+        ("pending", "Pending"),
+        ("accepted", "Accepted"),
+        ("rejected", "Rejected"),
+    )
+
+    center = models.ForeignKey(
+        Center, on_delete=models.CASCADE, related_name="parent_access_requests"
+    )
+    parent = models.ForeignKey(
+        ParentProfile, on_delete=models.CASCADE, related_name="center_access_requests"
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("center", "parent")
+
+    def __str__(self):
+        return f"{self.parent.user.full_name} -> {self.center.name} ({self.status})"

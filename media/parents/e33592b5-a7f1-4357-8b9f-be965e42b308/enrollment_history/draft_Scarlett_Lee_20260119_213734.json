@@ -1,0 +1,99 @@
+{
+    "child_first_name": "Scarlett",
+    "child_last_name": "Lee",
+    "birth_date": "2025-01-21",
+    "medicare_number": "",
+    "medicare_expiry": "",
+    "addr_street": "",
+    "addr_apt": "",
+    "addr_city": "",
+    "addr_prov": "",
+    "addr_zip": "",
+    "parent1_name": "",
+    "parent1_email": "",
+    "parent1_home_phone": "",
+    "parent1_address_street": "",
+    "parent1_address_apt": "",
+    "parent1_address_city": "",
+    "parent1_address_province": "",
+    "parent1_address_postal": "",
+    "parent1_workplace": "",
+    "parent1_work_phone": "",
+    "parent1_cell_phone": "",
+    "parent2_name": "",
+    "parent2_email": "",
+    "parent2_home_phone": "",
+    "parent2_address_street": "",
+    "parent2_address_apt": "",
+    "parent2_address_city": "",
+    "parent2_address_province": "",
+    "parent2_address_postal": "",
+    "parent2_workplace": "",
+    "parent2_work_phone": "",
+    "parent2_cell_phone": "",
+    "pickup_name[]": [
+        "",
+        "",
+        "",
+        ""
+    ],
+    "pickup_rel[]": [
+        "",
+        "",
+        "",
+        ""
+    ],
+    "pickup_addr[]": [
+        "",
+        "",
+        "",
+        ""
+    ],
+    "pickup_phone[]": [
+        "",
+        "",
+        "",
+        ""
+    ],
+    "unauth_name[]": [
+        "",
+        "",
+        ""
+    ],
+    "emerg_name[]": [
+        "",
+        ""
+    ],
+    "emerg_rel[]": [
+        "",
+        ""
+    ],
+    "emerg_addr[]": [
+        "",
+        ""
+    ],
+    "emerg_phone[]": [
+        "",
+        ""
+    ],
+    "allergies_severe": "",
+    "allergies_severe_2": "",
+    "allergies_severe_3": "",
+    "allergies_severe_4": "",
+    "dietary_restrictions": "",
+    "doctor_name": "",
+    "doctor_phone": "",
+    "doctor_address": "",
+    "rougeole_medical_history": "oui",
+    "oreillons_medical_history": "non",
+    "coqueluche_medical_history": "oui",
+    "eczémapsoriasis_health_status": "non",
+    "autonomy_dressing": "",
+    "autonomy_eating": "",
+    "autonomy_toilet": "",
+    "autonomy_hygiene": "",
+    "autonomy_other": "test",
+    "transition_tips": "",
+    "interests_hobbies": "",
+    "action": "save_draft"
+}

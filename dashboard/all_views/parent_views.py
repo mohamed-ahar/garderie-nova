@@ -2,12 +2,94 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from ..models import (
     Center,
     Child,
     ParentChildRelationship,
     ParentProfile,
+    CenterParentAccess,
+    Notification
 )
+
+
+@login_required(login_url="login")
+def request_center_access(request):
+    user = request.user
+    if user.role_type != "parent":
+        return render(request, "core/403.html", status=403)
+
+    try:
+        parent_profile = user.parent_profile
+    except ParentProfile.DoesNotExist:
+        messages.error(request, "Profil parent introuvable.")
+        return redirect("dashboard_redirect")
+
+    if request.method == "POST":
+        center_id = request.POST.get("center_id")
+        center = get_object_or_404(Center, center_id=center_id)
+        
+        # Check if request already exists
+        existing_request = CenterParentAccess.objects.filter(
+            center=center, 
+            parent=parent_profile
+        ).first()
+
+        if existing_request:
+            if existing_request.status == 'pending':
+                messages.warning(request, f"Vous avez déjà une demande en attente pour {center.name}.")
+            elif existing_request.status == 'accepted':
+                messages.info(request, f"Vous avez déjà accès à {center.name}.")
+            elif existing_request.status == 'rejected':
+                # Allow re-requesting if rejected
+                existing_request.status = 'pending'
+                existing_request.created_at = timezone.now() # Reset time to bump it up
+                existing_request.save()
+                
+                # Notify Director(s) again
+                if center.director:
+                    Notification.objects.create(
+                        user=center.director.user,
+                        title="Nouvelle demande d'accès parent",
+                        message=f"{user.full_name} a renouvelé sa demande d'accès à votre centre.",
+                        action_url="/access-requests/" 
+                    )
+                messages.success(request, f"Votre demande pour {center.name} a été renvoyée.")
+        else:
+            CenterParentAccess.objects.create(
+                center=center,
+                parent=parent_profile,
+                status='pending'
+            )
+            
+            # Notify Director(s)
+            if center.director:
+                Notification.objects.create(
+                    user=center.director.user,
+                    title="Nouvelle demande d'accès parent",
+                    message=f"{user.full_name} a demandé l'accès à votre centre.",
+                    action_url="/access-requests/" # We will create this URL
+                )
+            
+            messages.success(request, f"Demande envoyée à {center.name}. En attente d'approbation.")
+        
+        return redirect("request_center_access")
+
+    # Show centers where the parent does NOT have an accepted request
+    # Or just show all centers with their status
+    all_centers = Center.objects.all()
+    my_requests = CenterParentAccess.objects.filter(parent=parent_profile)
+    request_map = {req.center_id: req.status for req in my_requests}
+
+    centers_data = []
+    for c in all_centers:
+        status = request_map.get(c.center_id, None)
+        centers_data.append({
+            'center': c,
+            'status': status
+        })
+
+    return render(request, "core/parents/request_access.html", {"centers_data": centers_data})
 
 
 @login_required(login_url="login")
@@ -26,9 +108,21 @@ def register_child_view(request):
         # Determine Center
         center = None
         if center_id:
-            center = Center.objects.filter(center_id=center_id).first()
+            # Security check: Ensure parent has access
+            center = get_object_or_404(Center, center_id=center_id)
+            has_access = CenterParentAccess.objects.filter(
+                center=center, 
+                parent__user=user, 
+                status='accepted'
+            ).exists()
+            
+            if not has_access:
+                messages.error(request, "Vous n'avez pas la permission d'inscrire un enfant dans ce centre.")
+                return redirect("register_child")
+
         else:
-            center = Center.objects.first()
+            messages.error(request, "Veuillez sélectionner une garderie.")
+            return redirect("register_child")
 
         if not center:
             messages.error(request, "Aucune garderie disponible.")
@@ -67,5 +161,14 @@ def register_child_view(request):
         messages.success(request, "Enfant inscrit sur la liste d'attente avec succès.")
         return redirect("dashboard_redirect")
 
-    centers = Center.objects.all()
+    # Filter centers where parent is accepted
+    centers = Center.objects.filter(
+        parent_access_requests__parent__user=user,
+        parent_access_requests__status='accepted'
+    )
+    
+    if not centers.exists():
+        messages.warning(request, "Vous devez d'abord obtenir l'accès à un centre avant d'inscrire un enfant.")
+        return redirect("request_center_access")
+
     return render(request, "core/parents/register_child.html", {"centers": centers})

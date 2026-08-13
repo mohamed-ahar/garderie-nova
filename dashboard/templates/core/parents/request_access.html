@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-12">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white">Demander l'accès à une garderie</h1>
+            <p class="text-slate-500 mt-2">Consultez la liste des garderies et demandez l'accès pour inscrire votre enfant.</p>
+        </div>
+        <a href="{% url 'dashboard_redirect' %}" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">
+            Retour au tableau de bord
+        </a>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-xs font-black text-slate-400 uppercase tracking-widest">
+                        <th class="py-5 pl-6">Garderie</th>
+                        <th class="py-5">Adresse</th>
+                        <th class="py-5 text-center">Statut</th>
+                        <th class="py-5 text-right pr-6">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for item in centers_data %}
+                    <tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td class="py-5 pl-6">
+                            <div class="font-bold text-slate-900 dark:text-white">{{ item.center.name }}</div>
+                        </td>
+                        <td class="py-5">
+                            <p class="text-sm font-medium text-slate-600 dark:text-slate-400">{{ item.center.address }}</p>
+                        </td>
+                        <td class="py-5 text-center">
+                            {% if item.status == 'accepted' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-400">
+                                    Accepté
+                                </span>
+                            {% elif item.status == 'pending' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400">
+                                    En attente
+                                </span>
+                            {% elif item.status == 'rejected' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-400">
+                                    Rejeté
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300">
+                                    Aucun accès
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="py-5 text-right pr-6">
+                            {% if not item.status or item.status == 'rejected' %}
+                                <form method="post" action="{% url 'request_center_access' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="center_id" value="{{ item.center.center_id }}">
+                                    <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20">
+                                        Demander l'accès
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="text-xs text-slate-400 font-medium">Demande envoyée</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="py-12 text-center">
+                            <div class="flex flex-col items-center justify-center text-slate-400">
+                                <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fa-solid fa-building text-2xl opacity-50"></i>
+                                </div>
+                                <p class="font-medium">Aucune garderie disponible.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
