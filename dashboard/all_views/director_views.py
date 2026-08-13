@@ -434,3 +434,25 @@ def update_parent_access(request, request_id):
              messages.success(request, f"Access revoked for {access_request.parent.user.full_name}.")
              
     return redirect("manage_parent_access_requests")
+
+@login_required(login_url="login")
+def child_list_view(request):
+    user = request.user
+    if user.role_type != "director":
+        return render(request, "core/403.html", status=403)
+    
+    try:
+        center = user.director_profile.managed_center
+        if not center:
+             messages.error(request, "You are not assigned to any center.")
+             return redirect("dashboard_redirect")
+    except AttributeError:
+        messages.error(request, "Director profile not found.")
+        return redirect("dashboard_redirect")
+
+    children = Child.objects.filter(center=center).exclude(status='waitlist').select_related('assigned_group', 'assigned_educator', 'assigned_educator__user').order_by('first_name')
+
+    return render(request, "core/director/child_list.html", {
+        "children": children,
+        "center": center
+    })

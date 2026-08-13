@@ -106,81 +106,6 @@
             </div>
         </div>
 
-        <div class="group relative bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 p-8 shadow-2xl transition-all duration-500 mb-8">
-            <div class="flex items-center justify-between mb-8">
-                <div>
-                    <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Waitlist Management</h3>
-                    <p class="text-sm text-slate-400 font-medium mt-1">Pending registrations requiring review</p>
-                </div>
-                <div class="flex gap-4">
-                    <a href="{% url 'waitlist_manage' %}" class="px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold hover:scale-105 transition-all shadow-lg">
-                        Manage Full List
-                    </a>
-                    <div class="p-3 bg-amber-500/10 rounded-2xl text-amber-500">
-                        <i class="fa-solid fa-clipboard-list text-2xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-100 dark:border-slate-800 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            <th class="py-4 pl-4">Position</th>
-                            <th class="py-4">Child Name</th>
-                            <th class="py-4">Age/Birth Date</th>
-                            <th class="py-4">Registered Date</th>
-                            <th class="py-4">Contact</th>
-                            <th class="py-4 text-right pr-4">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                        {% for child in waitlist %}
-                        <tr class="group/row hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td class="py-4 pl-4">
-                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500 text-white font-black text-sm shadow-lg shadow-amber-500/20">
-                                    {{ forloop.counter }}
-                                </span>
-                            </td>
-                            <td class="py-4">
-                                <div class="font-bold text-slate-900 dark:text-white">{{ child.first_name }} {{ child.last_name }}</div>
-                            </td>
-                            <td class="py-4">
-                                <div class="text-sm font-medium text-slate-500">{{ child.birth_date }}</div>
-                                <div class="text-xs text-slate-400">{{ child.age_display }}</div>
-                            </td>
-                            <td class="py-4">
-                                <div class="text-sm font-medium text-slate-500">{{ child.created_at|date:"M d, Y" }}</div>
-                            </td>
-                            <td class="py-4">
-                                {% if child.medical_info.waitlist_contact_phone %}
-                                <div class="text-xs font-medium text-slate-500"><i class="fa-solid fa-phone mr-1"></i> {{ child.medical_info.waitlist_contact_phone }}</div>
-                                {% endif %}
-                                {% if child.medical_info.waitlist_contact_email %}
-                                <div class="text-xs font-medium text-slate-500"><i class="fa-solid fa-envelope mr-1"></i> {{ child.medical_info.waitlist_contact_email }}</div>
-                                {% endif %}
-                                {% with parent_rel=child.parent_relationships.first %}
-                                    {% if parent_rel %}
-                                        <div class="text-xs text-slate-400 mt-1">Parent: {{ parent_rel.parent.user.full_name }}</div>
-                                    {% endif %}
-                                {% endwith %}
-                            </td>
-                            <td class="py-4 text-right pr-4">
-                                <a href="#" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-bold hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20">
-                                    Admit
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="py-8 text-center text-slate-400 italic">No children currently on the waitlist.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
         <div class="grid lg:grid-cols-12 gap-8 items-start">
             
             <div class="lg:col-span-8 group relative bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 p-8 shadow-2xl transition-all duration-500">
@@ -198,12 +123,23 @@
                         
                         <div class="flex-1">
                             <h4 class="font-black text-slate-900 dark:text-white text-lg">{{ group.name }}</h4>
-                            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Ratio Req: {{ group.required_educators }} Educators</p>
+                             <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
+                                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">
+                                    <i class="fa-solid fa-child mr-1 opacity-70"></i> {{ group.current_occupancy }} Children
+                                </p>
+                                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">
+                                    <i class="fa-solid fa-chalkboard-user mr-1 opacity-70"></i> {{ group.current_educators }} / {{ group.required_educators }} Educators
+                                </p>
+                            </div>
                         </div>
 
                         <div class="text-right">
-                            <div class="text-2xl font-black italic {% if group.is_compliant %}text-emerald-500{% else %}text-rose-500{% endif %} tracking-tighter">
-                                {{ group.current_total_points }}<span class="text-[10px] ml-1 opacity-40 italic">pts</span>
+                            <div class="text-xl font-black italic {% if group.is_compliant %}text-emerald-500{% else %}text-rose-500{% endif %} tracking-tighter">
+                                {% if group.is_compliant %}
+                                    <i class="fa-solid fa-check-circle mr-1"></i> OK
+                                {% else %}
+                                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> ISSUE
+                                {% endif %}
                             </div>
                             <span class="text-[10px] font-black uppercase {% if group.is_compliant %}text-emerald-500/60{% else %}text-rose-500/60{% endif %}">
                                 {% if group.is_compliant %}Compliant{% else %}Ratio Alert{% endif %}
@@ -260,6 +196,236 @@
                 </div>
             </div>
         </div>
+
+        <div class="group relative bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 p-8 shadow-2xl transition-all duration-500 mb-8">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Waitlist Management</h3>
+                    <p class="text-sm text-slate-400 font-medium mt-1">Pending registrations requiring review</p>
+                </div>
+                <div class="flex gap-4">
+                    <a href="{% url 'waitlist_manage' %}" class="px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold hover:scale-105 transition-all shadow-lg">
+                        Manage Full List
+                    </a>
+                    <div class="p-3 bg-amber-500/10 rounded-2xl text-amber-500">
+                        <i class="fa-solid fa-clipboard-list text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse" id="waitlistTable">
+                    <thead>
+                        <tr class="border-b border-slate-100 dark:border-slate-800 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <th class="py-4 pl-4">Position</th>
+                            <th class="py-4">Child Name</th>
+                            <th class="py-4">Age/Birth Date</th>
+                            <th class="py-4">Registered Date</th>
+                            <th class="py-4">Contact</th>
+                            <th class="py-4 text-right pr-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800" id="waitlistTableBody">
+                        {% for child in waitlist %}
+                        <tr class="group/row hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="py-4 pl-4">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500 text-white font-black text-sm shadow-lg shadow-amber-500/20">
+                                    {{ forloop.counter }}
+                                </span>
+                            </td>
+                            <td class="py-4">
+                                <div class="font-bold text-slate-900 dark:text-white">{{ child.first_name }} {{ child.last_name }}</div>
+                            </td>
+                            <td class="py-4">
+                                <div class="text-sm font-medium text-slate-500">{{ child.birth_date }}</div>
+                                <div class="text-xs text-slate-400">{{ child.age_display }}</div>
+                            </td>
+                            <td class="py-4">
+                                <div class="text-sm font-medium text-slate-500">{{ child.created_at|date:"M d, Y" }}</div>
+                            </td>
+                            <td class="py-4">
+                                {% if child.medical_info.waitlist_contact_phone %}
+                                <div class="text-xs font-medium text-slate-500"><i class="fa-solid fa-phone mr-1"></i> {{ child.medical_info.waitlist_contact_phone }}</div>
+                                {% endif %}
+                                {% if child.medical_info.waitlist_contact_email %}
+                                <div class="text-xs font-medium text-slate-500"><i class="fa-solid fa-envelope mr-1"></i> {{ child.medical_info.waitlist_contact_email }}</div>
+                                {% endif %}
+                                {% with parent_rel=child.parent_relationships.first %}
+                                    {% if parent_rel %}
+                                        <div class="text-xs text-slate-400 mt-1">Parent: {{ parent_rel.parent.user.full_name }}</div>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td class="py-4 text-right pr-4">
+                                <a href="#" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-bold hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20">
+                                    Admit
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr class="empty-message">
+                            <td colspan="6" class="py-8 text-center text-slate-400 italic">No children currently on the waitlist.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div id="paginationContainer" class="border-t border-slate-100 dark:border-slate-800 px-6 py-5 bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-between flex-wrap gap-4 hidden">
+                <div class="flex items-center gap-2">
+                    <button id="prevBtn" onclick="previousPage()" class="px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-sm" title="Previous page">
+                        <i class="fa-solid fa-chevron-left mr-2"></i>Previous
+                    </button>
+                    <div id="pageNumbers" class="flex items-center gap-1"></div>
+                    <button id="nextBtn" onclick="nextPage()" class="px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-sm" title="Next page">
+                        Next<i class="fa-solid fa-chevron-right ml-2"></i>
+                    </button>
+                </div>
+                <div class="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                    Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+                </div>
+            </div>
+        </div>
     </div>
-</div> 
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paginationContainer = document.getElementById('paginationContainer');
+    const tableBody = document.getElementById('waitlistTableBody');
+    const rows = Array.from(tableBody.querySelectorAll('tr:not(.empty-message)'));
+    const emptyRow = tableBody.querySelector('.empty-message');
+    
+    // Pagination variables
+    let currentPage = 1;
+    let pageSize = 5; 
+    let filteredRows = rows.map(row => ({ element: row })); // No filtering here, just strict mapping
+
+    function updatePagination() {
+        const totalPages = Math.ceil(filteredRows.length / pageSize) || 1;
+        currentPage = Math.min(currentPage, totalPages);
+        
+        // Hide all data rows
+        filteredRows.forEach(row => row.element.style.display = 'none');
+
+        // Show rows for current page
+        const startIdx = (currentPage - 1) * pageSize;
+        const endIdx = startIdx + pageSize;
+        const visibleRows = filteredRows.slice(startIdx, endIdx);
+        
+        visibleRows.forEach(row => row.element.style.display = '');
+
+        // Update pagination controls
+        updatePaginationControls(totalPages);
+        
+        // Show/hide empty state
+        if (filteredRows.length === 0 && emptyRow) {
+            emptyRow.style.display = '';
+            paginationContainer.classList.add('hidden');
+            paginationContainer.classList.remove('flex');
+        } else if (emptyRow) {
+            emptyRow.style.display = 'none';
+        }
+    }
+
+    function updatePaginationControls(totalPages) {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageNumbersDiv = document.getElementById('pageNumbers');
+        const currentPageSpan = document.getElementById('currentPage');
+        const totalPagesSpan = document.getElementById('totalPages');
+
+        // Update current and total page display
+        currentPageSpan.textContent = currentPage;
+        totalPagesSpan.textContent = totalPages;
+
+        // Update button states
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+
+        // Generate page numbers
+        pageNumbersDiv.innerHTML = '';
+        const maxPageButtons = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+        let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+        
+        if (endPage - startPage < maxPageButtons - 1) {
+            startPage = Math.max(1, endPage - maxPageButtons + 1);
+        }
+
+        if (startPage > 1) {
+            const btn = createPageButton(1);
+            pageNumbersDiv.appendChild(btn);
+            if (startPage > 2) {
+                const dots = document.createElement('span');
+                dots.textContent = '...';
+                dots.className = 'px-2 text-slate-400';
+                pageNumbersDiv.appendChild(dots);
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = createPageButton(i);
+            pageNumbersDiv.appendChild(btn);
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const dots = document.createElement('span');
+                dots.textContent = '...';
+                dots.className = 'px-2 text-slate-400';
+                pageNumbersDiv.appendChild(dots);
+            }
+            const btn = createPageButton(totalPages);
+            pageNumbersDiv.appendChild(btn);
+        }
+
+        // Show/Hide pagination container
+        if (filteredRows.length > pageSize) {
+            paginationContainer.classList.remove('hidden');
+            paginationContainer.classList.add('flex');
+        } else {
+            paginationContainer.classList.add('hidden');
+            paginationContainer.classList.remove('flex');
+        }
+    }
+
+    function createPageButton(pageNum) {
+        const btn = document.createElement('button');
+        btn.textContent = pageNum;
+        btn.onclick = () => goToPage(pageNum);
+        btn.className = `px-3 py-2 rounded-lg border transition-colors font-semibold text-sm ${
+            currentPage === pageNum
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+        }`;
+        return btn;
+    }
+
+    function goToPage(pageNum) {
+        currentPage = pageNum;
+        updatePagination();
+    }
+
+    // Make functions globally available
+    window.previousPage = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            updatePagination();
+        }
+    };
+    window.nextPage = () => {
+        const totalPages = Math.ceil(filteredRows.length / pageSize) || 1;
+        if (currentPage < totalPages) {
+            currentPage++;
+            updatePagination();
+        }
+    };
+    window.goToPage = goToPage;
+
+    // Initialize pagination on page load
+    updatePagination();
+});
+</script>
 {% endblock %}

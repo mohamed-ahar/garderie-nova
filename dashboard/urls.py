@@ -14,6 +14,7 @@ urlpatterns = [
         views.import_children_csv,
         name='import_children_csv'
     ),
+    path("children/", child_list_view, name="child_list"),
     
     path("", RedirectView.as_view(url="dashboard/", permanent=False)),
     path("groups/", group_list_view, name="group_list"),

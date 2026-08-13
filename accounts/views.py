@@ -109,6 +109,10 @@ def director_dashboard(request):
 
     if center:
         groups = center.groups.all().order_by('name')
+        # Recalculate ratios to ensure fresh data
+        for group in groups:
+            group.recalculate_ratios()
+            
         waitlist = Child.objects.filter(center=center, status='waitlist').order_by('created_at')
         
         from .models import Educator

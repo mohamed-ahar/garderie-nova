@@ -1,0 +1,461 @@
+{% extends "base.html" %}
+
+{% block title %}Child Management | GarderieNova{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-2">
+<div class="relative mb-10 -mx-6 -mt-6 overflow-hidden border-b border-white/10">
+    <div class="absolute inset-0 bg-[#0f172a] dark:bg-black"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-indigo-600/90 via-blue-600/80 to-blue-500/70 opacity-90"></div>
+    
+    <div class="absolute top-[-50%] left-[-10%] w-[70%] h-[150%] bg-blue-400/20 rounded-full blur-[120px] animate-pulse"></div>
+    <div class="absolute bottom-[-50%] right-[-10%] w-[60%] h-[120%] bg-emerald-400/20 rounded-full blur-[100px] animate-pulse" style="animation-delay: 2s;"></div>
+
+    <div class="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+
+    <div class="relative z-10 px-8 pt-10 pb-10">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+            
+            <div class="space-y-3">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span class="text-[10px] font-black text-white uppercase tracking-[0.2em]">Child_Registry_V2</span>
+                </div>
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-black text-white tracking-tighter leading-none">
+                        Child Management
+                    </h1>
+                    <p class="text-blue-100/70 text-sm md:text-base font-medium mt-2 max-w-md">
+                        Manage enrolled children, track attendance, and oversee group assignments.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="hidden sm:flex items-center gap-4 px-5 py-3 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10">
+                    <div class="text-right">
+                        <p class="text-[9px] font-black text-blue-200/50 uppercase tracking-widest leading-none">Total_Children</p>
+                        <p class="text-xl font-mono font-bold text-white">{{ children.count|default:"--" }}</p>
+                    </div>
+                    <div class="w-px h-8 bg-white/10"></div>
+                    <i class="fa-solid fa-database text-blue-300/50"></i>
+                </div>
+
+                <a href="{% url 'import_children_csv' center.center_id %}" 
+                   class="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-slate-900 rounded-2xl text-sm font-black transition-all hover:bg-emerald-400 hover:text-white hover:shadow-[0_20px_40px_-10px_rgba(52,211,153,0.5)] active:scale-95">
+                    <i class="fa-solid fa-file-import transition-transform group-hover:rotate-90"></i>
+                    <span class="uppercase tracking-widest">Import CSV</span>
+                    
+                    <div class="absolute inset-0 rounded-2xl border border-white/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </a>
+            </div>
+        </div>
+        
+        <div class="flex gap-8 mt-10 border-t border-white/10 pt-6">
+            <div class="flex items-center gap-2 text-white text-[11px] font-bold opacity-100 border-b-2 border-white pb-2">
+                <i class="fa-solid fa-child-reaching"></i> ENROLLED
+            </div>
+            <a href="{% url 'waitlist_manage' %}" class="flex items-center gap-2 text-white/40 text-[11px] font-bold hover:opacity-100 transition-opacity cursor-pointer">
+                <i class="fa-solid fa-clipboard-list"></i> WAITLIST
+            </a>
+            <div class="flex items-center gap-2 text-white/40 text-[11px] font-bold hover:opacity-100 transition-opacity cursor-pointer">
+                <i class="fa-solid fa-box-archive"></i> ARCHIVED
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden animate-in fade-in duration-500">
+    <!-- Filter Section -->
+    <div class="border-b border-slate-100 dark:border-slate-800 p-6">
+        <div class="flex flex-col gap-4">
+            <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                <div class="flex-1 min-w-0">
+                    <div class="relative">
+                        <input type="text" 
+                               id="searchInput" 
+                               placeholder="Search children by name..." 
+                               class="w-full px-4 py-3 pl-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    </div>
+                </div>
+                <button onclick="resetFilters()" class="px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold text-sm transition-colors whitespace-nowrap">
+                    <i class="fa-solid fa-rotate-left mr-2"></i>Reset Filters
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div>
+                    <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2 block">Group</label>
+                    <input type="text" 
+                           id="groupFilter" 
+                           placeholder="Filter by group..." 
+                           class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                </div>
+                
+                <div>
+                    <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2 block">Educator</label>
+                    <input type="text" 
+                           id="educatorFilter" 
+                           placeholder="Filter by educator..." 
+                           class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                </div>
+                
+                <div>
+                    <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2 block">Sort By</label>
+                    <select id="sortSelect" class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        <option value="name-asc">Name (A-Z)</option>
+                        <option value="name-desc">Name (Z-A)</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2 block">Entries per Page</label>
+                    <select id="pageSize" class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        <option value="10">10 per page</option>
+                        <option value="25">25 per page</option>
+                        <option value="50">50 per page</option>
+                        <option value="100">100 per page</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between pt-2">
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    Showing <span id="resultCount">{{ children|length }}</span> child(ren)
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gradient-to-r from-blue-50/50 to-cyan-50/50 dark:from-slate-950/50 dark:to-slate-950/50 border-b border-slate-100 dark:border-slate-800">
+                    <th class="px-8 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Child</th>
+                    <th class="px-6 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Age</th>
+                    <th class="px-6 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Group</th>
+                    <th class="px-6 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Educator</th>
+                    <th class="px-6 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Status</th>
+                    <th class="px-8 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                {% for child in children %}
+                <tr class="group hover:bg-blue-50/30 dark:hover:bg-blue-500/5 transition-colors">
+                    <td class="px-8 py-5">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 hover:scale-110 transition-transform">
+                                {% if child.profile_photo %}
+                                <img src="{{ child.profile_photo.url }}" class="w-full h-full rounded-2xl object-cover">
+                                {% else %}
+                                <i class="fa-solid fa-child text-sm"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <span class="text-sm font-bold text-slate-900 dark:text-white">
+                                    {{ child.first_name }} {{ child.last_name }}
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-5">
+                        <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                            {{ child.age_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-5">
+                        {% if child.assigned_group %}
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 text-[11px] font-bold rounded-lg inline-block">
+                            {{ child.assigned_group.name }}
+                        </span>
+                        {% else %}
+                        <span class="text-xs text-slate-400 italic">No Group</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-5">
+                        {% if child.assigned_educator %}
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-user-tie text-slate-500"></i>
+                            </div>
+                            <span class="text-xs font-bold text-slate-600 dark:text-slate-300">
+                                {{ child.assigned_educator.user.full_name }}
+                            </span>
+                        </div>
+                        {% else %}
+                        <span class="text-xs text-slate-400 italic">Unassigned</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-5">
+                         <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider
+                            {% if child.status == 'active' %} bg-emerald-100 text-emerald-600
+                            {% elif child.status == 'inactive' %} bg-slate-100 text-slate-500
+                            {% else %} bg-blue-100 text-blue-600 {% endif %}">
+                            {{ child.status }}
+                        </span>
+                    </td>
+                    <td class="px-8 py-5 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <!--
+                            <a href="#" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all shadow-sm" title="View Profile">
+                                <i class="fa-solid fa-eye text-xs"></i>
+                            </a>
+                            -->
+                            <a href="#" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all shadow-sm" title="Edit">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-8 py-10 text-center text-slate-500 dark:text-slate-400">
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-300">
+                                <i class="fa-solid fa-child-reaching text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold">No enrolled children found</p>
+                                <p class="text-xs">Import children or check the waitlist.</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination Section -->
+    <div id="paginationContainer" class="border-t border-slate-100 dark:border-slate-800 px-6 py-5 bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-2">
+            <button id="prevBtn" onclick="previousPage()" class="px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-sm" title="Previous page">
+                <i class="fa-solid fa-chevron-left mr-2"></i>Previous
+            </button>
+            <div id="pageNumbers" class="flex items-center gap-1"></div>
+            <button id="nextBtn" onclick="nextPage()" class="px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-sm" title="Next page">
+                Next<i class="fa-solid fa-chevron-right ml-2"></i>
+            </button>
+        </div>
+        <div class="text-xs font-semibold text-slate-600 dark:text-slate-400">
+            Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const groupFilter = document.getElementById('groupFilter');
+    const educatorFilter = document.getElementById('educatorFilter');
+    const sortSelect = document.getElementById('sortSelect');
+    const pageSize = document.getElementById('pageSize');
+    const resultCount = document.getElementById('resultCount');
+    const tbody = document.querySelector('tbody');
+    const tableRows = Array.from(tbody.querySelectorAll('tr')).filter(row => row.querySelector('td'));
+    const emptyRow = tbody.querySelector('tr:has(.fa-child-reaching)');
+    
+    // Pagination variables
+    let currentPage = 1;
+    let filteredRows = [];
+
+    // Store original rows data with accurate extraction
+    const rowsData = tableRows.filter(row => !row.querySelector('.fa-child-reaching')).map(row => {
+        const cells = row.querySelectorAll('td');
+        // Child Name
+        const nameDiv = cells[0]?.querySelector('div > div:nth-child(2)');
+        const name = nameDiv?.textContent.trim() || '';
+        
+        // Group
+        const groupSpan = cells[2]?.querySelector('span');
+        const group = groupSpan?.textContent.trim() || '';
+        
+        // Educator
+        const educatorDiv = cells[3]?.querySelector('div');
+        const educator = educatorDiv?.textContent.trim() || '';
+
+        return {
+            element: row,
+            name: name,
+            group: group,
+            educator: educator
+        };
+    });
+
+    function updatePagination() {
+        const size = parseInt(pageSize.value) || 10;
+        const totalPages = Math.ceil(filteredRows.length / size) || 1;
+        currentPage = Math.min(currentPage, totalPages);
+        
+        // Hide all data rows
+        rowsData.forEach(row => row.element.style.display = 'none');
+
+        // Show rows for current page
+        const startIdx = (currentPage - 1) * size;
+        const endIdx = startIdx + size;
+        const visibleRows = filteredRows.slice(startIdx, endIdx);
+        
+        visibleRows.forEach(row => row.element.style.display = '');
+
+        // Update pagination controls
+        updatePaginationControls(totalPages);
+        
+        // Show/hide empty state
+        if (filteredRows.length === 0 && emptyRow) {
+            emptyRow.style.display = '';
+        } else if (emptyRow) {
+            emptyRow.style.display = 'none';
+        }
+    }
+
+    function updatePaginationControls(totalPages) {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageNumbersDiv = document.getElementById('pageNumbers');
+        const currentPageSpan = document.getElementById('currentPage');
+        const totalPagesSpan = document.getElementById('totalPages');
+        const paginationContainer = document.getElementById('paginationContainer');
+
+        // Update current and total page display
+        currentPageSpan.textContent = currentPage;
+        totalPagesSpan.textContent = totalPages;
+
+        // Update button states
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+
+        // Generate page numbers
+        pageNumbersDiv.innerHTML = '';
+        const maxPageButtons = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+        let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+        
+        if (endPage - startPage < maxPageButtons - 1) {
+            startPage = Math.max(1, endPage - maxPageButtons + 1);
+        }
+
+        if (startPage > 1) {
+            const btn = createPageButton(1);
+            pageNumbersDiv.appendChild(btn);
+            if (startPage > 2) {
+                const dots = document.createElement('span');
+                dots.textContent = '...';
+                dots.className = 'px-2 text-slate-400';
+                pageNumbersDiv.appendChild(dots);
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = createPageButton(i);
+            pageNumbersDiv.appendChild(btn);
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const dots = document.createElement('span');
+                dots.textContent = '...';
+                dots.className = 'px-2 text-slate-400';
+                pageNumbersDiv.appendChild(dots);
+            }
+            const btn = createPageButton(totalPages);
+            pageNumbersDiv.appendChild(btn);
+        }
+
+        // Hide pagination if only one page or no results
+        paginationContainer.style.display = filteredRows.length === 0 || totalPages === 1 ? 'none' : 'flex';
+    }
+
+    function createPageButton(pageNum) {
+        const btn = document.createElement('button');
+        btn.textContent = pageNum;
+        btn.onclick = () => goToPage(pageNum);
+        btn.className = `px-3 py-2 rounded-lg border transition-colors font-semibold text-sm ${
+            currentPage === pageNum
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+        }`;
+        return btn;
+    }
+
+    function goToPage(pageNum) {
+        currentPage = pageNum;
+        updatePagination();
+    }
+
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const groupTerm = groupFilter.value.toLowerCase();
+        const educatorTerm = educatorFilter.value.toLowerCase();
+        const sortBy = sortSelect.value;
+
+        // Filter rows
+        filteredRows = rowsData.filter(row => {
+            const matchSearch = row.name.toLowerCase().includes(searchTerm);
+            const matchGroup = row.group.toLowerCase().includes(groupTerm) || groupTerm === '';
+            const matchEducator = row.educator.toLowerCase().includes(educatorTerm) || educatorTerm === '';
+            
+            return matchSearch && matchGroup && matchEducator;
+        });
+
+        // Sort rows
+        filteredRows.sort((a, b) => {
+            switch(sortBy) {
+                case 'name-asc':
+                    return a.name.localeCompare(b.name);
+                case 'name-desc':
+                    return b.name.localeCompare(a.name);
+                default:
+                    return 0;
+            }
+        });
+
+        // Reset to first page when filters change
+        currentPage = 1;
+        
+        // Update result count
+        resultCount.textContent = filteredRows.length;
+
+        // Update pagination
+        updatePagination();
+    }
+
+    function resetFilters() {
+        searchInput.value = '';
+        groupFilter.value = '';
+        educatorFilter.value = '';
+        sortSelect.value = 'name-asc';
+        pageSize.value = '10';
+        currentPage = 1;
+        applyFilters();
+    }
+
+    // Attach event listeners
+    searchInput.addEventListener('input', applyFilters);
+    groupFilter.addEventListener('input', applyFilters);
+    educatorFilter.addEventListener('input', applyFilters);
+    sortSelect.addEventListener('change', applyFilters);
+    pageSize.addEventListener('change', applyFilters);
+
+    // Make functions globally available
+    window.resetFilters = resetFilters;
+    window.previousPage = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            updatePagination();
+        }
+    };
+    window.nextPage = () => {
+        const totalPages = Math.ceil(filteredRows.length / (parseInt(pageSize.value) || 10)) || 1;
+        if (currentPage < totalPages) {
+            currentPage++;
+            updatePagination();
+        }
+    };
+    window.goToPage = goToPage;
+
+    // Initialize pagination on page load
+    applyFilters();
+});
+</script>
+{% endblock %}
