@@ -172,3 +172,24 @@ def register_child_view(request):
         return redirect("request_center_access")
 
     return render(request, "core/parents/register_child.html", {"centers": centers})
+
+
+@login_required(login_url="login")
+def parent_children_list(request):
+    user = request.user
+    if user.role_type != "parent":
+        return render(request, "core/403.html", status=403)
+
+    try:
+        parent_profile = user.parent_profile
+    except ParentProfile.DoesNotExist:
+        messages.error(request, "Profil parent introuvable.")
+        return redirect("dashboard_redirect")
+
+    # Get all relationships for this parent
+    relationships = ParentChildRelationship.objects.filter(parent=parent_profile).select_related('child', 'child__center')
+    
+    # Extract children from relationships
+    children = [rel.child for rel in relationships]
+
+    return render(request, "core/parents/child_list.html", {"children": children})

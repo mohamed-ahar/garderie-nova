@@ -13,18 +13,28 @@ class EnrollmentForm(models.Model):
     child = models.OneToOneField(Child, on_delete=models.CASCADE, related_name="enrollment_profile")
     submission_date = models.DateField(default=timezone.now)
     
+    # Dates
+    registration_date = models.DateField(null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+
     # --- Health & Safety Section ---
     doctor_name = models.CharField(max_length=255, blank=True)
     doctor_phone = models.CharField(max_length=50, blank=True)
     doctor_address = models.TextField(blank=True)
     
     allergies_severe = models.TextField(blank=True, help_text="Allergies graves")
+    non_fatal_allergies = models.TextField(blank=True, help_text="Allergies non mortelles (médicaments, contact)")
     requires_epipen = models.BooleanField(default=False)
     
     routine_services_required = models.BooleanField(default=False, help_text="Catheter, diabetes, etc.")
+    routine_services_details = models.TextField(blank=True, help_text="Details of routine services")
     
+    continuous_medication = models.TextField(blank=True, help_text="Long-term medication")
+    activity_restrictions = models.TextField(blank=True, help_text="Medical restrictions on activities")
+
     # Specific restrictions (Medical, Cultural, Religious)
-    dietary_restrictions = models.TextField(blank=True)
+    dietary_restrictions = models.TextField(blank=True, help_text="Restrictions alimentaires médicales")
+    cultural_dietary_restrictions = models.TextField(blank=True, help_text="Restrictions culturelles/religieuses")
 
     # --- Medical History (Checkbox approximations) ---
     # Store these as JSON to avoid 50 boolean columns. 
@@ -36,6 +46,7 @@ class EnrollmentForm(models.Model):
 
     # --- Development & History Section ---
     preschool_history = models.TextField(blank=True, help_text="Previous daycare experience")
+    preschool_duration = models.CharField(max_length=100, blank=True, help_text="Duration of previous experience")
     
     # Autonomy Questions
     autonomy_dressing = models.CharField(max_length=255, blank=True)
@@ -43,6 +54,7 @@ class EnrollmentForm(models.Model):
     autonomy_toilet = models.CharField(max_length=255, blank=True)
     autonomy_hygiene = models.CharField(max_length=255, blank=True) # Washing hands/brushing teeth
     autonomy_other = models.CharField(max_length=255, blank=True)
+    motor_skills = models.TextField(blank=True, help_text="Motricité")
     
     transition_tips = models.TextField(blank=True, help_text="Suggestions for positive transition")
     interests_hobbies = models.TextField(blank=True, help_text="What the child likes to do")

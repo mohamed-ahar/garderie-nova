@@ -30,6 +30,7 @@ urlpatterns = [
     ),
     path("parents/", parent_list_view, name="parent_list"),
     path("parents/add/", parent_add_view, name="parent_add"),
+    path("parents/my-children/", parent_children_list, name="parent_children_list"),
     path("parents/<uuid:user_id>/", parent_detail_view, name="parent_detail"),
     path("parents/<uuid:user_id>/edit/", parent_edit_view, name="parent_edit"),
     path("parents/<uuid:user_id>/delete/", parent_delete_view, name="parent_delete"),

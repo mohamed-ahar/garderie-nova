@@ -290,6 +290,7 @@ class Child(models.Model):
 
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
+    gender = models.CharField(max_length=10, choices=[('masculin', 'Masculin'), ('féminin', 'Féminin')], blank=True)
     birth_date = models.DateField()
 
     medical_info = models.JSONField(default=dict, blank=True)
