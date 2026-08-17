@@ -87,7 +87,9 @@
                             <a href="{% url 'enrollment_edit' child.child_id %}" class="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wide text-center transition-colors shadow-lg shadow-blue-500/20">
                                 <i class="fa-solid fa-file-contract mr-2"></i>Dossier
                             </a>
-                            <!-- Add more actions here later -->
+                            <a href="{% url 'child_profile' child.child_id %}" class="flex-1 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs uppercase tracking-wide text-center transition-colors shadow-lg shadow-emerald-500/20">
+                                <i class="fa-solid fa-id-card mr-2"></i>Profil
+                            </a>
                         </div>
                     </div>
                 </div>

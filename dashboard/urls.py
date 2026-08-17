@@ -6,6 +6,7 @@ from .views import *
 from .all_views.parent_views import *
 from .all_views.director_views import * 
 from .all_views.owner_views import *
+from .all_views.child_views import *
 from. import views
 
 urlpatterns = [
@@ -15,6 +16,7 @@ urlpatterns = [
         name='import_children_csv'
     ),
     path("children/", child_list_view, name="child_list"),
+    path("children/<uuid:child_id>/", child_profile_view, name="child_profile"),
     
     path("", RedirectView.as_view(url="dashboard/", permanent=False)),
     path("groups/", group_list_view, name="group_list"),

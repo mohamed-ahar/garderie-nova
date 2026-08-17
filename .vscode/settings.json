@@ -2,6 +2,7 @@
   "python-envs.pythonProjects": [],
   "editor.fontFamily": "fira-code-nerd, FiraCode Nerd Font, Consolas, 'Courier New', monospace",
   "editor.fontLigatures": true,
+  "python.terminal.activateEnvironment": false,
   "workbench.colorCustomizations": {
     "editor.background": "#0F111A",
     "editor.foreground": "#E5E7EB",
