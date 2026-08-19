@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="relative min-h-screen bg-[#fcfcfd] dark:bg-slate-950 p-6 md:p-12 overflow-hidden">
+<div class="relative min-h-screen bg-[#fcfcfd] dark:bg-slate-950 p-6 md:p-12 md:pt-4 overflow-hidden">
     
     <div class="absolute inset-0 pointer-events-none">
         <div class="absolute top-[-5%] right-[-5%] w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px]"></div>
@@ -11,18 +11,18 @@
     <div class="relative z-10 max-w-7xl mx-auto">
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-4 relative">
             <div class="relative space-y-4">
-                <div class="inline-flex items-center gap-3 px-4 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                <div class="inline-flex items-center gap-3 px-4 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-blue-400 dark:border-slate-800 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
                     <span class="relative flex h-2 w-2">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
                     </span>
                     <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.3em]">Management Hub</span>
                     <div class="w-px h-3 bg-slate-200 dark:bg-slate-700"></div>
-                    <span class="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 uppercase">{{ centers|length }} Total Units</span>
+                    <span class="text-[10px] font-extrabold text-blue-400 dark:text-indigo-400 uppercase">{{ centers|length }} Centers</span>
                 </div>
         
                 <div class="space-y-1">
-                    <h1 class="text-5xl lg:text-6xl font-black text-slate-950 dark:text-white tracking-[-0.05em] leading-[0.9]">
+                    <h1 class="text-3xl lg:text-3xl font-black text-slate-950 dark:text-white tracking-[-0.05em] leading-[0.9]">
                         My Educational <br>
                         <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-500 to-emerald-400">Centers.</span>
                     </h1>
@@ -34,43 +34,10 @@
             </div>
         
             <div class="flex flex-col md:flex-row items-center gap-6">
-                <div class="group relative overflow-hidden bg-white dark:bg-slate-900 p-7 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all duration-500 hover:shadow-xl hover:border-indigo-500/20">
-                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors"></div>
-                    <div class="relative z-10 flex items-center justify-between gap-8">
-                        <div class="space-y-3">
-                            <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(79,70,229,0.5)]"></div>
-                                <p class="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Total Infrastructure</p>
-                            </div>
-                            <div class="flex items-baseline gap-2">
-                                <h2 class="text-4xl font-black text-slate-950 dark:text-white tracking-tighter leading-none">{{ centers|length }}</h2>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Units Active</span>
-                            </div>
-                        </div>
-                        <div class="relative">
-                            <div class="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center border border-slate-100 dark:border-slate-700/50 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-inner">
-                                <i class="fa-solid fa-server text-lg group-hover:scale-110 transition-transform"></i>
-                            </div>
-                            <svg class="absolute -inset-1 w-16 h-16 -rotate-90 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                                <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" fill="transparent" class="text-indigo-500/20" />
-                                <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" fill="transparent" class="text-indigo-500" stroke-dasharray="188" stroke-dashoffset="120" stroke-linecap="round" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="mt-6 pt-4 border-t border-slate-50 dark:border-slate-800/60 flex items-center justify-between">
-                        <span class="text-[9px] font-black text-emerald-500 uppercase tracking-tighter flex items-center gap-1">
-                            <i class="fa-solid fa-arrow-up-right text-[8px]"></i> System Live
-                        </span>
-                        <div class="flex -space-x-2">
-                            <div class="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700"></div>
-                            <div class="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600"></div>
-                            <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
-                        </div>
-                    </div>
-                </div>
+               
 
                 <a href="{% url 'create_center' %}" 
-                   class="group relative inline-flex items-center gap-4 px-8 py-5 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-[2rem] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:-translate-y-1 active:scale-[0.96] overflow-hidden">
+                   class="group relative inline-flex items-center gap-4 px-8 py-5 bg-blue-400 dark:bg-white text-white dark:text-slate-950 rounded-[2rem] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] hover:-translate-y-1 active:scale-[0.96] overflow-hidden">
                     <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <span class="relative z-10 flex items-center gap-3 font-black text-xs uppercase tracking-[0.2em]">
                         <div class="w-8 h-8 rounded-xl bg-white/10 dark:bg-slate-900/5 text-lg flex items-center justify-center group-hover:rotate-90 transition-transform duration-500">
@@ -82,8 +49,6 @@
                 </a>
             </div>
         </div>
-
-        <div class="h-12 w-full"></div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
             {% for center in centers %}
