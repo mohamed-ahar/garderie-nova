@@ -85,7 +85,7 @@ def logout_view(request):
 
 @login_required
 def owner_dashboard(request):
-    # Hna mli l-base.html at-chof user.role_type == 'owner', at-tl3 lih navbar d l-owner
+     
     return render(request, "owner_dashboard.html")
 
 
@@ -200,55 +200,3 @@ def personal_profile(request):
 
     return render(request, "profile.html", context)
 
-
-# ownner li imken li i crerr director
-"""
-def is_owner(user):
-   return user.role_type == 'owner'
-
-@login_required
-@user_passes_test(is_owner)
-def create_director(request):
-    
-    if request.method == 'POST':
-        form = DirectorCreationForm(request.POST) # type: ignore
-        if form.is_valid():
-            # 1. Creer l-User account
-            user = form.save(commit=False)
-            user.role_type = 'director'
-            user.save()
-            
-            # 2. Creer l-profile Director
-            Director.objects.create(
-                user=user,
-                qualification_cert=form.cleaned_data['qualification_cert'],
-                hired_at=form.cleaned_data['hired_at']
-            )
-            
-            # 3. Link Center to Director
-            center_id = form.cleaned_data['center_id']
-            center = get_object_or_404(Center, center_id=center_id)
-            center.director = user.director
-            center.save()
-            
-            return redirect('owner_dashboard')
-    else:
-        form = DirectorCreationForm()
-    
-    return render(request, 'accounts/create_director.html', {'form': form})
-"""
-
-
-"""
-@login_required
-def director_dashboard(request):
-    
-    center = getattr(request.user.director, 'center', None)
-    
-    context = {
-        'center': center,
-        'educators': center.educators.all() if center else [],
-        'groups': center.group_set.all() if center else []
-    }
-    return render(request, 'accounts/director_dashboard.html', context)
-"""
