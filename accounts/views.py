@@ -85,8 +85,12 @@ def logout_view(request):
 
 @login_required
 def owner_dashboard(request):
-     
-    return render(request, "owner_dashboard.html")
+    centers = Center.objects.filter(
+        organization__owner__user=request.user
+    ).select_related("organization", "director", "director__user")
+ 
+    centers_count=centers.count()
+    return render(request, "owner_dashboard.html",{"centers": centers, "centers_count": centers_count})
 
 
 @login_required
