@@ -30,14 +30,23 @@
                     <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold shadow-lg">
                         <i class="fa-solid fa-check"></i>
                     </div>
-                    <span class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest tracking-tighter">Select Receiver</span>
+                    <span class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Select Receiver</span>
                 </div>
-                <div class="flex items-center gap-3">
-                    <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold shadow-lg">
-                        <i class="fa-solid fa-check"></i>
+                
+                {% if user.role_type == "director" %}
+                <div class="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100/50 dark:border-indigo-800/30 space-y-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-indigo-500 text-xs"></i>
+                        <span class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Director Note</span>
                     </div>
-                    <span class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest tracking-tighter">Write Content</span>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+                        To message directors from other organizations, ensure you have an <span class="text-indigo-600 dark:text-indigo-400 font-bold underline underline-offset-4 cursor-help" title="Connections must be approved in the Network tab">approved connection</span>.
+                    </p>
+                    <a href="{% url 'communication:connection_list' %}" class="inline-block text-[9px] font-black text-indigo-500 uppercase tracking-tighter hover:tracking-widest transition-all">
+                        Manage Connections →
+                    </a>
                 </div>
+                {% endif %}
             </div>
         </div>
 
@@ -130,7 +139,6 @@
         resize: none;
     }
 
-    /* Animation for the paper plane icon on hover */
     button:hover i {
         animation: fly 0.6s ease-in-out infinite alternate;
     }
