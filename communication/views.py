@@ -98,14 +98,10 @@ def search_directors(request):
     profile = request.user.director_profile
     my_org = profile.organization
 
-    # 1. Filter: exclude ana + exclude nas li f nefs l-org dyali
-    # 2. filter(organization__isnull=False) bach t-t-akked bli 3ndhom org (optional)
+  
     base_query = Director.objects.exclude(user=request.user).exclude(organization=my_org)
 
-    # List l-dropdown
     directors_list_all = base_query.order_by('user__full_name')
-
-    # Filtering l-table ila t-khtar chi smiya
     directors = base_query
     if query:
         directors = directors.filter(user__full_name=query)
