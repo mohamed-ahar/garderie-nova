@@ -51,11 +51,9 @@ def send_connection_request(request, director_id):
     # 1. Jib l-sender (Nta)
     sender = request.user.director_profile
     
-    # 2. Jib l-receiver (L-director li cliquiti 3lih)
     target = get_object_or_404(Director, user_id=director_id)
 
-    # 3. Create invitation (Hna fin k-tsift l-invit)
-    # is_confirmed=False k-t3ni invitation baqa Pending
+   
     DirectorConnection.objects.get_or_create(
         from_director=sender,
         to_director=target,
@@ -88,7 +86,6 @@ def connection_list(request):
 
 @login_required
 def approve_connection(request, connection_id):
-    # Hna khdemna b pk hit DirectorConnection 3ndu auto-id m-Django (hit ma-dertich primary_key=True f connection)
     connection = get_object_or_404(DirectorConnection, id=connection_id, to_director=request.user.director_profile)
     connection.is_confirmed = True
     connection.save()
@@ -113,7 +110,7 @@ def search_directors(request):
     if query:
         directors = directors.filter(user__full_name=query)
 
-    # Connections logic (IDs)
+    
     sent_requests_ids = DirectorConnection.objects.filter(
         from_director=profile, is_confirmed=False
     ).values_list('to_director_id', flat=True)
@@ -136,21 +133,19 @@ def search_directors(request):
 
 @login_required
 def send_connection_request(request, director_id):
-    # Sender
+    
     try:
         sender_profile = request.user.director_profile
     except Director.DoesNotExist:
         django_messages.error(request, "Only directors can connect.")
         return redirect('dashboard:home')
 
-    # Receiver (Using user_id because it's the PK in Director model)
+    
     target_director = get_object_or_404(Director, user_id=director_id)
     
     if target_director.user == request.user:
-        django_messages.warning(request, "You cannot connect with yourself.")
         return redirect('communication:search_directors')
 
-    # Create connection with Pending status
     connection, created = DirectorConnection.objects.get_or_create(
         from_director=sender_profile,
         to_director=target_director
