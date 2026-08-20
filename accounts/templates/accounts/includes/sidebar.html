@@ -4,48 +4,80 @@
         <a href="{% url 'dashboard_redirect' %}" class="cursor-pointer">
             <div class="p-8 flex items-center gap-4 group cursor-pointer">
                 <div class="relative flex-shrink-0">
-                    <div class="absolute inset-0 bg-emerald-500/40 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                    <div class="absolute inset-0 
+                        {% if user.role_type == 'director' %} bg-emerald-500/40 
+                        {% elif user.role_type == 'parent' %} bg-rose-500/40 
+                        {% else %} bg-indigo-500/40 {% endif %} 
+                        blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700">
                     </div>
-                    <div class="relative w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl flex items-center justify-center text-white shadow-[0_8px_20px_-6px_rgba(16,185,129,0.5)] overflow-hidden transition-transform duration-500 group-hover:scale-110 group-hover:rotate-[5deg]">
-                        <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent">
-                        </div>
-                        <i class="fa-solid fa-compass-drafting text-xl z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"></i>
+                    
+                    <div class="relative w-12 h-12 rounded-2xl flex items-center justify-center text-white overflow-hidden transition-transform duration-500 group-hover:scale-110 group-hover:rotate-[5deg]
+                        {% if user.role_type == 'director' %} bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-[0_8px_20px_-6px_rgba(16,185,129,0.5)]
+                        {% elif user.role_type == 'parent' %} bg-gradient-to-br from-rose-500 to-rose-700 shadow-[0_8px_20px_-6px_rgba(244,63,94,0.5)]
+                        {% else %} bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-[0_8px_20px_-6px_rgba(79,70,229,0.5)] {% endif %}">
+                        
+                        <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                        
+                        <i class="fa-solid {% if user.role_type == 'parent' %}fa-heart{% else %}fa-compass-drafting{% endif %} text-xl z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"></i>
+                        
                         <div class="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-white/20 to-transparent opacity-50"></div>
                     </div>
+            
                     <div class="absolute -top-1 -right-1 flex h-4 w-4">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-30"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 border-2 border-white dark:border-slate-900"></span>
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full 
+                            {% if user.role_type == 'director' %} bg-emerald-400 
+                            {% elif user.role_type == 'parent' %} bg-rose-400 
+                            {% else %} bg-indigo-400 {% endif %} opacity-30"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 border-2 border-white dark:border-slate-900
+                            {% if user.role_type == 'director' %} bg-emerald-500 
+                            {% elif user.role_type == 'parent' %} bg-rose-500 
+                            {% else %} bg-indigo-500 {% endif %}"></span>
                     </div>
                 </div>
+            
                 <div id="logo-container" class="flex flex-col transition-all duration-500 group cursor-default">
                     <div class="flex items-center gap-0.5">
-                        <span class="sidebar-label text-xl font-light tracking-tight text-white/90">
-                        Garderie<span class="font-black text-white dark:text-white transition-all duration-300 group-hover:tracking-normal tracking-tighter">Nova</span>
+                        <span class="sidebar-label text-xl font-light tracking-tight text-white/90 font-sofia">
+                            Garderie<span class="font-black text-white transition-all duration-300 group-hover:tracking-normal tracking-tighter">Nova</span>
                         </span>
-
+            
                         <span class="flex h-1.5 w-1.5 translate-y-1">
-                        <span class="animate-ping absolute inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 opacity-40"></span>
-                        <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                            <span class="animate-ping absolute inline-flex h-1.5 w-1.5 rounded-full opacity-40
+                                {% if user.role_type == 'director' %} bg-emerald-400 
+                                {% elif user.role_type == 'parent' %} bg-rose-400 
+                                {% else %} bg-indigo-400 {% endif %}"></span>
+                            <span class="relative inline-flex rounded-full h-1.5 w-1.5 
+                                {% if user.role_type == 'director' %} bg-emerald-500 
+                                {% elif user.role_type == 'parent' %} bg-rose-500 
+                                {% else %} bg-indigo-500 {% endif %}"></span>
                         </span>
                     </div>
-                    <div class="text-[16px] tracking-[1px] text-white sidebar-label flex items-center gap-2 mt-0.5 ">
-                        <div class="h-[2px] w-2 bg-emerald-500 rounded-full transition-all duration-500 group-hover:w-6 shadow-[0_0_8px_rgba(16,185,129,0.6)]">
+            
+                    <div class="text-[16px] tracking-[1px] text-white sidebar-label flex items-center gap-2 mt-0.5 font-sofia">
+                        <div class="h-[2px] w-2 rounded-full transition-all duration-500 group-hover:w-6
+                            {% if user.role_type == 'director' %} bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]
+                            {% elif user.role_type == 'parent' %} bg-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.6)]
+                            {% else %} bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.6)] {% endif %}">
                         </div>
-                        <span class="font-black text-white dark:text-white transition-all duration-300 group-hover:tracking-normal tracking-tighter">                    {% if user.role_type == 'director' %} {{ user.director_profile.managed_center.name|default:"Overview" }} {% else %} Dashboard {% endif %}
-                    </span>
+                        <span class="font-black text-white transition-all duration-300 group-hover:tracking-normal tracking-tighter uppercase">
+                            {% if user.role_type == 'director' %} 
+                                {{ user.director_profile.managed_center.name|default:"Overview" }} 
+                            {% elif user.role_type == 'parent' %}
+                                Family Portal
+                            {% else %} 
+                                Dashboard 
+                            {% endif %}
+                        </span>
                     </div>
+            
                     <div class="sidebar-label flex items-center gap-2 mt-0.5">
-
-                        <span class="text-[8px] font-extrabold text-green-600 dark:text-slate-500 uppercase tracking-[0.4em] leading-none transition-colors duration-300 group-hover:text-emerald-500/80">
-                        Management
-                    </span>
-
-
+                        <span class="text-[8px] font-extrabold uppercase tracking-[0.4em] leading-none transition-colors duration-300
+                            {% if user.role_type == 'director' %} text-emerald-500/80
+                            {% elif user.role_type == 'parent' %} text-rose-300/80
+                            {% else %} text-indigo-300/80 {% endif %}">
+                            Management Console
+                        </span>
                     </div>
-
-                    <div class="absolute -inset-x-4 -inset-y-2 bg-emerald-500/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
-                    </div>
-
                 </div>
             </div>
         </a>
@@ -55,32 +87,32 @@
                 {% if user.is_authenticated %} {% if user.role_type == 'owner' %}
                 <li class="dropdown-group relative group">
                     <div class="absolute inset-0 bg-emerald-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
-                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 text-white overflow-hidden shadow-[0_10px_25px_-5px_rgba(16,185,129,0.4)] transition-all duration-300 active:scale-[0.98]">
+                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-indigo-600 text-white overflow-hidden  transition-all duration-300 active:scale-[0.98]">
                                 <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                                 <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
                                     <i class="fa-solid fa-layer-group text-[14px]"></i>
                                 </div>
                                 <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
                                     <span class="font-extrabold tracking-wide text-[13.5px]">Network Admin</span>
-                                    <span class="text-[8.5px] font-bold text-emerald-300/90 uppercase tracking-[0.15em]">Owner Dashboard</span>
+                                    <span class="text-[8.5px] font-bold text-white uppercase tracking-[0.15em]">Owner Dashboard</span>
                                 </div>
                                 <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
                             </button>
                     <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
                         <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
-                            <a href="{% url 'owner_dashboard' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
+                            <a href="{% url 'owner_dashboard' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-plus mr-3 opacity-70"></i>
                                 <span class="sidebar-label font-bold">Admin Dashboard</span>
                             </a>
-                            <a href="{% url 'create_center' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
+                            <a href="{% url 'create_center' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-plus mr-3 opacity-70"></i>
                                 <span class="sidebar-label font-bold">Create Center</span>
                             </a>
-                            <a href="{% url 'add_director_general' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
+                            <a href="{% url 'add_director_general' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
                                 <i class="fa-solid fa-user-plus mr-3 opacity-70 group-hover:opacity-100 transition-opacity"></i>
                                 <span class="sidebar-label font-bold">Add New Director</span>
                             </a>
-                            <a href="{% url 'owner_centers_list' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
+                            <a href="{% url 'owner_centers_list' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
                                 <i class="fa-solid fa-layer-group mr-3 opacity-70 group-hover:opacity-100"></i>
                                 <span class="sidebar-label font-bold">Manage My Centers</span>
                             </a>
