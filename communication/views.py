@@ -99,16 +99,21 @@ def approve_connection(request, connection_id):
 def search_directors(request):
     query = request.GET.get('q', '')
     profile = request.user.director_profile
-    
-    # List kkamla l-dropdown
-    all_other_directors = Director.objects.exclude(user=request.user).order_by('user__full_name')
+    my_org = profile.organization
 
-    # Filtering l-table 3la hsab chno t-khtar f dropdown
-    directors = all_other_directors
+    # 1. Filter: exclude ana + exclude nas li f nefs l-org dyali
+    # 2. filter(organization__isnull=False) bach t-t-akked bli 3ndhom org (optional)
+    base_query = Director.objects.exclude(user=request.user).exclude(organization=my_org)
+
+    # List l-dropdown
+    directors_list_all = base_query.order_by('user__full_name')
+
+    # Filtering l-table ila t-khtar chi smiya
+    directors = base_query
     if query:
         directors = directors.filter(user__full_name=query)
 
-    # Kan-jibu l-haalat dial l-invitations bach n-beddlo l-button f l-template
+    # Connections logic (IDs)
     sent_requests_ids = DirectorConnection.objects.filter(
         from_director=profile, is_confirmed=False
     ).values_list('to_director_id', flat=True)
@@ -123,7 +128,7 @@ def search_directors(request):
 
     return render(request, "search_directors.html", {
         "directors": directors,
-        "directors_list_all": all_other_directors,
+        "directors_list_all": directors_list_all,
         "query": query,
         "sent_requests_ids": list(sent_requests_ids),
         "confirmed_ids": list(confirmed_sent_ids) + list(confirmed_received_ids),
