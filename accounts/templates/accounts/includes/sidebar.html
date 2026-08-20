@@ -1,55 +1,61 @@
-<aside id="sidebar"
-       class="fixed left-0 top-0 z-50 h-screen w-72 lg:w-72 bg-slate-900 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-500 ease-in-out {% if sidebar_state == 'closed' %}-translate-x-full{% endif %}">
+<aside id="sidebar" class="fixed left-0 top-0 z-50 h-screen w-72 lg:w-72 bg-slate-900 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-500 ease-in-out {% if sidebar_state == 'closed' %}-translate-x-full{% endif %}">
 
     <div class="flex flex-col h-full relative">
         <a href="{% url 'dashboard_redirect' %}" class="cursor-pointer">
-        <div class="p-8 flex items-center gap-4 group cursor-pointer">
-            <div class="relative flex-shrink-0">
-                <div class="absolute inset-0 bg-emerald-500/40 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                </div>
-                <div class="relative w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl flex items-center justify-center text-white shadow-[0_8px_20px_-6px_rgba(16,185,129,0.5)] overflow-hidden transition-transform duration-500 group-hover:scale-110 group-hover:rotate-[5deg]">
-                    <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent">
+            <div class="p-8 flex items-center gap-4 group cursor-pointer">
+                <div class="relative flex-shrink-0">
+                    <div class="absolute inset-0 bg-emerald-500/40 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700">
                     </div>
-                    <i class="fa-solid fa-compass-drafting text-xl z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"></i>
-                    <div class="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-white/20 to-transparent opacity-50"></div>
+                    <div class="relative w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl flex items-center justify-center text-white shadow-[0_8px_20px_-6px_rgba(16,185,129,0.5)] overflow-hidden transition-transform duration-500 group-hover:scale-110 group-hover:rotate-[5deg]">
+                        <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent">
+                        </div>
+                        <i class="fa-solid fa-compass-drafting text-xl z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"></i>
+                        <div class="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-white/20 to-transparent opacity-50"></div>
+                    </div>
+                    <div class="absolute -top-1 -right-1 flex h-4 w-4">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-30"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 border-2 border-white dark:border-slate-900"></span>
+                    </div>
                 </div>
-                <div class="absolute -top-1 -right-1 flex h-4 w-4">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-30"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 border-2 border-white dark:border-slate-900"></span>
-                </div>
-            </div>
-            <div id="logo-container"
-                 class="flex flex-col transition-all duration-500 group cursor-default">
-                <div class="flex items-center gap-0.5">
-                    <span class="sidebar-label text-xl font-light tracking-tight text-white/90">
+                <div id="logo-container" class="flex flex-col transition-all duration-500 group cursor-default">
+                    <div class="flex items-center gap-0.5">
+                        <span class="sidebar-label text-xl font-light tracking-tight text-white/90">
                         Garderie<span class="font-black text-white dark:text-white transition-all duration-300 group-hover:tracking-normal tracking-tighter">Nova</span>
-                    </span>
-                    <span class="flex h-1.5 w-1.5 translate-y-1">
+                        </span>
+
+                        <span class="flex h-1.5 w-1.5 translate-y-1">
                         <span class="animate-ping absolute inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 opacity-40"></span>
                         <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
-                    </span>
-                </div>
-                <div class="sidebar-label flex items-center gap-2 mt-0.5">
-                    <div class="h-[2px] w-2 bg-emerald-500 rounded-full transition-all duration-500 group-hover:w-6 shadow-[0_0_8px_rgba(16,185,129,0.6)]">
+                        </span>
                     </div>
-                    <span class="text-[8px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-[0.4em] leading-none transition-colors duration-300 group-hover:text-emerald-500/80">
+                    <div class="text-[16px] tracking-[1px] text-white sidebar-label flex items-center gap-2 mt-0.5 ">
+                        <div class="h-[2px] w-2 bg-emerald-500 rounded-full transition-all duration-500 group-hover:w-6 shadow-[0_0_8px_rgba(16,185,129,0.6)]">
+                        </div>
+                        <span class="font-black text-white dark:text-white transition-all duration-300 group-hover:tracking-normal tracking-tighter">                    {% if user.role_type == 'director' %} {{ user.director_profile.managed_center.name|default:"Overview" }} {% else %} Dashboard {% endif %}
+                    </span>
+                    </div>
+                    <div class="sidebar-label flex items-center gap-2 mt-0.5">
+
+                        <span class="text-[8px] font-extrabold text-green-600 dark:text-slate-500 uppercase tracking-[0.4em] leading-none transition-colors duration-300 group-hover:text-emerald-500/80">
                         Management
                     </span>
-                </div>
-                <div class="absolute -inset-x-4 -inset-y-2 bg-emerald-500/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+
+
+                    </div>
+
+                    <div class="absolute -inset-x-4 -inset-y-2 bg-emerald-500/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                    </div>
+
                 </div>
             </div>
-        </div>
         </a>
         <nav class="flex-1 px-4 space-y-4 overflow-y-auto custom-scrollbar">
             <p class="px-5 text-[10px] text-white dark:text-slate-500 uppercase tracking-[0.2em] opacity-80">Main Menu</p>
             <ul class="space-y-2">
-                    {% if user.is_authenticated %}
-                        
-                        {% if user.role_type == 'owner' %}
-                        <li class="dropdown-group relative group">
-                            <div class="absolute inset-0 bg-emerald-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
-                            <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 text-white overflow-hidden shadow-[0_10px_25px_-5px_rgba(16,185,129,0.4)] transition-all duration-300 active:scale-[0.98]">
+                {% if user.is_authenticated %} {% if user.role_type == 'owner' %}
+                <li class="dropdown-group relative group">
+                    <div class="absolute inset-0 bg-emerald-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 text-white overflow-hidden shadow-[0_10px_25px_-5px_rgba(16,185,129,0.4)] transition-all duration-300 active:scale-[0.98]">
                                 <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                                 <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
                                     <i class="fa-solid fa-layer-group text-[14px]"></i>
@@ -60,209 +66,203 @@
                                 </div>
                                 <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
                             </button>
-                            <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
-                                <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
-                                    <a href="{% url 'owner_dashboard' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-plus mr-3 opacity-70"></i>
-                                        <span class="sidebar-label font-bold">Admin Dashboard</span>
-                                    </a>
-                                    <a href="{% url 'create_center' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-plus mr-3 opacity-70"></i>
-                                        <span class="sidebar-label font-bold">Create Center</span>
-                                    </a>
-                                    <a href="{% url 'add_director_general' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
-                                        <i class="fa-solid fa-user-plus mr-3 opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                                        <span class="sidebar-label font-bold">Add New Director</span>
-                                    </a>
-                                    <a href="{% url 'owner_centers_list' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
-                                        <i class="fa-solid fa-layer-group mr-3 opacity-70 group-hover:opacity-100"></i>
-                                        <span class="sidebar-label font-bold">Manage My Centers</span>
-                                    </a>
-                              
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
+                            <a href="{% url 'owner_dashboard' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-plus mr-3 opacity-70"></i>
+                                <span class="sidebar-label font-bold">Admin Dashboard</span>
+                            </a>
+                            <a href="{% url 'create_center' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-plus mr-3 opacity-70"></i>
+                                <span class="sidebar-label font-bold">Create Center</span>
+                            </a>
+                            <a href="{% url 'add_director_general' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
+                                <i class="fa-solid fa-user-plus mr-3 opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                                <span class="sidebar-label font-bold">Add New Director</span>
+                            </a>
+                            <a href="{% url 'owner_centers_list' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all group">
+                                <i class="fa-solid fa-layer-group mr-3 opacity-70 group-hover:opacity-100"></i>
+                                <span class="sidebar-label font-bold">Manage My Centers</span>
+                            </a>
 
-                                </div>
+
+                        </div>
+                    </div>
+                </li>
+
+                {% if quick_assign_centers %}
+                <li class="mt-6 space-y-2">
+                    <div class="px-4 flex items-center justify-between">
+                        <span class="sidebar-label text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Quick Assign</span>
+                        <div class="h-[1px] flex-grow ml-3 bg-slate-800/50"></div>
+                    </div>
+
+                    <div class="space-y-1 px-2">
+                        {% for center in quick_assign_centers %}
+                        <a href="{% url 'assign_director' center.center_id %}" class="flex items-center px-4 py-2.5 text-[11px] text-white/60 hover:bg-slate-800/40 hover:text-emerald-400 rounded-xl transition-all group">
+                            <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-lg bg-slate-800/50 group-hover:bg-emerald-500/10 transition-colors mr-3">
+                                <i class="fa-solid fa-link text-[10px] opacity-50 group-hover:opacity-100"></i>
                             </div>
-                        </li>
-                        
-                        {% if quick_assign_centers %}
-                        <li class="mt-6 space-y-2">
-                            <div class="px-4 flex items-center justify-between">
-                                <span class="sidebar-label text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Quick Assign</span>
-                                <div class="h-[1px] flex-grow ml-3 bg-slate-800/50"></div>
+                            <div class="sidebar-label flex flex-col overflow-hidden">
+                                <span class="font-bold truncate">{{ center.name }}</span>
+                                <span class="text-[8px] text-slate-500 group-hover:text-emerald-400/70 font-medium tracking-tight">Assign Director</span>
                             </div>
-                        
-                            <div class="space-y-1 px-2">
-                                {% for center in quick_assign_centers %}
-                                <a href="{% url 'assign_director' center.center_id %}" 
-                                   class="flex items-center px-4 py-2.5 text-[11px] text-white/60 hover:bg-slate-800/40 hover:text-emerald-400 rounded-xl transition-all group">
-                                    <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-lg bg-slate-800/50 group-hover:bg-emerald-500/10 transition-colors mr-3">
-                                        <i class="fa-solid fa-link text-[10px] opacity-50 group-hover:opacity-100"></i>
-                                    </div>
-                                    <div class="sidebar-label flex flex-col overflow-hidden">
-                                        <span class="font-bold truncate">{{ center.name }}</span>
-                                        <span class="text-[8px] text-slate-500 group-hover:text-emerald-400/70 font-medium tracking-tight">Assign Director</span>
-                                    </div>
-                                </a>
-                                {% endfor %}
-                            </div>
-                        </li>
-                        {% endif %}
-                        {% endif %}
-            
-                        {% if user.role_type == 'director' %}
-                        <li class="dropdown-group relative group">
-                            <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                        </a>
+                        {% endfor %}
+                    </div>
+                </li>
+                {% endif %} {% endif %} {% if user.role_type == 'director' %}
+                <li class="dropdown-group relative group">
+                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-green-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                                 <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
                                     <i class="fa-solid fa-user-tie text-[14px]"></i>
                                 </div>
                                 <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
                                     <span class="font-extrabold tracking-wide text-[13.5px]">Director Panel</span>
-                                    <span class="text-[8.5px] font-bold text-blue-200/90 uppercase tracking-[0.15em]">Directeur name</span>
+                                    <span class="text-[8.5px] font-bold text-white uppercase tracking-[0.15em]">Directeur name</span>
                                 </div>
                                 <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
                             </button>
-                            <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
-                                <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
-                                    <a href="{% url 'educator_add' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-users-gear mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">Add educator</span>
-                                    </a>
-                                    <a href="{% url 'educator_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-users-gear mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">list educators</span>
-                                    </a>
-                                    <a href="{% url 'room_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-door-open mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">Manage Rooms</span>
-                                    </a>
-                                    <a href="{% url 'group_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-children mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">Children & Enrollment</span>
-                                    </a>
-                                    <a href="{% url 'child_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-child mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">Manage Children</span>
-                                    </a>
-                                    <a href="{% url 'parent_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
-                                        <div class="relative mr-3 flex items-center justify-center">
-                                        <i class="fa-solid fa-users mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">Manage Parents</span>
-                                        </div>
-                                    </a>
-                                    <a href="{% url 'manage_parent_access_requests' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-user-lock mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">Access Requests</span>
-                                    </a>
-                                    <a href="{% url 'waitlist_manage' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-list-check mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">Waitlist Management</span>
-                                    </a>
-                                    
-                                    {% if center %}
-                                    <a href="{% url 'import_children_csv' center.center_id %}"
-                                       class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-600 hover:text-white rounded-lg transition-all group
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
+                            <a href="{% url 'educator_add' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-users-gear mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Add educator</span>
+                            </a>
+                            <a href="{% url 'educator_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-users-gear mr-3 opacity-70"></i>
+                                <span class="sidebar-label">list educators</span>
+                            </a>
+                            <a href="{% url 'room_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-door-open mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Manage Rooms</span>
+                            </a>
+                            <a href="{% url 'group_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-children mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Children & Enrollment</span>
+                            </a>
+                            <a href="{% url 'child_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-child mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Manage Children</span>
+                            </a>
+                            <a href="{% url 'parent_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
+                                <div class="relative mr-3 flex items-center justify-center">
+                                    <i class="fa-solid fa-users mr-3 opacity-70"></i>
+                                    <span class="sidebar-label">Manage Parents</span>
+                                </div>
+                            </a>
+                            <a href="{% url 'manage_parent_access_requests' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-user-lock mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Access Requests</span>
+                            </a>
+                            <a href="{% url 'waitlist_manage' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-list-check mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Waitlist Management</span>
+                            </a>
+
+                            {% if center %}
+                            <a href="{% url 'import_children_csv' center.center_id %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-600 hover:text-white rounded-lg transition-all group
                                        {% if request.resolver_match.url_name == 'import_children_csv' %}bg-blue-600 text-white{% endif %}">
-                                       
-                                        <div class="relative mr-3 flex items-center justify-center">
-                                            <i class="fa-solid fa-file-import opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                                            <span class="absolute -top-1 -right-1 w-1.5 h-1.5 bg-emerald-400 rounded-full border border-slate-900 shadow-[0_0_5px_rgba(52,211,153,0.5)]"></span>
-                                        </div>
-                                    
-                                        <span class="sidebar-label font-bold tracking-tight">import children & Parents</span>
-                                    </a>
-                                    
-                                    {% endif %}
-                                    
-                                 
+
+                                <div class="relative mr-3 flex items-center justify-center">
+                                    <i class="fa-solid fa-file-import opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                                    <span class="absolute -top-1 -right-1 w-1.5 h-1.5 bg-emerald-400 rounded-full border border-slate-900 shadow-[0_0_5px_rgba(52,211,153,0.5)]"></span>
                                 </div>
-                            </div>
-                        </li>
-                        <li class="dropdown-group relative group mt-4"               x-data="{ 
-                            unreadCount: 0,
-                            async fetchUnread() {
-                                try {
-                                    let response = await fetch('{% url 'communication:unread_count_api' %}');
-                                    let data = await response.json();
-                                    this.unreadCount = data.unread_count;
-                                } catch (e) { console.error('Notification error') }
-                            }
-                        }" 
-                        x-init="fetchUnread(); setInterval(() => fetchUnread(), 10000)"> <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
-                            
-                            <template x-if="unreadCount > 0">
-                                <div class="absolute inset-0 bg-rose-500/20 animate-pulse"></div>
-                            </template>
-                                            
-                            <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[-8deg]">
-                                <i class="fa-solid fa-envelope text-[14px]"></i>
-                            </div>
-                    
-                            <div class="sidebar-label relative z-10 flex flex-col items-start text-left flex-1">
-                                <span class="font-extrabold tracking-wide text-[13.5px]">Messages</span>
-                                <span class="text-[8.5px] font-bold text-indigo-200/90 uppercase tracking-[0.15em]">Communication Hub</span>
-                            </div>
-                            
-                            <div x-show="unreadCount > 0" x-cloak class="relative flex items-center justify-center mr-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-5 w-5 bg-rose-500 text-[9px] items-center justify-center font-black border-2 border-indigo-700 shadow-sm"
-                                      x-text="unreadCount">
-                                </span>
-                            </div>
-                            
-                            <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
-                        </button>
-                    
-                        <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
-                            <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5 shadow-inner">
-                                
-                                <a href="{% url 'communication:send_message' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
-                                    <i class="fa-solid fa-paper-plane mr-3 opacity-70 group-hover:translate-x-1 transition-transform text-[10px]"></i>
-                                    <span class="sidebar-label">Send Message</span>
-                                </a>
-                        
-                                <a href="{% url 'communication:inbox' %}" class="flex items-center justify-between px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
-                                    <div class="flex items-center">
-                                        <i class="fa-solid fa-inbox mr-3 opacity-70 text-[10px]"></i>
-                                        <span class="sidebar-label">Inbox</span>
-                                    </div>
-                                    <template x-if="unreadCount > 0">
-                                        <span class="bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-md text-[8px] font-black border border-rose-500/30 tracking-tighter uppercase">
-                                            <span x-text="unreadCount"></span> New
-                                        </span>
-                                    </template>
-                                </a>
-                        
-                                <a href="{% url 'communication:sent_messages' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
-                                    <i class="fa-solid fa-share-from-square mr-3 opacity-70 text-[10px]"></i>
-                                    <span class="sidebar-label">Sent History</span>
-                                </a>
-                        
-                                {% if user.role_type == "director" %}
-                                <div class="my-2 border-t border-white/5 pt-2">
-                                    <span class="px-4 text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Director Network</span>
-                                    
-                                    <a href="{% url 'communication:connection_list' %}" class="mt-1 flex items-center justify-between px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
-                                        <div class="flex items-center">
-                                            <i class="fa-solid fa-users mr-3 opacity-70 text-[10px]"></i>
-                                            <span class="sidebar-label">My Network</span>
-                                        </div>
-                                    </a>
-                                
-                                    <a href="{% url 'communication:search_directors' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
-                                        <i class="fa-solid fa-magnifying-glass mr-3 opacity-70 text-[10px]"></i>
-                                        <span class="sidebar-label">Find Partners</span>
-                                    </a>
-                                </div>
-                                {% endif %}
-                        
-                            </div>
+
+                                <span class="sidebar-label font-bold tracking-tight">import children & Parents</span>
+                            </a>
+
+                            {% endif %}
+
+
                         </div>
-                    </li>
-                        {% endif %}
-            
-                        {% if user.role_type == 'educator' %}
-                        <li class="dropdown-group relative group">
-                            <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-slate-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                    </div>
+                </li>
+                <li class="dropdown-group relative group mt-4" x-data="{ 
+                    unreadCount: 0,
+                    async fetchUnread() {
+                        try {
+                            let response = await fetch('{% url 'communication:unread_count_api' %}');
+                            let data = await response.json();
+                            this.unreadCount = data.unread_count;
+                        } catch (e) { console.error('Notification error') }
+                    }
+                }" x-init="fetchUnread(); setInterval(() => fetchUnread(), 10000)">
+
+                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 text-white overflow-hidden shadow-lg shadow-green-900/10 transition-all duration-300 active:scale-[0.98] hover:from-green-600 hover:to-green-700">
+                        
+                        <template x-if="unreadCount > 0">
+                            <div class="absolute inset-0 bg-white/10 animate-pulse"></div>
+                        </template>
+                        
+                        <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[-8deg]">
+                            <i class="fa-solid fa-envelope text-[14px]"></i>
+                        </div>
+                
+                        <div class="sidebar-label relative z-10 flex flex-col items-start text-left flex-1">
+                            <span class="font-extrabold tracking-wide text-[13.5px]">Messages</span>
+                            <span class="text-[8.5px] font-bold text-emerald-100/90 uppercase tracking-[0.15em]">Communication Hub</span>
+                        </div>
+                        
+                        <div x-show="unreadCount > 0" x-cloak class="relative flex items-center justify-center mr-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-5 w-5 bg-rose-500 text-[9px] items-center justify-center font-black border-2 border-green-600 shadow-sm"
+                                  x-text="unreadCount">
+                            </span>
+                        </div>
+                        
+                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
+                    </button>
+
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                        <div class="mt-2 mx-2 bg-slate-900/80 backdrop-blur-sm rounded-xl p-2 space-y-1 border border-white/5 shadow-inner">
+
+                            <a href="{% url 'communication:send_message' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-600 hover:text-white rounded-lg transition-all group">
+                                <i class="fa-solid fa-paper-plane mr-3 opacity-70 group-hover:translate-x-1 transition-transform text-[10px]"></i>
+                                <span class="sidebar-label">Send Message</span>
+                            </a>
+
+                            <a href="{% url 'communication:inbox' %}" class="flex items-center justify-between px-4 py-2 text-[12px] text-white/80 hover:bg-green-600 hover:text-white rounded-lg transition-all group">
+                                <div class="flex items-center">
+                                    <i class="fa-solid fa-inbox mr-3 opacity-70 text-[10px]"></i>
+                                    <span class="sidebar-label">Inbox</span>
+                                </div>
+                                <template x-if="unreadCount > 0">
+                                    <span class="bg-rose-500 text-white px-2 py-0.5 rounded-md text-[8px] font-black tracking-tighter uppercase">
+                                        <span x-text="unreadCount"></span> New
+                                    </span>
+                                </template>
+                            </a>
+
+                            <a href="{% url 'communication:sent_messages' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-600 hover:text-white rounded-lg transition-all group">
+                                <i class="fa-solid fa-share-from-square mr-3 opacity-70 text-[10px]"></i>
+                                <span class="sidebar-label">Sent History</span>
+                            </a>
+
+                            {% if user.role_type == "director" %}
+                            <div class="my-2 border-t border-white/5 pt-2">
+                                <span class="px-4 text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Director Network</span>
+
+                                <a href="{% url 'communication:connection_list' %}" class="mt-1 flex items-center justify-between px-4 py-2 text-[12px] text-white/80 hover:bg-green-600 hover:text-white rounded-lg transition-all group">
+                                    <div class="flex items-center">
+                                        <i class="fa-solid fa-users mr-3 opacity-70 text-[10px]"></i>
+                                        <span class="sidebar-label">My Network</span>
+                                    </div>
+                                </a>
+
+                                <a href="{% url 'communication:search_directors' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-600 hover:text-white rounded-lg transition-all group">
+                                    <i class="fa-solid fa-magnifying-glass mr-3 opacity-70 text-[10px]"></i>
+                                    <span class="sidebar-label">Find Partners</span>
+                                </a>
+                            </div>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </li>
+                {% endif %} {% if user.role_type == 'educator' %}
+                <li class="dropdown-group relative group">
+                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-slate-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                                 <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/10 rounded-xl border border-white/20 transition-transform duration-300 group-hover:rotate-[8deg]">
                                     <i class="fa-solid fa-chalkboard-user text-[14px]"></i>
                                 </div>
@@ -272,21 +272,21 @@
                                 </div>
                                 <i class="sidebar-label fa-solid fa-chevron-down text-[10px] ml-auto transition-transform duration-500 chevron"></i>
                             </button>
-                            <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
-                                <div class="mt-2 mx-2 bg-slate-800/60 rounded-xl p-2 space-y-1 border border-white/5">
-                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-clipboard-check mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">Daily Operations</span>
-                                    </a>
-                                    <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
-                                        <i class="fa-solid fa-people-roof mr-3 opacity-70"></i>
-                                        <span class="sidebar-label">Room View & Ratio</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                    
-                        <li class="dropdown-group relative group mt-4" x-data="{ 
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                        <div class="mt-2 mx-2 bg-slate-800/60 rounded-xl p-2 space-y-1 border border-white/5">
+                            <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-clipboard-check mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Daily Operations</span>
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-people-roof mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Room View & Ratio</span>
+                            </a>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="dropdown-group relative group mt-4" x-data="{ 
                             unreadCount: 0,
                             async fetchUnread() {
                                 try {
@@ -296,8 +296,8 @@
                                 } catch (e) { console.error('Notification error') }
                             }
                         }" x-init="fetchUnread(); setInterval(() => fetchUnread(), 10000)">
-                            
-                            <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+
+                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                                 <template x-if="unreadCount > 0">
                                     <div class="absolute inset-0 bg-rose-500/20 animate-pulse"></div>
                                 </template>
@@ -318,38 +318,36 @@
                                 
                                 <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
                             </button>
-                    
-                            <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
-                                <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5 shadow-inner">
-                                    <a href="{% url 'communication:send_message' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
-                                        <i class="fa-solid fa-paper-plane mr-3 opacity-70 group-hover:translate-x-1 transition-transform text-[10px]"></i>
-                                        <span class="sidebar-label">Send Message</span>
-                                    </a>
-                    
-                                    <a href="{% url 'communication:inbox' %}" class="flex items-center justify-between px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
-                                        <div class="flex items-center">
-                                            <i class="fa-solid fa-inbox mr-3 opacity-70 text-[10px]"></i>
-                                            <span class="sidebar-label">Inbox</span>
-                                        </div>
-                                        <template x-if="unreadCount > 0">
+
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5 shadow-inner">
+                            <a href="{% url 'communication:send_message' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
+                                <i class="fa-solid fa-paper-plane mr-3 opacity-70 group-hover:translate-x-1 transition-transform text-[10px]"></i>
+                                <span class="sidebar-label">Send Message</span>
+                            </a>
+
+                            <a href="{% url 'communication:inbox' %}" class="flex items-center justify-between px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
+                                <div class="flex items-center">
+                                    <i class="fa-solid fa-inbox mr-3 opacity-70 text-[10px]"></i>
+                                    <span class="sidebar-label">Inbox</span>
+                                </div>
+                                <template x-if="unreadCount > 0">
                                             <span class="bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-md text-[8px] font-black border border-rose-500/30 tracking-tighter uppercase">
                                                 <span x-text="unreadCount"></span> New
                                             </span>
                                         </template>
-                                    </a>
-                    
-                                    <a href="{% url 'communication:sent_messages' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
-                                        <i class="fa-solid fa-share-from-square mr-3 opacity-70 text-[10px]"></i>
-                                        <span class="sidebar-label">Sent History</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                    {% endif %}
-            
-                    {% if user.role_type == 'parent' %}
-                    <li class="dropdown-group relative group">
-                        <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                            </a>
+
+                            <a href="{% url 'communication:sent_messages' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
+                                <i class="fa-solid fa-share-from-square mr-3 opacity-70 text-[10px]"></i>
+                                <span class="sidebar-label">Sent History</span>
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                {% endif %} {% if user.role_type == 'parent' %}
+                <li class="dropdown-group relative group">
+                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                             <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:scale-110">
                                 <i class="fa-solid fa-heart text-[14px]"></i>
                             </div>
@@ -359,40 +357,40 @@
                             </div>
                             <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
                         </button>
-                        <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
-                            <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
-                                <div class="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">View Tracking</div>
-                                <a href="{% url 'parent_children_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
-                                    <i class="fa-solid fa-children mr-3 opacity-70"></i>
-                                    <span class="sidebar-label">Mes Enfants</span>
-                                </a>
-                                <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
-                                    <i class="fa-solid fa-calendar-day mr-3 opacity-70"></i>
-                                    <span class="sidebar-label">Daily Reports</span>
-                                </a>
-                                <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
-                                    <i class="fa-solid fa-stream mr-3 opacity-70"></i>
-                                    <span class="sidebar-label">Timeline (Suivi)</span>
-                                </a>
-                                
-                                <div class="px-4 py-2 mt-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Actions</div>
-                                <a href="{% url 'register_child' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
-                                    <i class="fa-solid fa-plus-circle mr-3 opacity-70"></i>
-                                    <span class="sidebar-label">Inscrire un enfant</span>
-                                </a>
-                                <a href="{% url 'request_center_access' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
-                                    <i class="fa-solid fa-key mr-3 opacity-70"></i>
-                                    <span class="sidebar-label">Demander l'accès</span>
-                                </a>
-                                <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
-                                    <i class="fa-solid fa-bed-pulse mr-3 opacity-70"></i>
-                                    <span class="sidebar-label">Report Absence</span>
-                                </a>
-                            </div>
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
+                            <div class="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">View Tracking</div>
+                            <a href="{% url 'parent_children_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-children mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Mes Enfants</span>
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-calendar-day mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Daily Reports</span>
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-stream mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Timeline (Suivi)</span>
+                            </a>
+
+                            <div class="px-4 py-2 mt-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Actions</div>
+                            <a href="{% url 'register_child' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-plus-circle mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Inscrire un enfant</span>
+                            </a>
+                            <a href="{% url 'request_center_access' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-key mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Demander l'accès</span>
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-bed-pulse mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Report Absence</span>
+                            </a>
                         </div>
-                    </li>
-                
-                    <li class="dropdown-group relative group mt-4" x-data="{ 
+                    </div>
+                </li>
+
+                <li class="dropdown-group relative group mt-4" x-data="{ 
                         unreadCount: 0,
                         async fetchUnread() {
                             try {
@@ -402,8 +400,8 @@
                             } catch (e) { console.error('Notification error') }
                         }
                     }" x-init="fetchUnread(); setInterval(() => fetchUnread(), 10000)">
-                        
-                        <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-600 to-rose-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+
+                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-600 to-rose-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                             <template x-if="unreadCount > 0">
                                 <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
                             </template>
@@ -424,52 +422,50 @@
                             
                             <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
                         </button>
-                
-                        <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
-                            <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5 shadow-inner">
-                                <a href="{% url 'communication:send_message' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all group">
-                                    <i class="fa-solid fa-paper-plane mr-3 opacity-70 group-hover:translate-x-1 transition-transform text-[10px]"></i>
-                                    <span class="sidebar-label">New Message</span>
-                                </a>
-                
-                                <a href="{% url 'communication:inbox' %}" class="flex items-center justify-between px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all group">
-                                    <div class="flex items-center">
-                                        <i class="fa-solid fa-inbox mr-3 opacity-70 text-[10px]"></i>
-                                        <span class="sidebar-label">Inbox</span>
-                                    </div>
-                                    <template x-if="unreadCount > 0">
+
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5 shadow-inner">
+                            <a href="{% url 'communication:send_message' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all group">
+                                <i class="fa-solid fa-paper-plane mr-3 opacity-70 group-hover:translate-x-1 transition-transform text-[10px]"></i>
+                                <span class="sidebar-label">New Message</span>
+                            </a>
+
+                            <a href="{% url 'communication:inbox' %}" class="flex items-center justify-between px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all group">
+                                <div class="flex items-center">
+                                    <i class="fa-solid fa-inbox mr-3 opacity-70 text-[10px]"></i>
+                                    <span class="sidebar-label">Inbox</span>
+                                </div>
+                                <template x-if="unreadCount > 0">
                                         <span class="bg-white text-rose-600 px-2 py-0.5 rounded-md text-[9px] font-black tracking-tighter uppercase">
                                             New
                                         </span>
                                     </template>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                {% endif %}
-            
-                        <li class="pt-4 border-t border-white/5 space-y-1">
-                      {% if user.is_authenticated %}
-                         {% if user.role_type == 'director' %}
-
-                            
-                            <a href="{%url 'director_dashboard' %}" class="flex items-center w-full px-5 py-3 text-slate-400 hover:text-emerald-400 transition-colors group">
-                                <i class="fa-solid fa-clipboard-list mr-3 text-[14px] opacity-70 group-hover:opacity-100"></i>
-                                <span class="sidebar-label font-bold text-[13px]">Dashboard Director</span>
                             </a>
-                         {% endif %}
-                      {% endif %}
-                            <form action="{% url 'logout' %}" method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="flex items-center w-full px-5 py-3 text-slate-400 hover:text-red-400 transition-colors group">
+                        </div>
+                    </div>
+                </li>
+                {% endif %}
+
+                <li class="pt-4 border-t border-white/5 space-y-1">
+                    {% if user.is_authenticated %} {% if user.role_type == 'director' %}
+
+
+                    <a href="{%url 'director_dashboard' %}" class="flex items-center w-full px-5 py-3 text-slate-400 hover:text-emerald-400 transition-colors group">
+                        <i class="fa-solid fa-clipboard-list mr-3 text-[14px] opacity-70 group-hover:opacity-100"></i>
+                        <span class="sidebar-label font-bold text-[13px]">Dashboard Director</span>
+                    </a>
+                    {% endif %} {% endif %}
+                    <form action="{% url 'logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="flex items-center w-full px-5 py-3 text-slate-400 hover:text-red-400 transition-colors group">
                                     <i class="fa-solid fa-right-from-bracket mr-3 text-[14px] opacity-70 group-hover:opacity-100"></i>
                                     <span class="sidebar-label font-bold text-[13px]">Logout Account</span>
                                 </button>
-                            </form>
-                        </li>
-            
-                    {% endif %}
-                </ul>
+                    </form>
+                </li>
+
+                {% endif %}
+            </ul>
         </nav>
     </div>
 </aside>
