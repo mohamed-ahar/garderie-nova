@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-8 px-6">
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-indigo-400/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-purple-400/5 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-5xl w-full grid lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-5 space-y-6 pt-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+                <i class="fa-solid fa-pen-nib text-indigo-500 text-[10px]"></i>
+                <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Curriculum Studio</span>
+            </div>
+
+            <div class="space-y-3">
+                <h1 class="text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
+                    Design your<br>
+                    <span class="bg-gradient-to-r from-blue-600 to-indigo-400 bg-clip-text text-transparent">Educational Content.</span>
+                </h1>
+                <p class="text-base text-slate-400 font-medium leading-relaxed">
+                    Compose engaging lessons by combining text, PDF resources, and video content for your educators.
+                </p>
+            </div>
+        </div>
+
+        <div class="lg:col-span-7">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] relative">
+                <form method="POST" enctype="multipart/form-data" class="space-y-5">
+                    {% csrf_token %}
+                    <div class="space-y-4">
+                        {% for field in form %}
+                        <div class="relative group">
+                            <label class="block text-[10px] font-black {% if field.errors %}text-rose-500{% else %}text-slate-400{% endif %} uppercase tracking-[0.2em] mb-1.5 px-1 group-focus-within:text-indigo-500 transition-colors">
+                                {{ field.label }}
+                            </label>
+                            <div class="premium-input-container">
+                                {{ field }}
+                            </div>
+                            {% if field.errors %}
+                            <div class="flex items-center gap-1.5 mt-1 px-1 text-rose-500">
+                                <i class="fa-solid fa-triangle-exclamation text-[10px]"></i>
+                                <p class="text-[9px] font-bold uppercase tracking-wider">{{ field.errors.0 }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" class="group relative w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 px-6 rounded-xl transition-all hover:bg-indigo-600 hover:text-white active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 text-sm">
+                            {% if form.instance.pk %}Update Lesson{% else %}Publish Lesson{% endif %}
+                            <i class="fa-solid fa-paper-plane text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl shadow-lg flex items-center justify-center text-white text-xl rotate-12">
+                    <i class="fa-solid fa-book"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

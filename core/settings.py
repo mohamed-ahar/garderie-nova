@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "corsheaders",
     'communication',
+    'curriculum',
 ]
 
 MIDDLEWARE = [
@@ -124,7 +125,8 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 STATIC_URL = "static/"
 AUTH_USER_MODEL = "accounts.User"

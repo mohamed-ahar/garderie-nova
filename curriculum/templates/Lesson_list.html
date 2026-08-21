@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="p-8 max-w-7xl mx-auto space-y-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="space-y-1">
+            <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Academic <span class="text-indigo-600">Library</span></h2>
+            <p class="text-slate-500 text-sm font-medium uppercase tracking-widest">Managed Curriculum & Resources</p>
+        </div>
+        {% if user.role_type == 'director' %}
+        <a href="{% url 'curriculum:add_lesson' %}" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-black text-sm transition-all shadow-lg shadow-indigo-200 dark:shadow-none">
+            <i class="fa-solid fa-plus"></i> New Lesson
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for lesson in lessons %}
+        <div class="group bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-[2rem] hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 relative overflow-hidden">
+            <div class="relative z-10 flex flex-col h-full">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-indigo-500 group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-500">
+                        <i class="fa-solid fa-file-lines text-xl"></i>
+                    </div>
+                    <span class="text-[9px] font-black px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-full uppercase tracking-tighter">
+                        {{ lesson.created_at|date:"M d, Y" }}
+                    </span>
+                </div>
+                
+                <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2 line-clamp-1 group-hover:text-indigo-500 transition-colors">
+                    {{ lesson.title }}
+                </h3>
+                <p class="text-slate-400 text-xs font-medium line-clamp-2 mb-6 flex-grow">
+                    {{ lesson.description|default:"No description provided." }}
+                </p>
+
+                <div class="flex items-center justify-between pt-4 border-t border-slate-50 dark:border-slate-800">
+                    <div class="flex -space-x-2">
+                         <div class="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900 border-2 border-white dark:border-slate-900 flex items-center justify-center text-[10px] font-bold text-indigo-600">
+                            {{ lesson.educator.user.first_name|first }}
+                         </div>
+                    </div>
+                    <a href="{% url 'curriculum:lesson_detail' lesson.pk %}" class="text-[11px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 group-hover:gap-3 transition-all">
+                        View Lesson <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-20 text-center space-y-4">
+            <div class="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto">
+                <i class="fa-solid fa-book-open-reader text-3xl text-slate-200"></i>
+            </div>
+            <p class="text-slate-400 font-bold uppercase tracking-[0.2em] text-xs">No lessons assigned yet</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

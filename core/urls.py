@@ -9,6 +9,8 @@ urlpatterns = [
     path("", include("dashboard.urls")),
     path("reports/", include("reports.urls")),
     path("communication/",include("communication.urls")),
+        path("curriculum/",include("curriculum.urls")),
+
 ]
 
 if settings.DEBUG:
