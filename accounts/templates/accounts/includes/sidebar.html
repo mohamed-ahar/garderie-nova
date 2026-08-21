@@ -489,7 +489,7 @@
                     {% endif %} {% endif %}
                     <form action="{% url 'logout' %}" method="post">
                         {% csrf_token %}
-                        <button type="submit" class="flex items-center w-full px-5 py-3 text-slate-400 hover:text-red-400 transition-colors group">
+                        <button type="submit" class="flex items-center w-full px-5 py-3 text-white hover:text-red-400 transition-colors group">
                                     <i class="fa-solid fa-right-from-bracket mr-3 text-[14px] opacity-70 group-hover:opacity-100"></i>
                                     <span class="sidebar-label font-bold text-[13px]">Logout Account</span>
                                 </button>
