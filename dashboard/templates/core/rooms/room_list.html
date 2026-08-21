@@ -4,161 +4,193 @@
 {% block title %}Manage Rooms - GarderieNova{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto px-2">
-<div class="relative mb-10 -mx-6 -mt-6 overflow-hidden border-b border-white/10 group">
-    <div class="absolute inset-0 bg-[#020617]"></div>
-    <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900/40 to-cyan-900/30 opacity-90"></div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
     
-    <div class="absolute inset-0 opacity-10" 
-         style="background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0); background-size: 24px 24px;">
-    </div>
-    
-    <div class="absolute -top-24 -left-24 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px]"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-cyan-500/5 rounded-full blur-[100px] animate-pulse"></div>
-
-    <div class="relative z-10 px-8 pt-10 pb-10">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-            
-            <div class="space-y-4">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-500/10 backdrop-blur-md border border-cyan-500/20">
-                    <i class="fa-solid fa-compass-drafting text-[10px] text-cyan-400"></i>
-                    <span class="text-[9px] font-black text-cyan-200 uppercase tracking-[0.3em]">Facility_Logic_System</span>
-                </div>
+    <div class="relative mb-12 -mx-4 sm:-mx-6 lg:-mx-8 overflow-hidden border-b border-white/10">
+        <div class="absolute inset-0 bg-[#020617]"></div>
+        <div class="absolute inset-0 opacity-20" 
+             style="background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 24px 24px;"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-green-600/20 via-transparent to-cyan-500/10"></div>
+        
+        <div class="relative z-10 px-8 py-12">
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
                 
-                <div>
-                    <h1 class="text-4xl md:text-5xl font-black text-white tracking-tighter leading-none mb-3">
-                        Rooms Management
-                    </h1>
-                    <p class="text-slate-300/70 text-sm md:text-sm font-medium max-w-xl leading-relaxed">
-                        Configure physical learning environments, monitor square footage utilization, and define capacity thresholds.
-                    </p>
-                </div>
-            </div>
-
-            <div class="flex flex-wrap items-center justify-end gap-5">
-                <div class="hidden sm:flex items-center gap-5 px-6 py-4 rounded-[2rem] bg-white/[0.03] backdrop-blur-xl border border-white/10">
-                    <div class="flex flex-col">
-                        <span class="text-[9px] font-black text-cyan-400 uppercase tracking-widest">Total_Capacity</span>
-                        <span class="text-xl font-mono font-bold text-white leading-none mt-1">
-                            {{ rooms|length|default:"0" }}<span class="text-xs opacity-40 ml-1">Rooms</span>
+                <div class="space-y-6 max-w-3xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 backdrop-blur-md border border-green-500/20">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                         </span>
+                        <span class="text-[10px] font-black text-green-200 uppercase tracking-[0.3em]">GarderieNova</span>
                     </div>
-                    <div class="w-px h-10 bg-white/10"></div>
-                    <div class="flex flex-col">
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Occupancy</span>
-                        <div class="flex items-center gap-2 mt-1">
-                            <div class="w-16 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                                <div class="h-full bg-cyan-500 rounded-full" style="width: 65%;"></div>
+                    
+                    <div>
+                        <h1 class="text-5xl md:text-6xl font-black text-white tracking-tighter leading-none mb-4">
+                            Rooms <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600">Management</span>
+                        </h1>
+                        <p class="text-white text-sm md:text-sm font-medium leading-relaxed">
+                            Architectural control interface. Monitor square footage, manage group assignments, and optimize classroom occupancy thresholds in real-time.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button class="px-4 py-1.5 rounded-full bg-green-500 text-white text-[10px] font-black tracking-widest uppercase transition-all shadow-lg shadow-green-500/20">
+                            All_Zones
+                        </button>
+                        <button class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[10px] font-black tracking-widest uppercase hover:bg-white/10 transition-all">
+                            Active
+                        </button>
+                        <button class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[10px] font-black tracking-widest uppercase hover:bg-white/10 transition-all">
+                            Maintenance
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center lg:items-end gap-6">
+                    <div class="flex items-center gap-8 px-8 py-5 rounded-[2.5rem] bg-white/[0.03] backdrop-blur-2xl border border-white/10 shadow-2xl">
+                        <div class="text-center lg:text-left">
+                            <p class="text-[9px] font-black text-green-400 uppercase tracking-widest opacity-70">Inventory</p>
+                            <p class="text-3xl font-black text-white leading-none mt-1">{{ rooms|length|default:"0" }} <span class="text-xs font-medium text-slate-500 uppercase tracking-tighter">Units</span></p>
+                        </div>
+                        <div class="w-px h-10 bg-white/10"></div>
+                        <div class="hidden sm:block">
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Global_Occupancy</p>
+                            <div class="w-32 h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                                <div class="h-full bg-gradient-to-r from-green-600 to-cyan-400 rounded-full w-[65%] shadow-[0_0_15px_rgba(6,182,212,0.4)]"></div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <a href="{% url 'room_create' %}" 
-                   class="group relative inline-flex items-center gap-4 px-8 py-4 bg-white text-slate-900 rounded-2xl text-sm font-black transition-all hover:bg-cyan-500 hover:text-white hover:shadow-[0_20px_50px_-10px_rgba(6,182,212,0.5)] active:scale-95">
-                    <div class="relative">
-                        <i class="fa-solid fa-door-open text-base relative z-10"></i>
-                        <div class="absolute inset-0 bg-cyan-500/20 blur-md rounded-full opacity-0 group-hover:opacity-100"></div>
-                    </div>
-                    <span class="uppercase tracking-[0.15em]">Initialize Room</span>
-                </a>
+                    <a href="{% url 'room_create' %}" 
+                       class="group relative inline-flex items-center gap-4 px-10 py-5 bg-white text-slate-900 rounded-[2rem] text-sm font-black transition-all hover:scale-[1.02] hover:shadow-[0_20px_50px_-15px_rgba(255,255,255,0.2)] active:scale-95">
+                        <i class="fa-solid fa-plus text-lg transition-transform group-hover:rotate-90"></i>
+                        <span class="uppercase tracking-widest">Add New Room</span>
+                    </a>
+                </div>
             </div>
         </div>
-
-        <div class="flex flex-wrap gap-4 mt-12">
-            <button class="px-5 py-2 rounded-lg bg-white/5 border border-white/10 text-cyan-400 text-[10px] font-black tracking-widest flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span> ACTIVE_ZONES
-            </button>
-            <button class="px-5 py-2 rounded-lg text-slate-400 text-[10px] font-black tracking-widest hover:bg-white/5 transition-all flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> MAINTENANCE
-            </button>
-            <button class="px-5 py-2 rounded-lg text-slate-400 text-[10px] font-black tracking-widest hover:bg-white/5 transition-all flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> CAPACITY_ALERTS
-            </button>
-        </div>
     </div>
-</div>
-<div class="animate-in fade-in duration-500">
 
-    <!-- Rooms Grid -->
+   <div class="animate-in fade-in slide-in-from-bottom-4 duration-700">
     {% if rooms %}
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
             {% for room in rooms %}
-                <div class="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="flex-1">
-                            <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-1">{{ room.name }}</h3>
-                            <p class="text-sm text-slate-500 dark:text-slate-400">
-                                <i class="fa-solid fa-building text-blue-500 mr-2"></i>
+                <div class="group relative bg-white dark:bg-slate-900/50 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.4)] transition-all duration-500 hover:-translate-y-2 overflow-hidden">
+                    
+                    <div class="absolute -top-12 -right-12 w-32 h-32 bg-green-500/5 rounded-full blur-3xl group-hover:bg-green-500/10 transition-colors"></div>
+
+                    <div class="relative z-10">
+                        <div class="flex items-start justify-between mb-8">
+                            <div class="relative">
+                                <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700/50 text-green-500 transition-colors group-hover:bg-green-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-green-500/30">
+                                    <i class="fa-solid fa-door-open text-xl"></i>
+                                </div>
+                                <span class="absolute -bottom-1 -right-1 flex h-4 w-4">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full {% if room.active_group.first %}bg-amber-400{% else %}bg-green-400{% endif %} opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-4 w-4 {% if room.active_group.first %}bg-amber-500{% else %}bg-green-500{% endif %} border-2 border-white dark:border-slate-900"></span>
+                                </span>
+                            </div>
+
+                            <div class="flex gap-2 translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                                <a href="{% url 'room_edit' room.room_id %}"
+                                   class="p-3 bg-white dark:bg-slate-800 shadow-md text-slate-600 dark:text-slate-300 rounded-xl hover:text-green-500 transition-colors" title="Edit">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                                <button onclick="openDeleteModal('{{ room.room_id }}', '{{ room.name }}')"
+                                        class="p-3 bg-white dark:bg-slate-800 shadow-md text-slate-600 dark:text-slate-300 rounded-xl hover:text-rose-500 transition-colors" title="Delete">
+                                    <i class="fa-solid fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <div class="flex items-center gap-3 mb-1">
+                                {% if room.active_group.first %}
+                                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">● Occupied</span>
+                                {% else %}
+                                    <span class="text-[10px] font-bold text-green-600 dark:text-green-400 uppercase tracking-wider">● Available</span>
+                                {% endif %}
+                            </div>
+                            <h3 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter group-hover:text-green-500 transition-colors truncate">{{ room.name }}</h3>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mt-2">
+                                <i class="fa-solid fa-building-user text-[10px]"></i>
                                 {{ room.center.name }}
                             </p>
                         </div>
-                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <a href="{% url 'room_edit' room.room_id %}"
-                               class="p-2.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                               title="Edit room">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </a>
-                            <button onclick="openDeleteModal('{{ room.room_id }}', '{{ room.name }}')"
-                                    class="p-2.5 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
-                                    title="Delete room">
-                                <i class="fa-solid fa-trash-alt"></i>
-                            </button>
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-100 dark:border-blue-900/50">
-                            <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Surface</p>
-                            <p class="text-xl font-black text-slate-900 dark:text-white">{{ room.room_surface }} m²</p>
-                        </div>
-                        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-100 dark:border-blue-900/50">
-                            <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Group</p>
-                            <p class="text-xl font-black text-slate-900 dark:text-white truncate">
+                        <div class="flex flex-col gap-4">
+    
+                            <div class="flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-800/30 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 transition-all group-hover:border-green-500/20">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-slate-400 group-hover:text-green-500 transition-colors">
+                                        <i class="fa-solid fa-ruler-combined text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Surface Area</p>
+                                        <div class="flex items-baseline gap-1">
+                                            <span class="text-lg font-black text-slate-900 dark:text-white">{{ room.room_surface }}</span>
+                                            <span class="text-[10px] font-bold text-slate-400">m²</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i>
+                            </div>
+                        
+                            <div class="flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-800/30 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 transition-all group-hover:border-green-500/20">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-slate-400 group-hover:text-green-500 transition-colors">
+                                        <i class="fa-solid fa-user-group text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Current Occupant</p>
+                                        <p class="text-sm font-black truncate max-w-[150px]">
+                                            {% if room.active_group.first %}
+                                                <span class="text-green-600 dark:text-green-400">{{ room.active_group.first.name }}</span>
+                                            {% else %}
+                                                <span class="text-slate-400 font-bold italic">Vacant Space</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                                
                                 {% if room.active_group.first %}
-                                    {{ room.active_group.first.name }}
+                                    <span class="px-2 py-1 rounded-md bg-green-500/10 text-green-600 text-[8px] font-black uppercase tracking-tighter border border-green-500/20">In Use</span>
                                 {% else %}
-                                    <span class="text-slate-400 dark:text-slate-500">No group</span>
+                                    <span class="px-2 py-1 rounded-md bg-slate-200 dark:bg-slate-700 text-slate-500 text-[8px] font-black uppercase tracking-tighter">Open</span>
                                 {% endif %}
-                            </p>
+                            </div>
+                        
+                        </div>
+
+                        <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                            <div class="flex -space-x-2">
+                                <div class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 border-2 border-white dark:border-slate-900 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                                    <i class="fa-solid fa-users text-[10px]"></i>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Logic: Physical Zone</span>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
     {% else %}
-        <div class="rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 p-12 text-center bg-slate-50 dark:bg-slate-900/50">
-            <div class="flex justify-center mb-4">
-                <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center">
-                    <i class="fa-solid fa-door-open text-2xl text-blue-500 dark:text-blue-400"></i>
+        <div class="max-w-2xl mx-auto rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800 p-20 text-center">
+            <div class="relative inline-flex mb-8">
+                <div class="absolute inset-0 bg-green-500/20 blur-3xl rounded-full"></div>
+                <div class="relative w-24 h-24 rounded-[2rem] bg-gradient-to-br from-green-500 to-cyan-500 flex items-center justify-center text-white shadow-2xl">
+                    <i class="fa-solid fa-map-location-dot text-4xl"></i>
                 </div>
             </div>
-            <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2">No Rooms Yet</h3>
-            <p class="text-slate-500 dark:text-slate-400 mb-6">Create your first room to get started with managing your childcare center.</p>
+            <h3 class="text-3xl font-black text-slate-900 dark:text-white mb-4">No Facilities Detected</h3>
+            <p class="text-slate-500 dark:text-slate-400 mb-10 text-lg">Your facility logic is currently empty. Initialize your first physical zone to begin student distribution.</p>
             <a href="{% url 'room_create' %}"
-               class="inline-block px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:shadow-lg hover:shadow-blue-500/30 text-white font-bold rounded-xl transition-all">
-                <i class="fa-solid fa-plus mr-2"></i>Create First Room
+               class="inline-flex items-center gap-3 px-8 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black rounded-2xl transition-all hover:scale-105 shadow-xl">
+                <i class="fa-solid fa-plus"></i> Initialize Zone
             </a>
         </div>
     {% endif %}
 </div>
 </div>
-<!-- Delete Modal Form (hidden) -->
-<form id="deleteRoomForm" method="POST" action="" class="hidden">
-    {% csrf_token %}
-</form>
 
-<script>
-function openDeleteModal(roomId, roomName) {
-    const deleteUrl = `/rooms/${roomId}/delete/`;
-    document.getElementById('deleteRoomForm').action = deleteUrl;
-    
-    openModal(
-        'Delete Room?',
-        `Are you sure you want to delete "${roomName}"? This action cannot be undone.`,
-        'deleteRoomForm',
-        'delete'
-    );
-}
-</script>
 {% endblock %}
