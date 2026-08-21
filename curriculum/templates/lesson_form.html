@@ -1,65 +1,136 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-8 px-6">
+<div class="relative min-h-screen bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-16 px-6">
     <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-indigo-400/5 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-purple-400/5 rounded-full blur-[100px]"></div>
+        <div class="absolute top-[-10%] left-[10%] w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[10%] right-[5%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[100px]"></div>
     </div>
 
-    <div class="relative z-10 max-w-5xl w-full grid lg:grid-cols-12 gap-8 items-start">
-        <div class="lg:col-span-5 space-y-6 pt-10">
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
-                <i class="fa-solid fa-pen-nib text-indigo-500 text-[10px]"></i>
-                <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Curriculum Studio</span>
+    <div class="relative z-10 max-w-6xl w-full grid lg:grid-cols-12 gap-12 items-center">
+        <div class="lg:col-span-5 space-y-8">
+            <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+                <i class="fa-solid fa-wand-magic-sparkles text-indigo-500 text-xs"></i>
+                <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Curriculum Studio</span>
             </div>
 
-            <div class="space-y-3">
-                <h1 class="text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
-                    Design your<br>
-                    <span class="bg-gradient-to-r from-blue-600 to-indigo-400 bg-clip-text text-transparent">Educational Content.</span>
+            <div class="space-y-4">
+                <h1 class="text-5xl font-black text-slate-900 dark:text-white leading-[1.1] tracking-tighter">
+                    Craft Your<br>
+                    <span class="bg-gradient-to-r from-indigo-600 via-blue-500 to-indigo-400 bg-clip-text text-transparent">Digital Legacy.</span>
                 </h1>
-                <p class="text-base text-slate-400 font-medium leading-relaxed">
-                    Compose engaging lessons by combining text, PDF resources, and video content for your educators.
+                <p class="text-lg text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-md">
+                    Transform complex knowledge into seamless learning experiences. Mix video, text, and documents in one workspace.
                 </p>
+            </div>
+
+            <div class="space-y-4 pt-4">
+                <div class="flex items-center gap-3 text-slate-400">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-500 text-xs">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wider">Auto-Embed Video Links</span>
+                </div>
+                <div class="flex items-center gap-3 text-slate-400">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-500 text-xs">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wider">PDF Resource Hosting</span>
+                </div>
             </div>
         </div>
 
         <div class="lg:col-span-7">
-            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] relative">
-                <form method="POST" enctype="multipart/form-data" class="space-y-5">
+            <div class="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 p-10 shadow-[0_40px_100px_rgba(0,0,0,0.04)] relative">
+                
+                <form method="POST" enctype="multipart/form-data" class="space-y-6">
                     {% csrf_token %}
-                    <div class="space-y-4">
+                    
+                    <div class="grid grid-cols-1 gap-6">
                         {% for field in form %}
                         <div class="relative group">
-                            <label class="block text-[10px] font-black {% if field.errors %}text-rose-500{% else %}text-slate-400{% endif %} uppercase tracking-[0.2em] mb-1.5 px-1 group-focus-within:text-indigo-500 transition-colors">
+                            <label class="block text-[10px] font-black {% if field.errors %}text-rose-500{% else %}text-slate-400{% endif %} uppercase tracking-[0.2em] mb-2 px-1 transition-colors group-focus-within:text-indigo-500">
                                 {{ field.label }}
                             </label>
-                            <div class="premium-input-container">
+                            
+                            <div class="relative transition-all duration-300 transform group-focus-within:-translate-y-0.5">
                                 {{ field }}
-                            </div>
+                                </div>
+
                             {% if field.errors %}
-                            <div class="flex items-center gap-1.5 mt-1 px-1 text-rose-500">
-                                <i class="fa-solid fa-triangle-exclamation text-[10px]"></i>
-                                <p class="text-[9px] font-bold uppercase tracking-wider">{{ field.errors.0 }}</p>
+                            <div class="flex items-center gap-2 mt-2 px-2 text-rose-500 animate-pulse">
+                                <i class="fa-solid fa-circle-exclamation text-[10px]"></i>
+                                <p class="text-[9px] font-black uppercase tracking-widest">{{ field.errors.0 }}</p>
                             </div>
                             {% endif %}
                         </div>
                         {% endfor %}
                     </div>
 
-                    <div class="pt-4">
-                        <button type="submit" class="group relative w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 px-6 rounded-xl transition-all hover:bg-indigo-600 hover:text-white active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 text-sm">
-                            {% if form.instance.pk %}Update Lesson{% else %}Publish Lesson{% endif %}
-                            <i class="fa-solid fa-paper-plane text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                    <div class="pt-6">
+                        <button type="submit" class="group relative w-full overflow-hidden bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-5 px-8 rounded-2xl transition-all hover:bg-indigo-600 hover:text-white active:scale-[0.98] shadow-xl flex items-center justify-center gap-4 text-xs uppercase tracking-widest">
+                            <span class="relative z-10">
+                                {% if form.instance.pk %}Save Changes{% else %}Publish Masterclass{% endif %}
+                            </span>
+                            <i class="fa-solid fa-arrow-right relative z-10 text-[10px] group-hover:translate-x-2 transition-transform duration-300"></i>
+                            
+                            <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         </button>
                     </div>
                 </form>
 
-                <div class="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl shadow-lg flex items-center justify-center text-white text-xl rotate-12">
-                    <i class="fa-solid fa-book"></i>
+                <div class="absolute -top-6 -right-6 w-16 h-16 bg-white dark:bg-slate-800 rounded-3xl shadow-2xl flex items-center justify-center text-indigo-500 text-2xl border border-slate-50 dark:border-slate-700 animate-bounce-slow">
+                    <i class="fa-solid fa-layer-group"></i>
                 </div>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <a href="{% url 'curriculum:lesson_list' %}" class="text-[10px] font-black text-slate-400 hover:text-indigo-500 uppercase tracking-[0.3em] transition-colors">
+                    <i class="fa-solid fa-chevron-left mr-2"></i> Return to Curriculum
+                </a>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Styling standard Django widgets without modifying forms.py */
+    input[type="text"], 
+    input[type="url"], 
+    textarea, 
+    input[type="file"],
+    select {
+        width: 100%;
+        background-color: rgb(248 250 252); /* bg-slate-50 */
+        border: 1px solid rgb(241 245 249); /* border-slate-100 */
+        border-radius: 1.25rem;
+        padding: 1rem 1.25rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        color: rgb(15 23 42);
+    }
+
+    .dark input[type="text"], 
+    .dark input[type="url"], 
+    .dark textarea, 
+    .dark input[type="file"],
+    .dark select {
+        background-color: rgb(2 6 23); /* bg-slate-950 */
+        border-color: rgb(30 41 59); /* border-slate-800 */
+        color: white;
+    }
+
+    input:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    @keyframes bounce-slow {
+        0%, 100% { transform: translateY(0) rotate(12deg); }
+        50% { transform: translateY(-10px) rotate(12deg); }
+    }
+    .animate-bounce-slow {
+        animation: bounce-slow 4s infinite ease-in-out;
+    }
+</style>
 {% endblock %}

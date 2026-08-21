@@ -1,23 +1,20 @@
-from django import template
 import re
+from django import template
 
 register = template.Library()
 
-@register.filter(name='replace_for_embed')
-def replace_for_embed(value):
-    """
-    Kiy-transformi YouTube URL l-Embed URL
-    Ex: https://www.youtube.com/watch?v=ID -> https://www.youtube.com/embed/ID
-    """
-    if not value:
+@register.filter
+def replace_for_embed(url):
+    if not url:
         return ""
     
-    # RegEx bach n-jbdou l-Video ID
-    reg = r"(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^\"&?\/\s]{11})"
-    match = re.search(reg, value)
+    # Extraction de l'ID YouTube
+    regex = r"(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^\"&?\/\s]{11})"
+    match = re.search(regex, url)
     
     if match:
         video_id = match.group(1)
-        return f"https://www.youtube.com/embed/{video_id}"
+        # On ajoute enablejsapi=1 et on enlève les restrictions qui causent l'erreur 153
+        return f"https://www.youtube.com/embed/{video_id}?enablejsapi=1&rel=0&origin=http://127.0.0.1:8000"
     
-    return value
+    return url

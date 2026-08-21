@@ -3,7 +3,6 @@
 
 {% block content %}
 <div class="relative min-h-screen bg-white dark:bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
-    
     <div class="absolute inset-0 pointer-events-none">
         <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/4"></div>
         <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/4"></div>
@@ -18,11 +17,9 @@
             </a>
             
             {% if user.role_type == 'director' %}
-            <div class="flex items-center gap-3">
-                <a href="{% url 'curriculum:edit_lesson' lesson.pk %}" class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-blue-500 transition-colors border border-slate-100 dark:border-slate-800">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                </a>
-            </div>
+            <a href="{% url 'curriculum:edit_lesson' lesson.pk %}" class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-blue-500 transition-colors border border-slate-100 dark:border-slate-800">
+                <i class="fa-solid fa-pen-to-square"></i>
+            </a>
             {% endif %}
         </div>
 
@@ -30,119 +27,71 @@
             
             <div class="bg-slate-900 dark:bg-black p-8 md:p-12 relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-transparent"></div>
-                
-                <div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div class="space-y-4 max-w-2xl">
-                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[9px] font-black uppercase tracking-widest">
-                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
-                            Academic Resource
-                        </div>
-                        <h1 class="text-3xl md:text-5xl font-black text-white tracking-tighter leading-tight">
-                            {{ lesson.title }}
-                        </h1>
-                        <div class="flex flex-wrap items-center gap-6 pt-2">
-                            <div class="flex items-center gap-2.5 text-slate-400">
-                                <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs border border-slate-700">
-                                    <i class="fa-solid fa-calendar-day"></i>
-                                </div>
-                                <span class="text-[10px] font-bold uppercase tracking-wider">{{ lesson.created_at|date:"F d, Y" }}</span>
-                            </div>
-                            <div class="flex items-center gap-2.5 text-slate-400">
-                                <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs border border-slate-700">
-                                    <i class="fa-solid fa-clock"></i>
-                                </div>
-                                <span class="text-[10px] font-bold uppercase tracking-wider">Estimated 45 min</span>
-                            </div>
-                        </div>
+                <div class="relative z-10 space-y-4">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[9px] font-black uppercase tracking-widest">
+                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                        Masterclass Module
                     </div>
+                    <h1 class="text-3xl md:text-5xl font-black text-white tracking-tighter leading-tight">{{ lesson.title }}</h1>
                 </div>
             </div>
 
             <div class="p-8 md:p-12 grid lg:grid-cols-12 gap-12">
-                
                 <div class="lg:col-span-8 space-y-12">
                     
-                    <section class="space-y-4">
-                        <h3 class="text-[11px] font-black text-indigo-500 uppercase tracking-[0.3em]">Overview</h3>
-                        <p class="text-lg text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
-                            {{ lesson.description }}
-                        </p>
-                    </section>
-
-                    {% if lesson.content_text %}
-                    <section class="space-y-4">
-                        <h3 class="text-[11px] font-black text-indigo-500 uppercase tracking-[0.3em]">Lecture Notes</h3>
-                        <div class="prose prose-slate dark:prose-invert max-w-none text-slate-600 dark:text-slate-400 leading-loose">
-                            {{ lesson.content_text|linebreaks }}
-                        </div>
-                    </section>
-                    {% endif %}
-
                     {% if lesson.video_url %}
-                    <section class="space-y-4">
+                    <section class="space-y-6">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-[11px] font-black text-indigo-500 uppercase tracking-[0.3em]">Masterclass Video</h3>
+                            <h3 class="text-[11px] font-black text-indigo-500 uppercase tracking-[0.3em]">Lecture Vidéo</h3>
+                            <a href="{{ lesson.video_url }}" target="_blank" class="text-[9px] font-bold text-slate-400 hover:text-indigo-500 transition-colors uppercase tracking-widest">
+                                <i class="fa-solid fa-up-right-from-square mr-1"></i> Open on YouTube
+                            </a>
                         </div>
-                        <div class="aspect-video rounded-[2.5rem] overflow-hidden bg-slate-100 dark:bg-slate-800 border-8 border-slate-50 dark:border-slate-800 shadow-2xl shadow-indigo-500/10">
-                            <iframe class="w-full h-full" 
-                                    src="{{ lesson.video_url|replace_for_embed }}" 
-                                    title="Lesson Video" 
-                                    frameborder="0" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                    allowfullscreen>
+                        <div class="relative aspect-video rounded-[2.5rem] overflow-hidden bg-black border-8 border-slate-50 dark:border-slate-800 shadow-2xl">
+                            <iframe 
+                                class="absolute inset-0 w-full h-full" 
+                                src="{{ lesson.video_url|replace_for_embed }}" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                allowfullscreen
+                                loading="lazy">
                             </iframe>
                         </div>
                     </section>
                     {% endif %}
+
+                    <section class="space-y-4">
+                        <h3 class="text-[11px] font-black text-indigo-500 uppercase tracking-[0.3em]">Description & Notes</h3>
+                        <div class="prose prose-slate dark:prose-invert max-w-none text-slate-600 dark:text-slate-400 leading-relaxed">
+                            <p class="text-lg font-medium mb-6">{{ lesson.description }}</p>
+                            <div class="h-px bg-slate-100 dark:bg-slate-800 my-8"></div>
+                            {{ lesson.content_text|linebreaks }}
+                        </div>
+                    </section>
                 </div>
 
                 <div class="lg:col-span-4 space-y-8">
-                    
                     <div class="bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] p-8 border border-slate-100 dark:border-slate-800/50">
-                        <h4 class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">Learning Materials</h4>
-                        
-                        <div class="space-y-4">
-                            {% if lesson.pdf_file %}
-                            <a href="{{ lesson.pdf_file.url }}" target="_blank" class="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700 group hover:border-indigo-500 transition-all shadow-sm">
-                                <div class="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center text-rose-500 transition-colors group-hover:bg-rose-500 group-hover:text-white">
-                                    <i class="fa-solid fa-file-pdf text-xl"></i>
-                                </div>
-                                <div class="flex flex-col">
-                                    <span class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tight">Curriculum PDF</span>
-                                    <span class="text-[9px] text-slate-400 font-bold uppercase mt-0.5 tracking-tighter">Download Resource</span>
-                                </div>
-                            </a>
-                            {% else %}
-                            <div class="text-center py-8 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
-                                <i class="fa-solid fa-box-open text-slate-300 mb-2"></i>
-                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">No attachments</p>
+                        <h4 class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">Documents</h4>
+                        {% if lesson.pdf_file %}
+                        <a href="{{ lesson.pdf_file.url }}" target="_blank" class="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700 group hover:border-indigo-500 transition-all shadow-sm">
+                            <div class="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center text-rose-500 group-hover:bg-rose-500 group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-file-pdf text-xl"></i>
                             </div>
-                            {% endif %}
+                            <div class="flex flex-col">
+                                <span class="text-[11px] font-black uppercase tracking-tight dark:text-white">PDF Resource</span>
+                                <span class="text-[9px] text-slate-400 font-bold uppercase mt-0.5">Download</span>
+                            </div>
+                        </a>
+                        {% else %}
+                        <div class="text-center py-6 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">No files attached</p>
                         </div>
-                    </div>
-
-                    <div class="px-4 space-y-6">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
-                                <i class="fa-solid fa-shield-halved text-xs"></i>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest leading-none">Verified Content</p>
-                                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-1">Quality checked by director</p>
-                            </div>
-                        </div>
+                        {% endif %}
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    /* Styling for the content prose if needed */
-    .prose p {
-        margin-bottom: 1.5rem;
-    }
-</style>
 {% endblock %}
