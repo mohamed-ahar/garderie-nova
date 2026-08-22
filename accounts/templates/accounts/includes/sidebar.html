@@ -63,7 +63,7 @@
                             {% if user.role_type == 'director' %} 
                                 {{ user.director_profile.managed_center.name|default:"Overview" }} 
                             {% elif user.role_type == 'parent' %}
-                                Family Portal
+                                Parent
                             {% elif user.role_type == 'educator' %}
                              educator
                             {% else %} 
@@ -397,47 +397,57 @@
                     </div>
                 </div>
             </li>
-                {% endif %} {% if user.role_type == 'parent' %}
+                {% endif %} 
+                {% if user.role_type == 'parent' %}
                 <li class="dropdown-group relative group">
                     <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
-                            <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:scale-110">
-                                <i class="fa-solid fa-heart text-[14px]"></i>
-                            </div>
-                            <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
-                                <span class="font-extrabold tracking-wide text-[13.5px]">My Child</span>
-                                <span class="text-[8.5px] font-bold text-rose-200 uppercase tracking-[0.15em]">{{ user.get_full_name|default:"Parent" }}</span>
-                            </div>
-                            <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
-                        </button>
+                        <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:scale-110">
+                            <i class="fa-solid fa-heart text-[14px]"></i>
+                        </div>
+                        <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
+                            <span class="font-extrabold tracking-wide text-[13.5px]">Family Portal</span>
+                            <span class="text-[8.5px] font-bold text-rose-200 uppercase tracking-[0.15em]">{{ user.get_full_name|default:"Parent" }}</span>
+                        </div>
+                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
+                    </button>
+                
                     <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
                         <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
-                            <div class="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">View Tracking</div>
+                            
+                            <div class="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Monitoring</div>
+                            
                             <a href="{% url 'parent_children_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-children mr-3 opacity-70"></i>
-                                <span class="sidebar-label">My Childs</span>
+                                <span class="sidebar-label">My Children</span>
                             </a>
+                            
                             <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-calendar-day mr-3 opacity-70"></i>
                                 <span class="sidebar-label">Daily Reports</span>
                             </a>
+                            
                             <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-stream mr-3 opacity-70"></i>
-                                <span class="sidebar-label">Timeline (Suivi)</span>
+                                <span class="sidebar-label">Activity Timeline</span>
                             </a>
-
-                            <div class="px-4 py-2 mt-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Actions</div>
+                
+                            <div class="px-4 py-2 mt-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Management</div>
+                            
                             <a href="{% url 'register_child' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-plus-circle mr-3 opacity-70"></i>
-                                <span class="sidebar-label">Inscrire un enfant</span>
+                                <span class="sidebar-label">Enroll New Child</span>
                             </a>
+                            
                             <a href="{% url 'request_center_access' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-key mr-3 opacity-70"></i>
-                                <span class="sidebar-label">Demander l'accès</span>
+                                <span class="sidebar-label">Request Center Access</span>
                             </a>
+                            
                             <a href="{% url 'transfer_request' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-shuffle mr-3 opacity-70"></i>
-                                <span class="sidebar-label">Demande de transfert</span>
+                                <span class="sidebar-label">Transfer Request</span>
                             </a>
+                            
                             <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-bed-pulse mr-3 opacity-70"></i>
                                 <span class="sidebar-label">Report Absence</span>
