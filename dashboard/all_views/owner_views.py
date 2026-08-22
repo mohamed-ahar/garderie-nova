@@ -764,6 +764,16 @@ def waitlist_view(request):
             child.status = "active"
             child.save()
 
+            # Remove this child from waitlists of other centers
+            parents = ParentChildRelationship.objects.filter(child=child).values_list('parent', flat=True)
+            
+            Child.objects.filter(
+                parent_relationships__parent__in=parents,
+                status="waitlist",
+                first_name__iexact=child.first_name,
+                last_name__iexact=child.last_name,
+            ).exclude(child_id=child.child_id).delete()
+
             # Create EnrollmentForm
             EnrollmentForm.objects.get_or_create(child=child)
 

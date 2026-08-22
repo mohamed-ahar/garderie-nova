@@ -9,7 +9,7 @@ from ..models import (
     ParentChildRelationship,
     ParentProfile,
     CenterParentAccess,
-    Notification
+    Notification,
 )
 
 
@@ -28,51 +28,65 @@ def request_center_access(request):
     if request.method == "POST":
         center_id = request.POST.get("center_id")
         center = get_object_or_404(Center, center_id=center_id)
-        
+
         # Check if request already exists
         existing_request = CenterParentAccess.objects.filter(
-            center=center, 
-            parent=parent_profile
+            center=center, parent=parent_profile
         ).first()
 
         if existing_request:
-            if existing_request.status == 'pending':
-                messages.warning(request, f"Vous avez déjà une demande en attente pour {center.name}.")
-            elif existing_request.status == 'accepted':
+            if existing_request.status == "pending":
+                messages.warning(
+                    request,
+                    f"Vous avez déjà une demande en attente pour {center.name}.",
+                )
+            elif existing_request.status == "accepted":
                 messages.info(request, f"Vous avez déjà accès à {center.name}.")
-            elif existing_request.status == 'rejected':
+            elif existing_request.status == "rejected":
                 # Allow re-requesting if rejected
-                existing_request.status = 'pending'
-                existing_request.created_at = timezone.now() # Reset time to bump it up
+                existing_request.status = "pending"
+                existing_request.created_at = timezone.now()  # Reset time to bump it up
                 existing_request.save()
-                
+
                 # Notify Director(s) again
                 if center.director:
                     Notification.objects.create(
                         user=center.director.user,
-                        title="Nouvelle demande d'accès parent",
-                        message=f"{user.full_name} a renouvelé sa demande d'accès à votre centre.",
-                        action_url="/access-requests/" 
+                        title="Parent Access Request Renewed",
+                        message=(
+                            f"A parent has renewed their access request for your center.\n\n"
+                            f"Parent name: {user.full_name}\n"
+                            f"Request type: Renewed parent access request\n"
+                            f"Please review and take action from the access requests page."
+                        ),
+                        action_url="/access-requests/",
                     )
-                messages.success(request, f"Votre demande pour {center.name} a été renvoyée.")
+                messages.success(
+                    request, f"Votre demande pour {center.name} a été renvoyée."
+                )
         else:
             CenterParentAccess.objects.create(
-                center=center,
-                parent=parent_profile,
-                status='pending'
+                center=center, parent=parent_profile, status="pending"
             )
-            
+
             # Notify Director(s)
             if center.director:
                 Notification.objects.create(
                     user=center.director.user,
-                    title="Nouvelle demande d'accès parent",
-                    message=f"{user.full_name} a demandé l'accès à votre centre.",
-                    action_url="/access-requests/" # We will create this URL
+                    title="New Parent Access Request",
+                    message=(
+                        f"A parent has requested access to your center.\n\n"
+                        f"Parent name: {user.full_name}\n"
+                        f"Request type: Parent access to center\n"
+                        f"Please review and respond to this request from the access requests page."
+                    ),
+                    action_url="/access-requests/",
                 )
-            
-            messages.success(request, f"Demande envoyée à {center.name}. En attente d'approbation.")
-        
+
+            messages.success(
+                request, f"Demande envoyée à {center.name}. En attente d'approbation."
+            )
+
         return redirect("request_center_access")
 
     # Show centers where the parent does NOT have an accepted request
@@ -84,12 +98,11 @@ def request_center_access(request):
     centers_data = []
     for c in all_centers:
         status = request_map.get(c.center_id, None)
-        centers_data.append({
-            'center': c,
-            'status': status
-        })
+        centers_data.append({"center": c, "status": status})
 
-    return render(request, "core/parents/request_access.html", {"centers_data": centers_data})
+    return render(
+        request, "core/parents/request_access.html", {"centers_data": centers_data}
+    )
 
 
 @login_required(login_url="login")
@@ -104,20 +117,21 @@ def register_child_view(request):
         contact_phone = request.POST.get("contact_phone")
         contact_email = request.POST.get("contact_email")
         center_id = request.POST.get("center_id")
-
+        print(child_name, birth_date, contact_phone, contact_email, center_id)
         # Determine Center
         center = None
         if center_id:
             # Security check: Ensure parent has access
             center = get_object_or_404(Center, center_id=center_id)
             has_access = CenterParentAccess.objects.filter(
-                center=center, 
-                parent__user=user, 
-                status='accepted'
+                center=center, parent__user=user, status="accepted"
             ).exists()
-            
+
             if not has_access:
-                messages.error(request, "Vous n'avez pas la permission d'inscrire un enfant dans ce centre.")
+                messages.error(
+                    request,
+                    "Vous n'avez pas la permission d'inscrire un enfant dans ce centre.",
+                )
                 return redirect("register_child")
 
         else:
@@ -157,6 +171,19 @@ def register_child_view(request):
             relationship_type="Parent",
             is_emergency_contact=True,
         )
+        director_user = center.director.user
+        Notification.objects.create(
+            user=director_user,
+            title="New Waitlist Registration",
+            message=(
+                "A child has been added to your center’s waitlist.\n\n"
+                f"Child name: {child.first_name} {child.last_name}\n"
+                f"Parent name: {user.get_full_name() or user.username}\n"
+                f"Center: {center.name}\n"
+                "You can review the waitlist for further details."
+            ),
+            action_url="/waitlist/",
+        )
 
         messages.success(request, "Enfant inscrit sur la liste d'attente avec succès.")
         return redirect("dashboard_redirect")
@@ -164,11 +191,17 @@ def register_child_view(request):
     # Filter centers where parent is accepted
     centers = Center.objects.filter(
         parent_access_requests__parent__user=user,
-        parent_access_requests__status='accepted'
+        parent_access_requests__status="accepted",
     )
-    
+    print(
+        "here is the centers that accepted this parent to register their child ",
+        centers,
+    )
     if not centers.exists():
-        messages.warning(request, "Vous devez d'abord obtenir l'accès à un centre avant d'inscrire un enfant.")
+        messages.warning(
+            request,
+            "Vous devez d'abord obtenir l'accès à un centre avant d'inscrire un enfant.",
+        )
         return redirect("request_center_access")
 
     return render(request, "core/parents/register_child.html", {"centers": centers})
@@ -187,8 +220,10 @@ def parent_children_list(request):
         return redirect("dashboard_redirect")
 
     # Get all relationships for this parent
-    relationships = ParentChildRelationship.objects.filter(parent=parent_profile).select_related('child', 'child__center')
-    
+    relationships = ParentChildRelationship.objects.filter(
+        parent=parent_profile
+    ).select_related("child", "child__center")
+
     # Extract children from relationships
     children = [rel.child for rel in relationships]
 
