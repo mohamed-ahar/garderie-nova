@@ -10,7 +10,7 @@ from django.db.models import Q
 # --- 1. Dashboard / List View ---
 class LessonListView(LoginRequiredMixin, ListView):
     model = Lesson
-    template_name = 'lesson_list.html'
+    # template_name = 'lesson_list.html'
     context_object_name = 'lessons'
 
     def get_queryset(self):
@@ -33,7 +33,7 @@ class LessonCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Lesson
     form_class = LessonForm
     template_name = 'lesson_form.html'
-    success_url = reverse_lazy('curriculum:lesson_list')
+    # success_url = reverse_lazy('curriculum:lesson_list')
 
     def test_func(self):
         # Kay-checki wach l-user 3ndo l-haq i-creayi
@@ -48,7 +48,7 @@ class LessonUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Lesson
     form_class = LessonForm
     template_name = 'lesson_form.html'
-    success_url = reverse_lazy('curriculum:lesson_list')
+    # success_url = reverse_lazy('curriculum:lesson_list')
 
     def test_func(self):
         return self.request.user.role_type in ['director', 'owner']
@@ -57,7 +57,7 @@ class LessonUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 class LessonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Lesson
     template_name = 'lesson_confirm_delete.html'
-    success_url = reverse_lazy('curriculum:lesson_list')
+    # success_url = reverse_lazy('curriculum:lesson_list')
 
     def test_func(self):
         return self.request.user.role_type in ['director', 'owner']

@@ -10,6 +10,7 @@ from ..models import (
     ParentProfile,
     CenterParentAccess,
     Notification,
+    User,
 )
 
 
@@ -117,7 +118,8 @@ def register_child_view(request):
         contact_phone = request.POST.get("contact_phone")
         contact_email = request.POST.get("contact_email")
         center_id = request.POST.get("center_id")
-        print(child_name, birth_date, contact_phone, contact_email, center_id)
+        second_parent_email = request.POST.get("second_parent_email")
+
         # Determine Center
         center = None
         if center_id:
@@ -141,6 +143,36 @@ def register_child_view(request):
         if not center:
             messages.error(request, "Aucune garderie disponible.")
             return redirect("dashboard_redirect")
+        
+        # Verify Second Parent if provided
+        second_parent_profile = None
+        if second_parent_email:
+            try:
+                # Case insensitive email check? Standard Django is case sensitive usually, but emails should be treated carefully.
+                # Assuming exact match for now as per "verified to check if that person exists"
+                second_parent_user = User.objects.filter(email=second_parent_email).first()
+                
+                if not second_parent_user:
+                     messages.error(request, f"Aucun utilisateur trouvé avec l'email : {second_parent_email}")
+                     return redirect("register_child")
+                
+                if second_parent_user.role_type != 'parent':
+                     messages.error(request, "L'email fourni pour le deuxième parent n'appartient pas à un compte parent.")
+                     return redirect("register_child")
+                
+                if hasattr(second_parent_user, 'parent_profile'):
+                     second_parent_profile = second_parent_user.parent_profile
+                else:
+                     messages.error(request, "Le compte du deuxième parent est incomplet (profil manquant).")
+                     return redirect("register_child")
+                     
+                if second_parent_user == user:
+                     messages.error(request, "Vous ne pouvez pas vous ajouter vous-même comme deuxième parent.")
+                     return redirect("register_child")
+
+            except Exception as e:
+                messages.error(request, f"Erreur lors de la vérification du deuxième parent : {str(e)}")
+                return redirect("register_child")
 
         # Split name
         parts = child_name.strip().split(" ", 1)
@@ -163,7 +195,7 @@ def register_child_view(request):
             medical_info=extra_info,
         )
 
-        # Create Relationship
+        # Create Relationship for the registering parent
         parent_profile = get_object_or_404(ParentProfile, user=user)
         ParentChildRelationship.objects.create(
             parent=parent_profile,
@@ -171,6 +203,23 @@ def register_child_view(request):
             relationship_type="Parent",
             is_emergency_contact=True,
         )
+        
+        # Create Relationship for the second parent if applicable
+        if second_parent_profile:
+            ParentChildRelationship.objects.create(
+                parent=second_parent_profile,
+                child=child,
+                relationship_type="Parent",
+                is_emergency_contact=True, 
+            )
+            # Notify the second parent
+            Notification.objects.create(
+                user=second_parent_profile.user,
+                title="Nouvel enfant ajouté",
+                message=f"Vous avez été ajouté comme parent pour {child.first_name} {child.last_name} par {user.full_name}.",
+                action_url="/parents/my-children/"
+            )
+
         director_user = center.director.user
         Notification.objects.create(
             user=director_user,

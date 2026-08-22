@@ -37,6 +37,18 @@
             </div>
         </div>
 
+        <!-- Second Parent Info (Optional) -->
+        <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+            <h3 class="text-md font-semibold text-gray-700 mb-3">Second Parent (Optionnel)</h3>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email du deuxième parent</label>
+                <input type="email" name="second_parent_email"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                       placeholder="Entrez l'email du deuxième parent si applicable">
+                <p class="text-xs text-gray-500 mt-1">Si renseigné, ce compte doit déjà exister dans le système.</p>
+            </div>
+        </div>
+
         <!-- Center Selection (Hidden if only one, or selectable) -->
         {% if centers.count >= 1 %}
         <div>
