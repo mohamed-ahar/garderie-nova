@@ -14,12 +14,19 @@ class LessonListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        # Ila kan Director awla Owner, i-chouf kolchi
+        base_queryset = Lesson.objects.all().select_related('educator__user').order_by('-created_at')
+
+        # 1. Ila kan Director: i-chouf ghir dorouss li kreya (Owner)
         if user.role_type in ['director', 'owner']:
-            return Lesson.objects.all()
-        # Ila kan Educator, i-chouf ghir dorouss dyalo
+            # Hna kantarad belli l-Lesson fih field 'created_by' awla 'educator'
+            # Ila kan smiyto 'educator', khdem b hadi:
+            return base_queryset.filter(educator__user=user)
+        
+        # 2. Ila kan Educator: i-chouf ghir dakchi li 'assigned' lih
         elif user.role_type == 'educator':
-            return Lesson.objects.filter(educator__user=user)
+            # Hna d-dars khass y-koun m-linki m3a had l-educator exact
+            return base_queryset.filter(educator__user=user)
+        
         return Lesson.objects.none()
 
 # --- 2. Create Lesson (Ghir l-Director/Owner) ---
