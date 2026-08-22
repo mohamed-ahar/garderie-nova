@@ -64,8 +64,10 @@
                                 {{ user.director_profile.managed_center.name|default:"Overview" }} 
                             {% elif user.role_type == 'parent' %}
                                 Family Portal
+                            {% elif user.role_type == 'educator' %}
+                             educator
                             {% else %} 
-                                Dashboard 
+                                Owner
                             {% endif %}
                         </span>
                     </div>
