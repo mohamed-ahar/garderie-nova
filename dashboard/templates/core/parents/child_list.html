@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Tableau de Bord | GarderieNova{% endblock %}
+{% block title %}Family Dashboard | GarderieNova{% endblock %}
 
 {% block content %}
 <div class="min-h-screen bg-[#f8fafc] dark:bg-[#05070a] selection:bg-indigo-100 dark:selection:bg-indigo-900/30">
@@ -16,7 +16,7 @@
             <div class="space-y-2">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="flex -space-x-2">
-                        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center ring-2 ring-white dark:ring-slate-900">
+                        <div class="w-8 h-8 rounded-full bg-rose-600 flex items-center justify-center ring-2 ring-white dark:ring-slate-900">
                             <i class="fa-solid fa-shield-heart text-[10px] text-white"></i>
                         </div>
                         <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center ring-2 ring-white dark:ring-slate-900">
@@ -27,20 +27,20 @@
                         Parent Verified Portal
                     </span>
                 </div>
-                <h1 class="text-6xl font-black text-slate-900 dark:text-white tracking-[ -0.04em] leading-none">
+                <h1 class="text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
                     My <span class="relative">
-                        Childs
-                        <svg class="absolute -bottom-2 left-0 w-full h-2 text-indigo-500/30" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 25 0 50 5 T 100 5" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+                        Children
+                        <svg class="absolute -bottom-2 left-0 w-full h-2 text-rose-500/30" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 25 0 50 5 T 100 5" stroke="currentColor" stroke-width="2" fill="none"/></svg>
                     </span>
                 </h1>
             </div>
 
             <div class="flex items-center gap-4">
                 <a href="{% url 'register_child' %}" class="relative group px-7 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 translate-y-[101%] group-hover:translate-y-0 transition-transform duration-500"></div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-rose-600 to-pink-600 translate-y-[101%] group-hover:translate-y-0 transition-transform duration-500"></div>
                     <span class="relative flex items-center gap-3 font-bold text-slate-900 dark:text-white group-hover:text-white transition-colors duration-500">
-                        <i class="fa-solid fa-plus-circle text-indigo-500 group-hover:text-white"></i>
-                        Nouvelle Inscription
+                        <i class="fa-solid fa-plus-circle text-rose-500 group-hover:text-white"></i>
+                        Register New Child
                     </span>
                 </a>
             </div>
@@ -50,63 +50,61 @@
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
             {% for child in children %}
             <div class="group relative">
-                <div class="relative h-full bg-white dark:bg-[#0c1117] rounded-[2.5rem] border border-slate-200/60 dark:border-slate-800/60 p-4 transition-all duration-700 hover:-translate-y-2 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)]">
+                <div class="relative h-full bg-white dark:bg-[#0c1117] rounded-[2.5rem] border border-slate-200/60 dark:border-slate-800/60 transition-all duration-700 hover:-translate-y-2 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] overflow-hidden">
                     
-                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-[2.5rem] bg-[radial-gradient(circle_at_50%_0%,rgba(79,70,229,0.08),transparent_70%)]"></div>
-
-                    <div class="relative z-10 p-4">
-                        <div class="flex justify-between items-start mb-10">
-                            <div class="relative group/avatar">
-                                <div class="absolute -inset-2 bg-gradient-to-tr from-indigo-500 to-cyan-400 rounded-[2.2rem] opacity-20 group-hover/avatar:opacity-40 blur-md transition-opacity"></div>
-                                <div class="relative w-24 h-24 rounded-[2rem] overflow-hidden border-2 border-white dark:border-slate-800 bg-slate-100 dark:bg-slate-800">
-                                    {% if child.profile_photo %}
-                                        <img src="{{ child.profile_photo.url }}" class="w-full h-full object-cover transition-transform duration-700 group-hover/avatar:scale-110" alt="Child Profile">
-                                    {% else %}
-                                        <span class="w-full h-full flex items-center justify-center text-3xl font-black text-slate-300">{{ child.first_name|slice:":1" }}</span>
-                                    {% endif %}
-                                </div>
+                    <!-- Image Top Section -->
+                    <div class="relative aspect-square w-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                        {% if child.profile_photo %}
+                            <img src="{{ child.profile_photo.url }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Child Profile">
+                        {% else %}
+                            <div class="w-full h-full flex items-center justify-center bg-rose-50 dark:bg-rose-900/10">
+                                <span class="text-6xl font-black text-rose-200 dark:text-rose-900/30">{{ child.first_name|slice:":1" }}</span>
                             </div>
-
-                            <div class="flex flex-col items-end gap-3">
-                                <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
-                                    <div class="w-1.5 h-1.5 rounded-full {% if child.status == 'active' %}bg-emerald-500 animate-pulse{% else %}bg-amber-500{% endif %}"></div>
-                                    <span class="text-[9px] font-black uppercase tracking-tighter text-slate-600 dark:text-slate-400">
-                                        {{ child.get_status_display }}
-                                    </span>
-                                </div>
+                        {% endif %}
+                        
+                        <!-- Status Overlay -->
+                        <div class="absolute top-6 right-6">
+                            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-white/20 shadow-lg">
+                                <div class="w-1.5 h-1.5 rounded-full {% if child.status == 'active' %}bg-emerald-500 animate-pulse{% else %}bg-amber-500{% endif %}"></div>
+                                <span class="text-[9px] font-black uppercase tracking-tighter text-slate-600 dark:text-slate-400">
+                                    {{ child.get_status_display }}
+                                </span>
                             </div>
                         </div>
 
-                        <div class="space-y-4 mb-10">
-                            <div>
-                                <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                                    {{ child.first_name }} <span class="text-slate-400 dark:text-slate-600 font-medium">{{ child.last_name }}</span>
-                                </h2>
-                                <p class="text-sm font-bold text-slate-500 mt-1 flex items-center gap-2">
-                                    <i class="fa-solid fa-calendar-day text-indigo-500/50"></i>
-                                    {{ child.birth_date|date:"F Y" }} • {{ child.age_display }}
-                                </p>
-                            </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    </div>
 
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-3 border border-slate-100 dark:border-slate-800">
-                                    <p class="text-[9px] font-black uppercase text-slate-400 mb-1">Localisation</p>
-                                    <p class="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">{{ child.center.name }}</p>
-                                </div>
-                                <div class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-3 border border-slate-100 dark:border-slate-800">
-                                    <p class="text-[9px] font-black uppercase text-slate-400 mb-1">Dernière activité</p>
-                                    <p class="text-xs font-bold text-slate-700 dark:text-slate-300">Aujourd'hui</p>
-                                </div>
+                    <!-- Content Bottom Section -->
+                    <div class="p-8">
+                        <div class="mb-6">
+                            <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
+                                {{ child.first_name }} <span class="text-slate-400 dark:text-slate-600 font-medium">{{ child.last_name }}</span>
+                            </h2>
+                            <p class="text-sm font-bold text-slate-500 mt-1 flex items-center gap-2">
+                                <i class="fa-solid fa-calendar-day text-rose-500/50"></i>
+                                {{ child.birth_date|date:"F Y" }} • {{ child.age_display }}
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 mb-8">
+                            <div class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-3 border border-slate-100 dark:border-slate-800">
+                                <p class="text-[9px] font-black uppercase text-slate-400 mb-1">Location</p>
+                                <p class="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">{{ child.center.name }}</p>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-3 border border-slate-100 dark:border-slate-800">
+                                <p class="text-[9px] font-black uppercase text-slate-400 mb-1">Last Activity</p>
+                                <p class="text-xs font-bold text-slate-700 dark:text-slate-300">Today</p>
                             </div>
                         </div>
 
                         <div class="flex gap-3">
-                            <a href="{% url 'child_profile' child.child_id %}" class="flex-1 group/btn relative flex items-center justify-center gap-2 py-4 bg-indigo-600 rounded-2xl text-white font-black text-[11px] uppercase tracking-widest overflow-hidden transition-all hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/30">
+                            <a href="{% url 'child_profile' child.child_id %}" class="flex-1 group/btn relative flex items-center justify-center gap-2 py-4 bg-rose-600 rounded-2xl text-white font-black text-[11px] uppercase tracking-widest overflow-hidden transition-all hover:bg-rose-700 hover:shadow-xl hover:shadow-rose-500/30">
                                 <i class="fa-solid fa-fingerprint text-sm opacity-50 group-hover/btn:scale-110 transition-transform"></i>
-                                Accéder au Profil
+                                Access Profile
                             </a>
-                            <a href="{% url 'enrollment_edit' child.child_id %}" class="w-14 h-14 flex items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                <i class="fa-solid fa-gear text-slate-400"></i>
+                            <a href="{% url 'enrollment_edit' child.child_id %}" class="w-14 h-14 flex items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group/edit">
+                                <i class="fa-solid fa-gear text-slate-400 group-hover/edit:rotate-90 transition-transform duration-500"></i>
                             </a>
                         </div>
                     </div>
@@ -117,15 +115,15 @@
         {% else %}
         <div class="flex flex-col items-center justify-center py-32 bg-white dark:bg-slate-900/30 rounded-[3rem] border border-slate-200/60 dark:border-slate-800/60 border-dashed">
             <div class="relative w-20 h-20 mb-8">
-                <div class="absolute inset-0 bg-indigo-500 blur-2xl opacity-20 animate-pulse"></div>
+                <div class="absolute inset-0 bg-rose-500 blur-2xl opacity-20 animate-pulse"></div>
                 <div class="relative w-full h-full bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center border border-slate-100 dark:border-slate-700 shadow-xl">
                     <i class="fa-solid fa-ghost text-3xl text-slate-300"></i>
                 </div>
             </div>
-            <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2">Aucune donnée trouvée</h3>
-            <p class="text-slate-500 dark:text-slate-400 mb-10 text-center max-w-xs font-medium">Commencez par ajouter un enfant pour débloquer votre tableau de bord.</p>
-            <a href="{% url 'register_child' %}" class="px-10 py-4 bg-indigo-600 text-white font-black rounded-2xl hover:shadow-2xl hover:shadow-indigo-500/40 transition-all">
-                Ajouter un Enfant
+            <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2">No children found</h3>
+            <p class="text-slate-500 dark:text-slate-400 mb-10 text-center max-w-xs font-medium">Start by adding a child to unlock your family dashboard.</p>
+            <a href="{% url 'register_child' %}" class="px-10 py-4 bg-rose-600 text-white font-black rounded-2xl hover:shadow-2xl hover:shadow-rose-500/40 transition-all">
+                Add a Child
             </a>
         </div>
         {% endif %}

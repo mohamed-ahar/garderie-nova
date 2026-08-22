@@ -6,10 +6,10 @@
 <div class="max-w-7xl mx-auto px-4 py-8">
     
     <!-- Profile Header -->
-    <div class="relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden mb-8">
+    <div class="relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-xl border border-rose-100 dark:border-slate-800 overflow-hidden mb-8">
         <!-- Background Decor -->
-        <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
-        <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -ml-16 -mb-16"></div>
+        <div class="absolute top-0 right-0 w-64 h-64 bg-rose-500/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl -ml-16 -mb-16"></div>
 
         <div class="relative flex flex-col md:flex-row items-center gap-8">
             <!-- Avatar -->
@@ -18,7 +18,7 @@
                     {% if child.profile_photo %}
                         <img src="{{ child.profile_photo.url }}" class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110" alt="{{ child.first_name }}">
                     {% else %}
-                        <div class="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-4xl font-black text-slate-300 dark:text-slate-600">
+                        <div class="w-full h-full bg-rose-50 dark:bg-slate-800 flex items-center justify-center text-4xl font-black text-rose-300 dark:text-slate-600">
                             {{ child.first_name|first }}{{ child.last_name|first }}
                         </div>
                     {% endif %}
@@ -39,14 +39,14 @@
                 
                 <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-6">
                     <span class="px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-cake-candles text-blue-500"></i>
+                        <i class="fa-solid fa-cake-candles text-rose-500"></i>
                         {{ child.birth_date|date:"d M Y" }}
                     </span>
-                    <span class="px-4 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider">
+                    <span class="px-4 py-1.5 rounded-full bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-xs font-bold uppercase tracking-wider">
                         {{ child.age_display }}
                     </span>
                     {% if child.gender %}
-                    <span class="px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider">
+                    <span class="px-4 py-1.5 rounded-full bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 text-xs font-bold uppercase tracking-wider">
                         <i class="fa-solid fa-person{% if child.gender == 'féminin' %}-dress{% endif %} mr-1"></i>
                         {{ child.gender|title }}
                     </span>
@@ -54,9 +54,9 @@
                 </div>
 
                 <!-- Placement Info -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-slate-100 dark:border-slate-800 pt-6">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-rose-100 dark:border-slate-800 pt-6">
                     <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
-                        <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                        <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400">
                             <i class="fa-solid fa-building"></i>
                         </div>
                         <div>
@@ -91,7 +91,7 @@
         <!-- Sidebar Navigation -->
         <div class="lg:col-span-3">
             <div class="sticky top-6 space-y-2">
-                <button onclick="switchTab('identity')" id="tab-identity" class="w-full text-left px-6 py-4 rounded-2xl font-bold transition-all bg-white dark:bg-slate-800 shadow-lg text-blue-600 dark:text-blue-400 ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-slate-900">
+                <button onclick="switchTab('identity')" id="tab-identity" class="w-full text-left px-6 py-4 rounded-2xl font-bold transition-all bg-white dark:bg-slate-800 shadow-lg text-rose-600 dark:text-rose-400 ring-2 ring-rose-500 ring-offset-2 dark:ring-offset-slate-900">
                     <i class="fa-solid fa-address-card w-6"></i> Identity & Contacts
                 </button>
                 <button onclick="switchTab('health')" id="tab-health" class="w-full text-left px-6 py-4 rounded-2xl font-bold transition-all text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md">
@@ -107,7 +107,7 @@
                 </button>
                 
                 {% if user.role_type == 'parent' %}
-                <a href="{% url 'enrollment_edit' child.child_id %}" class="block w-full mt-6 px-6 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-center transition-all shadow-lg shadow-blue-500/30 hover:-translate-y-0.5">
+                <a href="{% url 'enrollment_edit' child.child_id %}" class="block w-full mt-6 px-6 py-4 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-center transition-all shadow-lg shadow-rose-500/30 hover:-translate-y-0.5">
                     <i class="fa-solid fa-pen-to-square mr-2"></i> Edit Profile
                 </a>
                 {% endif %}
@@ -119,9 +119,9 @@
             <!-- Identity Tab -->
             <div id="content-identity" class="space-y-6 tab-content">
                 <!-- Personal Info Card -->
-                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 shadow-sm border border-slate-100 dark:border-slate-800">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 shadow-sm border border-rose-100 dark:border-slate-800">
                     <h3 class="text-xl font-black text-slate-900 dark:text-white mb-6 flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 text-sm">
+                        <div class="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 text-sm">
                             <i class="fa-solid fa-address-card"></i>
                         </div>
                         Personal Information
@@ -148,9 +148,9 @@
                 </div>
 
                 <!-- Parents Section -->
-                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 shadow-sm border border-slate-100 dark:border-slate-800">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 shadow-sm border border-rose-100 dark:border-slate-800">
                     <h3 class="text-xl font-black text-slate-900 dark:text-white mb-6 flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-sm">
+                        <div class="w-8 h-8 rounded-lg bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center text-pink-600 dark:text-pink-400 text-sm">
                             <i class="fa-solid fa-users"></i>
                         </div>
                         Parents & Guardians
@@ -159,7 +159,7 @@
                         {% for rel in child.parent_relationships.all %}
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
                             <div class="flex items-center gap-4 mb-4 sm:mb-0">
-                                <div class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-xl">
+                                <div class="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900 flex items-center justify-center text-rose-600 dark:text-rose-300 font-bold text-xl">
                                     {{ rel.parent.user.full_name|first }}
                                 </div>
                                 <div>
@@ -177,10 +177,10 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-3">
-                                <a href="tel:{{ rel.parent.user.phone_number }}" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors border border-slate-200 dark:border-slate-700">
+                                <a href="tel:{{ rel.parent.user.phone_number }}" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors border border-slate-200 dark:border-slate-700">
                                     <i class="fa-solid fa-phone"></i>
                                 </a>
-                                <a href="mailto:{{ rel.parent.user.email }}" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors border border-slate-200 dark:border-slate-700">
+                                <a href="mailto:{{ rel.parent.user.email }}" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors border border-slate-200 dark:border-slate-700">
                                     <i class="fa-solid fa-envelope"></i>
                                 </a>
                             </div>
@@ -260,12 +260,12 @@
                 {% endif %}
 
                 {% else %}
-                <div class="p-8 rounded-[2rem] bg-blue-50 dark:bg-blue-900/20 text-center border border-blue-100 dark:border-blue-900/50">
-                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500 dark:text-blue-300">
+                <div class="p-8 rounded-[2rem] bg-rose-50 dark:bg-rose-900/20 text-center border border-rose-100 dark:border-rose-900/50">
+                    <div class="w-16 h-16 bg-rose-100 dark:bg-rose-800 rounded-full flex items-center justify-center mx-auto mb-4 text-rose-500 dark:text-rose-300">
                         <i class="fa-solid fa-file-signature text-2xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-blue-900 dark:text-blue-100 mb-2">Enrollment Form Missing</h3>
-                    <p class="text-blue-600 dark:text-blue-300 text-sm">The detailed enrollment profile has not been completed yet.</p>
+                    <h3 class="text-lg font-bold text-rose-900 dark:text-rose-100 mb-2">Enrollment Form Missing</h3>
+                    <p class="text-rose-600 dark:text-rose-300 text-sm">The detailed enrollment profile has not been completed yet.</p>
                 </div>
                 {% endif %}
             </div>
@@ -307,7 +307,7 @@
                 </div>
 
                 <!-- Medical Info -->
-                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 shadow-sm border border-slate-100 dark:border-slate-800">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 shadow-sm border border-rose-100 dark:border-slate-800">
                     <h3 class="text-xl font-black text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <div class="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400 text-sm">
                             <i class="fa-solid fa-notes-medical"></i>
@@ -440,14 +440,14 @@ function switchTab(tabId) {
     
     // Reset buttons
     document.querySelectorAll('[id^="tab-"]').forEach(btn => {
-        btn.classList.remove('bg-white', 'dark:bg-slate-800', 'shadow-lg', 'text-blue-600', 'dark:text-blue-400', 'ring-2', 'ring-blue-500', 'ring-offset-2', 'dark:ring-offset-slate-900');
+        btn.classList.remove('bg-white', 'dark:bg-slate-800', 'shadow-lg', 'text-rose-600', 'dark:text-rose-400', 'ring-2', 'ring-rose-500', 'ring-offset-2', 'dark:ring-offset-slate-900');
         btn.classList.add('text-slate-500', 'dark:text-slate-400', 'hover:bg-white', 'dark:hover:bg-slate-800');
     });
     
     // Active button style
     const activeBtn = document.getElementById('tab-' + tabId);
     activeBtn.classList.remove('text-slate-500', 'dark:text-slate-400', 'hover:bg-white', 'dark:hover:bg-slate-800');
-    activeBtn.classList.add('bg-white', 'dark:bg-slate-800', 'shadow-lg', 'text-blue-600', 'dark:text-blue-400', 'ring-2', 'ring-blue-500', 'ring-offset-2', 'dark:ring-offset-slate-900');
+    activeBtn.classList.add('bg-white', 'dark:bg-slate-800', 'shadow-lg', 'text-rose-600', 'dark:text-rose-400', 'ring-2', 'ring-rose-500', 'ring-offset-2', 'dark:ring-offset-slate-900');
 
     // Update URL hash without scroll
     history.pushState(null, null, '#' + tabId);
