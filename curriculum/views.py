@@ -70,9 +70,19 @@ def lesson_count_api(request):
         return JsonResponse({'count': 0})
     
     user = request.user
+    # 1. Kant-choufou imta akher marra dkhl l-user l-safha dial l-lessons
+    # Khass t-zid had l-field 'last_lesson_view' f Profile dyalk awla n-sta3mlo last_login ghi bach n-jerbo
+    last_viewed = getattr(user, 'last_lesson_view', user.last_login)
+
+    # 2. Kan-filteriw ghir l-lessons li t-creaw men l-marra l-khera li dkhl fiha
+    base_query = Lesson.objects.filter(created_at__gt=last_viewed)
+
     if user.role_type == 'educator':
-        count = Lesson.objects.filter(educator__user=user).count()
+        count = base_query.filter(educator__user=user).count()
+    elif user.role_type in ['owner', 'director', 'vice_director']:
+        # Hna tqder t-zid l-filter dial l-organization/center li drna f l-form qbila
+        count = base_query.count()
     else:
-        count = Lesson.objects.count()
+        count = 0
         
     return JsonResponse({'count': count})
