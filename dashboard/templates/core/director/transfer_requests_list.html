@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+
+{% block title %}Transfer Requests{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white">Transfer Requests</h1>
+            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Manage incoming and outgoing transfer requests for your center.</p>
+        </div>
+    </div>
+
+    <!-- Incoming Requests -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mb-8">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-emerald-50/50 dark:bg-emerald-900/10">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <i class="fa-solid fa-arrow-right-to-bracket text-emerald-500"></i>
+                Incoming Requests
+            </h2>
+            <p class="text-xs text-slate-500 mt-1">Children requesting to transfer TO your center.</p>
+        </div>
+        
+        {% if incoming_requests %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Child</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">From Center</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Approval Progress</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                    {% for req in incoming_requests %}
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold">
+                                    {{ req.child.first_name|slice:":1" }}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-900 dark:text-white">{{ req.child.first_name }} {{ req.child.last_name }}</div>
+                                    <div class="text-xs text-slate-500">Req: {{ req.requested_at|date:"M d, Y" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                            {{ req.child.center.name }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col gap-1">
+                                <div class="flex items-center gap-2 text-[10px] font-bold">
+                                    <span class="w-16 text-slate-400">OUTGOING:</span>
+                                    {% if req.approved_by_outgoing == True %}<span class="text-emerald-500"><i class="fa-solid fa-circle-check"></i> Approved</span>
+                                    {% elif req.approved_by_outgoing == False %}<span class="text-rose-500"><i class="fa-solid fa-circle-xmark"></i> Rejected</span>
+                                    {% else %}<span class="text-amber-500"><i class="fa-solid fa-circle-dot"></i> Pending</span>{% endif %}
+                                </div>
+                                <div class="flex items-center gap-2 text-[10px] font-bold">
+                                    <span class="w-16 text-slate-400">INCOMING:</span>
+                                    {% if req.approved_by_incoming == True %}<span class="text-emerald-500"><i class="fa-solid fa-circle-check"></i> Approved (You)</span>
+                                    {% elif req.approved_by_incoming == False %}<span class="text-rose-500"><i class="fa-solid fa-circle-xmark"></i> Rejected (You)</span>
+                                    {% else %}<span class="text-amber-500"><i class="fa-solid fa-circle-dot"></i> Pending (You)</span>{% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase
+                                {% if req.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% elif req.status == 'awaiting_signature' %}bg-blue-100 text-blue-800
+                                {% elif req.status == 'completed' %}bg-green-100 text-green-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ req.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            {% if req.status == 'pending' and req.approved_by_incoming == None %}
+                            <div class="flex items-center justify-end gap-2">
+                                <form method="POST" action="{% url 'process_transfer_request' req.request_id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="approve">
+                                    <button type="button" onclick="openModal('Approve Transfer', 'Are you sure you want to approve this transfer? The child will be moved to your center once finalized.', '{% url 'process_transfer_request' req.request_id %}', 'confirm', {'action': 'approve'})" 
+                                            class="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors" title="Approve">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{% url 'process_transfer_request' req.request_id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="reject">
+                                    <button type="button" onclick="openModal('Reject Transfer', 'Are you sure you want to reject this transfer?', '{% url 'process_transfer_request' req.request_id %}', 'delete', {'action': 'reject'})"
+                                            class="p-2 rounded-lg text-rose-600 hover:bg-rose-900/20 transition-colors" title="Reject">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            {% elif req.approved_by_incoming != None %}
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Decision Made</span>
+                            {% else %}
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">{{ req.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-8 text-center text-slate-500 dark:text-slate-400">
+            No incoming transfer requests found.
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Outgoing Requests -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-700 bg-indigo-50/50 dark:bg-indigo-900/10">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <i class="fa-solid fa-arrow-right-from-bracket text-indigo-500"></i>
+                Outgoing Requests
+            </h2>
+            <p class="text-xs text-slate-500 mt-1">Children from your center requested to transfer elsewhere.</p>
+        </div>
+        
+        {% if outgoing_requests %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Child</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">To Center</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Approval Progress</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                    {% for req in outgoing_requests %}
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold">
+                                    {{ req.child.first_name|slice:":1" }}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-900 dark:text-white">{{ req.child.first_name }} {{ req.child.last_name }}</div>
+                                    <div class="text-xs text-slate-500">Req: {{ req.requested_at|date:"M d, Y" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                            {{ req.target_center.name }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col gap-1">
+                                <div class="flex items-center gap-2 text-[10px] font-bold">
+                                    <span class="w-16 text-slate-400">OUTGOING:</span>
+                                    {% if req.approved_by_outgoing == True %}<span class="text-emerald-500"><i class="fa-solid fa-circle-check"></i> Approved (You)</span>
+                                    {% elif req.approved_by_outgoing == False %}<span class="text-rose-500"><i class="fa-solid fa-circle-xmark"></i> Rejected (You)</span>
+                                    {% else %}<span class="text-amber-500"><i class="fa-solid fa-circle-dot"></i> Pending (You)</span>{% endif %}
+                                </div>
+                                <div class="flex items-center gap-2 text-[10px] font-bold">
+                                    <span class="w-16 text-slate-400">INCOMING:</span>
+                                    {% if req.approved_by_incoming == True %}<span class="text-emerald-500"><i class="fa-solid fa-circle-check"></i> Approved</span>
+                                    {% elif req.approved_by_incoming == False %}<span class="text-rose-500"><i class="fa-solid fa-circle-xmark"></i> Rejected</span>
+                                    {% else %}<span class="text-amber-500"><i class="fa-solid fa-circle-dot"></i> Pending</span>{% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase
+                                {% if req.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% elif req.status == 'awaiting_signature' %}bg-blue-100 text-blue-800
+                                {% elif req.status == 'completed' %}bg-green-100 text-green-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ req.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            {% if req.status == 'pending' and req.approved_by_outgoing == None %}
+                            <div class="flex items-center justify-end gap-2">
+                                <form method="POST" action="{% url 'process_transfer_request' req.request_id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="approve">
+                                    <button type="button" onclick="openModal('Approve Release', 'Are you sure you want to approve this outgoing transfer? The child will be released from your center once finalized.', '{% url 'process_transfer_request' req.request_id %}', 'confirm', {'action': 'approve'})" 
+                                            class="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors" title="Approve">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{% url 'process_transfer_request' req.request_id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="reject">
+                                    <button type="button" onclick="openModal('Reject Release', 'Are you sure you want to reject this outgoing transfer request?', '{% url 'process_transfer_request' req.request_id %}', 'delete', {'action': 'reject'})"
+                                            class="p-2 rounded-lg text-rose-600 hover:bg-rose-900/20 transition-colors" title="Reject">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            {% elif req.approved_by_outgoing != None %}
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Decision Made</span>
+                            {% else %}
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">{{ req.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-8 text-center text-slate-500 dark:text-slate-400">
+            No outgoing transfer requests found.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

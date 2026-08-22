@@ -13,6 +13,7 @@ from ..models import (
     ParentChildRelationship,
     CenterParentAccess,
     Notification,
+    TransferRequest,
 )
 
 from ..forms import (
@@ -456,3 +457,107 @@ def child_list_view(request):
         "children": children,
         "center": center
     })
+
+
+@login_required(login_url="login")
+def transfer_requests_list(request):
+    user = request.user
+    if user.role_type != "director":
+        return render(request, "core/403.html", status=403)
+        
+    try:
+        center = user.director_profile.managed_center
+    except AttributeError:
+        messages.error(request, "Director profile not found or no center assigned.")
+        return redirect("dashboard_redirect")
+        
+    if not center:
+        messages.error(request, "No center assigned.")
+        return redirect("dashboard_redirect")
+        
+    # Incoming: requests where target_center is this center
+    incoming = TransferRequest.objects.filter(target_center=center).select_related('child', 'child__center').order_by('-requested_at')
+    
+    # Outgoing: requests where child.center is this center
+    outgoing = TransferRequest.objects.filter(child__center=center).select_related('child', 'target_center').order_by('-requested_at')
+    
+    context = {
+        "incoming_requests": incoming,
+        "outgoing_requests": outgoing
+    }
+    return render(request, "core/director/transfer_requests_list.html", context)
+
+
+@login_required(login_url="login")
+def process_transfer_request(request, request_id):
+    user = request.user
+    if user.role_type != "director":
+        return render(request, "core/403.html", status=403)
+        
+    transfer_req = get_object_or_404(TransferRequest, request_id=request_id)
+    
+    try:
+        center = user.director_profile.managed_center
+    except AttributeError:
+         return render(request, "core/403.html", status=403)
+         
+    # Identify Role
+    is_incoming = (transfer_req.target_center == center)
+    is_outgoing = (transfer_req.child.center == center)
+    
+    if not is_incoming and not is_outgoing:
+         messages.error(request, "You are not authorized to process this request.")
+         return redirect("transfer_requests_list")
+         
+    if request.method == "POST":
+        action = request.POST.get("action")
+        
+        if action == "approve":
+            with transaction.atomic():
+                if is_incoming:
+                    transfer_req.approved_by_incoming = True
+                if is_outgoing:
+                    transfer_req.approved_by_outgoing = True
+                
+                transfer_req.save()
+                
+                # Check if both approved
+                if transfer_req.approved_by_incoming is True and transfer_req.approved_by_outgoing is True:
+                    transfer_req.status = 'awaiting_signature'
+                    transfer_req.save()
+                    
+                    # Notify All Parents to Sign
+                    parents_rels = ParentChildRelationship.objects.filter(child=transfer_req.child).select_related('parent__user')
+                    for rel in parents_rels:
+                         Notification.objects.create(
+                            user=rel.parent.user,
+                            title="Transfer Approved - Signature Required",
+                            message=f"Both directors have approved the transfer for {transfer_req.child.first_name}. Please sign the transfer document to finalize the move to {transfer_req.target_center.name}.",
+                            action_url="/parents/transfer-request/"
+                        )
+                    messages.success(request, "Transfer approved by both directors. All parents have been notified to sign.")
+                else:
+                    messages.success(request, "Transfer approved from your side. Waiting for the other director's approval.")
+            
+        elif action == "reject":
+            transfer_req.status = 'rejected'
+            if is_incoming:
+                transfer_req.approved_by_incoming = False
+            elif is_outgoing:
+                transfer_req.approved_by_outgoing = False
+            
+            transfer_req.save()
+            
+            # Notify All Parents
+            parents_rels = ParentChildRelationship.objects.filter(child=transfer_req.child).select_related('parent__user')
+            for rel in parents_rels:
+                 Notification.objects.create(
+                    user=rel.parent.user,
+                    title="Transfer Rejected",
+                    message=f"Your transfer request for {transfer_req.child.first_name} to {transfer_req.target_center.name} has been rejected.",
+                    action_url="/parents/transfer-request/"
+                )
+            
+            messages.success(request, "Transfer request rejected.")
+            
+    return redirect("transfer_requests_list")

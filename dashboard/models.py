@@ -476,3 +476,28 @@ class CenterParentAccess(models.Model):
 
     def __str__(self):
         return f"{self.parent.user.full_name} -> {self.center.name} ({self.status})"
+
+class TransferRequest(models.Model):
+    STATUS_CHOICES = (
+        ("pending", "Pending Directors Approval"),
+        ("awaiting_signature", "Awaiting Parent Signature"),
+        ("completed", "Completed"),
+        ("rejected", "Rejected"),
+    )
+    request_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name="transfer_requests")
+    target_center = models.ForeignKey(Center, on_delete=models.CASCADE, related_name="incoming_transfer_requests")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    requested_at = models.DateTimeField(auto_now_add=True)
+    reason = models.TextField(blank=True, null=True)
+    
+    # Director Approvals (None=Pending, True=Approved, False=Rejected)
+    approved_by_outgoing = models.BooleanField(null=True, default=None)
+    approved_by_incoming = models.BooleanField(null=True, default=None)
+    
+    # Parent Signature
+    signed_by_parent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='signed_transfers')
+    signed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Transfer {self.child} to {self.target_center.name}"

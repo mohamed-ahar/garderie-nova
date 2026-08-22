@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.db import transaction
 from ..models import (
     Center,
     Child,
@@ -11,6 +12,7 @@ from ..models import (
     CenterParentAccess,
     Notification,
     User,
+    TransferRequest,
 )
 
 
@@ -227,7 +229,7 @@ def register_child_view(request):
             message=(
                 "A child has been added to your center’s waitlist.\n\n"
                 f"Child name: {child.first_name} {child.last_name}\n"
-                f"Parent name: {user.get_full_name() or user.username}\n"
+                f"Parent name: {user.full_name or user.username}\n"
                 f"Center: {center.name}\n"
                 "You can review the waitlist for further details."
             ),
@@ -277,3 +279,158 @@ def parent_children_list(request):
     children = [rel.child for rel in relationships]
 
     return render(request, "core/parents/child_list.html", {"children": children})
+
+
+@login_required(login_url="login")
+def transfer_request_view(request):
+    user = request.user
+    if user.role_type != "parent":
+        return render(request, "core/403.html", status=403)
+        
+    try:
+        parent_profile = user.parent_profile
+    except ParentProfile.DoesNotExist:
+        messages.error(request, "Profil parent introuvable.")
+        return redirect("dashboard_redirect")
+
+    if request.method == "POST":
+        child_id = request.POST.get("child_id")
+        target_center_id = request.POST.get("target_center_id")
+        reason = request.POST.get("reason")
+        
+        child = get_object_or_404(Child, child_id=child_id)
+        target_center = get_object_or_404(Center, center_id=target_center_id)
+        
+        # Verify parent owns this child
+        if not ParentChildRelationship.objects.filter(parent=parent_profile, child=child).exists():
+             messages.error(request, "Vous n'avez pas la permission pour cet enfant.")
+             return redirect("transfer_request")
+
+        # Verify target center is different from current center
+        if child.center == target_center:
+             messages.error(request, "L'enfant est déjà inscrit dans cette garderie.")
+             return redirect("transfer_request")
+
+        # Create request
+        TransferRequest.objects.create(
+            child=child,
+            target_center=target_center,
+            reason=reason
+        )
+        
+        # Notify All Parents
+        parents_rels = ParentChildRelationship.objects.filter(child=child)
+        for rel in parents_rels:
+            Notification.objects.create(
+                user=rel.parent.user,
+                title="Transfer Request Sent",
+                message=f"A transfer request for {child.first_name} to {target_center.name} has been initiated. It is now awaiting approval from both directors.",
+                action_url="/parents/transfer-request/"
+            )
+
+        # Notify Director of target center
+        if target_center.director:
+             Notification.objects.create(
+                user=target_center.director.user,
+                title="New Transfer Request Received",
+                message=f"Parent {user.full_name} has requested to transfer {child.first_name} {child.last_name} to your center.",
+                action_url="/transfer-requests/" 
+            )
+        
+        # Notify Director of current center
+        current_center = child.center
+        if current_center and current_center.director:
+             Notification.objects.create(
+                user=current_center.director.user,
+                title="Outgoing Transfer Request",
+                message=f"Parent {user.full_name} has requested to transfer {child.first_name} {child.last_name} to {target_center.name}.",
+                action_url="/transfer-requests/" 
+            )
+
+        messages.success(request, "Votre demande de transfert a été envoyée.")
+        return redirect("transfer_request")
+
+    # Get parent's children
+    relationships = ParentChildRelationship.objects.filter(parent=parent_profile).select_related('child', 'child__center')
+    # Filter only active children (exclude waitlist)
+    children = [rel.child for rel in relationships if rel.child.status == 'active']
+    
+    # Get all centers
+    all_centers = Center.objects.all()
+    
+    # Get existing requests
+    # Since TransferRequest is linked to Child, we can filter by children in relationships
+    child_ids = [c.child_id for c in children]
+    existing_requests = TransferRequest.objects.filter(child__child_id__in=child_ids).order_by('-requested_at')
+    
+    context = {
+        "children": children,
+        "all_centers": all_centers,
+        "existing_requests": existing_requests
+    }
+    return render(request, "core/parents/transfer_request.html", context)
+
+
+@login_required(login_url="login")
+def sign_transfer_request(request, request_id):
+    user = request.user
+    if user.role_type != "parent":
+        return render(request, "core/403.html", status=403)
+        
+    transfer_req = get_object_or_404(TransferRequest, request_id=request_id)
+    
+    # Verify this parent is related to the child
+    if not ParentChildRelationship.objects.filter(parent__user=user, child=transfer_req.child).exists():
+        messages.error(request, "Unauthorized access.")
+        return redirect("transfer_request")
+        
+    if transfer_req.status != "awaiting_signature":
+        messages.error(request, "This request is not ready for signature.")
+        return redirect("transfer_request")
+        
+    if request.method == "POST":
+        with transaction.atomic():
+            transfer_req.status = "completed"
+            transfer_req.signed_by_parent = user
+            transfer_req.signed_at = timezone.now()
+            transfer_req.save()
+            
+            # Execute the transfer
+            child = transfer_req.child
+            old_center = child.center
+            child.center = transfer_req.target_center
+            child.assigned_group = None
+            child.assigned_educator = None
+            child.save()
+            
+            # Notify Parents
+            parents_rels = ParentChildRelationship.objects.filter(child=child)
+            for rel in parents_rels:
+                Notification.objects.create(
+                    user=rel.parent.user,
+                    title="Transfer Completed",
+                    message=f"The transfer for {child.first_name} to {child.center.name} is now complete.",
+                    action_url="/parents/my-children/"
+                )
+            
+            # Notify Directors
+            if old_center.director:
+                Notification.objects.create(
+                    user=old_center.director.user,
+                    title="Transfer Finalized",
+                    message=f"{child.first_name} {child.last_name} has been transferred out to {child.center.name}.",
+                    action_url="/transfer-requests/"
+                )
+            
+            if child.center.director:
+                Notification.objects.create(
+                    user=child.center.director.user,
+                    title="Transfer Finalized",
+                    message=f"{child.first_name} {child.last_name} has officially joined your center.",
+                    action_url="/transfer-requests/"
+                )
+
+            messages.success(request, "Transfer signed and completed successfully.")
+            return redirect("transfer_request")
+            
+    return render(request, "core/parents/sign_transfer.html", {"transfer_req": transfer_req})

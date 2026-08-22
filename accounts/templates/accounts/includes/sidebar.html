@@ -191,6 +191,10 @@
                                 <i class="fa-solid fa-list-check mr-3 opacity-70"></i>
                                 <span class="sidebar-label">Waitlist Management</span>
                             </a>
+                            <a href="{% url 'transfer_requests_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-right-left mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Transfer Requests</span>
+                            </a>
 
                             {% if center %}
                             <a href="{% url 'import_children_csv' center.center_id %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-600 hover:text-white rounded-lg transition-all group
@@ -427,6 +431,10 @@
                             <a href="{% url 'request_center_access' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-key mr-3 opacity-70"></i>
                                 <span class="sidebar-label">Demander l'accès</span>
+                            </a>
+                            <a href="{% url 'transfer_request' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-shuffle mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Demande de transfert</span>
                             </a>
                             <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-bed-pulse mr-3 opacity-70"></i>

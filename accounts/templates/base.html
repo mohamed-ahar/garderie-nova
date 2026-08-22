@@ -373,6 +373,32 @@
             }
         }
         </script>
+
+        {% if messages %}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                {% for message in messages %}
+                Toastify({
+                    text: "{{ message|escapejs }}",
+                    duration: 5000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    stopOnFocus: true,
+                    style: {
+                        background: "{% if message.tags == 'success' %}#10b981{% elif message.tags == 'error' %}#f43f5e{% elif message.tags == 'warning' %}#f59e0b{% else %}#3b82f6{% endif %}",
+                        borderRadius: "12px",
+                        padding: "12px 24px",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+                    },
+                }).showToast();
+                {% endfor %}
+            });
+        </script>
+        {% endif %}
+
         {% block scripts %}
         {% endblock %}
     </body>

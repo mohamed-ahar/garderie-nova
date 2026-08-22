@@ -38,8 +38,12 @@ urlpatterns = [
     path("parents/<uuid:user_id>/delete/", parent_delete_view, name="parent_delete"),
     path("parents/register-child/", register_child_view, name="register_child"),
     path("parents/request-access/", request_center_access, name="request_center_access"),
+    path("parents/transfer-request/", transfer_request_view, name="transfer_request"),
+    path("parents/transfer-request/<uuid:request_id>/sign/", sign_transfer_request, name="sign_transfer_request"),
     
     path("waitlist/", waitlist_view, name="waitlist_manage"),
+    path("transfer-requests/", transfer_requests_list, name="transfer_requests_list"),
+    path("transfer-requests/<uuid:request_id>/process/", process_transfer_request, name="process_transfer_request"),
     path("access-requests/", manage_parent_access_requests, name="manage_parent_access_requests"),
     path("access-requests/<int:request_id>/update/", update_parent_access, name="update_parent_access"),
     
