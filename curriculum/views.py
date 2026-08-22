@@ -4,7 +4,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from .models import Lesson
-from .forms import LessonForm # Ghadi n-gaduha f forms.py
+from .forms import LessonForm 
+from django.db.models import Q
 
 # --- 1. Dashboard / List View ---
 class LessonListView(LoginRequiredMixin, ListView):
@@ -14,21 +15,19 @@ class LessonListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        base_queryset = Lesson.objects.all().select_related('educator__user').order_by('-created_at')
-
-        # 1. Ila kan Director: i-chouf ghir dorouss li kreya (Owner)
-        if user.role_type in ['director', 'owner']:
-            # Hna kantarad belli l-Lesson fih field 'created_by' awla 'educator'
-            # Ila kan smiyto 'educator', khdem b hadi:
-            return base_queryset.filter(educator__user=user)
         
-        # 2. Ila kan Educator: i-chouf ghir dakchi li 'assigned' lih
+        # Optimization: select_related l-'created_by' hit hia li fiha l-Director
+        base_qs = Lesson.objects.all().select_related('created_by', 'educator__user').order_by('-created_at')
+
+        # 1. Ila kan Director: i-chouf dorouss li 'Created By' houwa
+        if user.role_type == 'director':
+            return base_qs.filter(created_by=user)
+        
+        # 2. Ila kan Educator: i-chouf dorouss li 'Assigned' lih f l-field 'educator'
         elif user.role_type == 'educator':
-            # Hna d-dars khass y-koun m-linki m3a had l-educator exact
-            return base_queryset.filter(educator__user=user)
-        
-        return Lesson.objects.none()
+            return base_qs.filter(educator__user=user)
 
+        return Lesson.objects.none()
 # --- 2. Create Lesson (Ghir l-Director/Owner) ---
 class LessonCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Lesson
