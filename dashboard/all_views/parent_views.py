@@ -13,6 +13,7 @@ from ..models import (
     Notification,
     User,
     TransferRequest,
+    TransferSignature,
 )
 
 
@@ -388,49 +389,82 @@ def sign_transfer_request(request, request_id):
         messages.error(request, "This request is not ready for signature.")
         return redirect("transfer_request")
         
-    if request.method == "POST":
-        with transaction.atomic():
-            transfer_req.status = "completed"
-            transfer_req.signed_by_parent = user
-            transfer_req.signed_at = timezone.now()
-            transfer_req.save()
-            
-            # Execute the transfer
-            child = transfer_req.child
-            old_center = child.center
-            child.center = transfer_req.target_center
-            child.assigned_group = None
-            child.assigned_educator = None
-            child.save()
-            
-            # Notify Parents
-            parents_rels = ParentChildRelationship.objects.filter(child=child)
-            for rel in parents_rels:
-                Notification.objects.create(
-                    user=rel.parent.user,
-                    title="Transfer Completed",
-                    message=f"The transfer for {child.first_name} to {child.center.name} is now complete.",
-                    action_url="/parents/my-children/"
-                )
-            
-            # Notify Directors
-            if old_center.director:
-                Notification.objects.create(
-                    user=old_center.director.user,
-                    title="Transfer Finalized",
-                    message=f"{child.first_name} {child.last_name} has been transferred out to {child.center.name}.",
-                    action_url="/transfer-requests/"
-                )
-            
-            if child.center.director:
-                Notification.objects.create(
-                    user=child.center.director.user,
-                    title="Transfer Finalized",
-                    message=f"{child.first_name} {child.last_name} has officially joined your center.",
-                    action_url="/transfer-requests/"
-                )
+    # Check if this parent already signed
+    if TransferSignature.objects.filter(transfer_request=transfer_req, parent=user).exists():
+         messages.info(request, "You have already signed this transfer request. Waiting for other parent(s).")
+         return redirect("transfer_request")
 
-            messages.success(request, "Transfer signed and completed successfully.")
-            return redirect("transfer_request")
+    if request.method == "POST":
+        signature_data = request.POST.get("signature_data")
+        
+        with transaction.atomic():
+            # Create Signature
+            TransferSignature.objects.create(
+                transfer_request=transfer_req,
+                parent=user,
+                signature_data=signature_data
+            )
             
-    return render(request, "core/parents/sign_transfer.html", {"transfer_req": transfer_req})
+            # Check if all parents have signed
+            all_parents_ids = set(ParentChildRelationship.objects.filter(child=transfer_req.child).values_list('parent__user', flat=True))
+            signed_parents_ids = set(TransferSignature.objects.filter(transfer_request=transfer_req).values_list('parent', flat=True))
+            
+            # Check if set of signed parents covers all parents
+            if all_parents_ids == signed_parents_ids:
+                transfer_req.status = "completed"
+                transfer_req.save()
+                
+                # Execute the transfer
+                child = transfer_req.child
+                old_center = child.center
+                child.center = transfer_req.target_center
+                child.assigned_group = None
+                child.assigned_educator = None
+                child.save()
+                
+                # Notify Parents (Completion)
+                for p_user_id in all_parents_ids:
+                    # Fetch user object efficiently? Or just use get since it's loop over IDs
+                    try:
+                        p_user = User.objects.get(user_id=p_user_id)
+                        Notification.objects.create(
+                            user=p_user,
+                            title="Transfer Completed",
+                            message=f"The transfer for {child.first_name} to {child.center.name} is now complete.",
+                            action_url="/parents/my-children/"
+                        )
+                    except User.DoesNotExist:
+                        continue
+                
+                # Notify Directors
+                if old_center.director:
+                    Notification.objects.create(
+                        user=old_center.director.user,
+                        title="Transfer Finalized",
+                        message=f"{child.first_name} {child.last_name} has been transferred out to {child.center.name}.",
+                        action_url="/transfer-requests/"
+                    )
+                
+                if child.center.director:
+                    Notification.objects.create(
+                        user=child.center.director.user,
+                        title="Transfer Finalized",
+                        message=f"{child.first_name} {child.last_name} has officially joined your center.",
+                        action_url="/transfer-requests/"
+                    )
+
+                messages.success(request, "Transfer signed and completed successfully.")
+            else:
+                messages.success(request, "Signature recorded. Waiting for other parent(s) to sign.")
+                
+            return redirect("transfer_request")
+    
+    # Context for template
+    total_signatures_needed = ParentChildRelationship.objects.filter(child=transfer_req.child).count()
+    signatures_collected = TransferSignature.objects.filter(transfer_request=transfer_req).count()
+            
+    return render(request, "core/parents/sign_transfer.html", {
+        "transfer_req": transfer_req,
+        "total_signatures_needed": total_signatures_needed,
+        "signatures_collected": signatures_collected
+    })

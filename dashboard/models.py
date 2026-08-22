@@ -494,10 +494,19 @@ class TransferRequest(models.Model):
     # Director Approvals (None=Pending, True=Approved, False=Rejected)
     approved_by_outgoing = models.BooleanField(null=True, default=None)
     approved_by_incoming = models.BooleanField(null=True, default=None)
-    
-    # Parent Signature
-    signed_by_parent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='signed_transfers')
-    signed_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"Transfer {self.child} to {self.target_center.name}"
+
+class TransferSignature(models.Model):
+    signature_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    transfer_request = models.ForeignKey(TransferRequest, on_delete=models.CASCADE, related_name='signatures')
+    parent = models.ForeignKey(User, on_delete=models.CASCADE)
+    signature_data = models.TextField()
+    signed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('transfer_request', 'parent')
+
+    def __str__(self):
+        return f"Signature by {self.parent.full_name} for {self.transfer_request}"
