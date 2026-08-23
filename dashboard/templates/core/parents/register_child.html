@@ -2,70 +2,143 @@
 {% block title %}Register Child{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm">
-    <h2 class="text-2xl font-bold mb-6 text-gray-800">Inscrire un enfant (Liste d'attente)</h2>
+<div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-8 px-6">
     
-    <form method="POST" class="space-y-6">
-        {% csrf_token %}
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-5%] left-[10%] w-[500px] h-[500px] bg-teal-400/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[5%] right-[5%] w-[400px] h-[400px] bg-indigo-400/5 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-6xl w-full grid lg:grid-cols-12 gap-12 items-start">
         
-        <!-- Child Name -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nom complet de l'enfant</label>
-            <input type="text" name="child_name" required
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                   placeholder="Ex: Amine Benali">
-        </div>
-
-        <!-- Birth Date -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Date de naissance</label>
-            <input type="date" name="birth_date" required
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
-        </div>
-
-        <!-- Contact Info -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Numéro de téléphone</label>
-                <input type="tel" name="contact_phone" required value="{{ request.user.phone_number }}"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+        <div class="lg:col-span-5 space-y-8 pt-6">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+                <i class="fa-solid fa-user-plus text-red-500 text-[10px]"></i>
+                <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Waitlist Enrollment</span>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Adresse email</label>
-                <input type="email" name="contact_email" required value="{{ request.user.email }}"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
-            </div>
-        </div>
 
-        <!-- Second Parent Info (Optional) -->
-        <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
-            <h3 class="text-md font-semibold text-gray-700 mb-3">Second Parent (Optionnel)</h3>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Email du deuxième parent</label>
-                <input type="email" name="second_parent_email"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                       placeholder="Entrez l'email du deuxième parent si applicable">
-                <p class="text-xs text-gray-500 mt-1">Si renseigné, ce compte doit déjà exister dans le système.</p>
+            <div class="space-y-4">
+                <h1 class="text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
+                    Join our<br>
+                    <span class="bg-gradient-to-r from-red-500 to-black bg-clip-text text-transparent">Educational Family.</span>
+                </h1>
+                <p class="text-sm text-slate-400 font-medium leading-relaxed">
+                    By submitting this form, your child will be placed on our priority waitlist. We will contact you as soon as a spot becomes available.
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <div class="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950 flex items-center justify-center text-teal-600">
+                        <i class="fa-solid fa-clock text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">Priority Tracking</p>
+                        <p class="text-xs text-slate-400 font-medium">View your real-time position in the queue from your dashboard.</p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Center Selection (Hidden if only one, or selectable) -->
-        {% if centers.count >= 1 %}
-        <div>
-             <label class="block text-sm font-medium text-gray-700 mb-1">Choisir une garderie</label>
-             <select name="center_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-                 {% for center in centers %}
-                 <option value="{{ center.center_id }}">{{ center.name }}</option>
-                 {% endfor %}
-             </select>
-        </div>
-        {% endif %}
+        <div class="lg:col-span-7">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] relative">
+                
+                <form method="POST" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="md:col-span-2 group">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1 group-focus-within:text-teal-500 transition-colors">
+                                Child's Full Name
+                            </label>
+                            <input type="text" name="child_name" required class="premium-input" placeholder="Enter first and last name">
+                        </div>
 
-        <div class="pt-4">
-            <button type="submit" class="w-full bg-teal-600 text-white py-2 px-4 rounded-lg hover:bg-teal-700 transition duration-200 font-medium">
-                Inscrire sur la liste d'attente
-            </button>
+                        <div class="group">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1 group-focus-within:text-teal-500 transition-colors">
+                                Date of Birth
+                            </label>
+                            <input type="date" name="birth_date" required class="premium-input">
+                        </div>
+
+                        <div class="group">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1 group-focus-within:text-teal-500 transition-colors">
+                                Preferred Daycare
+                            </label>
+                            <select name="center_id" required class="premium-input appearance-none">
+                                {% for center in centers %}
+                                <option value="{{ center.center_id }}">{{ center.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="group">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1 group-focus-within:text-teal-500 transition-colors">
+                                Contact Phone
+                            </label>
+                            <input type="tel" name="contact_phone" required value="{{ request.user.phone_number }}" class="premium-input">
+                        </div>
+
+                        <div class="group">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1 group-focus-within:text-teal-500 transition-colors">
+                                Primary Email
+                            </label>
+                            <input type="email" name="contact_email" required value="{{ request.user.email }}" class="premium-input">
+                        </div>
+                    </div>
+
+                    <div class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-4">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-users text-teal-500 text-xs"></i>
+                            <h3 class="text-xs font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider">Secondary Contact <span class="text-[9px] text-slate-400 font-bold">(Optional)</span></h3>
+                        </div>
+                        <input type="email" name="second_parent_email" class="premium-input !bg-white dark:!bg-slate-900" placeholder="Second parent's email address">
+                        <p class="text-[9px] text-slate-400 font-medium">Note: The second parent must already have an account to be linked.</p>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="submit" class="group relative w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 px-6 rounded-xl transition-all hover:bg-teal-600 hover:text-white active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 text-sm">
+                            Enroll in Waitlist
+                            <i class="fa-solid fa-chevron-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl shadow-lg flex items-center justify-center text-white text-xl -rotate-12">
+                    <i class="fa-solid fa-baby"></i>
+                </div>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
+
+<style>
+    .premium-input {
+        width: 100%;
+        padding: 0.85rem 1.25rem !important;
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 1rem !important;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        outline: none;
+    }
+
+    .dark .premium-input {
+        background-color: #0f172a;
+        border-color: #1e293b;
+        color: #ffffff;
+    }
+
+    .premium-input:focus {
+        border-color: #14b8a6; /* Teal-500 */
+        background-color: #ffffff;
+        box-shadow: 0 4px 15px rgba(20, 184, 166, 0.1);
+    }
+
+    .dark .premium-input:focus {
+        background-color: #020617;
+    }
+</style>
 {% endblock %}
