@@ -1,0 +1,104 @@
+{
+    "registration_date": "2024-01-01",
+    "start_date": "2024-02-01",
+    "child_first_name": "Arthur",
+    "child_last_name": "Pendragon",
+    "child_gender": "masculin",
+    "birth_date": "",
+    "medicare_number": "",
+    "medicare_expiry": "",
+    "addr_street": "",
+    "addr_apt": "",
+    "addr_city": "",
+    "addr_prov": "",
+    "addr_zip": "",
+    "parent1_name": "",
+    "parent1_email": "",
+    "parent1_home_phone": "",
+    "parent1_workplace": "",
+    "parent1_work_phone": "",
+    "parent1_cell_phone": "",
+    "parent1_address_street": "",
+    "parent1_address_city": "",
+    "parent2_name": "",
+    "parent2_email": "",
+    "parent2_home_phone": "",
+    "parent2_workplace": "",
+    "parent2_work_phone": "",
+    "parent2_cell_phone": "",
+    "parent2_address_street": "",
+    "parent2_address_city": "",
+    "custody_arrangement": "",
+    "pickup_name[]": [
+        "Merlin The Wizard",
+        "",
+        "",
+        ""
+    ],
+    "pickup_rel[]": [
+        "Advisor",
+        "",
+        "",
+        ""
+    ],
+    "pickup_phone[]": [
+        "555-MAGIC",
+        "",
+        "",
+        ""
+    ],
+    "pickup_addr[]": [
+        "Tower 1",
+        "",
+        "",
+        ""
+    ],
+    "emerg_name[]": [
+        "Lancelot Du Lac",
+        ""
+    ],
+    "emerg_phone[]": [
+        "555-SWORD",
+        ""
+    ],
+    "emerg_rel[]": [
+        "Knight",
+        ""
+    ],
+    "emerg_addr[]": [
+        "",
+        ""
+    ],
+    "unauth_name[]": [
+        "",
+        "",
+        ""
+    ],
+    "doctor_name": "",
+    "doctor_phone": "",
+    "doctor_address": "",
+    "allergies_severe": [
+        "Dragon Breath",
+        "Dark Magic"
+    ],
+    "non_fatal_allergies": "Pollen, Magic Dust",
+    "dietary_restrictions": "Lactose Intolerant",
+    "cultural_dietary_restrictions": "No Pork (Knight Diet)",
+    "routine_services_required": "on",
+    "routine_services_details": "Daily potion at noon",
+    "continuous_medication": "Strength elixir",
+    "activity_restrictions": "No flying without supervision",
+    "preschool_history": "Merlin School of Wizardry",
+    "preschool_duration": "2 years",
+    "autonomy_dressing": "Needs help with armor",
+    "autonomy_eating": "Uses spoon well",
+    "motor_skills": "Excellent sword handling (plastic), good climbing",
+    "autonomy_toilet": "Potty trained",
+    "autonomy_hygiene": "Loves baths",
+    "autonomy_other": "",
+    "transition_tips": "Likes stories about swords.",
+    "interests_hobbies": "Horse riding, sword fighting.",
+    "additional_info": "Afraid of Morgana",
+    "immunization_provided": "on",
+    "action": "save_draft"
+}

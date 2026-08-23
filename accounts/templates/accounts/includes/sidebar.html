@@ -89,7 +89,7 @@
                 {% if user.is_authenticated %} {% if user.role_type == 'owner' %}
                 <li class="dropdown-group relative group">
                     <div class="absolute inset-0 bg-emerald-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
-                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-indigo-600 text-white overflow-hidden  transition-all duration-300 active:scale-[0.98]">
+                    <button onclick="toggleDropdown(this)" data-section-id="network_admin" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-indigo-600 text-white overflow-hidden  transition-all duration-300 active:scale-[0.98]">
                                 <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                                 <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
                                     <i class="fa-solid fa-layer-group text-[14px]"></i>
@@ -98,9 +98,9 @@
                                     <span class="font-extrabold tracking-wide text-[13.5px]">Network Admin</span>
                                     <span class="text-[8.5px] font-bold text-white uppercase tracking-[0.15em]">Owner Dashboard</span>
                                 </div>
-                                <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
+                                <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'network_admin' %}transform: rotate(90deg){% endif %}"></i>
                             </button>
-                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'network_admin' %}max-height: 1000px{% endif %}">
                         <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
                             <a href="{% url 'owner_dashboard' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-plus mr-3 opacity-70"></i>
@@ -147,17 +147,17 @@
                 </li>
                 {% endif %} {% endif %} {% if user.role_type == 'director' %}
                 <li class="dropdown-group relative group">
-                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-green-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                    <button onclick="toggleDropdown(this)" data-section-id="director_panel" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-green-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                                 <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
                                     <i class="fa-solid fa-user-tie text-[14px]"></i>
                                 </div>
                                 <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
                                     <span class="font-extrabold tracking-wide text-[13.5px]">Director Panel</span>
-                                    <span class="text-[8.5px] font-bold text-white uppercase tracking-[0.15em]">Directeur name</span>
+                                    <span class="text-[8.5px] font-bold text-white uppercase tracking-[0.15em]">{{user.full_name}}</span>
                                 </div>
-                                <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
+                                <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'director_panel' %}transform: rotate(90deg){% endif %}"></i>
                             </button>
-                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'director_panel' %}max-height: 1000px{% endif %}">
                         <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
                             <a href="{% url 'educator_add' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-users-gear mr-3 opacity-70"></i>
@@ -227,7 +227,7 @@
                     }
                 }" x-init="fetchUnread(); setInterval(() => fetchUnread(), 10000)">
 
-                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 text-white overflow-hidden shadow-lg shadow-green-900/10 transition-all duration-300 active:scale-[0.98] hover:from-green-600 hover:to-green-700">
+                    <button onclick="toggleDropdown(this)" data-section-id="messages_director" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 text-white overflow-hidden shadow-lg shadow-green-900/10 transition-all duration-300 active:scale-[0.98] hover:from-green-600 hover:to-green-700">
                         
                         <template x-if="unreadCount > 0">
                             <div class="absolute inset-0 bg-white/10 animate-pulse"></div>
@@ -249,10 +249,10 @@
                             </span>
                         </div>
                         
-                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
+                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'messages_director' %}transform: rotate(90deg){% endif %}"></i>
                     </button>
 
-                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'messages_director' %}max-height: 1000px{% endif %}">
                         <div class="mt-2 mx-2 bg-slate-900/80 backdrop-blur-sm rounded-xl p-2 space-y-1 border border-white/5 shadow-inner">
 
                             <a href="{% url 'communication:send_message' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-600 hover:text-white rounded-lg transition-all group">
@@ -299,7 +299,7 @@
                     </div>
                 </li>
                 <li class="dropdown-group relative group mt-4">
-                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-green-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                    <button onclick="toggleDropdown(this)" data-section-id="curriculum" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-green-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                         <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
                             <i class="fa-solid fa-book-open text-[14px]"></i>
                         </div>
@@ -307,9 +307,9 @@
                             <span class="font-extrabold tracking-wide text-[13.5px]">Curriculum</span>
                             <span class="text-[8.5px] font-bold text-emerald-100 uppercase tracking-[0.15em]">Lesson Planning</span>
                         </div>
-                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
+                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'curriculum' %}transform: rotate(90deg){% endif %}"></i>
                     </button>
-                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'curriculum' %}max-height: 1000px{% endif %}">
                         <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
                             <a href="{% url 'curriculum:add_lesson' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-emerald-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-plus-circle mr-3 opacity-70"></i>
@@ -324,7 +324,7 @@
                 </li>
                 {% endif %} {% if user.role_type == 'educator' %}
                 <li class="dropdown-group relative group">
-                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-slate-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                    <button onclick="toggleDropdown(this)" data-section-id="classroom_hub" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-slate-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                                 <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/10 rounded-xl border border-white/20 transition-transform duration-300 group-hover:rotate-[8deg]">
                                     <i class="fa-solid fa-chalkboard-user text-[14px]"></i>
                                 </div>
@@ -332,9 +332,9 @@
                                     <span class="font-bold text-[14px]">Classroom Hub</span>
                                     <span class="text-[9px] text-indigo-200 uppercase tracking-widest">Educator</span>
                                 </div>
-                                <i class="sidebar-label fa-solid fa-chevron-down text-[10px] ml-auto transition-transform duration-500 chevron"></i>
+                                <i class="sidebar-label fa-solid fa-chevron-down text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'classroom_hub' %}transform: rotate(90deg){% endif %}"></i>
                             </button>
-                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'classroom_hub' %}max-height: 1000px{% endif %}">
                         <div class="mt-2 mx-2 bg-slate-800/60 rounded-xl p-2 space-y-1 border border-white/5">
                             <a href="{% url 'educator_assigned_children' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-users mr-3 opacity-70"></i>
@@ -370,7 +370,7 @@
                     setInterval(() => fetchLessons(), 30000);
                 ">
                 
-                <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                <button onclick="toggleDropdown(this)" data-section-id="my_curriculum" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                     <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[-8deg]">
                         <i class="fa-solid fa-graduation-cap text-[14px]"></i>
                     </div>
@@ -387,10 +387,10 @@
                               x-text="lessonCount"></span>
                     </div>
                     
-                    <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
+                    <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'my_curriculum' %}transform: rotate(90deg){% endif %}"></i>
                 </button>
             
-                <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'my_curriculum' %}max-height: 1000px{% endif %}">
                     <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5 shadow-inner">
                         <a href="{% url 'curriculum:lesson_list' %}" 
                            @click="lessonCount = 0" 
@@ -404,7 +404,7 @@
                 {% endif %} 
                 {% if user.role_type == 'parent' %}
                 <li class="dropdown-group relative group">
-                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                    <button onclick="toggleDropdown(this)" data-section-id="family_portal" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                         <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:scale-110">
                             <i class="fa-solid fa-heart text-[14px]"></i>
                         </div>
@@ -412,10 +412,10 @@
                             <span class="font-extrabold tracking-wide text-[13.5px]">Family Portal</span>
                             <span class="text-[8.5px] font-bold text-rose-200 uppercase tracking-[0.15em]">{{ user.get_full_name|default:"Parent" }}</span>
                         </div>
-                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
+                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'family_portal' %}transform: rotate(90deg){% endif %}"></i>
                     </button>
                 
-                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'family_portal' %}max-height: 1000px{% endif %}">
                         <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
                             
                             <div class="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Monitoring</div>
@@ -471,7 +471,7 @@
                         }
                     }" x-init="fetchUnread(); setInterval(() => fetchUnread(), 10000)">
 
-                    <button onclick="toggleDropdown(this)" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-600 to-rose-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                    <button onclick="toggleDropdown(this)" data-section-id="messages_parent" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-600 to-rose-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                             <template x-if="unreadCount > 0">
                                 <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
                             </template>
@@ -490,10 +490,10 @@
                                 <span class="relative inline-flex rounded-full h-5 w-5 bg-white text-rose-600 text-[10px] items-center justify-center font-black shadow-sm" x-text="unreadCount"></span>
                             </div>
                             
-                            <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron"></i>
+                            <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'messages_parent' %}transform: rotate(90deg){% endif %}"></i>
                         </button>
 
-                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'messages_parent' %}max-height: 1000px{% endif %}">
                         <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5 shadow-inner">
                             <a href="{% url 'communication:send_message' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all group">
                                 <i class="fa-solid fa-paper-plane mr-3 opacity-70 group-hover:translate-x-1 transition-transform text-[10px]"></i>

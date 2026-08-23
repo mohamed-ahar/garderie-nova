@@ -16,6 +16,9 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "dashboard.apps.DashboardConfig",
     "accounts.apps.AccountsConfig",
+    'communication',
+    'curriculum',
+    'children',
     "reports",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -25,9 +28,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
-    'communication',
-    'curriculum',
-    'children',
 ]
 
 MIDDLEWARE = [

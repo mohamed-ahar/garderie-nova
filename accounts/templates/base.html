@@ -333,6 +333,7 @@
         function toggleDropdown(button) {
             const content = button.nextElementSibling;
             const chevron = button.querySelector('.chevron');
+            const sectionId = button.getAttribute('data-section-id');
             const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
 
             // Close all other dropdowns
@@ -342,6 +343,9 @@
             if (!isOpen) {
                 content.style.maxHeight = content.scrollHeight + "px";
                 if(chevron) chevron.style.transform = 'rotate(90deg)';
+                if(sectionId) document.cookie = "open_section=" + sectionId + "; path=/; max-age=31536000";
+            } else {
+                document.cookie = "open_section=; path=/; max-age=31536000";
             }
         }
 
