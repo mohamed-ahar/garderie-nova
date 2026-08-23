@@ -334,9 +334,13 @@
                             </button>
                     <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20">
                         <div class="mt-2 mx-2 bg-slate-800/60 rounded-xl p-2 space-y-1 border border-white/5">
-                            <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
+                            <a href="{% url 'educator_assigned_children' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-users mr-3 opacity-70"></i>
+                                <span class="sidebar-label">My Class</span>
+                            </a>
+                            <a href="{% url 'daily_checkup_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-clipboard-check mr-3 opacity-70"></i>
-                                <span class="sidebar-label">Daily Operations</span>
+                                <span class="sidebar-label">Daily Checkups</span>
                             </a>
                             <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-people-roof mr-3 opacity-70"></i>

@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "corsheaders",
     'communication',
     'curriculum',
+    'children',
 ]
 
 MIDDLEWARE = [

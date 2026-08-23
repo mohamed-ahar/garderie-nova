@@ -7,6 +7,7 @@ from .all_views.parent_views import *
 from .all_views.director_views import * 
 from .all_views.owner_views import *
 from .all_views.child_views import *
+from .all_views.educator_views import *
 from. import views
 
 urlpatterns = [
@@ -16,6 +17,9 @@ urlpatterns = [
         name='import_children_csv'
     ),
     path("children/", child_list_view, name="child_list"),
+    path("educator/my-children/", educator_assigned_children, name="educator_assigned_children"),
+    path("educator/daily-checkups/", daily_checkup_list, name="daily_checkup_list"),
+    path("educator/daily-checkups/<uuid:child_id>/", daily_checkup_form, name="daily_checkup_form"),
     path("children/<uuid:child_id>/", child_profile_view, name="child_profile"),
     
     path("", RedirectView.as_view(url="dashboard/", permanent=False)),

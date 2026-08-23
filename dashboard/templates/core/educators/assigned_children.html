@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}My Class | GarderieNova{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-2">
+    <div class="relative mb-10 -mx-6 -mt-6 overflow-hidden border-b border-white/10">
+        <div class="absolute inset-0 bg-[#0f172a] dark:bg-black"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-600/90 via-blue-600/80 to-blue-500/70 opacity-90"></div>
+        
+        <div class="absolute top-[-50%] left-[-10%] w-[70%] h-[150%] bg-blue-400/20 rounded-full blur-[120px] animate-pulse"></div>
+        <div class="absolute bottom-[-50%] right-[-10%] w-[60%] h-[120%] bg-emerald-400/20 rounded-full blur-[100px] animate-pulse" style="animation-delay: 2s;"></div>
+
+        <div class="relative z-10 px-8 pt-10 pb-10">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                <div class="space-y-3">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span class="text-[10px] font-black text-white uppercase tracking-[0.2em]">Educator_Portal</span>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl md:text-5xl font-black text-white tracking-tighter leading-none">
+                            My Class
+                        </h1>
+                        <p class="text-blue-100/70 text-sm md:text-base font-medium mt-2 max-w-md">
+                            View and manage children assigned to your care.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 px-5 py-3 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10">
+                    <div class="text-right">
+                        <p class="text-[9px] font-black text-blue-200/50 uppercase tracking-widest leading-none">Total_Assigned</p>
+                        <p class="text-xl font-mono font-bold text-white">{{ children.count }}</p>
+                    </div>
+                    <div class="w-px h-8 bg-white/10"></div>
+                    <i class="fa-solid fa-graduation-cap text-blue-300/50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden">
+        <!-- Search Section -->
+        <div class="p-6 border-b border-slate-100 dark:border-slate-800">
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="Search children in your class..." 
+                       class="w-full px-4 py-3 pl-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
+                        <th class="px-8 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Child</th>
+                        <th class="px-6 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Age</th>
+                        <th class="px-6 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Group</th>
+                        <th class="px-8 py-5 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                    {% for child in children %}
+                    <tr class="group hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5 transition-colors child-row">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                                    {% if child.profile_photo %}
+                                    <img src="{{ child.profile_photo.url }}" class="w-full h-full rounded-2xl object-cover">
+                                    {% else %}
+                                    <i class="fa-solid fa-child text-sm"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <span class="text-sm font-bold text-slate-900 dark:text-white child-name">
+                                        {{ child.first_name }} {{ child.last_name }}
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                            {{ child.age_display }}
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 text-[11px] font-bold rounded-lg inline-block">
+                                {{ child.assigned_group.name|default:"No Group" }}
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{% url 'child_profile' child.child_id %}" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all" title="View Profile">
+                                    <i class="fa-solid fa-eye text-xs"></i>
+                                </a>
+                                <a href="#" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all" title="Daily Log">
+                                    <i class="fa-solid fa-clipboard-check text-xs"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-8 py-20 text-center text-slate-500 dark:text-slate-400">
+                            <div class="flex flex-col items-center gap-3">
+                                <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-300">
+                                    <i class="fa-solid fa-user-slash text-2xl"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold">No children assigned yet</p>
+                                    <p class="text-xs">Contact your director for class assignments.</p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    const term = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('.child-row');
+    
+    rows.forEach(row => {
+        const name = row.querySelector('.child-name').textContent.toLowerCase();
+        if (name.includes(term)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}
