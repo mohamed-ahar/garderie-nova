@@ -3,123 +3,180 @@
 {% block title %}Daily Report - {{ child.first_name }} | GarderieNova{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-8">
-    <div class="flex items-center gap-4 mb-8">
-        <a href="{% url 'daily_checkup_list' %}" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-indigo-600 transition-colors">
-            <i class="fa-solid fa-arrow-left"></i>
-        </a>
-        <div>
-            <h1 class="text-2xl font-black text-slate-900 dark:text-white">Daily Report</h1>
-            <p class="text-sm font-bold text-slate-500">{{ child.first_name }} {{ child.last_name }} • {{ daily_log.date|date:"l, F d" }}</p>
-        </div>
+<div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-8 px-6">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-indigo-400/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-rose-400/5 rounded-full blur-[100px]"></div>
     </div>
 
-    <form method="POST" class="space-y-8">
-        {% csrf_token %}
+    <div class="relative z-10 max-w-6xl w-full grid lg:grid-cols-12 gap-8 items-start">
         
-        <!-- Food Section -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-utensils text-orange-500"></i> Nutrition
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">AM Snack</label>
-                    {{ form.snack_am }}
+        <div class="lg:col-span-4 space-y-6 pt-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+                <i class="fa-solid fa- calendar-day text-indigo-500 text-[10px]"></i>
+                <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Daily Documentation</span>
+            </div>
+
+            <div class="space-y-3">
+                <h1 class="text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
+                    {{ child.first_name }}'s<br>
+                    <span class="bg-gradient-to-r from-indigo-600 to-rose-400 bg-clip-text text-transparent">Daily Journal.</span>
+                </h1>
+                <p class="text-base text-slate-400 font-medium leading-relaxed">
+                    Recording milestones and care for <span class="text-slate-900 dark:text-white font-bold">{{ daily_log.date|date:"l, F d" }}</span>.
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-4 pt-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-600">
+                        <i class="fa-solid fa-utensils text-xs"></i>
+                    </div>
+                    <span class="text-[11px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Nutrition Tracking</span>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Lunch</label>
-                    {{ form.lunch }}
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-600">
+                        <i class="fa-solid fa-face-smile text-xs"></i>
+                    </div>
+                    <span class="text-[11px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Mood & Behavior</span>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">PM Snack</label>
-                    {{ form.snack_pm }}
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-600">
+                        <i class="fa-solid fa-heart-pulse text-xs"></i>
+                    </div>
+                    <span class="text-[11px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Health & Wellness</span>
                 </div>
             </div>
         </div>
 
-        <!-- Mood Section -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-face-smile text-yellow-500"></i> Mood & Behavior
-            </h3>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4">
-                <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    {{ form.mood_content }}
-                    <span class="text-sm font-medium">Happy</span>
-                </label>
-                <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    {{ form.mood_amuse }}
-                    <span class="text-sm font-medium">Amused</span>
-                </label>
-                <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    {{ form.mood_fatigue }}
-                    <span class="text-sm font-medium">Tired</span>
-                </label>
-                <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    {{ form.mood_pleurnicheur }}
-                    <span class="text-sm font-medium">Crying</span>
-                </label>
-                <!-- Add other moods similarly if needed, or iterate if possible, but manual is fine for layout control -->
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Other Mood / Details</label>
-                {{ form.mood_autre_desc }}
-            </div>
-        </div>
+        <div class="lg:col-span-8">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] relative">
+                
+                <form method="POST" class="space-y-8">
+                    {% csrf_token %}
+                    
+                    <div class="space-y-4">
+                        <h3 class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] px-1">Nutrition Details</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="relative group">
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">AM Snack</label>
+                                {{ form.snack_am }}
+                            </div>
+                            <div class="relative group">
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">Lunch</label>
+                                {{ form.lunch }}
+                            </div>
+                            <div class="relative group">
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">PM Snack</label>
+                                {{ form.snack_pm }}
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- Health Section -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-notes-medical text-red-500"></i> Health
-            </h3>
-            <div class="mb-4">
-                <label class="flex items-center gap-2 font-medium text-slate-700 dark:text-slate-300">
-                    {{ form.has_symptoms }}
-                    Child showed symptoms of illness
-                </label>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Description</label>
-                {{ form.symptoms_desc }}
-            </div>
-        </div>
+                    <div class="space-y-4">
+                        <h3 class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] px-1">Mood & Behavior</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            {% for field in form %}
+                                {% if field.name == 'mood_content' or field.name == 'mood_amuse' or field.name == 'mood_fatigue' or field.name == 'mood_pleurnicheur' %}
+                                <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer hover:border-indigo-500 transition-all group">
+                                    <div class="scale-110">{{ field }}</div>
+                                    <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-indigo-500">{{ field.label }}</span>
+                                </label>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="relative group">
+                            <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">Additional Mood Notes</label>
+                            {{ form.mood_autre_desc }}
+                        </div>
+                    </div>
 
-        <!-- Comments -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-comment-dots text-blue-500"></i> Notes
-            </h3>
-            {{ form.comments }}
-        </div>
+                    <div class="space-y-4">
+                        <h3 class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] px-1">Health Status</h3>
+                        <div class="flex items-center gap-3 p-4 rounded-2xl bg-rose-500/5 border border-rose-100 dark:border-rose-900/30">
+                            {{ form.has_symptoms }}
+                            <span class="text-xs font-bold text-rose-700 dark:text-rose-400">Child showed symptoms of illness today</span>
+                        </div>
+                        <div class="relative group">
+                            <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">Symptom Description</label>
+                            {{ form.symptoms_desc }}
+                        </div>
+                    </div>
 
-        <div class="flex justify-end pt-4">
-            <button type="submit" class="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 transition-all transform hover:-translate-y-0.5">
-                Save Daily Report
-            </button>
+                    <div class="space-y-4">
+                        <h3 class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] px-1">General Notes</h3>
+                        <div class="relative group">
+                            {{ form.comments }}
+                        </div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" 
+                                class="group relative w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 px-6 rounded-xl transition-all hover:bg-indigo-600 hover:text-white active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 text-sm">
+                            Save Daily Report
+                            <i class="fa-solid fa-check text-[10px] group-hover:scale-125 transition-transform"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-6 pt-6 border-t border-slate-50 dark:border-slate-800 text-center">
+                    <a href="{% url 'daily_checkup_list' %}" class="inline-flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-indigo-500 uppercase tracking-widest transition-colors">
+                        <i class="fa-solid fa-chevron-left text-[8px]"></i>
+                        Back to Daily List
+                    </a>
+                </div>
+
+                <div class="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg flex items-center justify-center text-white text-xl rotate-12">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </div>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
 
 <style>
-    /* Custom form styling overrides */
-    select, input[type="text"], textarea {
+    /* Premium Input Styling */
+    input[type="text"], select, textarea {
         width: 100%;
-        padding: 0.75rem 1rem;
-        border-radius: 0.75rem;
-        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem !important;
         background-color: #f8fafc;
-        transition: all 0.2s;
-    }
-    .dark select, .dark input[type="text"], .dark textarea {
-        background-color: #1e293b;
-        border-color: #334155;
-        color: white;
-    }
-    select:focus, input[type="text"]:focus, textarea:focus {
+        border: 1px solid #f1f5f9;
+        border-radius: 1rem !important;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
         outline: none;
+    }
+
+    .dark input[type="text"], .dark select, .dark textarea {
+        background-color: #0f172a;
+        border-color: #1e293b;
+        color: #ffffff;
+    }
+
+    input:focus, textarea:focus, select:focus {
         border-color: #6366f1;
-        ring: 2px solid #6366f1;
+        background-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
+    }
+
+    .dark input:focus, .dark textarea:focus, .dark select:focus {
+        background-color: #020617;
+    }
+
+    /* Custom Checkbox Styling */
+    input[type="checkbox"] {
+        width: 1.2rem;
+        height: 1.2rem;
+        border-radius: 0.4rem !important;
+        border: 2px solid #e2e8f0;
+        cursor: pointer;
+    }
+    
+    .dark input[type="checkbox"] {
+        border-color: #334155;
+        background-color: #1e293b;
     }
 </style>
 {% endblock %}
