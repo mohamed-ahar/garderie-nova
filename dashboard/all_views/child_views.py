@@ -42,10 +42,7 @@ def child_profile_view(request, child_id):
         raise PermissionDenied("Access Denied")
 
     # --- Fetch Enrollment Data ---
-    try:
-        enrollment = child.enrollment_profile
-    except EnrollmentForm.DoesNotExist:
-        enrollment = None
+    enrollment = child.enrollment_forms.filter(is_active=True).first()
 
     context = {
         'child': child,

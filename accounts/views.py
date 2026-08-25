@@ -170,7 +170,7 @@ def parent_dashboard(request):
         
         # Check enrollment safely
         try:
-            _ = child.enrollment_profile
+            _ = child.enrollment_forms.filter(is_active=True).first()
             child.has_enrollment_form = True
         except:
             child.has_enrollment_form = False

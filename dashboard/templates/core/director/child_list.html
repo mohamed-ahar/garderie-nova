@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="max-w-5xl mx-auto px-2">
-<div class="relative mb-10 -mx-6 -mt-6 overflow-hidden border-b border-white/10">
+<div class="relative mb-4 -mx-6 -mt-6 overflow-hidden border-b border-white/10">
     <div class="absolute inset-0 bg-[#0f172a] dark:bg-black"></div>
     <div class="absolute inset-0 bg-gradient-to-br from-indigo-600/90 via-blue-600/80 to-blue-500/70 opacity-90"></div>
     
@@ -58,14 +58,11 @@
             <a href="{% url 'waitlist_manage' %}" class="flex items-center gap-2 text-white/40 text-[11px] font-bold hover:opacity-100 transition-opacity cursor-pointer">
                 <i class="fa-solid fa-clipboard-list"></i> WAITLIST
             </a>
-            <div class="flex items-center gap-2 text-white/40 text-[11px] font-bold hover:opacity-100 transition-opacity cursor-pointer">
-                <i class="fa-solid fa-box-archive"></i> ARCHIVED
-            </div>
         </div>
     </div>
 </div>
 
-<div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden animate-in fade-in duration-500">
+<div class="-mx-6 -mx-6 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden animate-in fade-in duration-500">
     <!-- Filter Section -->
     <div class="border-b border-slate-100 dark:border-slate-800 p-6">
         <div class="flex flex-col gap-4">
@@ -214,16 +211,21 @@
                                 <i class="fa-solid fa-eye text-xs"></i>
                             </a>
                             {% if user.role_type == 'director' or user.is_superuser %}
-                                {% with child.enrollment_profile as enrollment %}
-                                    {% if enrollment %}
-                                        <form method="post" action="{% url 'toggle_enrollment_lock' child.child_id %}" class="inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all shadow-sm" title="{% if enrollment.locked_for_editing %}Unlock Form for Parents{% else %}Lock Form from Parents{% endif %}">
-                                                <i class="fa-solid {% if enrollment.locked_for_editing %}fa-lock text-red-500{% else %}fa-lock-open text-green-500{% endif %} text-xs"></i>
-                                            </button>
-                                        </form>
+                                {% for enrollment in child.enrollment_forms.all %}
+                                    {% if enrollment.is_active %}
+                                        <button type="button"
+                                                onclick="openModal(
+                                                    '{% if enrollment.locked_for_editing %}Unlock Form{% else %}Lock Form{% endif %}',
+                                                    '{% if enrollment.locked_for_editing %}Are you sure you want to unlock this form for parents to edit?{% else %}Are you sure you want to lock this form to prevent parents from making changes?{% endif %}',
+                                                    '{% url 'toggle_enrollment_lock' child.child_id %}',
+                                                    '{% if enrollment.locked_for_editing %}delete{% else %}confirm{% endif %}'
+                                                )"
+                                                class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all shadow-sm"
+                                                title="{% if enrollment.locked_for_editing %}Unlock Form for Parents{% else %}Lock Form from Parents{% endif %}">
+                                            <i class="fa-solid {% if enrollment.locked_for_editing %}fa-lock text-red-500{% else %}fa-lock-open text-green-500{% endif %} text-xs"></i>
+                                        </button>
                                     {% endif %}
-                                {% endwith %}
+                                {% endfor %}
                             {% endif %}
                         </div>
                     </td>

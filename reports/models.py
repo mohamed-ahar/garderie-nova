@@ -10,10 +10,11 @@ class EnrollmentForm(models.Model):
     Represents the 'Annexe 1 - Profil de l\'enfant' form.
     """
     form_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    child = models.OneToOneField(Child, on_delete=models.CASCADE, related_name="enrollment_profile")
+    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name="enrollment_forms")
     submission_date = models.DateField(default=timezone.now)
     is_fully_signed = models.BooleanField(default=False)
     locked_for_editing = models.BooleanField(default=False, help_text="Whether the form is locked from further editing by parents")
+    is_active = models.BooleanField(default=True, help_text="Whether this is the current active form")
     
     # Dates
     registration_date = models.DateField(null=True, blank=True)

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.contrib import messages
@@ -86,10 +87,8 @@ def enrollment_profile_view(request, child_id=None):
             messages.error(request, "You do not have permission to view this child.")
             return render(request, "core/403.html", status=403)
 
-        try:
-            enrollment_form = child.enrollment_profile
-        except EnrollmentForm.DoesNotExist:
-            enrollment_form = None
+        # Get the active enrollment form
+        enrollment_form = child.enrollment_forms.filter(is_active=True).first()
 
     if request.method == "POST":
         action = request.POST.get("action")
@@ -207,9 +206,19 @@ def enrollment_profile_view(request, child_id=None):
 
         form_data["medical_history_flags"] = medical_json
 
-        enrollment_obj, created = EnrollmentForm.objects.update_or_create(
-            child=child, defaults=form_data
-        )
+        # If there's no active form, create one; otherwise, update the active form
+        enrollment_obj = child.enrollment_forms.filter(is_active=True).first()
+        if enrollment_obj:
+            # Update the existing active form
+            for attr, value in form_data.items():
+                setattr(enrollment_obj, attr, value)
+            enrollment_obj.save()
+        else:
+            # Deactivate any existing forms first (there shouldn't be any active ones, but just in case)
+            child.enrollment_forms.update(is_active=False)
+            # Create a new active form
+            form_data['child'] = child
+            enrollment_obj = EnrollmentForm.objects.create(**form_data, is_active=True)
 
         # --- 3. HANDLE RELATED LISTS (Pickups, Emergency, Unauthorized) ---
 
@@ -282,8 +291,8 @@ def enrollment_profile_view(request, child_id=None):
                 for p_rel in other_parents:
                     Notification.objects.create(
                         user=p_rel.parent.user,
-                        title="Signature requise: Profil de l'enfant",
-                        message=f"Le profil de {child.first_name} a été mis à jour par {user.full_name}. Votre signature est requise pour finaliser l'inscription.",
+                        title="Signature Required: Child Profile",
+                        message=f"The profile for {child.first_name} has been updated by {user.full_name}. Your signature is required to finalize the enrollment.",
                         action_url=request.path,
                     )
             else:
@@ -296,10 +305,20 @@ def enrollment_profile_view(request, child_id=None):
                     signed_parent_names = ", ".join(
                         [s.parent.full_name for s in enrollment_obj.signatures.all()]
                     )
+
+                    message_text = f"The enrollment form for {child.first_name} has been signed by all parents ({signed_parent_names})."
+                    title_text = f"Enrollment Form Completed: {child.first_name} {child.last_name}"
+
+                    # Check if this form was created as a result of unlocking (has a previous version)
+                    previous_forms_exist = child.enrollment_forms.filter(is_active=False).exists()
+                    if previous_forms_exist:
+                        message_text = f"The updated enrollment form for {child.first_name} has been signed by all parents ({signed_parent_names})."
+                        title_text = f"Updated Form Completed: {child.first_name} {child.last_name}"
+
                     Notification.objects.create(
                         user=center.director.user,
-                        title=f"Profil finalisé: {child.first_name} {child.last_name}",
-                        message=f"Le profil d'inscription de {child.first_name} a été signé par tous les parents ({signed_parent_names}).",
+                        title=title_text,
+                        message=message_text,
                         action_url=f"/children/{child.child_id}/",  # Assuming this is the child profile URL
                     )
 
@@ -424,20 +443,106 @@ def toggle_enrollment_lock(request, child_id):
 
     child = get_object_or_404(Child, pk=child_id)
 
-    # Get or create the enrollment form
-    try:
-        enrollment_form = child.enrollment_profile
-    except EnrollmentForm.DoesNotExist:
+    # Get the active enrollment form
+    enrollment_form = child.enrollment_forms.filter(is_active=True).first()
+    if not enrollment_form:
         messages.error(request, "Enrollment form does not exist for this child.")
         return redirect('dashboard_redirect')
 
     if enrollment_form:
-        # Toggle the locked status
-        enrollment_form.locked_for_editing = not enrollment_form.locked_for_editing
-        enrollment_form.save()
+        # Check if we're unlocking a previously locked form
+        was_locked = enrollment_form.locked_for_editing
+        is_now_locked = not enrollment_form.locked_for_editing  # What it will become after toggle
 
-        status = "locked" if enrollment_form.locked_for_editing else "unlocked"
-        messages.success(request, f"Enrollment form has been {status} for editing by parents.")
+        if was_locked and not is_now_locked:  # We're unlocking a previously locked form
+            # Deactivate the old form
+            enrollment_form.is_active = False
+            enrollment_form.save()
+
+            # Create a new enrollment form with the same data
+            new_enrollment_form = EnrollmentForm.objects.create(
+                child=child,
+                registration_date=enrollment_form.registration_date,
+                start_date=enrollment_form.start_date,
+                doctor_name=enrollment_form.doctor_name,
+                doctor_phone=enrollment_form.doctor_phone,
+                doctor_address=enrollment_form.doctor_address,
+                allergies_severe=enrollment_form.allergies_severe,
+                non_fatal_allergies=enrollment_form.non_fatal_allergies,
+                requires_epipen=enrollment_form.requires_epipen,
+                routine_services_required=enrollment_form.routine_services_required,
+                routine_services_details=enrollment_form.routine_services_details,
+                continuous_medication=enrollment_form.continuous_medication,
+                activity_restrictions=enrollment_form.activity_restrictions,
+                dietary_restrictions=enrollment_form.dietary_restrictions,
+                cultural_dietary_restrictions=enrollment_form.cultural_dietary_restrictions,
+                medical_history_flags=enrollment_form.medical_history_flags,
+                immunization_provided=enrollment_form.immunization_provided,
+                immunization_exemption=enrollment_form.immunization_exemption,
+                preschool_history=enrollment_form.preschool_history,
+                preschool_duration=enrollment_form.preschool_duration,
+                autonomy_dressing=enrollment_form.autonomy_dressing,
+                autonomy_eating=enrollment_form.autonomy_eating,
+                autonomy_toilet=enrollment_form.autonomy_toilet,
+                autonomy_hygiene=enrollment_form.autonomy_hygiene,
+                autonomy_other=enrollment_form.autonomy_other,
+                motor_skills=enrollment_form.motor_skills,
+                transition_tips=enrollment_form.transition_tips,
+                interests_hobbies=enrollment_form.interests_hobbies,
+                additional_info=enrollment_form.additional_info,
+                locked_for_editing=False,  # New form starts unlocked
+                is_fully_signed=False,     # New form needs to be signed again
+                is_active=True             # New form is active
+            )
+
+            # Copy related objects to the new form
+            # Copy authorized pickups
+            for pickup in enrollment_form.authorized_pickups.all():
+                AuthorizedPickup.objects.create(
+                    enrollment_form=new_enrollment_form,
+                    name=pickup.name,
+                    relationship=pickup.relationship,
+                    address=pickup.address,
+                    phone_day=pickup.phone_day
+                )
+
+            # Copy emergency contacts
+            for emergency_contact in enrollment_form.emergency_contacts.all():
+                EmergencyContact.objects.create(
+                    enrollment_form=new_enrollment_form,
+                    name=emergency_contact.name,
+                    relationship=emergency_contact.relationship,
+                    address=emergency_contact.address,
+                    phone_day=emergency_contact.phone_day
+                )
+
+            # Copy unauthorized contacts
+            for unauthorized_contact in enrollment_form.unauthorized_contacts.all():
+                UnauthorizedContact.objects.create(
+                    enrollment_form=new_enrollment_form,
+                    name=unauthorized_contact.name
+                )
+
+            # The new form will need to be signed again, so no signatures are copied
+
+            # Notify all parents about the new form that needs to be signed
+            all_parent_rels = child.parent_relationships.all()
+            for p_rel in all_parent_rels:
+                Notification.objects.create(
+                    user=p_rel.parent.user,
+                    title="New Enrollment Form Requiring Signature",
+                    message=f"A new enrollment form has been created for {child.first_name} {child.last_name}. Please review and sign again.",
+                    action_url=reverse('enrollment_edit', kwargs={'child_id': child.child_id})
+                )
+
+            messages.success(request, f"A new enrollment form has been created with the previous data. Parents will need to sign it again.")
+        else:
+            # Regular toggle behavior for locking or for first-time unlocking
+            enrollment_form.locked_for_editing = is_now_locked
+            enrollment_form.save()
+
+            status = "locked" if is_now_locked else "unlocked"
+            messages.success(request, f"Enrollment form has been {status} for editing by parents.")
     else:
         messages.error(request, "Enrollment form does not exist for this child.")
 
