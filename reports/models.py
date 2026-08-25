@@ -12,6 +12,7 @@ class EnrollmentForm(models.Model):
     form_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     child = models.OneToOneField(Child, on_delete=models.CASCADE, related_name="enrollment_profile")
     submission_date = models.DateField(default=timezone.now)
+    is_fully_signed = models.BooleanField(default=False)
     
     # Dates
     registration_date = models.DateField(null=True, blank=True)
@@ -62,6 +63,22 @@ class EnrollmentForm(models.Model):
 
     def __str__(self):
         return f"Profil: {self.child}"
+
+class EnrollmentSignature(models.Model):
+    """
+    Stores parent signatures for the enrollment form.
+    """
+    signature_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    enrollment_form = models.ForeignKey(EnrollmentForm, on_delete=models.CASCADE, related_name='signatures')
+    parent = models.ForeignKey("accounts.User", on_delete=models.CASCADE)
+    signature_data = models.TextField(help_text="Base64 encoded signature image")
+    signed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('enrollment_form', 'parent')
+
+    def __str__(self):
+        return f"Signature by {self.parent.full_name} for {self.enrollment_form.child}"
 
 class AuthorizedPickup(models.Model):
     """

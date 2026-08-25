@@ -8,13 +8,14 @@ import os
 import json
 import glob
 
-from dashboard.models import Child, ParentChildRelationship, Center
+from dashboard.models import Child, ParentChildRelationship, Center, Notification
 from accounts.models import ParentProfile
 from .models import (
     EnrollmentForm, 
     AuthorizedPickup, 
     EmergencyContact, 
-    UnauthorizedContact
+    UnauthorizedContact,
+    EnrollmentSignature
 )
 
 def get_user_storage_path(user, child=None):
@@ -24,7 +25,7 @@ def get_user_storage_path(user, child=None):
     If child is provided, returns the child-specific directory.
     """
     if child:
-        user_dir = os.path.join(settings.MEDIA_ROOT, 'parents', str(user.id), 'enrollment_history', str(child.uuid))
+        user_dir = os.path.join(settings.MEDIA_ROOT, 'parents', str(user.id), 'enrollment_history', str(child.child_id))
     else:
         user_dir = os.path.join(settings.MEDIA_ROOT, 'parents', str(user.id), 'enrollment_history')
     os.makedirs(user_dir, exist_ok=True)
@@ -231,6 +232,47 @@ def enrollment_profile_view(request, child_id=None):
                     name=name
                 )
 
+        # --- 4. HANDLE SIGNATURE ---
+        signature_data = request.POST.get('signature_data')
+        if signature_data:
+            EnrollmentSignature.objects.update_or_create(
+                enrollment_form=enrollment_obj,
+                parent=user,
+                defaults={'signature_data': signature_data}
+            )
+
+            # Check if all parents signed
+            all_parent_rels = child.parent_relationships.all()
+            total_parents = all_parent_rels.count()
+            signed_parents_count = enrollment_obj.signatures.count()
+
+            if signed_parents_count < total_parents:
+                # Notify other parents
+                signed_user_ids = enrollment_obj.signatures.values_list('parent_id', flat=True)
+                other_parents = all_parent_rels.exclude(parent__user_id__in=signed_user_ids)
+                
+                for p_rel in other_parents:
+                    Notification.objects.create(
+                        user=p_rel.parent.user,
+                        title="Signature requise: Profil de l'enfant",
+                        message=f"Le profil de {child.first_name} a été mis à jour par {user.full_name}. Votre signature est requise pour finaliser l'inscription.",
+                        action_url=request.path
+                    )
+            else:
+                # All signed! Notify Director
+                enrollment_obj.is_fully_signed = True
+                enrollment_obj.save()
+                
+                center = child.center
+                if center and center.director:
+                    signed_parent_names = ", ".join([s.parent.full_name for s in enrollment_obj.signatures.all()])
+                    Notification.objects.create(
+                        user=center.director.user,
+                        title=f"Profil finalisé: {child.first_name} {child.last_name}",
+                        message=f"Le profil d'inscription de {child.first_name} a été signé par tous les parents ({signed_parent_names}).",
+                        action_url=f"/dashboard/children/{child.child_id}/" # Assuming this is the child profile URL
+                    )
+
         # Save a draft of the submitted version so auto-load works correctly
         save_form_draft(user, request.POST, child)
 
@@ -298,6 +340,20 @@ def enrollment_profile_view(request, child_id=None):
     while len(pickup_list) < 4:
         pickup_list.append(None)
 
+    # Signature Status
+    signatures_count = 0
+    total_parents_needed = 0
+    signed_parents = []
+    user_has_signed = False
+
+    if child:
+        total_parents_needed = child.parent_relationships.count()
+        if enrollment_form:
+            signatures = enrollment_form.signatures.all()
+            signatures_count = signatures.count()
+            signed_parents = [s.parent for s in signatures]
+            user_has_signed = any(s.parent == user for s in signatures)
+
     context = {
         'child': child,
         'enrollment': enrollment_form,
@@ -311,6 +367,10 @@ def enrollment_profile_view(request, child_id=None):
         'medical_history_diseases_left': ['Rougeole', 'Oreillons', 'Méningite'],
         'medical_history_diseases_right': ['Rubéole', 'Varicelle', 'Coqueluche'],
         'health_conditions_left': ['Asthme', 'Eczéma/Psoriasis'],
-        'health_conditions_right': ['Diabète', 'Épilepsie']
+        'health_conditions_right': ['Diabète', 'Épilepsie'],
+        'signatures_count': signatures_count,
+        'total_parents_needed': total_parents_needed,
+        'signed_parents': signed_parents,
+        'user_has_signed': user_has_signed,
     }
     return render(request, 'reports/enrollment_form.html', context)

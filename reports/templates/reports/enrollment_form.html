@@ -3,6 +3,10 @@
 
 {% block title %}Profil de l'enfant | GarderieNova{% endblock %}
 
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-teal-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
     <div class="max-w-7xl mx-auto px-4 py-8">
@@ -575,6 +579,85 @@
                 </div>
             </div>
 
+            <!-- SIGNATURE SECTION -->
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-lg p-8">
+                <h2 class="text-xl font-black text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                   <i class="fa-solid fa-file-signature text-teal-500"></i> Signature des parents
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Signatures collectées</span>
+                            <span class="text-sm font-bold text-teal-600">{{ signatures_count|default:0 }} / {{ total_parents_needed|default:1 }}</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
+                            {% if total_parents_needed %}
+                            <div class="bg-teal-500 h-2.5 rounded-full transition-all duration-500"
+                                style="width: {% widthratio signatures_count total_parents_needed 100 %}%;">
+                            </div>
+                            {% else %}
+                            <div class="bg-teal-500 h-2.5 rounded-full" style="width: 0%;"></div>
+                            {% endif %}
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-3">Tous les tuteurs légaux doivent signer pour finaliser l'inscription.</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">État des signatures</p>
+                        <div class="space-y-2">
+                            {% for p_rel in child.parent_relationships.all %}
+                                <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-slate-100 dark:border-slate-800">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-white dark:bg-slate-900 flex items-center justify-center text-xs shadow-sm">
+                                            <i class="fa-solid fa-user text-slate-400"></i>
+                                        </div>
+                                        <span class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ p_rel.parent.user.full_name }}</span>
+                                    </div>
+                                    {% if p_rel.parent.user in signed_parents %}
+                                        <span class="px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-wider border border-emerald-100 dark:border-emerald-500/20">Signé</span>
+                                    {% else %}
+                                        <span class="px-2 py-1 rounded-lg bg-amber-50 dark:bg-amber-500/10 text-amber-600 text-[10px] font-black uppercase tracking-wider border border-amber-100 dark:border-amber-500/20">En attente</span>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                {% if not user_has_signed %}
+                <div class="p-8 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-700">
+                    <div class="flex flex-col md:flex-row gap-8">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-4">
+                                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                    <i class="fa-solid fa-pen-nib text-teal-500"></i> Votre Signature ({{ request.user.full_name }})
+                                </label>
+                                <button type="button" id="clear-signature" class="text-[10px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg text-slate-500 hover:text-rose-500 transition-all font-bold uppercase tracking-wider">
+                                    Effacer
+                                </button>
+                            </div>
+                            <div class="relative bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-100 dark:border-slate-800 shadow-inner h-[200px] overflow-hidden cursor-crosshair">
+                                <canvas id="signature-canvas" class="w-full h-full"></canvas>
+                            </div>
+                            <input type="hidden" name="signature_data" id="signature-data-input">
+                        </div>
+                        
+                        <div class="md:w-72 flex flex-col justify-end">
+                            <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 mb-4">
+                                <label class="flex items-start gap-3 cursor-pointer">
+                                    <input type="checkbox" id="confirm-signature" class="mt-1 w-5 h-5 text-teal-600 rounded border-slate-300 focus:ring-teal-500">
+                                    <span class="text-xs text-slate-500 leading-relaxed font-medium">
+                                        Je confirme que les informations fournies dans ce profil sont exactes et je consens à l'inscription de mon enfant.
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
 
             <!-- ACTION BAR -->
             <div class="sticky bottom-8 z-40">
@@ -652,8 +735,36 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form');
+        const form = document.getElementById('enrollment-form');
         const container = document.getElementById('allergies-container');
+
+        // Signature Pad Logic
+        const canvas = document.getElementById('signature-canvas');
+        let signaturePad = null;
+        if (canvas) {
+            signaturePad = new SignaturePad(canvas, {
+                backgroundColor: 'rgba(255, 255, 255, 0)',
+                penColor: 'rgb(30, 41, 59)'
+            });
+
+            function resizeCanvas() {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+                signaturePad.clear();
+            }
+
+            window.onresize = resizeCanvas;
+            resizeCanvas();
+
+            const clearBtn = document.getElementById('clear-signature');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    signaturePad.clear();
+                });
+            }
+        }
 
         function populateAllergies(data) {
             if (!data) return;
@@ -767,6 +878,22 @@
                 const immProvided = enrollmentForm.querySelector('[name="immunization_provided"]').checked;
                 const immExempt = enrollmentForm.querySelector('[name="immunization_exemption"]:checked');
                 if (!immProvided && !immExempt) missingFields.push("Statut d'immunisation (Preuve ou Exemption)");
+
+                // 6. Signature
+                if (signaturePad) {
+                    const signatureInput = document.getElementById('signature-data-input');
+                    const confirmCheck = document.getElementById('confirm-signature');
+                    
+                    if (signaturePad.isEmpty()) {
+                        {% if not user_has_signed %}
+                        missingFields.push("Votre signature est requise");
+                        {% endif %}
+                    } else if (confirmCheck && !confirmCheck.checked) {
+                        missingFields.push("Veuillez confirmer l'exactitude des informations");
+                    } else {
+                        signatureInput.value = signaturePad.toDataURL();
+                    }
+                }
 
                 if (missingFields.length > 0) {
                     console.warn("Validation failed:", missingFields);
