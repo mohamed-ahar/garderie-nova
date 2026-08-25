@@ -13,6 +13,7 @@ class EnrollmentForm(models.Model):
     child = models.OneToOneField(Child, on_delete=models.CASCADE, related_name="enrollment_profile")
     submission_date = models.DateField(default=timezone.now)
     is_fully_signed = models.BooleanField(default=False)
+    locked_for_editing = models.BooleanField(default=False, help_text="Whether the form is locked from further editing by parents")
     
     # Dates
     registration_date = models.DateField(null=True, blank=True)

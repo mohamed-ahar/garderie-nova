@@ -94,6 +94,11 @@ def enrollment_profile_view(request, child_id=None):
     if request.method == "POST":
         action = request.POST.get("action")
 
+        # Check if form is locked for editing by parents
+        if child and enrollment_form and enrollment_form.locked_for_editing and not user.is_superuser:
+            messages.error(request, "This enrollment form has been locked by a director and cannot be modified.")
+            return redirect(request.path)
+
         # --- HANDLE SAVE DRAFT ---
         if action == "save_draft":
             filename = save_form_draft(user, request.POST, child)
@@ -401,5 +406,39 @@ def enrollment_profile_view(request, child_id=None):
         "total_parents_needed": total_parents_needed,
         "signed_parents": signed_parents,
         "user_has_signed": user_has_signed,
+        "form_locked": enrollment_form.locked_for_editing if enrollment_form else False,
     }
     return render(request, "reports/enrollment_form.html", context)
+
+
+@login_required
+@transaction.atomic
+def toggle_enrollment_lock(request, child_id):
+    """Toggle the locked_for_editing status of an enrollment form"""
+    user = request.user
+
+    # Ensure user is a director or superuser
+    if user.role_type != 'director' and not user.is_superuser:
+        messages.error(request, "Access denied. Only directors can lock/unlock forms.")
+        return redirect('dashboard_redirect')
+
+    child = get_object_or_404(Child, pk=child_id)
+
+    # Get or create the enrollment form
+    try:
+        enrollment_form = child.enrollment_profile
+    except EnrollmentForm.DoesNotExist:
+        messages.error(request, "Enrollment form does not exist for this child.")
+        return redirect('dashboard_redirect')
+
+    if enrollment_form:
+        # Toggle the locked status
+        enrollment_form.locked_for_editing = not enrollment_form.locked_for_editing
+        enrollment_form.save()
+
+        status = "locked" if enrollment_form.locked_for_editing else "unlocked"
+        messages.success(request, f"Enrollment form has been {status} for editing by parents.")
+    else:
+        messages.error(request, "Enrollment form does not exist for this child.")
+
+    return redirect('child_list')  # Redirect back to the child list page

@@ -69,6 +69,18 @@
             </div>
         </div>
 
+        {% if form_locked %}
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+            <div class="flex items-start">
+                <i class="fa-solid fa-lock text-red-500 mt-0.5 mr-3"></i>
+                <div>
+                    <h3 class="font-bold text-red-800">Form Locked</h3>
+                    <p>This enrollment form has been locked by a director and cannot be modified at this time.</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <form id="enrollment-form" method="POST" class="space-y-8" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
@@ -913,6 +925,21 @@
             });
         }
     });
+
+    // Disable form elements if form is locked
+    {% if form_locked %}
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('enrollment-form');
+        const inputs = form.querySelectorAll('input, textarea, select, button[type="submit"]');
+
+        inputs.forEach(input => {
+            if (input.type !== 'hidden') {  // Don't disable hidden inputs like CSRF token
+                input.disabled = true;
+                input.classList.add('bg-gray-100', 'cursor-not-allowed');
+            }
+        });
+    });
+    {% endif %}
 </script>
 <script src="{% static 'reports/js/form_helper.js' %}"></script>
 {% endblock content %}

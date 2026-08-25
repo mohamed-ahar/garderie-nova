@@ -213,9 +213,18 @@
                             <a href="{% url 'child_profile' child.child_id %}" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all shadow-sm" title="View Profile">
                                 <i class="fa-solid fa-eye text-xs"></i>
                             </a>
-                            <a href="#" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all shadow-sm" title="Edit">
-                                <i class="fa-solid fa-pen-to-square text-xs"></i>
-                            </a>
+                            {% if user.role_type == 'director' or user.is_superuser %}
+                                {% with child.enrollment_profile as enrollment %}
+                                    {% if enrollment %}
+                                        <form method="post" action="{% url 'toggle_enrollment_lock' child.child_id %}" class="inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all shadow-sm" title="{% if enrollment.locked_for_editing %}Unlock Form for Parents{% else %}Lock Form from Parents{% endif %}">
+                                                <i class="fa-solid {% if enrollment.locked_for_editing %}fa-lock text-red-500{% else %}fa-lock-open text-green-500{% endif %} text-xs"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
                         </div>
                     </td>
                 </tr>

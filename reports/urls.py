@@ -8,4 +8,9 @@ urlpatterns = [
         views.enrollment_profile_view,
         name="enrollment_edit",
     ),
+    path(
+        "enrollment/toggle-lock/<uuid:child_id>/",
+        views.toggle_enrollment_lock,
+        name="toggle_enrollment_lock",
+    ),
 ]
