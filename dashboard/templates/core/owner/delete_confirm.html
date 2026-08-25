@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-8 px-6">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-indigo-400/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-red-400/5 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-5xl w-full grid lg:grid-cols-12 gap-8 items-start">
+        
+        <div class="lg:col-span-5 space-y-6 pt-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 shadow-sm">
+                <i class="fa-solid fa-triangle-exclamation text-indigo-500 text-[10px]"></i>
+                <span class="text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em]">Destructive Action</span>
+            </div>
+
+            <div class="space-y-3">
+                <h1 class="text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
+                    Terminate <br>
+                    <span class="bg-gradient-to-r from-indigo-500 to-indigo-600 bg-clip-text text-transparent">Center Entity.</span>
+                </h1>
+                <p class="text-sm text-slate-400 font-medium leading-relaxed">
+                    You are about to permanently delete <span class="text-indigo-600 dark:text-indigo-400 font-bold">{{ center.name }}</span>. This action is irreversible.
+                </p>
+            </div>
+
+            <div class="bg-indigo-500/10 border-l-4 border-indigo-500 p-4 rounded-r-xl">
+                <p class="text-[8px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-loose">
+                    Warning: All associated records, including staff assignments and historical data linked to this center, may be affected.
+                </p>
+            </div>
+        </div>
+
+        <div class="lg:col-span-7">
+            <div class="bg-white/80 dark:bg-slate-900/90 backdrop-blur-xl rounded-[2rem] border border-slate-200/60 dark:border-slate-700/50 p-10 shadow-[0_32px_64px_-16px_rgba(225,29,72,0.1)] relative overflow-hidden">
+                
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent"></div>
+
+                <div class="mb-8">
+                    <h3 class="text-xs font-bold uppercase tracking-[0.3em] text-indigo-600 dark:text-indigo-400 mb-1">Authorization Required</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm">Please confirm that you wish to remove this resource from your organization.</p>
+                </div>
+                
+                <form method="POST" class="space-y-6 relative z-10">
+                    {% csrf_token %}
+                    
+                    <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600">
+                                <i class="fa-solid fa-building-circle-xmark text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900 dark:text-white">{{ center.name }}</h4>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">ID: {{ center.center_id }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-3">
+                        <button type="submit" 
+                                class="group relative w-full overflow-hidden bg-indigo-600 text-white font-bold py-4 px-6 rounded-2xl transition-all hover:bg-indigo-700 hover:shadow-[0_20px_40px_-12px_rgba(225,29,72,0.4)] active:scale-[0.98] flex items-center justify-center gap-3 text-sm tracking-wide">
+                            <div class="absolute inset-0 w-1/2 h-full bg-white/10 skew-x-[-25deg] -translate-x-full group-hover:translate-x-[250%] transition-transform duration-1000"></div>
+                            <span>Confirm Deletion</span>
+                            <i class="fa-solid fa-trash-can text-[12px]"></i>
+                        </button>
+
+                        <a href="{% url 'owner_centers_list' %}" 
+                           class="w-full text-center py-4 px-6 rounded-2xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+                            Keep Center & Return
+                        </a>
+                    </div>
+                </form>
+
+                <div class="absolute -top-2 -right-2">
+                    <div class="relative w-14 h-14 bg-white dark:bg-slate-800 rounded-2xl shadow-xl flex items-center justify-center border border-slate-100 dark:border-slate-700">
+                         <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-red-600 opacity-10 rounded-2xl"></div>
+                         <i class="fa-solid fa-shield-heart text-indigo-600 dark:text-indigo-400 text-lg"></i>
+                         <span class="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full animate-ping"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

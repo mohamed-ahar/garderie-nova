@@ -120,35 +120,41 @@
                             <div class="p-4 flex items-center justify-between">
                                 <div class="flex items-center gap-3">
                                     {% if center.director %}
-                                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden border border-white dark:border-slate-800">
-                                        <span class="text-sm font-black text-slate-600 dark:text-slate-300">
-                                            {{ center.director.user.full_name|slice:":1" }}
-                                        </span>
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-bold text-slate-800 dark:text-slate-200 leading-none mb-1">
-                                            {{ center.director.user.full_name }}
-                                        </span>
-                                        <span class="text-[10px] font-bold text-indigo-500 uppercase">Director</span>
-                                    </div>
+                                        <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden border border-white dark:border-slate-800">
+                                            <span class="text-sm font-black text-slate-600 dark:text-slate-300">
+                                                {{ center.director.user.full_name|slice:":1" }}
+                                            </span>
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-bold text-slate-800 dark:text-slate-200 leading-none mb-1">
+                                                {{ center.director.user.full_name }}
+                                            </span>
+                                            <span class="text-[10px] font-bold text-indigo-500 uppercase">Director</span>
+                                        </div>
                                     {% else %}
-                                    <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center border border-red-200 dark:border-red-800">
-                                        <i class="fa-solid fa-user-plus text-red-600 dark:text-red-400 text-xs"></i>
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-bold text-red-600 dark:text-red-400 italic leading-none mb-1">No Director Assigned</span>
-                                        <a href="{% url 'assign_director' center.center_id %}" class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase hover:underline">
-                                            Click to Assign
-                                        </a>
-                                    </div>
+                                        <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center border border-red-200 dark:border-red-800">
+                                            <i class="fa-solid fa-user-plus text-red-600 dark:text-red-400 text-xs"></i>
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-xs font-bold text-red-600 dark:text-red-400 leading-none mb-1">No Director</span>
+                                            <a href="{% url 'assign_director' center.center_id %}" class="text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase hover:underline">Assign Now</a>
+                                        </div>
                                     {% endif %}
                                 </div>
-                                
-                                <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-800"></div>
         
-                                <button class="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
-                                    <i class="fa-solid fa-gear text-sm"></i>
-                                </button>
+                                <div class="flex items-center gap-1 border-l border-slate-200 dark:border-slate-800 pl-3">
+                                    <a href="{% url 'edit_center' center.center_id %}" 
+                                       class="p-2 text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
+                                       title="Edit Center Settings">
+                                        <i class="fa-solid fa-pen-to-square text-sm"></i>
+                                    </a>
+        
+                                    <a href="{% url 'delete_center' center.center_id %}" 
+                                       class="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                                       title="Remove Center">
+                                        <i class="fa-solid fa-trash-can text-sm"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>

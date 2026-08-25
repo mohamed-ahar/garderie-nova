@@ -167,3 +167,41 @@ def import_children_csv(request, center_id):
     return render(request, "import_csv.html", {"center": center})
 
 
+@login_required
+def edit_center(request, center_id):
+    # Security: Ensure center belongs to the owner
+    center = get_object_or_404(
+        Center, center_id=center_id, organization__owner__user=request.user
+    )
+    
+    if request.method == "POST":
+        # 'instance=center' tells Django to update this specific record
+        form = CenterCreationForm(request.POST, instance=center)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Center '{center.name}' updated successfully!")
+            return redirect("owner_centers_list")
+    else:
+        form = CenterCreationForm(instance=center)
+
+    return render(
+        request,
+        "core/owner/edit_center.html", 
+        {"form": form, "center": center}
+    )
+
+@login_required
+def delete_center(request, center_id):
+    # Security: Ensure center belongs to the owner
+    center = get_object_or_404(
+        Center, center_id=center_id, organization__owner__user=request.user
+    )
+    
+    if request.method == "POST":
+        center_name = center.name
+        center.delete()
+        messages.warning(request, f"Center '{center_name}' has been removed.")
+        return redirect("owner_centers_list")
+    
+    # Optional: Render a confirmation page for GET requests
+    return render(request, "core/owner/delete_confirm.html", {"center": center})

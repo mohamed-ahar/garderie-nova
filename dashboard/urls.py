@@ -58,6 +58,8 @@ urlpatterns = [
     # owner
     path("owner/", owner_dashboard, name="owner_dashboard"),
     path("center/create/", create_center, name="create_center"),
+    path('centers/<uuid:center_id>/edit/', views.edit_center, name='edit_center'),
+    path('centers/<uuid:center_id>/delete/', views.delete_center, name='delete_center'),
     path("center/success/<uuid:center_id>/", center_success, name="center_success"),
     path("center/details/<uuid:center_id>/", center_info_view, name="center_details"),
     path("my-centers/", owner_centers_list, name="owner_centers_list"),
