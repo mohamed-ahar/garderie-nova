@@ -17,26 +17,30 @@ from .models import (
     UnauthorizedContact
 )
 
-def get_user_storage_path(user):
+def get_user_storage_path(user, child=None):
     """
     Returns the path to the user's personal storage directory.
     Creates it if it doesn't exist.
+    If child is provided, returns the child-specific directory.
     """
-    user_dir = os.path.join(settings.MEDIA_ROOT, 'parents', str(user.id), 'enrollment_history')
+    if child:
+        user_dir = os.path.join(settings.MEDIA_ROOT, 'parents', str(user.id), 'enrollment_history', str(child.uuid))
+    else:
+        user_dir = os.path.join(settings.MEDIA_ROOT, 'parents', str(user.id), 'enrollment_history')
     os.makedirs(user_dir, exist_ok=True)
     return user_dir
 
-def save_form_draft(user, post_data):
+def save_form_draft(user, post_data, child=None):
     """
     Helper to save form data as a JSON draft.
     """
-    storage_path = get_user_storage_path(user)
+    storage_path = get_user_storage_path(user, child)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     child_name = f"{post_data.get('child_first_name', 'unknown')}_{post_data.get('child_last_name', 'child')}"
     # Sanitize filename
     child_name = "".join([c for c in child_name if c.isalnum() or c in ('_', '-')])
     filename = f"draft_{child_name}_{timestamp}.json"
-    
+
     data = {}
     for key in post_data:
         if key == 'csrfmiddlewaretoken': continue
@@ -46,10 +50,10 @@ def save_form_draft(user, post_data):
             data[key] = vals
         else:
             data[key] = post_data[key]
-            
+
     with open(os.path.join(storage_path, filename), 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
-    
+
     return filename
 
 @login_required
@@ -84,7 +88,7 @@ def enrollment_profile_view(request, child_id=None):
         
         # --- HANDLE SAVE DRAFT ---
         if action == 'save_draft':
-            filename = save_form_draft(user, request.POST)
+            filename = save_form_draft(user, request.POST, child)
             messages.success(request, f"Brouillon sauvegardé: {filename}")
             return redirect(request.path)
 
@@ -228,7 +232,7 @@ def enrollment_profile_view(request, child_id=None):
                 )
 
         # Save a draft of the submitted version so auto-load works correctly
-        save_form_draft(user, request.POST)
+        save_form_draft(user, request.POST, child)
 
         messages.success(request, "Profil de l'enfant enregistré avec succès.")
         return redirect('dashboard_redirect')
@@ -237,7 +241,7 @@ def enrollment_profile_view(request, child_id=None):
     
     # 1. List available drafts
     draft_history = []
-    storage_path = get_user_storage_path(user)
+    storage_path = get_user_storage_path(user, child)
     files = glob.glob(os.path.join(storage_path, "*.json"))
     files.sort(key=os.path.getmtime, reverse=True)
     for f in files:

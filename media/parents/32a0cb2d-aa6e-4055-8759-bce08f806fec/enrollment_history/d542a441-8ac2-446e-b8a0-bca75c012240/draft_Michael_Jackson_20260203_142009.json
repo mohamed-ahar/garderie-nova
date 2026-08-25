@@ -1,0 +1,108 @@
+{
+    "registration_date": "2024-01-01",
+    "start_date": "2024-02-01",
+    "child_first_name": "Michael",
+    "child_last_name": "Jackson",
+    "child_gender": "masculin",
+    "birth_date": "2020-05-15",
+    "medicare_number": "PEND 1234 5678",
+    "medicare_expiry": "2028-05-15",
+    "addr_street": "123 Camelot Castle Way",
+    "addr_apt": "King Suite",
+    "addr_city": "Avalon",
+    "addr_prov": "QC",
+    "addr_zip": "H0H 0H0",
+    "parent1_name": "Uther Pendragon",
+    "parent1_email": "uther@kingdom.com",
+    "parent1_home_phone": "514-555-0101",
+    "parent1_workplace": "Royal Court",
+    "parent1_work_phone": "514-555-0102",
+    "parent1_cell_phone": "514-555-0103",
+    "parent1_address_street": "123 Camelot Castle Way",
+    "parent1_address_city": "Avalon",
+    "parent2_name": "Igraine Pendragon",
+    "parent2_email": "igraine@kingdom.com",
+    "parent2_home_phone": "514-555-0201",
+    "parent2_workplace": "Royal Court",
+    "parent2_work_phone": "",
+    "parent2_cell_phone": "514-555-0203",
+    "parent2_address_street": "",
+    "parent2_address_city": "",
+    "custody_arrangement": "Joint Custody",
+    "pickup_name[]": [
+        "Merlin The Wizard",
+        "",
+        "",
+        ""
+    ],
+    "pickup_rel[]": [
+        "Advisor",
+        "",
+        "",
+        ""
+    ],
+    "pickup_phone[]": [
+        "555-MAGIC",
+        "",
+        "",
+        ""
+    ],
+    "pickup_addr[]": [
+        "Tower 1",
+        "",
+        "",
+        ""
+    ],
+    "emerg_name[]": [
+        "Lancelot Du Lac",
+        ""
+    ],
+    "emerg_phone[]": [
+        "555-SWORD",
+        ""
+    ],
+    "emerg_rel[]": [
+        "Knight",
+        ""
+    ],
+    "emerg_addr[]": [
+        "",
+        ""
+    ],
+    "unauth_name[]": [
+        "",
+        "",
+        ""
+    ],
+    "doctor_name": "Gaius",
+    "doctor_phone": "555-HEAL",
+    "doctor_address": "Lower Town, Camelot",
+    "allergies_severe": "",
+    "requires_epipen": "non",
+    "non_fatal_allergies": "Pollen, Magic Dust",
+    "dietary_restrictions": "Lactose Intolerant",
+    "cultural_dietary_restrictions": "No Pork (Knight Diet)",
+    "routine_services_required": "on",
+    "routine_services_details": "Daily potion at noon",
+    "continuous_medication": "Strength elixir",
+    "activity_restrictions": "No flying without supervision",
+    "rougeole_medical_history": "non",
+    "oreillons_medical_history": "oui",
+    "méningite_medical_history": "non",
+    "rubéole_medical_history": "oui",
+    "varicelle_medical_history": "oui",
+    "coqueluche_medical_history": "oui",
+    "preschool_history": "Merlin School of Wizardry",
+    "preschool_duration": "2 years",
+    "autonomy_dressing": "Needs help with armor",
+    "autonomy_eating": "Uses spoon well",
+    "motor_skills": "Excellent sword handling (plastic), good climbing",
+    "autonomy_toilet": "Potty trained",
+    "autonomy_hygiene": "Loves baths",
+    "autonomy_other": "",
+    "transition_tips": "Likes stories about swords.",
+    "interests_hobbies": "Horse riding, sword fighting.",
+    "additional_info": "Afraid of Morgana",
+    "immunization_provided": "on",
+    "action": "submit"
+}
