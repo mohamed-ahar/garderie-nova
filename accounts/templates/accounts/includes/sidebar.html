@@ -1,5 +1,56 @@
 <aside id="sidebar" class="fixed left-0 top-0 z-50 h-screen w-72 lg:w-72 bg-slate-900 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-500 ease-in-out {% if sidebar_state == 'closed' %}-translate-x-full{% endif %}">
+    <button onclick="toggleSidebar()" class="absolute -right-4 top-10 z-[70] flex items-center justify-center 
+           w-9 h-9 group transition-all duration-500 ease-in-out
+           /* Dynamic Background & Border based on role */
+           {% if user_role == 'director' %}
+                bg-emerald-950/40 border-emerald-500/30 hover:border-emerald-400
+                hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]
+           {% elif user_role == 'teacher' %}
+                bg-blue-950/40 border-blue-500/30 hover:border-blue-400
+                hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]
+           {% else %}
+                bg-slate-900/40 border-slate-700 hover:border-slate-500
+           {% endif %}
+           backdrop-blur-xl border rounded-xl shadow-2xl
+           active:scale-95 focus:outline-none overflow-hidden group">
 
+    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700
+                bg-[radial-gradient(circle_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)]
+                {% if user_role == 'director' %} from-emerald-500/20 
+                {% elif user_role == 'teacher' %} from-blue-500/20 
+                {% else %} from-slate-400/20 {% endif %}">
+    </div>
+
+    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-1000">
+        <div class="absolute inset-[-100%] animate-[spin_3s_linear_infinite] 
+                    bg-[conic-gradient(from_0deg,transparent_0deg,transparent_300deg,var(--tw-gradient-to)_360deg)]
+                    {% if user_role == 'director' %} via-emerald-500/40 to-emerald-400
+                    {% elif user_role == 'teacher' %} via-blue-500/40 to-blue-400
+                    {% else %} via-slate-500/40 to-white {% endif %}">
+        </div>
+    </div>
+
+    <div class="absolute inset-[1px] bg-slate-950/90 rounded-[11px] z-10"></div>
+
+    <div class="relative z-20 flex items-center justify-center pointer-events-none">
+        <i id="toggle-icon" 
+           class="fa-solid fa-indent text-[14px] 
+                  text-slate-400 group-hover:scale-110
+                  {% if user_role == 'director' %} group-hover:text-emerald-400
+                  {% elif user_role == 'teacher' %} group-hover:text-blue-400
+                  {% else %} group-hover:text-white {% endif %}
+                  transition-all duration-500"></i>
+    </div>
+
+    <div class="absolute bottom-0 left-0 right-0 h-[1.5px] z-30
+                bg-gradient-to-r from-transparent 
+                {% if user_role == 'director' %} via-emerald-400 
+                {% elif user_role == 'teacher' %} via-blue-400 
+                {% else %} via-slate-300 {% endif %} 
+                to-transparent opacity-0 group-hover:opacity-100 
+                transition-all duration-700 scale-x-0 group-hover:scale-x-100">
+    </div>
+</button>
     <div class="flex flex-col h-full relative">
         <a href="{% url 'dashboard_redirect' %}" class="cursor-pointer">
             <div class="p-8 flex items-center gap-4 group cursor-pointer">
@@ -10,19 +61,19 @@
                         {% else %} bg-indigo-500/40 {% endif %} 
                         blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700">
                     </div>
-                    
+
                     <div class="relative w-12 h-12 rounded-2xl flex items-center justify-center text-white overflow-hidden transition-transform duration-500 group-hover:scale-110 group-hover:rotate-[5deg]
                         {% if user.role_type == 'director' %} bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-[0_8px_20px_-6px_rgba(16,185,129,0.5)]
                         {% elif user.role_type == 'parent' %} bg-gradient-to-br from-rose-500 to-rose-700 shadow-[0_8px_20px_-6px_rgba(244,63,94,0.5)]
                         {% else %} bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-[0_8px_20px_-6px_rgba(79,70,229,0.5)] {% endif %}">
-                        
+
                         <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                        
+
                         <i class="fa-solid {% if user.role_type == 'parent' %}fa-heart{% else %}fa-compass-drafting{% endif %} text-xl z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"></i>
-                        
+
                         <div class="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-white/20 to-transparent opacity-50"></div>
                     </div>
-            
+
                     <div class="absolute -top-1 -right-1 flex h-4 w-4">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full 
                             {% if user.role_type == 'director' %} bg-emerald-400 
@@ -34,50 +85,58 @@
                             {% else %} bg-indigo-500 {% endif %}"></span>
                     </div>
                 </div>
-            
-                <div id="logo-container" class="flex flex-col transition-all duration-500 group cursor-default">
-                    <div class="flex items-center gap-0.5">
-                        <span class="sidebar-label text-xl font-light tracking-tight text-white/90 font-sofia">
-                            Garderie<span class="font-black text-white transition-all duration-300 group-hover:tracking-normal tracking-tighter">Nova</span>
-                        </span>
-            
-                        <span class="flex h-1.5 w-1.5 translate-y-1">
-                            <span class="animate-ping absolute inline-flex h-1.5 w-1.5 rounded-full opacity-40
-                                {% if user.role_type == 'director' %} bg-emerald-400 
-                                {% elif user.role_type == 'parent' %} bg-rose-400 
-                                {% else %} bg-indigo-400 {% endif %}"></span>
-                            <span class="relative inline-flex rounded-full h-1.5 w-1.5 
-                                {% if user.role_type == 'director' %} bg-emerald-500 
-                                {% elif user.role_type == 'parent' %} bg-rose-500 
-                                {% else %} bg-indigo-500 {% endif %}"></span>
-                        </span>
-                    </div>
-            
-                    <div class="text-[16px] tracking-[1px] text-white sidebar-label flex items-center gap-2 mt-0.5 font-sofia">
-                        <div class="h-[2px] w-2 rounded-full transition-all duration-500 group-hover:w-6
-                            {% if user.role_type == 'director' %} bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]
-                            {% elif user.role_type == 'parent' %} bg-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.6)]
-                            {% else %} bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.6)] {% endif %}">
+
+                <div id="logo-container" class="flex flex-col gap-1 transition-all duration-500 group cursor-default select-none">
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-baseline">
+                            <span class="sidebar-label text-xl font-light tracking-tight text-white/70 font-sofia">
+                                Garderie<span class="transition-all duration-500 font-bold
+                                    {% if user.role_type == 'director' %} 
+                                        text-emerald-400 group-hover:drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]
+                                    {% elif user.role_type == 'parent' %} 
+                                        text-rose-400 group-hover:drop-shadow-[0_0_8px_rgba(251,113,133,0.5)]
+                                    {% elif user.role_type == 'educator' %} 
+                                        text-indigo-400 group-hover:drop-shadow-[0_0_8px_rgba(129,140,248,0.5)]
+                                    {% else %} 
+                                        text-white 
+                                    {% endif %}">Nova</span>
+                            </span>
+
+                            <div class="ml-2 flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full opacity-20 
+                                    {% if user.role_type == 'director' %} bg-emerald-400 
+                                    {% elif user.role_type == 'parent' %} bg-rose-400 
+                                    {% else %} bg-indigo-400 {% endif %}"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 
+                                    {% if user.role_type == 'director' %} bg-emerald-500 
+                                    {% elif user.role_type == 'parent' %} bg-rose-500 
+                                    {% else %} bg-indigo-500 {% endif %}"></span>
+                            </div>
                         </div>
-                        <span class="font-black text-white transition-all duration-300 group-hover:tracking-normal tracking-tighter uppercase">
-                            {% if user.role_type == 'director' %} 
-                                {{ user.director_profile.managed_center.name|default:"Overview" }} 
-                            {% elif user.role_type == 'parent' %}
-                                Parent
-                            {% elif user.role_type == 'educator' %}
-                             educator
-                            {% else %} 
-                                Owner
-                            {% endif %}
-                        </span>
                     </div>
-            
-                    <div class="sidebar-label flex items-center gap-2 mt-0.5">
-                        <span class="text-[8px] font-extrabold uppercase tracking-[0.4em] leading-none transition-colors duration-300
-                            {% if user.role_type == 'director' %} text-emerald-500/80
-                            {% elif user.role_type == 'parent' %} text-rose-300/80
-                            {% else %} text-indigo-300/80 {% endif %}">
-                            Management Console
+
+                    <div class="sidebar-label flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <div class="h-[1px] w-3 bg-white/20 transition-all duration-500 group-hover:w-5 group-hover:bg-white/40"></div>
+
+                            <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-white/90">
+                                {% if user.role_type == 'director' %} 
+                                    {{ user.director_profile.managed_center.name|default:"Executive" }} 
+                                {% elif user.role_type == 'parent' %}
+                                    Family Portal
+                                {% elif user.role_type == 'educator' %}
+                                    Educator
+                                {% else %} 
+                                    System Owner
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <span class="text-[8px] pl-5 font-medium uppercase tracking-[0.2em] opacity-70 group-hover:opacity-70 transition-opacity duration-300
+                            {% if user.role_type == 'director' %} text-emerald-400
+                            {% elif user.role_type == 'parent' %} text-rose-300
+                            {% else %} text-indigo-300 {% endif %}">
+                            Internal Console
                         </span>
                     </div>
                 </div>
@@ -351,8 +410,7 @@
                         </div>
                     </div>
                 </li>
-                <li class="dropdown-group relative group mt-4" 
-                x-data="{ 
+                <li class="dropdown-group relative group mt-4" x-data="{ 
                     lessonCount: 0,
                     async fetchLessons() {
                         try {
@@ -363,14 +421,13 @@
                             console.error('Curriculum count error');
                         }
                     }
-                }" 
-                x-init="
+                }" x-init="
                     fetchLessons(); 
                     // Kat-checki kol 30 tanya (30000ms) wach t-zad chi dars
                     setInterval(() => fetchLessons(), 30000);
                 ">
-                
-                <button onclick="toggleDropdown(this)" data-section-id="my_curriculum" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+
+                    <button onclick="toggleDropdown(this)" data-section-id="my_curriculum" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                     <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[-8deg]">
                         <i class="fa-solid fa-graduation-cap text-[14px]"></i>
                     </div>
@@ -389,20 +446,17 @@
                     
                     <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'my_curriculum' %}transform: rotate(90deg){% endif %}"></i>
                 </button>
-            
-                <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'my_curriculum' %}max-height: 1000px{% endif %}">
-                    <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5 shadow-inner">
-                        <a href="{% url 'curriculum:lesson_list' %}" 
-                           @click="lessonCount = 0" 
-                           class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
-                            <i class="fa-solid fa-book-reader mr-3 opacity-70 group-hover:translate-x-1 transition-transform"></i>
-                            <span class="sidebar-label font-bold">View Lessons</span>
-                        </a>
+
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'my_curriculum' %}max-height: 1000px{% endif %}">
+                        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5 shadow-inner">
+                            <a href="{% url 'curriculum:lesson_list' %}" @click="lessonCount = 0" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
+                                <i class="fa-solid fa-book-reader mr-3 opacity-70 group-hover:translate-x-1 transition-transform"></i>
+                                <span class="sidebar-label font-bold">View Lessons</span>
+                            </a>
+                        </div>
                     </div>
-                </div>
-            </li>
-                {% endif %} 
-                {% if user.role_type == 'parent' %}
+                </li>
+                {% endif %} {% if user.role_type == 'parent' %}
                 <li class="dropdown-group relative group">
                     <button onclick="toggleDropdown(this)" data-section-id="family_portal" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                         <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:scale-110">
@@ -414,44 +468,44 @@
                         </div>
                         <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'family_portal' %}transform: rotate(90deg){% endif %}"></i>
                     </button>
-                
+
                     <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'family_portal' %}max-height: 1000px{% endif %}">
                         <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
-                            
+
                             <div class="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Monitoring</div>
-                            
+
                             <a href="{% url 'parent_children_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-children mr-3 opacity-70"></i>
                                 <span class="sidebar-label">My Children</span>
                             </a>
-                            
+
                             <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-calendar-day mr-3 opacity-70"></i>
                                 <span class="sidebar-label">Daily Reports</span>
                             </a>
-                            
+
                             <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-stream mr-3 opacity-70"></i>
                                 <span class="sidebar-label">Activity Timeline</span>
                             </a>
-                
+
                             <div class="px-4 py-2 mt-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Management</div>
-                            
+
                             <a href="{% url 'register_child' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-plus-circle mr-3 opacity-70"></i>
                                 <span class="sidebar-label">Enroll New Child</span>
                             </a>
-                            
+
                             <a href="{% url 'request_center_access' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-key mr-3 opacity-70"></i>
                                 <span class="sidebar-label">Request Center Access</span>
                             </a>
-                            
+
                             <a href="{% url 'transfer_request' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-shuffle mr-3 opacity-70"></i>
                                 <span class="sidebar-label">Transfer Request</span>
                             </a>
-                            
+
                             <a href="#" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-rose-500 hover:text-white rounded-lg transition-all">
                                 <i class="fa-solid fa-bed-pulse mr-3 opacity-70"></i>
                                 <span class="sidebar-label">Report Absence</span>
@@ -525,12 +579,26 @@
                         <span class="sidebar-label font-bold text-[13px]">Dashboard Director</span>
                     </a>
                     {% endif %} {% endif %}
-                    <form action="{% url 'logout' %}" method="post">
+                    <form action="{% url 'logout' %}" method="post" class="m-0 px-2">
                         {% csrf_token %}
-                        <button type="submit" class="flex items-center w-full px-5 py-3 text-white hover:text-red-400 transition-colors group">
-                                    <i class="fa-solid fa-right-from-bracket mr-3 text-[14px] opacity-70 group-hover:opacity-100"></i>
-                                    <span class="sidebar-label font-bold text-[13px]">Logout Account</span>
-                                </button>
+                        <button type="submit" class="flex items-center w-full px-5 py-3 rounded-2xl text-white transition-all duration-300 group
+                            {% if user.role_type == 'director' %} 
+                                bg-emerald-600 border border-green-600/20
+                            {% elif user.role_type == 'parent' %} 
+                                bg-rose-600 border border-rose-500/20
+                            {% else %} 
+                               bg-indigo-600 border border-indigo-500/20
+                            {% endif %}">
+                            
+                            <i class="fa-solid fa-power-off mr-3 text-[14px] transition-transform duration-500 group-hover:rotate-90"></i>
+                            
+                            <div class="flex flex-col items-start leading-none">
+                                <span class="sidebar-label font-bold text-[13px]">Logout</span>
+                                <span class="text-[8px] uppercase tracking-[0.1em] opacity-60 group-hover:opacity-100">End Session</span>
+                            </div>
+                    
+                            <i class="fa-solid fa-arrow-right-from-bracket ml-auto text-[10px] opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"></i>
+                        </button>
                     </form>
                 </li>
 
@@ -539,3 +607,17 @@
         </nav>
     </div>
 </aside>
+<style>
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    
+    .animate-spin-slow {
+        animation: spin 3s linear infinite;
+    }
+</style>
