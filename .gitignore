@@ -5,3 +5,4 @@ __pycache__/
 .venv/
 old_project/*
 media/parents/80334d1c-557f-4c40-bca4-5ba2d5d0fefb/enrollment_history/*
+media/children/*/enrollment_history/*.json
