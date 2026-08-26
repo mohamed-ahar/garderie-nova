@@ -128,13 +128,44 @@
                         open: false,
                         unreadCount: 0,
                         notifications: [],
+                        socket: null,
 
                         init() {
                             this.fetchNotifications();
-                            // Poll every 30 seconds
-                            setInterval(() => {
-                                this.fetchNotifications();
-                            }, 2000);
+                            this.connectWebSocket();
+                        },
+
+                        connectWebSocket() {
+                            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                            const wsUrl = `${protocol}//${window.location.host}/ws/notifications/`;
+                            
+                            this.socket = new WebSocket(wsUrl);
+                            
+                            this.socket.onmessage = (e) => {
+                                const data = JSON.parse(e.data);
+                                if (data.type === 'notification') {
+                                    // If we receive a full notification object, add it
+                                    if (data.notification && Object.keys(data.notification).length > 0) {
+                                        this.notifications.unshift(data.notification);
+                                        // Optional: limit list size
+                                        if (this.notifications.length > 20) {
+                                            this.notifications.pop();
+                                        }
+                                    }
+                                    
+                                    // Update count
+                                    if (data.unread_count !== undefined) {
+                                        this.unreadCount = data.unread_count;
+                                    }
+                                }
+                            };
+
+                            this.socket.onclose = (e) => {
+                                console.log('Notification socket closed. Reconnecting...');
+                                setTimeout(() => {
+                                    this.connectWebSocket();
+                                }, 5000);
+                            };
                         },
 
                         toggle() {

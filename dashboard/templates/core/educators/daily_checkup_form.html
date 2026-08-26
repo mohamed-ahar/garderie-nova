@@ -14,7 +14,7 @@
         
         <div class="lg:col-span-4 space-y-6 pt-10">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
-                <i class="fa-solid fa- calendar-day text-indigo-500 text-[10px]"></i>
+                <i class="fa-solid fa-calendar-day text-indigo-500 text-[10px]"></i>
                 <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Daily Documentation</span>
             </div>
 
@@ -36,6 +36,18 @@
                     <span class="text-[11px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Nutrition Tracking</span>
                 </div>
                 <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600">
+                        <i class="fa-solid fa-bottle-water text-xs"></i>
+                    </div>
+                    <span class="text-[11px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Bottle Feeding</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-600">
+                        <i class="fa-solid fa-bed text-xs"></i>
+                    </div>
+                    <span class="text-[11px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Nap Schedule</span>
+                </div>
+                <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-600">
                         <i class="fa-solid fa-face-smile text-xs"></i>
                     </div>
@@ -47,6 +59,12 @@
                     </div>
                     <span class="text-[11px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Health & Wellness</span>
                 </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-600">
+                        <i class="fa-solid fa-baby text-xs"></i>
+                    </div>
+                    <span class="text-[11px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Diaper Changes</span>
+                </div>
             </div>
         </div>
 
@@ -56,44 +74,133 @@
                 <form method="POST" class="space-y-8">
                     {% csrf_token %}
                     
+                    <!-- Food Section -->
                     <div class="space-y-4">
-                        <h3 class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] px-1">Nutrition Details</h3>
+                        <h3 class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] px-1">Food Intake (Aliments)</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="relative group">
-                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">AM Snack</label>
-                                {{ form.snack_am }}
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">AM Snack (Collation AM)</label>
+                                <div class="space-y-2">
+                                    {{ form.snack_am_amount }}
+                                    <label class="block text-[9px] font-bold text-slate-500 uppercase">Time</label>
+                                    {{ form.snack_am_time }}
+                                </div>
                             </div>
                             <div class="relative group">
-                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">Lunch</label>
-                                {{ form.lunch }}
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">Lunch (Dîner)</label>
+                                <div class="space-y-2">
+                                    {{ form.lunch_amount }}
+                                    <label class="block text-[9px] font-bold text-slate-500 uppercase">Time</label>
+                                    {{ form.lunch_time }}
+                                </div>
                             </div>
                             <div class="relative group">
-                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">PM Snack</label>
-                                {{ form.snack_pm }}
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">PM Snack (Collation PM)</label>
+                                <div class="space-y-2">
+                                    {{ form.snack_pm_amount }}
+                                    <label class="block text-[9px] font-bold text-slate-500 uppercase">Time</label>
+                                    {{ form.snack_pm_time }}
+                                </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Bottles Section -->
                     <div class="space-y-4">
-                        <h3 class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] px-1">Mood & Behavior</h3>
+                        <h3 class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] px-1">Bottles / Beverages (Boissons/Biberons)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="relative group">
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">Morning Bottle</label>
+                                <div class="space-y-2">
+                                    {{ form.bottle_am_amount }}
+                                    <label class="block text-[9px] font-bold text-slate-500 uppercase">Time</label>
+                                    {{ form.bottle_am_time }}
+                                </div>
+                            </div>
+                            <div class="relative group">
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">Noon Bottle</label>
+                                <div class="space-y-2">
+                                    {{ form.bottle_lunch_amount }}
+                                    <label class="block text-[9px] font-bold text-slate-500 uppercase">Time</label>
+                                    {{ form.bottle_lunch_time }}
+                                </div>
+                            </div>
+                            <div class="relative group">
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">Afternoon Bottle</label>
+                                <div class="space-y-2">
+                                    {{ form.bottle_pm_amount }}
+                                    <label class="block text-[9px] font-bold text-slate-500 uppercase">Time</label>
+                                    {{ form.bottle_pm_time }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nap Section -->
+                    <div class="space-y-4">
+                        <h3 class="text-[10px] font-black text-purple-500 uppercase tracking-[0.2em] px-1">Nap Time (Sieste)</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="relative group">
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">From (De)</label>
+                                {{ form.nap_start }}
+                            </div>
+                            <div class="relative group">
+                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">To (À)</label>
+                                {{ form.nap_end }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mood Section -->
+                    <div class="space-y-4">
+                        <h3 class="text-[10px] font-black text-yellow-500 uppercase tracking-[0.2em] px-1">Mood & Behavior (Humeur)</h3>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            {% for field in form %}
-                                {% if field.name == 'mood_content' or field.name == 'mood_amuse' or field.name == 'mood_fatigue' or field.name == 'mood_pleurnicheur' %}
-                                <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer hover:border-indigo-500 transition-all group">
-                                    <div class="scale-110">{{ field }}</div>
-                                    <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-indigo-500">{{ field.label }}</span>
-                                </label>
-                                {% endif %}
-                            {% endfor %}
+                            <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer hover:border-yellow-500 transition-all group">
+                                <div class="scale-110">{{ form.mood_content }}</div>
+                                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-yellow-500">Content</span>
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer hover:border-yellow-500 transition-all group">
+                                <div class="scale-110">{{ form.mood_amuse }}</div>
+                                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-yellow-500">Amusé</span>
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer hover:border-yellow-500 transition-all group">
+                                <div class="scale-110">{{ form.mood_malheureux }}</div>
+                                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-yellow-500">Malheureux</span>
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer hover:border-yellow-500 transition-all group">
+                                <div class="scale-110">{{ form.mood_tranquille }}</div>
+                                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-yellow-500">Tranquille</span>
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer hover:border-yellow-500 transition-all group">
+                                <div class="scale-110">{{ form.mood_affectueux }}</div>
+                                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-yellow-500">Affectueux</span>
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer hover:border-yellow-500 transition-all group">
+                                <div class="scale-110">{{ form.mood_collant }}</div>
+                                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-yellow-500">Collant</span>
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer hover:border-yellow-500 transition-all group">
+                                <div class="scale-110">{{ form.mood_exigeant }}</div>
+                                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-yellow-500">Exigeant</span>
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer hover:border-yellow-500 transition-all group">
+                                <div class="scale-110">{{ form.mood_pleurnicheur }}</div>
+                                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-yellow-500">Pleurnicheur</span>
+                            </label>
+                        </div>
+                        <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                            <div class="scale-110">{{ form.mood_autre }}</div>
+                            <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Autre</span>
                         </div>
                         <div class="relative group">
-                            <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">Additional Mood Notes</label>
+                            <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">Other Mood Description</label>
                             {{ form.mood_autre_desc }}
                         </div>
                     </div>
 
+                    <!-- Health Section -->
                     <div class="space-y-4">
-                        <h3 class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] px-1">Health Status</h3>
+                        <h3 class="text-[10px] font-black text-red-500 uppercase tracking-[0.2em] px-1">Health Status (État de Santé)</h3>
                         <div class="flex items-center gap-3 p-4 rounded-2xl bg-rose-500/5 border border-rose-100 dark:border-rose-900/30">
                             {{ form.has_symptoms }}
                             <span class="text-xs font-bold text-rose-700 dark:text-rose-400">Child showed symptoms of illness today</span>
@@ -104,10 +211,165 @@
                         </div>
                     </div>
 
+                    <!-- Diaper Changes Section -->
                     <div class="space-y-4">
-                        <h3 class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] px-1">General Notes</h3>
+                        <h3 class="text-[10px] font-black text-green-500 uppercase tracking-[0.2em] px-1">Diaper Changes / Toileting (Couche/Toilette)</h3>
+                        
+                        <!-- Diaper Change 1 -->
+                        <div class="p-4 rounded-2xl bg-green-500/5 border border-green-100 dark:border-green-900/30 space-y-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-1 text-green-600 text-xs"></i>
+                                <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase">Change #1</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Time</label>
+                                    {{ form.diaper_1_time }}
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Type</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_1_sec }} SEC
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_1_mouille }} MOUILLE
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_1_toilette }} TOILETTE
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_1_selles }} SELLES
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Consistency (if applicable)</label>
+                                    {{ form.diaper_1_consistency }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Diaper Change 2 -->
+                        <div class="p-4 rounded-2xl bg-green-500/5 border border-green-100 dark:border-green-900/30 space-y-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-2 text-green-600 text-xs"></i>
+                                <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase">Change #2</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Time</label>
+                                    {{ form.diaper_2_time }}
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Type</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_2_sec }} SEC
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_2_mouille }} MOUILLE
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_2_toilette }} TOILETTE
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_2_selles }} SELLES
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Consistency</label>
+                                    {{ form.diaper_2_consistency }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Diaper Change 3 -->
+                        <div class="p-4 rounded-2xl bg-green-500/5 border border-green-100 dark:border-green-900/30 space-y-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-3 text-green-600 text-xs"></i>
+                                <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase">Change #3</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Time</label>
+                                    {{ form.diaper_3_time }}
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Type</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_3_sec }} SEC
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_3_mouille }} MOUILLE
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_3_toilette }} TOILETTE
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_3_selles }} SELLES
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Consistency</label>
+                                    {{ form.diaper_3_consistency }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Diaper Change 4 -->
+                        <div class="p-4 rounded-2xl bg-green-500/5 border border-green-100 dark:border-green-900/30 space-y-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-4 text-green-600 text-xs"></i>
+                                <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase">Change #4</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Time</label>
+                                    {{ form.diaper_4_time }}
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Type</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_4_sec }} SEC
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_4_mouille }} MOUILLE
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_4_toilette }} TOILETTE
+                                        </label>
+                                        <label class="flex items-center gap-2 text-xs">
+                                            {{ form.diaper_4_selles }} SELLES
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Consistency</label>
+                                    {{ form.diaper_4_consistency }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="space-y-4">
+                        <h3 class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] px-1">Comments (Commentaires)</h3>
                         <div class="relative group">
                             {{ form.comments }}
+                        </div>
+                    </div>
+
+                    <!-- Employee Signature Section -->
+                    <div class="space-y-4">
+                        <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-1">Employee Signature (Signature de l'Employé)</h3>
+                        <div class="relative group">
+                            <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">Signature</label>
+                            {{ form.employee_signature }}
                         </div>
                     </div>
 
@@ -137,7 +399,7 @@
 
 <style>
     /* Premium Input Styling */
-    input[type="text"], select, textarea {
+    input[type="text"], input[type="time"], select, textarea {
         width: 100%;
         padding: 0.75rem 1rem !important;
         background-color: #f8fafc;
@@ -149,7 +411,7 @@
         outline: none;
     }
 
-    .dark input[type="text"], .dark select, .dark textarea {
+    .dark input[type="text"], .dark input[type="time"], .dark select, .dark textarea {
         background-color: #0f172a;
         border-color: #1e293b;
         color: #ffffff;
