@@ -205,86 +205,91 @@
                     </div>
                 </li>
                 {% endif %} {% endif %} {% if user.role_type == 'director' %}
-                <li class="dropdown-group relative group mb-2">
-                    <button onclick="toggleDropdown(this)" data-section-id="director_admin" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-green-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
-                        <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
-                            <i class="fa-solid fa-chalkboard-user text-[14px]"></i>
-                        </div>
-                        <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
-                            <span class="font-extrabold tracking-wide text-[13.5px]">Admin Panel</span>
-                            <span class="text-[8.5px] font-bold text-white/80 uppercase tracking-[0.15em]">Staff & Infrastructure</span>
-                        </div>
-                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'director_admin' %}transform: rotate(90deg){% endif %}"></i>
-                    </button>
-                
-                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'director_admin' %}max-height: 1000px{% endif %}">
-                        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
-                            <a href="{% url 'educator_add' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
-                                <i class="fa-solid fa-user-plus mr-3 opacity-70 text-[11px]"></i>
-                                <span class="sidebar-label">Add Educator</span>
-                            </a>
-                            <a href="{% url 'educator_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
-                                <i class="fa-solid fa-users-gear mr-3 opacity-70 text-[11px]"></i>
-                                <span class="sidebar-label">List Educators</span>
-                            </a>
-                            <a href="{% url 'room_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
-                                <i class="fa-solid fa-door-open mr-3 opacity-70 text-[11px]"></i>
-                                <span class="sidebar-label">Manage Rooms</span>
-                            </a>
-                        </div>
-                    </div>
-                </li>
-                
-                <li class="dropdown-group relative group">
-                    <button onclick="toggleDropdown(this)" data-section-id="director_ops" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-green-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
-                        <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
-                            <i class="fa-solid fa-children text-[14px]"></i>
-                        </div>
-                        <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
-                            <span class="font-extrabold tracking-wide text-[13.5px]">Operations Panel</span>
-                            <span class="text-[8.5px] font-bold text-white/80 uppercase tracking-[0.15em]">Families & Children</span>
-                        </div>
-                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'director_ops' %}transform: rotate(90deg){% endif %}"></i>
-                    </button>
-                
-                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'director_ops' %}max-height: 1000px{% endif %}">
-                        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
-                            <a href="{% url 'child_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
-                                <i class="fa-solid fa-child mr-3 opacity-70"></i>
-                                <span class="sidebar-label">Manage Children</span>
-                            </a>
-                            <a href="{% url 'group_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
-                                <i class="fa-solid fa-layer-group mr-3 opacity-70"></i>
-                                <span class="sidebar-label">Enrollment & Groups</span>
-                            </a>
-                            <a href="{% url 'parent_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
-                                <i class="fa-solid fa-users mr-3 opacity-70"></i>
-                                <span class="sidebar-label">Manage Parents</span>
-                            </a>
-                            <a href="{% url 'manage_parent_access_requests' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
-                                <i class="fa-solid fa-user-lock mr-3 opacity-70"></i>
-                                <span class="sidebar-label">Access Requests</span>
-                            </a>
-                            <a href="{% url 'waitlist_manage' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
-                                <i class="fa-solid fa-list-check mr-3 opacity-70"></i>
-                                <span class="sidebar-label">Waitlist Management</span>
-                            </a>
-                            <a href="{% url 'transfer_requests_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
-                                <i class="fa-solid fa-right-left mr-3 opacity-70"></i>
-                                <span class="sidebar-label">Transfer Requests</span>
-                            </a>
-                
-                            {% if center %}
-                            <div class="mt-2 pt-2 border-t border-white/10">
-                                <a href="{% url 'import_children_csv' center.center_id %}" class="flex items-center px-4 py-2 text-[11px] bg-white/5 text-green-400 hover:bg-green-500 hover:text-white rounded-lg transition-all group">
-                                    <i class="fa-solid fa-file-import mr-3"></i>
-                                    <span class="sidebar-label font-black uppercase tracking-tighter">Import Data</span>
-                                </a>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </li>
+              <li class="dropdown-group relative group mb-2">
+    <button onclick="toggleDropdown(this)" data-section-id="director_admin" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-green-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+        <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
+            <i class="fa-solid fa-chalkboard-user text-[14px]"></i>
+        </div>
+        <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
+            <span class="font-extrabold tracking-wide text-[13.5px]">Admin Panel</span>
+            <span class="text-[8.5px] font-bold text-white/80 uppercase tracking-[0.15em]">Staff & Infrastructure</span>
+        </div>
+        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'director_admin' %}transform: rotate(90deg){% endif %}"></i>
+    </button>
+
+    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'director_admin' %}max-height: 1000px{% endif %}">
+        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
+            <a href="{%url 'director_dashboard' %}"  class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                <i class="fa-solid fa-clipboard-list mr-3 text-[14px] opacity-70 group-hover:opacity-100"></i>
+                <span class="sidebar-label">Dashboard Director</span>
+            </a>
+            <a href="{% url 'educator_add' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                <i class="fa-solid fa-user-plus mr-3 opacity-70 text-[11px]"></i>
+                <span class="sidebar-label">Add Educator</span>
+            </a>
+            <a href="{% url 'educator_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                <i class="fa-solid fa-users-gear mr-3 opacity-70 text-[11px]"></i>
+                <span class="sidebar-label">List Educators</span>
+            </a>
+            <a href="{% url 'room_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                <i class="fa-solid fa-door-open mr-3 opacity-70 text-[11px]"></i>
+                <span class="sidebar-label">Manage Rooms</span>
+            </a>
+            
+        </div>
+    </div>
+</li>
+
+<li class="dropdown-group relative group">
+    <button onclick="toggleDropdown(this)" data-section-id="director_ops" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-green-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+        <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
+            <i class="fa-solid fa-children text-[14px]"></i>
+        </div>
+        <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
+            <span class="font-extrabold tracking-wide text-[13.5px]">Operations Panel</span>
+            <span class="text-[8.5px] font-bold text-white/80 uppercase tracking-[0.15em]">Families & Children</span>
+        </div>
+        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'director_ops' %}transform: rotate(90deg){% endif %}"></i>
+    </button>
+
+    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'director_ops' %}max-height: 1000px{% endif %}">
+        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
+            <a href="{% url 'child_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                <i class="fa-solid fa-child mr-3 opacity-70"></i>
+                <span class="sidebar-label">Manage Children</span>
+            </a>
+            <a href="{% url 'group_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                <i class="fa-solid fa-layer-group mr-3 opacity-70"></i>
+                <span class="sidebar-label">Enrollment & Groups</span>
+            </a>
+            <a href="{% url 'parent_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                <i class="fa-solid fa-users mr-3 opacity-70"></i>
+                <span class="sidebar-label">Manage Parents</span>
+            </a>
+            <a href="{% url 'manage_parent_access_requests' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                <i class="fa-solid fa-user-lock mr-3 opacity-70"></i>
+                <span class="sidebar-label">Access Requests</span>
+            </a>
+            <a href="{% url 'waitlist_manage' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                <i class="fa-solid fa-list-check mr-3 opacity-70"></i>
+                <span class="sidebar-label">Waitlist Management</span>
+            </a>
+            <a href="{% url 'transfer_requests_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                <i class="fa-solid fa-right-left mr-3 opacity-70"></i>
+                <span class="sidebar-label">Transfer Requests</span>
+            </a>
+
+            {% if center %}
+            <div class="mt-2 pt-2 border-t border-white/10">
+                <a href="{% url 'import_children_csv' center.center_id %}" class="flex items-center px-4 py-2 text-[11px] bg-white/5 text-green-400 hover:bg-green-500 hover:text-white rounded-lg transition-all group">
+                    <i class="fa-solid fa-file-import mr-3"></i>
+                    <span class="sidebar-label font-black uppercase tracking-tighter">Import Data</span>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</li>
                 <li class="dropdown-group relative group mt-4" x-data="{ 
                     unreadCount: 0,
                     async fetchUnread() {
@@ -650,16 +655,13 @@
                     {% if user.is_authenticated %} {% if user.role_type == 'director' %}
 
 
-                    <a href="{%url 'director_dashboard' %}" class="flex items-center w-full px-5 py-3 text-slate-400 hover:text-emerald-400 transition-colors group">
-                        <i class="fa-solid fa-clipboard-list mr-3 text-[14px] opacity-70 group-hover:opacity-100"></i>
-                        <span class="sidebar-label font-bold text-[13px]">Dashboard Director</span>
-                    </a>
+                 
                     {% endif %} {% endif %}
                     <form action="{% url 'logout' %}" method="post" class="m-0 px-2">
                         {% csrf_token %}
                         <button type="submit" class="flex items-center w-full px-5 py-3 rounded-2xl text-white transition-all duration-300 group
                             {% if user.role_type == 'director' %} 
-                                bg-emerald-600 border border-green-600/20
+                                bg-green-600 border border-green-600
                             {% elif user.role_type == 'parent' %} 
                                 bg-rose-600 border border-rose-500/20
                             {% else %} 
