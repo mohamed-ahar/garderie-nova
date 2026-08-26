@@ -1,17 +1,95 @@
 {% extends "base.html" %}
 
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pickerjs@1.2.1/dist/picker.min.css">
+<style>
+    /* iPhone Style Wheel Picker Customization */
+    .picker {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-radius: 2.5rem 2.5rem 0 0 !important;
+        border: none !important;
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.15) !important;
+    }
+
+    .dark .picker {
+        background-color: rgba(15, 23, 42, 0.9) !important;
+    }
+
+    .picker-content {
+        height: 200px !important;
+    }
+
+    .picker-item {
+        font-size: 1.25rem !important;
+        font-weight: 600 !important;
+        color: #94a3b8 !important;
+    }
+
+    .picker-picked {
+        color: #1e293b !important;
+        font-size: 1.5rem !important;
+        font-weight: 800 !important;
+    }
+
+    .dark .picker-picked {
+        color: #f8fafc !important;
+    }
+
+    .picker-footer {
+        border-top: 1px solid rgba(0,0,0,0.05) !important;
+        padding: 1rem 2rem !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        background: transparent !important;
+    }
+
+    .dark .picker-footer {
+        border-color: rgba(255,255,255,0.05) !important;
+    }
+
+    .picker-button {
+        background: none !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.1em !important;
+        font-size: 0.75rem !important;
+        border: none !important;
+    }
+
+    .picker-confirm {
+        color: #6366f1 !important;
+    }
+
+    .picker-cancel {
+        color: #94a3b8 !important;
+    }
+
+    /* Selection highlight */
+    .picker-cell::before, .picker-cell::after {
+        border-color: rgba(99, 102, 241, 0.2) !important;
+    }
+
+    /* Prevent native keyboard on mobile */
+    input[type="time"] {
+        caret-color: transparent !important;
+    }
+</style>
+{% endblock %}
+
 {% block title %}Daily Report - {{ child.first_name }} | GarderieNova{% endblock %}
 
 {% block content %}
 <div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-8 px-6">
-    
+
     <div class="absolute inset-0 pointer-events-none">
         <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-indigo-400/5 rounded-full blur-[120px]"></div>
         <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-rose-400/5 rounded-full blur-[100px]"></div>
     </div>
 
     <div class="relative z-10 max-w-6xl w-full grid lg:grid-cols-12 gap-8 items-start">
-        
+
         <div class="lg:col-span-4 space-y-6 pt-10">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
                 <i class="fa-solid fa-calendar-day text-indigo-500 text-[10px]"></i>
@@ -70,10 +148,10 @@
 
         <div class="lg:col-span-8">
             <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] relative">
-                
+
                 <form method="POST" class="space-y-8">
                     {% csrf_token %}
-                    
+
                     <!-- Food Section -->
                     <div class="space-y-4">
                         <h3 class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] px-1">Food Intake (Aliments)</h3>
@@ -81,9 +159,9 @@
                             <div class="relative group">
                                 <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">AM Snack (Collation AM)</label>
                                 <div class="space-y-2">
-                                    {{ form.snack_am_amount }}
                                     <label class="block text-[9px] font-bold text-slate-500 uppercase">Time</label>
                                     {{ form.snack_am_time }}
+                                    {{ form.snack_am_amount }}
                                 </div>
                             </div>
                             <div class="relative group">
@@ -214,147 +292,151 @@
                     <!-- Diaper Changes Section -->
                     <div class="space-y-4">
                         <h3 class="text-[10px] font-black text-green-500 uppercase tracking-[0.2em] px-1">Diaper Changes / Toileting (Couche/Toilette)</h3>
-                        
-                        <!-- Diaper Change 1 -->
-                        <div class="p-4 rounded-2xl bg-green-500/5 border border-green-100 dark:border-green-900/30 space-y-3">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="fa-solid fa-1 text-green-600 text-xs"></i>
-                                <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase">Change #1</span>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Time</label>
-                                    {{ form.diaper_1_time }}
-                                </div>
-                                <div>
-                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Type</label>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_1_sec }} SEC
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_1_mouille }} MOUILLE
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_1_toilette }} TOILETTE
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_1_selles }} SELLES
-                                        </label>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Diaper Change 1 -->
+                            <div class="p-4 rounded-2xl bg-green-500/5 border border-green-100 dark:border-green-900/30 space-y-3">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-1 text-green-600 text-xs"></i>
+                                        <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase">Change #1</span>
+                                    </div>
+                                    <div class="w-24">
+                                        {{ form.diaper_1_time }}
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Consistency (if applicable)</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_1_sec }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Sec</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_1_mouille }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Mouillé</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_1_toilette }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Toilette</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_1_selles }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Selles</span>
+                                    </label>
+                                </div>
+                                <div class="relative group">
+                                    <label class="block text-[8px] font-black text-slate-400 uppercase tracking-wider mb-1 px-1">Consistency / Notes</label>
                                     {{ form.diaper_1_consistency }}
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Diaper Change 2 -->
-                        <div class="p-4 rounded-2xl bg-green-500/5 border border-green-100 dark:border-green-900/30 space-y-3">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="fa-solid fa-2 text-green-600 text-xs"></i>
-                                <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase">Change #2</span>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Time</label>
-                                    {{ form.diaper_2_time }}
-                                </div>
-                                <div>
-                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Type</label>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_2_sec }} SEC
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_2_mouille }} MOUILLE
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_2_toilette }} TOILETTE
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_2_selles }} SELLES
-                                        </label>
+                            <!-- Diaper Change 2 -->
+                            <div class="p-4 rounded-2xl bg-green-500/5 border border-green-100 dark:border-green-900/30 space-y-3">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-2 text-green-600 text-xs"></i>
+                                        <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase">Change #2</span>
+                                    </div>
+                                    <div class="w-24">
+                                        {{ form.diaper_2_time }}
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Consistency</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_2_sec }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Sec</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_2_mouille }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Mouillé</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_2_toilette }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Toilette</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_2_selles }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Selles</span>
+                                    </label>
+                                </div>
+                                <div class="relative group">
+                                    <label class="block text-[8px] font-black text-slate-400 uppercase tracking-wider mb-1 px-1">Consistency / Notes</label>
                                     {{ form.diaper_2_consistency }}
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Diaper Change 3 -->
-                        <div class="p-4 rounded-2xl bg-green-500/5 border border-green-100 dark:border-green-900/30 space-y-3">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="fa-solid fa-3 text-green-600 text-xs"></i>
-                                <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase">Change #3</span>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Time</label>
-                                    {{ form.diaper_3_time }}
-                                </div>
-                                <div>
-                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Type</label>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_3_sec }} SEC
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_3_mouille }} MOUILLE
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_3_toilette }} TOILETTE
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_3_selles }} SELLES
-                                        </label>
+                            <!-- Diaper Change 3 -->
+                            <div class="p-4 rounded-2xl bg-green-500/5 border border-green-100 dark:border-green-900/30 space-y-3">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-3 text-green-600 text-xs"></i>
+                                        <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase">Change #3</span>
+                                    </div>
+                                    <div class="w-24">
+                                        {{ form.diaper_3_time }}
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Consistency</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_3_sec }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Sec</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_3_mouille }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Mouillé</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_3_toilette }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Toilette</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_3_selles }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Selles</span>
+                                    </label>
+                                </div>
+                                <div class="relative group">
+                                    <label class="block text-[8px] font-black text-slate-400 uppercase tracking-wider mb-1 px-1">Consistency / Notes</label>
                                     {{ form.diaper_3_consistency }}
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Diaper Change 4 -->
-                        <div class="p-4 rounded-2xl bg-green-500/5 border border-green-100 dark:border-green-900/30 space-y-3">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="fa-solid fa-4 text-green-600 text-xs"></i>
-                                <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase">Change #4</span>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Time</label>
-                                    {{ form.diaper_4_time }}
-                                </div>
-                                <div>
-                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Type</label>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_4_sec }} SEC
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_4_mouille }} MOUILLE
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_4_toilette }} TOILETTE
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs">
-                                            {{ form.diaper_4_selles }} SELLES
-                                        </label>
+                            <!-- Diaper Change 4 -->
+                            <div class="p-4 rounded-2xl bg-green-500/5 border border-green-100 dark:border-green-900/30 space-y-3">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-4 text-green-600 text-xs"></i>
+                                        <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase">Change #4</span>
+                                    </div>
+                                    <div class="w-24">
+                                        {{ form.diaper_4_time }}
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Consistency</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_4_sec }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Sec</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_4_mouille }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Mouillé</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_4_toilette }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Toilette</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 p-2 rounded-lg border border-green-200/50 dark:border-green-900/20 bg-white dark:bg-slate-900 cursor-pointer hover:border-green-500 transition-all group">
+                                        <div class="scale-90">{{ form.diaper_4_selles }}</div>
+                                        <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-green-600 uppercase">Selles</span>
+                                    </label>
+                                </div>
+                                <div class="relative group">
+                                    <label class="block text-[8px] font-black text-slate-400 uppercase tracking-wider mb-1 px-1">Consistency / Notes</label>
                                     {{ form.diaper_4_consistency }}
                                 </div>
                             </div>
                         </div>
                     </div>
+
+
 
                     <!-- Comments Section -->
                     <div class="space-y-4">
@@ -374,7 +456,7 @@
                     </div>
 
                     <div class="pt-4">
-                        <button type="submit" 
+                        <button type="submit"
                                 class="group relative w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 px-6 rounded-xl transition-all hover:bg-indigo-600 hover:text-white active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 text-sm">
                             Save Daily Report
                             <i class="fa-solid fa-check text-[10px] group-hover:scale-125 transition-transform"></i>
@@ -435,10 +517,54 @@
         border: 2px solid #e2e8f0;
         cursor: pointer;
     }
-    
-    .dark input[type="checkbox"] {
-        border-color: #334155;
-        background-color: #1e293b;
-    }
-</style>
+
+            .dark input[type="checkbox"] {
+
+                border-color: #334155;
+
+                background-color: #1e293b;
+
+            }
+
+        </style>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/pickerjs@1.2.1/dist/picker.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const timeInputs = document.querySelectorAll('input[type="time"]');
+
+        timeInputs.forEach(input => {
+            // Force readonly and inputmode to prevent mobile keyboards
+            input.setAttribute('readonly', 'readonly');
+            input.setAttribute('inputmode', 'none');
+            input.style.cursor = 'pointer';
+
+            new Picker(input, {
+                format: 'HH:mm',
+                headers: true,
+                controls: true,
+                text: {
+                    title: 'Choisir l\'heure',
+                    cancel: 'Annuler',
+                    confirm: 'Confirmer',
+                },
+                rows: 3,
+                position: function(container, element) {
+                    // Position the container below the input element
+                    var rect = element.getBoundingClientRect();
+                    container.style.position = 'fixed';
+                    container.style.top = (rect.bottom + window.scrollY) + 'px';
+                    container.style.left = (rect.left + window.scrollX) + 'px';
+                    container.style.transform = 'translateX(-50%)';
+                    container.style.marginTop = '10px';
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}
+
+
+

@@ -58,9 +58,8 @@ class DailyActivityLog(models.Model):
     # ==========================
     # SECTION 1: ALIMENTS (Food)
     # ==========================
-    snack_am = models.CharField(max_length=5, choices=Amount.choices, default=Amount.NA, verbose_name="Collation AM")
-    lunch = models.CharField(max_length=5, choices=Amount.choices, default=Amount.NA, verbose_name="Dîner")
-    snack_pm = models.CharField(max_length=5, choices=Amount.choices, default=Amount.NA, verbose_name="Collation PM")
+    # Schema: [{"name": "snack_am", "amount": "TOUT", "time": "10:00"}, ...]
+    food_tracking = models.JSONField(default=list, blank=True)
 
     # ====================================
     # SECTION 1 (Right): BOISSONS (Drinks)
