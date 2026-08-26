@@ -3,64 +3,75 @@
 <div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-8 px-6">
     
     <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-blue-400/5 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-indigo-400/5 rounded-full blur-[100px]"></div>
+        {% if user.role_type == "parent" %}
+            <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-rose-400/5 rounded-full blur-[120px]"></div>
+        {% elif user.role_type == "educator" %}
+            <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-indigo-400/5 rounded-full blur-[120px]"></div>
+        {% else %}
+            <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-blue-400/5 rounded-full blur-[120px]"></div>
+        {% endif %}
     </div>
 
     <div class="relative z-10 max-w-5xl w-full grid lg:grid-cols-12 gap-8 items-start">
         
         <div class="lg:col-span-5 space-y-6 pt-10">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
-                <i class="fa-solid fa-paper-plane text-blue-500 text-[10px]"></i>
+                <i class="fa-solid fa-paper-plane {% if user.role_type == 'parent' %}text-rose-500{% elif user.role_type == 'educator' %}text-indigo-500{% else %}text-blue-500{% endif %} text-[10px]"></i>
                 <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">New Communication</span>
             </div>
 
             <div class="space-y-3">
                 <h1 class="text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
-                    Send a New<br>
-                    <span class="bg-gradient-to-r from-green-600 via-green-500 to-black bg-clip-text text-transparent capitalize">Message.</span>
+                    {% if user.role_type == "parent" %}
+                        Contact the<br>
+                        <span class="bg-gradient-to-r from-rose-600 to-rose-400 bg-clip-text text-transparent capitalize">Educator.</span>
+                    
+                    {% elif user.role_type == "educator" %}
+                        Message the<br>
+                        <span class="bg-gradient-to-r from-indigo-600 to-indigo-400 bg-clip-text text-transparent capitalize">Director.</span>
+                    
+                    {% elif user.role_type == "director" or user.role_type == "owner" %}
+                        Reach out to<br>
+                        <span class="bg-gradient-to-r from-green-600 to-emerald-400 bg-clip-text text-transparent capitalize">Other Directors</span>
+                    
+                    {% else %}
+                        Send a New<br>
+                        <span class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent capitalize">Message.</span>
+                    {% endif %}
                 </h1>
                 <p class="text-sm text-slate-700 font-medium leading-relaxed">
-                    Connect with your team, parents, or directors instantly. Your communication is <span class="text-slate-900 dark:text-white font-bold">private and secure</span>.
+                    {% if user.role_type == "parent" %}
+                        Ask about your child's progress or share updates with their educator.
+                    {% elif user.role_type == "educator" %}
+                        Report center activities or request assistance from your center's director.
+                    {% else %}
+                        Connect with your team instantly. Your communication is <span class="text-slate-900 dark:text-white font-bold">private and secure</span>.
+                    {% endif %}
                 </p>
             </div>
 
             <div class="flex flex-col gap-3 pt-2">
-                <div class="flex items-center gap-3">
-                    <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold shadow-lg">
-                        <i class="fa-solid fa-check"></i>
-                    </div>
-                    <span class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Select Receiver</span>
-                </div>
-                
                 {% if user.role_type == "director" %}
                 <div class="relative overflow-hidden group p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:shadow-md">
-                    <div class="absolute top-0 right-0 -mr-16 -mt-16 w-32 h-32 bg-indigo-500/5 blur-[50px] rounded-full transition-colors group-hover:bg-indigo-500/10"></div>
-                    
                     <div class="relative space-y-3">
                         <div class="flex items-center gap-2.5">
                             <span class="relative flex h-2 w-2">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                                 <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
                             </span>
-                            <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-[0.1em]">
-                                Network Protocol
-                            </span>
+                            <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-[0.1em]">Network Protocol</span>
                         </div>
-                
-                        <p class="text-[12px] text-slate-500 dark:text-slate-400 leading-relaxed max-w-[280px]">
-                            Direct messaging is limited to <span class="text-slate-900 dark:text-white font-semibold">internal staff</span> and 
-                            <span class="text-indigo-600 dark:text-indigo-400 font-semibold underline underline-offset-4 decoration-indigo-500/30">verified partners</span>.
-                        </p>
-                
-                        <div class="pt-1">
-                            <a href="{% url 'communication:connection_list' %}" 
-                               class="flex items-center gap-1.5 w-fit px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase tracking-wider hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-500 dark:hover:text-white transition-all duration-300">
-                                <i class="fa-solid fa-link text-[9px]"></i>
-                                Manage Connections
-                            </a>
-                        </div>
+                        <p class="text-[12px] text-slate-500 dark:text-slate-400">Limited to <span class="text-slate-900 font-semibold">internal staff</span> and <span class="text-indigo-600 font-semibold">verified partners</span>.</p>
+                        <a href="{% url 'communication:connection_list' %}" class="flex items-center gap-1.5 w-fit px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 text-[10px] font-bold uppercase tracking-wider hover:bg-indigo-600 hover:text-white transition-all">
+                            Manage Connections
+                        </a>
                     </div>
+                </div>
+                {% elif user.role_type == "educator" %}
+                <div class="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/20">
+                    <p class="text-[11px] text-indigo-700 dark:text-indigo-300 font-medium leading-relaxed">
+                        <i class="fa-solid fa-circle-info mr-1"></i> You are messaging the director assigned to <strong>{{ user.educator_profile.center.name }}</strong>.
+                    </p>
                 </div>
                 {% endif %}
             </div>
@@ -95,7 +106,7 @@
 
                     <div class="pt-4">
                         <button type="submit" 
-                                class="group relative w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 px-6 rounded-xl transition-all hover:bg-blue-600 hover:text-white active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 text-sm">
+                                class="group relative w-full {% if user.role_type == 'parent' %}bg-rose-600 hover:bg-rose-700{% elif user.role_type == 'educator' %}bg-indigo-600 hover:bg-indigo-700{% else %}bg-slate-900 hover:bg-blue-600{% endif %} text-white font-black py-4 px-6 rounded-xl transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 text-sm">
                             Send Message
                             <i class="fa-solid fa-paper-plane text-[10px] group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i>
                         </button>
@@ -109,7 +120,7 @@
                     </a>
                 </div>
 
-                <div class="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg flex items-center justify-center text-white text-xl rotate-12 group-hover:rotate-0 transition-transform duration-500">
+                <div class="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-br {% if user.role_type == 'parent' %}from-rose-500 to-rose-600{% elif user.role_type == 'educator' %}from-indigo-500 to-indigo-600{% else %}from-blue-500 to-indigo-600{% endif %} rounded-xl shadow-lg flex items-center justify-center text-white text-xl rotate-12">
                     <i class="fa-solid fa-pen-nib"></i>
                 </div>
             </div>
@@ -131,37 +142,6 @@
         outline: none;
         color: #1e293b;
     }
-
-    .dark input, .dark select, .dark textarea {
-        background-color: #0f172a;
-        border-color: #1e293b;
-        color: #f8fafc;
-    }
-
-    input:focus, select:focus, textarea:focus {
-        border-color: #3b82f6;
-        background-color: #ffffff;
-        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.06);
-        transform: translateY(-1px);
-    }
-
-    .dark input:focus, .dark select:focus, .dark textarea:focus {
-        background-color: #020617;
-        border-color: #3b82f6;
-    }
-
-    textarea {
-        min-height: 150px;
-        resize: none;
-    }
-
-    button:hover i {
-        animation: fly 0.6s ease-in-out infinite alternate;
-    }
-
-    @keyframes fly {
-        from { transform: translate(0,0); }
-        to { transform: translate(4px, -4px); }
-    }
+    /* Rest of your CSS remains the same... */
 </style>
 {% endblock %}

@@ -205,73 +205,83 @@
                     </div>
                 </li>
                 {% endif %} {% endif %} {% if user.role_type == 'director' %}
-                <li class="dropdown-group relative group">
-                    <button onclick="toggleDropdown(this)" data-section-id="director_panel" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-green-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
-                                <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
-                                    <i class="fa-solid fa-user-tie text-[14px]"></i>
-                                </div>
-                                <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
-                                    <span class="font-extrabold tracking-wide text-[13.5px]">Director Panel</span>
-                                    <span class="text-[8.5px] font-bold text-white uppercase tracking-[0.15em]">{{user.full_name}}</span>
-                                </div>
-                                <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'director_panel' %}transform: rotate(90deg){% endif %}"></i>
-                            </button>
-                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'director_panel' %}max-height: 1000px{% endif %}">
+                <li class="dropdown-group relative group mb-2">
+                    <button onclick="toggleDropdown(this)" data-section-id="director_admin" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-green-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                        <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
+                            <i class="fa-solid fa-chalkboard-user text-[14px]"></i>
+                        </div>
+                        <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
+                            <span class="font-extrabold tracking-wide text-[13.5px]">Admin Panel</span>
+                            <span class="text-[8.5px] font-bold text-white/80 uppercase tracking-[0.15em]">Staff & Infrastructure</span>
+                        </div>
+                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'director_admin' %}transform: rotate(90deg){% endif %}"></i>
+                    </button>
+                
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'director_admin' %}max-height: 1000px{% endif %}">
                         <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
-                            <a href="{% url 'educator_add' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
-                                <i class="fa-solid fa-users-gear mr-3 opacity-70"></i>
-                                <span class="sidebar-label">Add educator</span>
+                            <a href="{% url 'educator_add' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                                <i class="fa-solid fa-user-plus mr-3 opacity-70 text-[11px]"></i>
+                                <span class="sidebar-label">Add Educator</span>
                             </a>
-                            <a href="{% url 'educator_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
-                                <i class="fa-solid fa-users-gear mr-3 opacity-70"></i>
-                                <span class="sidebar-label">list educators</span>
+                            <a href="{% url 'educator_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                                <i class="fa-solid fa-users-gear mr-3 opacity-70 text-[11px]"></i>
+                                <span class="sidebar-label">List Educators</span>
                             </a>
-                            <a href="{% url 'room_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
-                                <i class="fa-solid fa-door-open mr-3 opacity-70"></i>
+                            <a href="{% url 'room_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                                <i class="fa-solid fa-door-open mr-3 opacity-70 text-[11px]"></i>
                                 <span class="sidebar-label">Manage Rooms</span>
                             </a>
-                            <a href="{% url 'group_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
-                                <i class="fa-solid fa-children mr-3 opacity-70"></i>
-                                <span class="sidebar-label">Children & Enrollment</span>
-                            </a>
-                            <a href="{% url 'child_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
+                        </div>
+                    </div>
+                </li>
+                
+                <li class="dropdown-group relative group">
+                    <button onclick="toggleDropdown(this)" data-section-id="director_ops" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-green-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                        <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
+                            <i class="fa-solid fa-children text-[14px]"></i>
+                        </div>
+                        <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
+                            <span class="font-extrabold tracking-wide text-[13.5px]">Operations Panel</span>
+                            <span class="text-[8.5px] font-bold text-white/80 uppercase tracking-[0.15em]">Families & Children</span>
+                        </div>
+                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'director_ops' %}transform: rotate(90deg){% endif %}"></i>
+                    </button>
+                
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'director_ops' %}max-height: 1000px{% endif %}">
+                        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
+                            <a href="{% url 'child_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
                                 <i class="fa-solid fa-child mr-3 opacity-70"></i>
                                 <span class="sidebar-label">Manage Children</span>
                             </a>
-                            <a href="{% url 'parent_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
-                                <div class="relative mr-3 flex items-center justify-center">
-                                    <i class="fa-solid fa-users mr-3 opacity-70"></i>
-                                    <span class="sidebar-label">Manage Parents</span>
-                                </div>
+                            <a href="{% url 'group_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                                <i class="fa-solid fa-layer-group mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Enrollment & Groups</span>
                             </a>
-                            <a href="{% url 'manage_parent_access_requests' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
+                            <a href="{% url 'parent_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                                <i class="fa-solid fa-users mr-3 opacity-70"></i>
+                                <span class="sidebar-label">Manage Parents</span>
+                            </a>
+                            <a href="{% url 'manage_parent_access_requests' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
                                 <i class="fa-solid fa-user-lock mr-3 opacity-70"></i>
                                 <span class="sidebar-label">Access Requests</span>
                             </a>
-                            <a href="{% url 'waitlist_manage' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
+                            <a href="{% url 'waitlist_manage' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
                                 <i class="fa-solid fa-list-check mr-3 opacity-70"></i>
                                 <span class="sidebar-label">Waitlist Management</span>
                             </a>
-                            <a href="{% url 'transfer_requests_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all">
+                            <a href="{% url 'transfer_requests_list' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
                                 <i class="fa-solid fa-right-left mr-3 opacity-70"></i>
                                 <span class="sidebar-label">Transfer Requests</span>
                             </a>
-
+                
                             {% if center %}
-                            <a href="{% url 'import_children_csv' center.center_id %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-blue-600 hover:text-white rounded-lg transition-all group
-                                       {% if request.resolver_match.url_name == 'import_children_csv' %}bg-blue-600 text-white{% endif %}">
-
-                                <div class="relative mr-3 flex items-center justify-center">
-                                    <i class="fa-solid fa-file-import opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                                    <span class="absolute -top-1 -right-1 w-1.5 h-1.5 bg-emerald-400 rounded-full border border-slate-900 shadow-[0_0_5px_rgba(52,211,153,0.5)]"></span>
-                                </div>
-
-                                <span class="sidebar-label font-bold tracking-tight">import children & Parents</span>
-                            </a>
-
+                            <div class="mt-2 pt-2 border-t border-white/10">
+                                <a href="{% url 'import_children_csv' center.center_id %}" class="flex items-center px-4 py-2 text-[11px] bg-white/5 text-green-400 hover:bg-green-500 hover:text-white rounded-lg transition-all group">
+                                    <i class="fa-solid fa-file-import mr-3"></i>
+                                    <span class="sidebar-label font-black uppercase tracking-tighter">Import Data</span>
+                                </a>
+                            </div>
                             {% endif %}
-
-
                         </div>
                     </div>
                 </li>
@@ -464,6 +474,64 @@
                         </div>
                     </div>
                 </li>
+                <li class="dropdown-group relative group mt-4" x-data="{ 
+                    unreadCount: 0,
+                    async fetchUnread() {
+                        try {
+                            let response = await fetch('{% url 'communication:unread_count_api' %}');
+                            let data = await response.json();
+                            this.unreadCount = data.unread_count;
+                        } catch (e) { console.error('Notification error') }
+                    }
+                }" x-init="fetchUnread(); setInterval(() => fetchUnread(), 10000)">
+                
+                    <button onclick="toggleDropdown(this)" data-section-id="messages_parent" 
+                            class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                        
+                        <template x-if="unreadCount > 0">
+                            <div class="absolute inset-0 bg-white/10 animate-pulse"></div>
+                        </template>
+                        
+                        <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[-8deg]">
+                            <i class="fa-solid fa-comments text-[14px]"></i>
+                        </div>
+                
+                        <div class="sidebar-label relative z-10 flex flex-col items-start text-left flex-1">
+                            <span class="font-extrabold tracking-wide text-[13.5px]">Messages</span>
+                            <span class="text-[8.5px] font-bold text-indigo-200/90 uppercase tracking-[0.15em]">Chat with Educator</span>
+                        </div>
+                        
+                        <div x-show="unreadCount > 0" x-cloak class="relative flex items-center justify-center mr-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-5 w-5 bg-white text-indigo-600 text-[10px] items-center justify-center font-black shadow-sm" x-text="unreadCount"></span>
+                        </div>
+                        
+                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'messages_parent' %}transform: rotate(90deg){% endif %}"></i>
+                    </button>
+                
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'messages_parent' %}max-height: 1000px{% endif %}">
+                        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5 shadow-inner">
+                            
+                            <a href="{% url 'communication:send_message' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
+                                <i class="fa-solid fa-paper-plane mr-3 opacity-70 group-hover:translate-x-1 transition-transform text-[10px]"></i>
+                                <span class="sidebar-label">New Message</span>
+                            </a>
+                
+                            <a href="{% url 'communication:inbox' %}" class="flex items-center justify-between px-4 py-2 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
+                                <div class="flex items-center">
+                                    <i class="fa-solid fa-inbox mr-3 opacity-70 text-[10px]"></i>
+                                    <span class="sidebar-label">Inbox</span>
+                                </div>
+                                <template x-if="unreadCount > 0">
+                                    <span class="bg-white text-indigo-600 px-2 py-0.5 rounded-md text-[9px] font-black tracking-tighter uppercase">
+                                        New
+                                    </span>
+                                </template>
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                
                 {% endif %} {% if user.role_type == 'parent' %}
                 <li class="dropdown-group relative group">
                     <button onclick="toggleDropdown(this)" data-section-id="family_portal" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
