@@ -12,32 +12,36 @@
 
     <div class="relative z-10 max-w-7xl mx-auto">
         
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
             <div class="space-y-4">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
-                    <i class="fa-solid fa-user-clock text-emerald-500 text-[10px]"></i>
-                    <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Daily Presence</span>
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 shadow-sm">
+                    <i class="fa-solid fa-user-clock text-indigo-600 dark:text-indigo-400 text-[10px]"></i>
+                    <span class="text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em]">Daily Presence</span>
                 </div>
+                
                 <h1 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
-                    Attendance <span class="bg-gradient-to-r from-emerald-600 to-teal-400 bg-clip-text text-transparent">Board.</span>
+                    Attendance <span class="bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">Board.</span>
                 </h1>
-                <p class="text-sm text-slate-400 font-medium max-w-md">
-                    Track arrivals, departures and absences for your classroom on <span class="text-slate-900 dark:text-white font-bold">{{ view_date|date:"l, F d" }}</span>.
+                
+                <p class="text-sm text-slate-400 dark:text-slate-500 font-medium max-w-md leading-relaxed">
+                    Track arrivals, departures and absences for your classroom on 
+                    <span class="text-indigo-600 dark:text-indigo-400 font-bold decoration-indigo-500/30 underline-offset-4 underline">{{ view_date|date:"l, F d" }}</span>.
                 </p>
             </div>
-
+        
             <div class="flex items-center gap-4">
-                <!-- Date Navigation -->
-                <div class="flex items-center bg-white dark:bg-slate-900 p-2 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm gap-2">
-                    <a href="?date={{ prev_day|date:'Y-m-d' }}" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                <div class="flex items-center bg-white dark:bg-slate-900 p-2 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-xl shadow-indigo-500/5 gap-2">
+                    <a href="?date={{ prev_day|date:'Y-m-d' }}" 
+                       class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-800 transition-all active:scale-90">
                         <i class="fa-solid fa-chevron-left text-xs"></i>
                     </a>
-                    <div class="px-4 text-center min-w-[120px] relative group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition-colors py-1"
+                    
+                    <div class="px-4 text-center min-w-[130px] relative group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition-colors py-1"
                          onclick="this.querySelector('input').showPicker()">
-                        <span class="block text-[8px] font-black text-slate-400 uppercase tracking-widest">Selected Date</span>
+                        <span class="block text-[8px] font-black text-indigo-500/60 dark:text-indigo-400/60 uppercase tracking-widest mb-0.5">Selected Date</span>
                         <div class="flex items-center justify-center gap-2">
                             <span class="text-xs font-bold text-slate-900 dark:text-white">{{ view_date|date:"M d, Y" }}</span>
-                            <i class="fa-solid fa-calendar-days text-[10px] text-emerald-500"></i>
+                            <i class="fa-solid fa-calendar-days text-[10px] text-indigo-500"></i>
                         </div>
                         <input type="date" 
                                class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" 
@@ -46,8 +50,10 @@
                                value="{{ view_date|date:'Y-m-d' }}"
                                onclick="event.stopPropagation()">
                     </div>
+        
                     {% if next_day %}
-                    <a href="?date={{ next_day|date:'Y-m-d' }}" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                    <a href="?date={{ next_day|date:'Y-m-d' }}" 
+                       class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-800 transition-all active:scale-90">
                         <i class="fa-solid fa-chevron-right text-xs"></i>
                     </a>
                     {% else %}

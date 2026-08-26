@@ -136,11 +136,23 @@ def director_dashboard(request):
     return render(request, "director_dashboard.html", context)
 
 
-
-@login_required
+@login_required(login_url="login")
 def educator_dashboard(request):
-    return render(request, "educator_dashboard.html")
+    user = request.user
+    if user.role_type != "educator":
+        return render(request, "core/403.html", status=403)
 
+    # Get the count of children assigned to this educator
+    try:
+        educator_profile = user.educator_profile
+        assigned_children_count = Child.objects.filter(assigned_educator=educator_profile).count()
+    except AttributeError:
+        assigned_children_count = 0
+
+    context = {
+        "assigned_children_count": assigned_children_count,
+    }
+    return render(request, "educator_dashboard.html", context)
 
 @login_required
 def parent_dashboard(request):

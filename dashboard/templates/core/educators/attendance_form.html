@@ -6,123 +6,139 @@
 <div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-8 px-6">
     
     <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-emerald-400/5 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-indigo-400/5 rounded-full blur-[100px]"></div>
+        <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-indigo-400/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-emerald-400/5 rounded-full blur-[100px]"></div>
     </div>
 
-    <div class="relative z-10 max-w-2xl w-full">
-        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] relative">
-            
-            <div class="flex flex-col items-center text-center mb-8">
-                <div class="w-20 h-20 rounded-full p-1 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 overflow-hidden mb-4">
+    <div class="relative z-10 max-w-6xl w-full grid lg:grid-cols-12 gap-12 items-start">
+        
+        <div class="lg:col-span-5 space-y-6 pt-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+                <i class="fa-solid fa-user-clock text-indigo-500 text-[10px]"></i>
+                <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Attendance Protocol</span>
+            </div>
+
+            <div class="space-y-3">
+                <div class="w-16 h-16 rounded-2xl overflow-hidden border-2 border-indigo-100 dark:border-slate-800 shadow-lg mb-4">
                     {% if child.profile_photo %}
-                        <img src="{{ child.profile_photo.url }}" class="w-full h-full object-cover rounded-full">
+                        <img src="{{ child.profile_photo.url }}" class="w-full h-full object-cover">
                     {% else %}
-                        <div class="w-full h-full rounded-full flex items-center justify-center text-3xl font-black text-slate-300 bg-slate-50 dark:bg-slate-950">
+                        <div class="w-full h-full bg-indigo-50 dark:bg-slate-800 flex items-center justify-center text-xl font-black text-indigo-300">
                             {{ child.first_name|slice:":1" }}
                         </div>
                     {% endif %}
                 </div>
-                <h1 class="text-3xl font-black text-slate-900 dark:text-white mb-1">
-                    Mark <span class="bg-gradient-to-r from-emerald-600 to-teal-400 bg-clip-text text-transparent">Attendance.</span>
+                
+                <h1 class="text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
+                    Log daily<br>
+                    <span class="bg-gradient-to-r from-indigo-600 to-indigo-400 bg-clip-text text-transparent">Presence.</span>
                 </h1>
-                <p class="text-sm text-slate-400 font-medium">
+                <p class="text-base text-slate-400 font-medium leading-relaxed">
                     Recording attendance for <span class="text-slate-900 dark:text-white font-bold">{{ child.first_name }} {{ child.last_name }}</span> on {{ today|date:"l, F d" }}.
                 </p>
             </div>
 
-            <form method="POST" class="space-y-6" x-data="{ is_absent: {{ form.is_absent.value|yesno:'true,false' }} }">
-                {% csrf_token %}
-                
-                <div class="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                    <input type="checkbox" name="is_absent" id="id_is_absent" x-model="is_absent" class="w-5 h-5 rounded-lg border-slate-300 text-rose-500 focus:ring-rose-500">
-                    <label for="id_is_absent" class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Mark as Absent (Enfant Absent)</label>
+            <div class="flex flex-col gap-3 pt-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[10px] font-bold shadow-lg shadow-indigo-500/20">1</div>
+                    <span class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Status & Times</span>
                 </div>
-
-                <div x-show="!is_absent" x-transition class="grid grid-cols-2 gap-4">
-                    <div class="relative group">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 px-1">Arrival Time (Arrivée)</label>
-                        {{ form.arrival_time }}
-                    </div>
-                    <div class="relative group">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 px-1">Departure Time (Départ)</label>
-                        {{ form.departure_time }}
-                    </div>
-                </div>
-
-                <div x-show="is_absent" x-transition class="space-y-4">
-                    <div class="relative group">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 px-1">Reason for Absence (Motif d'absence)</label>
-                        {{ form.absence_reason_code }}
-                    </div>
-                    <div class="relative group">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 px-1">Additional Notes</label>
-                        {{ form.absence_reason_notes }}
-                    </div>
-                </div>
-
-                <div class="pt-4 flex gap-3">
-                    <a href="{% url 'daily_checkup_list' %}" class="flex-1 py-4 px-6 rounded-xl border border-slate-100 dark:border-slate-800 font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-center">
-                        Cancel
-                    </a>
-                    <button type="submit" 
-                            class="flex-[2] bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 px-6 rounded-xl transition-all hover:bg-emerald-600 hover:text-white active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 text-xs uppercase tracking-widest">
-                        Save Attendance
-                        <i class="fa-solid fa-check text-[10px]"></i>
-                    </button>
-                </div>
-            </form>
-
-            {% if today_records %}
-            <div class="mt-12 pt-8 border-t border-slate-50 dark:border-slate-800">
-                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 text-center">Today's Timeline</h3>
-                <div class="space-y-3">
-                    {% for record in today_records %}
-                    <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 group">
-                        <div class="flex items-center gap-4">
-                            {% if record.is_absent %}
-                                <div class="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500">
-                                    <i class="fa-solid fa-user-xmark text-[10px]"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest">Absent</p>
-                                    <p class="text-[10px] text-slate-400 font-bold">{{ record.get_absence_reason_code_display }}</p>
-                                </div>
-                            {% else %}
-                                <div class="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                                    <i class="fa-solid fa-user-check text-[10px]"></i>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-mono font-bold text-slate-700 dark:text-slate-300">{{ record.arrival_time|time:"H:i" }}</span>
-                                    {% if record.departure_time %}
-                                        <span class="text-slate-300">→</span>
-                                        <span class="text-sm font-mono font-bold text-slate-700 dark:text-slate-300">{{ record.departure_time|time:"H:i" }}</span>
-                                    {% else %}
-                                        <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest animate-pulse ml-2">Active</span>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <a href="?id={{ record.attendance_id }}" class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 hover:text-indigo-500 transition-all opacity-0 group-hover:opacity-100">
-                                <i class="fa-solid fa-pen-to-square text-[10px]"></i>
-                            </a>
-                        </div>
-                    </div>
-                    {% endfor %}
+                <div class="flex items-center gap-3 opacity-40">
+                    <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-500">2</div>
+                    <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Review History</span>
                 </div>
             </div>
-            {% endif %}
+        </div>
 
-            <div class="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg flex items-center justify-center text-white text-xl rotate-12">
-                <i class="fa-solid fa-user-clock"></i>
+        <div class="lg:col-span-7">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] relative">
+                
+                <form method="POST" class="space-y-6" x-data="{ is_absent: {{ form.is_absent.value|yesno:'true,false' }} }">
+                    {% csrf_token %}
+                    
+                    <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 group transition-all"
+                         :class="is_absent ? 'ring-2 ring-rose-500/20 border-rose-100 dark:border-rose-900/30' : ''">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
+                                 :class="is_absent ? 'bg-rose-500 text-white' : 'bg-white dark:bg-slate-900 text-slate-300'">
+                                <i class="fa-solid fa-user-xmark text-sm"></i>
+                            </div>
+                            <label for="id_is_absent" class="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider cursor-pointer">
+                                Mark as Absent
+                            </label>
+                        </div>
+                        <input type="checkbox" name="is_absent" id="id_is_absent" x-model="is_absent" 
+                               class="w-5 h-5 rounded-lg border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-all">
+                    </div>
+
+                    <div x-show="!is_absent" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" class="grid grid-cols-2 gap-4">
+                        <div class="relative group">
+                            <label class="block text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-1.5 px-1">Arrival Time</label>
+                            <div class="premium-input-container">
+                                {{ form.arrival_time }}
+                            </div>
+                        </div>
+                        <div class="relative group">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 px-1">Departure Time</label>
+                            <div class="premium-input-container">
+                                {{ form.departure_time }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div x-show="is_absent" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" class="space-y-4">
+                        <div class="relative group">
+                            <label class="block text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] mb-1.5 px-1">Absence Reason</label>
+                            {{ form.absence_reason_code }}
+                        </div>
+                        <div class="relative group">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 px-1">Internal Notes</label>
+                            {{ form.absence_reason_notes }}
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex flex-col sm:flex-row gap-3">
+                        <a href="{% url 'daily_checkup_list' %}" class="flex-1 py-4 px-6 rounded-xl border border-slate-100 dark:border-slate-800 font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-center">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="flex-[2] bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 px-6 rounded-xl transition-all hover:bg-indigo-600 hover:text-white active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 text-xs uppercase tracking-widest">
+                            Save Attendance
+                            <i class="fa-solid fa-check text-[10px]"></i>
+                        </button>
+                    </div>
+                </form>
+
+                {% if today_records %}
+                <div class="mt-8 pt-8 border-t border-slate-50 dark:border-slate-800">
+                    <h3 class="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Today's Timeline</h3>
+                    <div class="space-y-2">
+                        {% for record in today_records %}
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 rounded-full {% if record.is_absent %}bg-rose-500{% else %}bg-indigo-500{% endif %}"></div>
+                                <span class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                                    {% if record.is_absent %}Absent{% else %}{{ record.arrival_time|time:"H:i" }} — {{ record.departure_time|time:"H:i"|default:"Active" }}{% endif %}
+                                </span>
+                            </div>
+                            <a href="?id={{ record.attendance_id }}" class="text-[10px] font-black text-indigo-500 opacity-0 group-hover:opacity-100 transition-all uppercase tracking-widest">Edit</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-xl shadow-lg flex items-center justify-center text-white text-xl rotate-12">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    input[type="text"], input[type="time"], select, textarea {
+    /* Styling to match the center registration style */
+    input, select, textarea {
         width: 100%;
         padding: 0.75rem 1rem !important;
         background-color: #f8fafc;
@@ -134,20 +150,23 @@
         outline: none;
     }
 
-    .dark input[type="text"], .dark input[type="time"], .dark select, .dark textarea {
+    .dark input, .dark select, .dark textarea {
         background-color: #0f172a;
         border-color: #1e293b;
         color: #ffffff;
     }
 
-    input:focus, textarea:focus, select:focus {
-        border-color: #10b981;
+    input:focus, select:focus, textarea:focus {
+        border-color: #4f46e5;
         background-color: #ffffff;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
+    }
+
+    .dark input:focus {
+        background-color: #020617;
     }
 </style>
 
-<!-- Add Picker.js for time inputs -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pickerjs/1.2.1/picker.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pickerjs/1.2.1/picker.min.js"></script>
 <script>
@@ -160,8 +179,7 @@
             new Picker(input, {
                 format: 'HH:mm',
                 headers: true,
-                controls: true,
-                text: { title: 'Choisir l\'heure', cancel: 'Annuler', confirm: 'Confirmer' },
+                text: { title: 'Select Time', cancel: 'Cancel', confirm: 'OK' },
                 rows: 3
             });
         });
