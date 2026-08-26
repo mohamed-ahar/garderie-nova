@@ -19,7 +19,9 @@ urlpatterns = [
     path("children/", child_list_view, name="child_list"),
     path("educator/my-children/", educator_assigned_children, name="educator_assigned_children"),
     path("educator/daily-checkups/", daily_checkup_list, name="daily_checkup_list"),
+    path("educator/attendance-board/", attendance_board, name="attendance_board"),
     path("educator/daily-checkups/<uuid:child_id>/", daily_checkup_form, name="daily_checkup_form"),
+    path("educator/attendance/<uuid:child_id>/", mark_attendance, name="mark_attendance"),
     path("children/<uuid:child_id>/", child_profile_view, name="child_profile"),
     
     path("", RedirectView.as_view(url="dashboard/", permanent=False)),

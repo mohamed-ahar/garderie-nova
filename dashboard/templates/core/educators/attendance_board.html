@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Board | GarderieNova{% endblock %}
+
+{% block content %}
+<div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden py-12 px-6">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-10%] right-[10%] w-[500px] h-[500px] bg-emerald-400/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[10%] left-[5%] w-[400px] h-[400px] bg-indigo-400/5 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div class="space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <i class="fa-solid fa-user-clock text-emerald-500 text-[10px]"></i>
+                    <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Daily Presence</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
+                    Attendance <span class="bg-gradient-to-r from-emerald-600 to-teal-400 bg-clip-text text-transparent">Board.</span>
+                </h1>
+                <p class="text-sm text-slate-400 font-medium max-w-md">
+                    Track arrivals, departures and absences for your classroom on <span class="text-slate-900 dark:text-white font-bold">{{ today|date:"l, F d" }}</span>.
+                </p>
+            </div>
+
+            <div class="flex items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                    <i class="fa-solid fa-calendar-check text-xl"></i>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Today</span>
+                    <span class="text-sm font-bold text-slate-900 dark:text-white">{{ today|date:"Y-m-d" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50/50 dark:bg-slate-800/50">
+                            <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Child</th>
+                            <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
+                            <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Arrival</th>
+                            <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Departure</th>
+                            <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                        {% for item in attendance_data %}
+                        <tr class="group hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="px-8 py-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-slate-700 flex-shrink-0">
+                                        {% if item.child.profile_photo %}
+                                            <img src="{{ item.child.profile_photo.url }}" class="w-full h-full object-cover">
+                                        {% else %}
+                                            <div class="w-full h-full flex items-center justify-center text-lg font-black text-slate-300">
+                                                {{ item.child.first_name|slice:":1" }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-black text-slate-900 dark:text-white">{{ item.child.first_name }} {{ item.child.last_name }}</p>
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ item.child.assigned_group.name|default:"No Group" }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-8 py-6">
+                                {% if item.is_currently_in %}
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 text-[9px] font-black uppercase tracking-wider">
+                                        <i class="fa-solid fa-circle text-[6px] animate-pulse"></i>
+                                        Currently In
+                                    </span>
+                                {% elif item.is_absent %}
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-500/10 text-rose-600 text-[9px] font-black uppercase tracking-wider">
+                                        <i class="fa-solid fa-circle text-[6px]"></i>
+                                        Marked Absent
+                                    </span>
+                                {% elif item.records %}
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 text-[9px] font-black uppercase tracking-wider">
+                                        <i class="fa-solid fa-circle text-[6px]"></i>
+                                        Currently Out
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 text-[9px] font-black uppercase tracking-wider">
+                                        <i class="fa-solid fa-circle text-[6px]"></i>
+                                        Not Arrived
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-8 py-6">
+                                <div class="flex flex-col gap-1">
+                                    {% for record in item.records %}
+                                        {% if not record.is_absent %}
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">{{ record.arrival_time|time:"H:i" }}</span>
+                                                {% if record.departure_time %}
+                                                    <span class="text-[10px] text-slate-400">→</span>
+                                                    <span class="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">{{ record.departure_time|time:"H:i" }}</span>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td class="px-8 py-6">
+                                <!-- History/Summary column -->
+                                <div class="text-[10px] text-slate-400 font-medium">
+                                    {{ item.records.count }} entries
+                                </div>
+                            </td>
+                            <td class="px-8 py-6 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    {% if not item.is_currently_in %}
+                                        <form method="POST" class="inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
+                                            <input type="hidden" name="action" value="quick_arrival">
+                                            <button type="submit" class="p-2.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-sm shadow-emerald-500/20" title="Mark Arrival">
+                                                <i class="fa-solid fa-user-plus text-xs"></i>
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <form method="POST" class="inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
+                                            <input type="hidden" name="action" value="quick_departure">
+                                            <button type="submit" class="p-2.5 rounded-xl bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-sm shadow-orange-500/20" title="Mark Departure">
+                                                <i class="fa-solid fa-user-minus text-xs"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    
+                                    {% if not item.records %}
+                                        <a href="{% url 'mark_attendance' item.child.child_id %}?absent=1" class="p-2.5 rounded-xl bg-rose-500 text-white hover:bg-rose-600 transition-all shadow-sm shadow-rose-500/20" title="Mark Absent">
+                                            <i class="fa-solid fa-user-xmark text-xs"></i>
+                                        </a>
+                                    {% endif %}
+
+                                    <a href="{% url 'mark_attendance' item.child.child_id %}" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 transition-all" title="Full History/Edit">
+                                        <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-8 py-20 text-center">
+                                <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fa-solid fa-users-slash text-slate-300"></i>
+                                </div>
+                                <p class="text-slate-500 font-medium">No children assigned to you yet.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-8 flex justify-end">
+            <a href="{% url 'daily_checkup_list' %}" class="inline-flex items-center gap-3 py-4 px-8 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-lg active:scale-[0.98]">
+                <span>Go to Daily Reports</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

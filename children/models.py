@@ -1,5 +1,68 @@
 from django.db import models
 import uuid
+from dashboard.models import Child
+
+class Attendance(models.Model):
+    attendance_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    child = models.ForeignKey(
+        Child, on_delete=models.CASCADE, related_name="attendance_records"
+    )
+    date = models.DateField()
+    arrival_time = models.TimeField(null=True, blank=True)
+    departure_time = models.TimeField(null=True, blank=True)
+    is_absent = models.BooleanField(default=False)
+
+    ABSENCE_REASON_CHOICES = [
+        ("1", "Diarrhée"),
+        ("2", "Fièvre"),
+        ("3", "Symptômes du rhume (toux, otite, mal de gorge, écoulement oculaire)"),
+        ("4", "Problèmes de peau"),
+        ("5", "Vomissement"),
+        ("6", "Changement de comportement sans aucun autre symptôme"),
+        ("7", "Autre maladie (veuillez préciser au verso)"),
+        ("8", "Absence non liée à une maladie"),
+        ("9", "Autre (préciser)"), 
+    ]
+    absence_reason_code = models.CharField(
+        max_length=2, choices=ABSENCE_REASON_CHOICES, blank=True, null=True
+    )
+    absence_reason_notes = models.TextField(
+        blank=True,
+        help_text="Detailed notes for absence reason, especially for 'Autre maladie' or 'Autre'."
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Attendance Record"
+        verbose_name_plural = "Attendance Records"
+        ordering = ["-date", "-arrival_time"]
+
+    def __str__(self):
+        status = "Present"
+        if self.is_absent:
+            status = "Absent"
+            if self.absence_reason_code:
+                status += f" ({self.get_absence_reason_code_display()})"
+        return f"{self.child.first_name} {self.child.last_name} on {self.date}: {status}"
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.is_absent and not self.absence_reason_code:
+            raise ValidationError(
+                "An absence reason code is required if the child is marked as absent."
+            )
+        if not self.is_absent and self.arrival_time is None:
+             raise ValidationError(
+                "Arrival time is required if the child is present."
+             )
+        if not self.is_absent and self.absence_reason_code:
+            raise ValidationError(
+                "Cannot have an absence reason if the child is marked as present."
+            )
+        if self.arrival_time and self.departure_time and self.departure_time < self.arrival_time:
+            raise ValidationError("Departure time cannot be before arrival time.")
 
 class WeeklyChildReport(models.Model):
     """

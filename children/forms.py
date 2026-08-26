@@ -1,5 +1,15 @@
 from django import forms
-from .models import DailyActivityLog
+from .models import DailyActivityLog, Attendance
+
+class AttendanceForm(forms.ModelForm):
+    class Meta:
+        model = Attendance
+        fields = ['arrival_time', 'departure_time', 'is_absent', 'absence_reason_code', 'absence_reason_notes']
+        widgets = {
+            'arrival_time': forms.TimeInput(attrs={'type': 'time'}),
+            'departure_time': forms.TimeInput(attrs={'type': 'time'}),
+            'absence_reason_notes': forms.Textarea(attrs={'rows': 2}),
+        }
 
 class DailyCheckupForm(forms.ModelForm):
     # Food fields (to match template)

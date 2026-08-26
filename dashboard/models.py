@@ -4,7 +4,8 @@ from datetime import date
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from accounts.models import User,ParentProfile,Educator
+from accounts.models import User, ParentProfile, Educator
+
 
 class Organization(models.Model):
     org_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -42,14 +43,20 @@ class Center(models.Model):
         return f"{self.name} - {self.organization.name}"
 
 
-
 class Room(models.Model):
     room_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     center = models.ForeignKey(Center, on_delete=models.CASCADE, related_name="rooms")
     name = models.CharField(max_length=100)
-    room_surface = models.DecimalField(max_digits=10, decimal_places=2, help_text="Room surface area in square meters")
-    max_capacity = models.IntegerField(help_text="Maximum capacity based on fire regulations")
-    age_group = models.CharField(max_length=100, blank=True, help_text="Intended age group for the room")
+    room_surface = models.DecimalField(
+        max_digits=10, decimal_places=2, help_text="Room surface area in square meters"
+    )
+    max_capacity = models.IntegerField(
+        help_text="Maximum capacity based on fire regulations"
+    )
+    age_group = models.CharField(
+        max_length=100, blank=True, help_text="Intended age group for the room"
+    )
+
     def __str__(self):
         return self.name
 
@@ -97,7 +104,6 @@ class Group(models.Model):
         today = date.today()
 
         for child in children:
-
             age_months = (
                 (today.year - child.birth_date.year) * 12
                 + today.month
@@ -164,7 +170,9 @@ class Group(models.Model):
             if not assignment.educator.recalculate_compliance():
                 all_educators_compliant = False
 
-        self.is_compliant = staff_check and size_check and mixing_check and all_educators_compliant
+        self.is_compliant = (
+            staff_check and size_check and mixing_check and all_educators_compliant
+        )
 
         self.save()
 
@@ -174,7 +182,7 @@ class Group(models.Model):
         """
         children = self.enrolled_children.all()
         errors = []
-        
+
         if not children.exists():
             return errors
 
@@ -209,7 +217,7 @@ class Group(models.Model):
                 factor = 0.100
             else:
                 factor = 0.067
-            
+
             if factor > highest_factor_in_group:
                 highest_factor_in_group = factor
 
@@ -217,22 +225,30 @@ class Group(models.Model):
 
         # Check for age mixing violation
         if has_under_24m and has_over_24m:
-            errors.append("Cannot mix children under 24 months with older children in the same group.")
-        
+            errors.append(
+                "Cannot mix children under 24 months with older children in the same group."
+            )
+
         # Check for staffing issues
         if self.current_educators < self.required_educators:
-            errors.append(f"Insufficient staff: {self.current_educators} present but {self.required_educators} required.")
-        
+            errors.append(
+                f"Insufficient staff: {self.current_educators} present but {self.required_educators} required."
+            )
+
         # Check for capacity issues
         if self.current_occupancy > self.calculated_max_capacity:
-            errors.append(f"Group capacity exceeded: {self.current_occupancy} children but max {self.calculated_max_capacity} allowed.")
-        
+            errors.append(
+                f"Group capacity exceeded: {self.current_occupancy} children but max {self.calculated_max_capacity} allowed."
+            )
+
         # Check for non-compliant educators
         educator_assignments = self.staff_assignments.filter(is_active=True)
         for assignment in educator_assignments:
             if not assignment.educator.is_compliant:
-                errors.append(f"Educator {assignment.educator.user.full_name} has compliance issues.")
-        
+                errors.append(
+                    f"Educator {assignment.educator.user.full_name} has compliance issues."
+                )
+
         return errors
 
     @property
@@ -242,7 +258,7 @@ class Group(models.Model):
             "Deux ans": 0,
             "Trois ans": 0,
             "Quatre ans et plus": 0,
-            "Enfants d’âge scolaire": 0
+            "Enfants d’âge scolaire": 0,
         }
         today = date.today()
         for child in self.enrolled_children.all():
@@ -264,7 +280,7 @@ class Group(models.Model):
                 dist["Quatre ans et plus"] += 1
             else:
                 dist["Enfants d’âge scolaire"] += 1
-        
+
         return {k: v for k, v in dist.items() if v > 0}
 
     def __str__(self):
@@ -290,23 +306,30 @@ class Child(models.Model):
 
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    gender = models.CharField(max_length=10, choices=[('masculin', 'Masculin'), ('féminin', 'Féminin')], blank=True)
+    gender = models.CharField(
+        max_length=10,
+        choices=[("masculin", "Masculin"), ("féminin", "Féminin")],
+        blank=True,
+    )
     birth_date = models.DateField()
 
     medical_info = models.JSONField(default=dict, blank=True)
 
-    profile_photo = models.ImageField(upload_to='children_photos/', blank=True, null=True)
+    profile_photo = models.ImageField(
+        upload_to="children_photos/", blank=True, null=True
+    )
     status = models.CharField(max_length=20, default="active")
     created_at = models.DateTimeField(auto_now_add=True)
 
     address = models.TextField(blank=True, help_text="Child's residential address")
     medicare_number = models.CharField(max_length=50, blank=True)
     medicare_expiry = models.DateField(null=True, blank=True)
+
     @property
     def age_display(self):
         today = date.today()
         birth_date = self.birth_date
-        
+
         years = today.year - birth_date.year
         months = today.month - birth_date.month
         days = today.day - birth_date.day
@@ -317,6 +340,7 @@ class Child(models.Model):
             last_month = (today.month - 1) if today.month > 1 else 12
             last_month_year = today.year if today.month > 1 else today.year - 1
             import calendar
+
             _, days_in_last_month = calendar.monthrange(last_month_year, last_month)
             days += days_in_last_month
 
@@ -325,12 +349,15 @@ class Child(models.Model):
             months += 12
 
         parts = []
-        if years > 0: parts.append(f"{years}y")
-        if months > 0: parts.append(f"{months}m")
-        if days > 0: parts.append(f"{days}d")
-        
+        if years > 0:
+            parts.append(f"{years}y")
+        if months > 0:
+            parts.append(f"{months}m")
+        if days > 0:
+            parts.append(f"{days}d")
+
         return ", ".join(parts) if parts else "0d"
-    
+
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -349,66 +376,6 @@ class ParentChildRelationship(models.Model):
         unique_together = ("parent", "child")
 
 
-class PortfolioActivity(models.Model):
-    activity_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    child = models.ForeignKey(
-        Child, on_delete=models.CASCADE, related_name="activities"
-    )
-
-    title = models.CharField(max_length=200)
-    description = models.TextField()
-    activity_date = models.DateField(default=timezone.now)
-
-    learning_domains = models.JSONField(default=list, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.title} for {self.child.first_name}"
-
-
-class ActivityEducator(models.Model):
-    """
-    Links educators who conducted the activity.
-    """
-
-    activity = models.ForeignKey(
-        PortfolioActivity,
-        on_delete=models.CASCADE,
-        related_name="participating_educators",
-    )
-    educator = models.ForeignKey(Educator, on_delete=models.CASCADE)
-
-
-class ActivityMedia(models.Model):
-    """
-    Multiple images/videos per activity.
-    """
-
-    media_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    activity = models.ForeignKey(
-        PortfolioActivity, on_delete=models.CASCADE, related_name="media"
-    )
-    file_url = models.TextField()
-    media_type = models.CharField(
-        max_length=20, choices=[("image", "Image"), ("video", "Video")]
-    )
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-
-
-class AttendanceLog(models.Model):
-    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    child = models.ForeignKey(
-        Child, on_delete=models.CASCADE, related_name="attendance_logs"
-    )
-    group = models.ForeignKey(
-        Group, on_delete=models.CASCADE, related_name="attendance_logs"
-    )
-
-    check_in_time = models.DateTimeField(null=True, blank=True)
-    check_out_time = models.DateTimeField(null=True, blank=True)
-
-    ratio_weight_snapshot = models.IntegerField(default=0)
-
 class StaffAssignment(models.Model):
     assignment_id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False
@@ -424,6 +391,7 @@ class StaffAssignment(models.Model):
     check_out_time = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
+
 class Notification(models.Model):
     notif_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
@@ -435,8 +403,10 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     read_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return f"Notification for {self.user.username}: {self.title}\n Content: {self.message}"
+
 
 class EvacuationDrill(models.Model):
     drill_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -444,6 +414,7 @@ class EvacuationDrill(models.Model):
     type = models.CharField(max_length=50, default="fire")
     started_at = models.DateTimeField()
     ended_at = models.DateTimeField(null=True, blank=True)
+
 
 class EvacuationCheck(models.Model):
     check_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -453,6 +424,7 @@ class EvacuationCheck(models.Model):
     child = models.ForeignKey(Child, on_delete=models.CASCADE)
     status = models.CharField(max_length=50)
     checked_at = models.DateTimeField(auto_now_add=True)
+
 
 class CenterParentAccess(models.Model):
     STATUS_CHOICES = (
@@ -477,6 +449,7 @@ class CenterParentAccess(models.Model):
     def __str__(self):
         return f"{self.parent.user.full_name} -> {self.center.name} ({self.status})"
 
+
 class TransferRequest(models.Model):
     STATUS_CHOICES = (
         ("pending", "Pending Directors Approval"),
@@ -485,12 +458,16 @@ class TransferRequest(models.Model):
         ("rejected", "Rejected"),
     )
     request_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name="transfer_requests")
-    target_center = models.ForeignKey(Center, on_delete=models.CASCADE, related_name="incoming_transfer_requests")
+    child = models.ForeignKey(
+        Child, on_delete=models.CASCADE, related_name="transfer_requests"
+    )
+    target_center = models.ForeignKey(
+        Center, on_delete=models.CASCADE, related_name="incoming_transfer_requests"
+    )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     requested_at = models.DateTimeField(auto_now_add=True)
     reason = models.TextField(blank=True, null=True)
-    
+
     # Director Approvals (None=Pending, True=Approved, False=Rejected)
     approved_by_outgoing = models.BooleanField(null=True, default=None)
     approved_by_incoming = models.BooleanField(null=True, default=None)
@@ -498,15 +475,20 @@ class TransferRequest(models.Model):
     def __str__(self):
         return f"Transfer {self.child} to {self.target_center.name}"
 
+
 class TransferSignature(models.Model):
-    signature_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    transfer_request = models.ForeignKey(TransferRequest, on_delete=models.CASCADE, related_name='signatures')
+    signature_id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False
+    )
+    transfer_request = models.ForeignKey(
+        TransferRequest, on_delete=models.CASCADE, related_name="signatures"
+    )
     parent = models.ForeignKey(User, on_delete=models.CASCADE)
     signature_data = models.TextField()
     signed_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('transfer_request', 'parent')
+        unique_together = ("transfer_request", "parent")
 
     def __str__(self):
         return f"Signature by {self.parent.full_name} for {self.transfer_request}"
