@@ -149,8 +149,20 @@
         <div class="lg:col-span-8">
             <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] relative">
 
-                <form method="POST" class="space-y-8">
+                <form method="POST" class="space-y-8" id="daily-log-form">
                     {% csrf_token %}
+                    
+                    {% if not is_today %}
+                    <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 mb-8 flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
+                            <i class="fa-solid fa-lock text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest">History Mode</p>
+                            <p class="text-[11px] text-amber-600/80 font-medium">Viewing record for {{ view_date|date:"F d, Y" }}. Modifications are disabled.</p>
+                        </div>
+                    </div>
+                    {% endif %}
 
                     <!-- Food Section -->
                     <div class="space-y-4">
@@ -455,16 +467,36 @@
                         </div>
                     </div>
 
-                    <div class="pt-4">
-                        <button type="submit"
-                                class="group relative w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 px-6 rounded-xl transition-all hover:bg-indigo-600 hover:text-white active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 text-sm">
-                            Save Daily Report
-                            <i class="fa-solid fa-check text-[10px] group-hover:scale-125 transition-transform"></i>
-                        </button>
-                    </div>
-                </form>
-
-                <div class="mt-6 pt-6 border-t border-slate-50 dark:border-slate-800 text-center">
+                                        <div class="pt-4">
+                                            {% if is_today %}
+                                            <button type="submit" 
+                                                    class="group relative w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 px-6 rounded-xl transition-all hover:bg-indigo-600 hover:text-white active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 text-sm">
+                                                Save Daily Report
+                                                <i class="fa-solid fa-check text-[10px] group-hover:scale-125 transition-transform"></i>
+                                            </button>
+                                            {% else %}
+                                            <a href="{% url 'daily_checkup_list' %}?date={{ view_date|date:'Y-m-d' }}" 
+                                               class="group relative w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black py-4 px-6 rounded-xl transition-all hover:bg-slate-200 active:scale-[0.98] shadow-sm flex items-center justify-center gap-3 text-sm">
+                                                Back to Daily List
+                                                <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </form>
+                    
+                                    {% if not is_today %}
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            const form = document.getElementById('daily-log-form');
+                                            const elements = form.querySelectorAll('input, select, textarea, button[type="submit"]');
+                                            elements.forEach(el => {
+                                                el.disabled = true;
+                                                el.classList.add('cursor-not-allowed', 'opacity-70');
+                                            });
+                                        });
+                                    </script>
+                                    {% endif %}
+                                    <div class="mt-6 pt-6 border-t border-slate-50 dark:border-slate-800 text-center">
                     <a href="{% url 'daily_checkup_list' %}" class="inline-flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-indigo-500 uppercase tracking-widest transition-colors">
                         <i class="fa-solid fa-chevron-left text-[8px]"></i>
                         Back to Daily List

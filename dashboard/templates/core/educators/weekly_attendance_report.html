@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Weekly Attendance Report | GarderieNova{% endblock %}
+
+{% block content %}
+<div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden py-12 px-6">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-10%] right-[10%] w-[500px] h-[500px] bg-indigo-400/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[10%] left-[5%] w-[400px] h-[400px] bg-emerald-400/5 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div class="space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <i class="fa-solid fa-calendar-week text-indigo-500 text-[10px]"></i>
+                    <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Compliance Reporting</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
+                    Weekly <span class="bg-gradient-to-r from-indigo-600 to-rose-400 bg-clip-text text-transparent">Attendance.</span>
+                </h1>
+                <p class="text-sm text-slate-400 font-medium max-w-md">
+                    Review and export the official attendance register for week starting <span class="text-slate-900 dark:text-white font-bold">{{ start_of_week|date:"F d, Y" }}</span>.
+                </p>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <a href="{% url 'export_attendance_pdf' %}?week_start={{ start_of_week|date:'Y-m-d' }}" class="flex items-center gap-2 px-6 py-4 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-lg active:scale-95">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span>Export PDF</span>
+                </a>
+
+                <!-- Week Navigation -->
+                <div class="flex items-center bg-white dark:bg-slate-900 p-2 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm gap-2">
+                    <a href="?week_start={{ prev_week|date:'Y-m-d' }}" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </a>
+                    <div class="px-4 text-center min-w-[140px]">
+                        <span class="block text-[8px] font-black text-slate-400 uppercase tracking-widest">Week Starting</span>
+                        <span class="text-xs font-bold text-slate-900 dark:text-white">{{ start_of_week|date:"M d, Y" }}</span>
+                    </div>
+                    <a href="?week_start={{ next_week|date:'Y-m-d' }}" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[1000px]">
+                    <thead>
+                        <tr class="bg-slate-50/50 dark:bg-slate-800/50">
+                            <th class="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] sticky left-0 bg-slate-50 dark:bg-slate-800 z-10">Child</th>
+                            {% for day in week_days %}
+                            <th class="px-4 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center border-l border-slate-100 dark:border-slate-800">
+                                {{ day|date:"l" }}
+                                <span class="block text-[8px] mt-1 opacity-60">{{ day|date:"M d" }}</span>
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                        {% for item in report_data %}
+                        <tr class="group hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="px-6 py-6 sticky left-0 bg-white dark:bg-slate-900 z-10 group-hover:bg-slate-50/30 dark:group-hover:bg-slate-800/30 transition-colors">
+                                <p class="text-sm font-black text-slate-900 dark:text-white">{{ item.child.first_name }} {{ item.child.last_name }}</p>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ item.child.assigned_group.name|default:"No Group" }}</p>
+                            </td>
+                            {% for day_data in item.days %}
+                            <td class="px-4 py-6 border-l border-slate-50 dark:border-slate-800">
+                                <div class="flex flex-col gap-1 min-h-[40px]">
+                                    {% if day_data.is_absent %}
+                                        <div class="text-center p-2 rounded-lg bg-rose-50 dark:bg-rose-500/5">
+                                            <span class="text-[9px] font-black text-rose-600 dark:text-rose-400 uppercase">Absent</span>
+                                            <p class="text-[8px] text-rose-400 font-medium truncate">{{ day_data.is_absent.get_absence_reason_code_display }}</p>
+                                        </div>
+                                    {% elif day_data.records %}
+                                        {% for record in day_data.records %}
+                                            <div class="flex items-center justify-center gap-1.5 text-[10px] font-mono font-bold text-slate-600 dark:text-slate-400">
+                                                <span>{{ record.arrival_time|time:"H:i" }}</span>
+                                                <span class="text-slate-300">→</span>
+                                                <span>{% if record.departure_time %}{{ record.departure_time|time:"H:i" }}{% else %}--:--{% endif %}</span>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="text-center opacity-20 italic text-[10px]">--</div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

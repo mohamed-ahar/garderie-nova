@@ -22,17 +22,29 @@
                     Attendance <span class="bg-gradient-to-r from-emerald-600 to-teal-400 bg-clip-text text-transparent">Board.</span>
                 </h1>
                 <p class="text-sm text-slate-400 font-medium max-w-md">
-                    Track arrivals, departures and absences for your classroom on <span class="text-slate-900 dark:text-white font-bold">{{ today|date:"l, F d" }}</span>.
+                    Track arrivals, departures and absences for your classroom on <span class="text-slate-900 dark:text-white font-bold">{{ view_date|date:"l, F d" }}</span>.
                 </p>
             </div>
 
-            <div class="flex items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
-                <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                    <i class="fa-solid fa-calendar-check text-xl"></i>
-                </div>
-                <div>
-                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Today</span>
-                    <span class="text-sm font-bold text-slate-900 dark:text-white">{{ today|date:"Y-m-d" }}</span>
+            <div class="flex items-center gap-4">
+                <!-- Date Navigation -->
+                <div class="flex items-center bg-white dark:bg-slate-900 p-2 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm gap-2">
+                    <a href="?date={{ prev_day|date:'Y-m-d' }}" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </a>
+                    <div class="px-4 text-center min-w-[120px]">
+                        <span class="block text-[8px] font-black text-slate-400 uppercase tracking-widest">Selected Date</span>
+                        <span class="text-xs font-bold text-slate-900 dark:text-white">{{ view_date|date:"M d, Y" }}</span>
+                    </div>
+                    {% if next_day %}
+                    <a href="?date={{ next_day|date:'Y-m-d' }}" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </a>
+                    {% else %}
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-slate-200 dark:text-slate-800 cursor-not-allowed">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -115,35 +127,39 @@
                             </td>
                             <td class="px-8 py-6 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    {% if not item.is_currently_in %}
-                                        <form method="POST" class="inline">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
-                                            <input type="hidden" name="action" value="quick_arrival">
-                                            <button type="submit" class="p-2.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-sm shadow-emerald-500/20" title="Mark Arrival">
-                                                <i class="fa-solid fa-user-plus text-xs"></i>
-                                            </button>
-                                        </form>
-                                    {% else %}
-                                        <form method="POST" class="inline">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
-                                            <input type="hidden" name="action" value="quick_departure">
-                                            <button type="submit" class="p-2.5 rounded-xl bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-sm shadow-orange-500/20" title="Mark Departure">
-                                                <i class="fa-solid fa-user-minus text-xs"></i>
-                                            </button>
-                                        </form>
-                                    {% endif %}
-                                    
-                                    {% if not item.records %}
-                                        <a href="{% url 'mark_attendance' item.child.child_id %}?absent=1" class="p-2.5 rounded-xl bg-rose-500 text-white hover:bg-rose-600 transition-all shadow-sm shadow-rose-500/20" title="Mark Absent">
-                                            <i class="fa-solid fa-user-xmark text-xs"></i>
-                                        </a>
-                                    {% endif %}
+                                    {% if is_today %}
+                                        {% if not item.is_currently_in %}
+                                            <form method="POST" class="inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
+                                                <input type="hidden" name="action" value="quick_arrival">
+                                                <button type="submit" class="p-2.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-sm shadow-emerald-500/20" title="Mark Arrival">
+                                                    <i class="fa-solid fa-user-plus text-xs"></i>
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <form method="POST" class="inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
+                                                <input type="hidden" name="action" value="quick_departure">
+                                                <button type="submit" class="p-2.5 rounded-xl bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-sm shadow-orange-500/20" title="Mark Departure">
+                                                    <i class="fa-solid fa-user-minus text-xs"></i>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        
+                                        {% if not item.records %}
+                                            <a href="{% url 'mark_attendance' item.child.child_id %}?absent=1&date={{ view_date|date:'Y-m-d' }}" class="p-2.5 rounded-xl bg-rose-500 text-white hover:bg-rose-600 transition-all shadow-sm shadow-rose-500/20" title="Mark Absent">
+                                                <i class="fa-solid fa-user-xmark text-xs"></i>
+                                            </a>
+                                        {% endif %}
 
-                                    <a href="{% url 'mark_attendance' item.child.child_id %}" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 transition-all" title="Full History/Edit">
-                                        <i class="fa-solid fa-clock-rotate-left text-xs"></i>
-                                    </a>
+                                        <a href="{% url 'mark_attendance' item.child.child_id %}?date={{ view_date|date:'Y-m-d' }}" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 transition-all" title="Full History/Edit">
+                                            <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+                                        </a>
+                                    {% else %}
+                                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-3 py-1 bg-slate-50 dark:bg-slate-800 rounded-lg">View Only</span>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>

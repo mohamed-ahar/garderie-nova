@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Report Not Available | GarderieNova{% endblock %}
+
+{% block content %}
+<div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-8 px-6">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-slate-400/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-indigo-400/5 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-2xl w-full text-center">
+        <div class="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 p-12 shadow-[0_20px_50px_rgba(0,0,0,0.03)]">
+            
+            <div class="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-8">
+                <i class="fa-solid fa-calendar-xmark text-4xl text-slate-300"></i>
+            </div>
+
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white mb-4">No Report Available</h1>
+            <p class="text-slate-500 font-medium mb-8 leading-relaxed">
+                There is no daily activity log recorded for <span class="text-slate-900 dark:text-white font-bold">{{ child.first_name }}</span> on <span class="text-indigo-500 font-bold">{{ view_date|date:"l, F d, Y" }}</span>.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'daily_checkup_list' %}?date={{ view_date|date:'Y-m-d' }}" class="px-8 py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all">
+                    Back to List
+                </a>
+                <a href="{% url 'daily_checkup_list' %}" class="px-8 py-4 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-lg">
+                    Return to Today
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

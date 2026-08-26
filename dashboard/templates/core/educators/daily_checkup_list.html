@@ -22,12 +22,12 @@
                     Daily <span class="bg-gradient-to-r from-indigo-600 to-rose-400 bg-clip-text text-transparent">Checkups.</span>
                 </h1>
                 <p class="text-sm text-slate-400 font-medium max-w-md">
-                    Manage and update daily reports for your assigned students on <span class="text-slate-900 dark:text-white font-bold">{{ today|date:"l, F d" }}</span>.
+                    Manage and update daily reports for your assigned students on <span class="text-slate-900 dark:text-white font-bold">{{ view_date|date:"l, F d" }}</span>.
                 </p>
             </div>
 
             <div class="flex items-center gap-4">
-                <a href="{% url 'attendance_board' %}" class="flex items-center gap-3 bg-white dark:bg-slate-900 p-4 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:border-indigo-500 transition-all group">
+                <a href="{% url 'attendance_board' %}?date={{ view_date|date:'Y-m-d' }}" class="flex items-center gap-3 bg-white dark:bg-slate-900 p-4 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:border-indigo-500 transition-all group">
                     <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
                         <i class="fa-solid fa-user-clock text-xl"></i>
                     </div>
@@ -36,14 +36,25 @@
                         <span class="text-sm font-bold text-slate-900 dark:text-white">Attendance Board</span>
                     </div>
                 </a>
-                <div class="flex items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm">
-                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                        <i class="fa-solid fa-calendar-day text-xl"></i>
+                
+                <!-- Date Navigation -->
+                <div class="flex items-center bg-white dark:bg-slate-900 p-2 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm gap-2">
+                    <a href="?date={{ prev_day|date:'Y-m-d' }}" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </a>
+                    <div class="px-4 text-center min-w-[120px]">
+                        <span class="block text-[8px] font-black text-slate-400 uppercase tracking-widest">Selected Date</span>
+                        <span class="text-xs font-bold text-slate-900 dark:text-white">{{ view_date|date:"M d, Y" }}</span>
                     </div>
-                    <div>
-                        <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Date Filter</span>
-                        <span class="text-sm font-bold text-slate-900 dark:text-white">{{ today|date:"Y-m-d" }}</span>
+                    {% if next_day %}
+                    <a href="?date={{ next_day|date:'Y-m-d' }}" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </a>
+                    {% else %}
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-slate-200 dark:text-slate-800 cursor-not-allowed">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -117,12 +128,12 @@
                                 <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Mark attendance to start report</p>
                             </div>
                         {% else %}
-                            {% if not item.is_present_today and item.attendance.is_absent %}
+                            {% if item.is_absent_today %}
                                 <div class="col-span-2 p-4 rounded-2xl bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 text-center mb-2">
                                     <p class="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-1">Marked Absent</p>
                                     <p class="text-[9px] font-bold text-rose-500/70">{{ item.attendance.get_absence_reason_code_display }}</p>
                                 </div>
-                                <a href="{% url 'attendance_board' %}" 
+                                <a href="{% url 'attendance_board' %}?date={{ view_date|date:'Y-m-d' }}" 
                                    class="col-span-2 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-black text-[10px] uppercase tracking-widest bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 transition-all">
                                     <span>Manage Attendance</span>
                                 </a>
@@ -132,10 +143,16 @@
                                     <i class="fa-solid fa-clock-rotate-left"></i>
                                     <span>In Class</span>
                                 </a>
-                                <a href="{% url 'daily_checkup_form' item.child.child_id %}" 
+                                <a href="{% url 'daily_checkup_form' item.child.child_id %}?date={{ view_date|date:'Y-m-d' }}" 
                                    class="col-span-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-black text-[10px] uppercase tracking-widest bg-indigo-600 text-white hover:bg-indigo-700 transition-all">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                    <span>{% if item.log_exists %}Edit{% else %}Start{% endif %}</span>
+                                    <i class="fa-solid {% if is_today %}fa-pen-to-square{% else %}fa-eye{% endif %}"></i>
+                                    <span>
+                                        {% if is_today %}
+                                            {% if item.log_exists %}Edit{% else %}Start{% endif %}
+                                        {% else %}
+                                            View Report
+                                        {% endif %}
+                                    </span>
                                 </a>
                             {% endif %}
                         {% endif %}

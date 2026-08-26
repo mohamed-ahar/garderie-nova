@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 9pt;
+            color: #333;
+            line-height: 1.2;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .title-section {
+            text-align: right;
+        }
+        .title-main {
+            font-size: 14pt;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .info-grid {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .info-item {
+            display: inline-block;
+            margin-right: 30px;
+        }
+        .info-label {
+            font-weight: bold;
+        }
+        .info-value {
+            border-bottom: 1px solid #000;
+            padding: 0 10px;
+            min-width: 150px;
+            display: inline-block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            font-size: 8pt;
+        }
+        .day-header {
+            width: 18%;
+        }
+        .name-col {
+            width: 10%;
+            text-align: left;
+            font-weight: bold;
+        }
+        .time-col {
+            width: 9%;
+        }
+        .absence-row {
+            font-size: 7pt;
+            text-align: left;
+            padding-top: 2px;
+            border-top: 1px dashed #ccc;
+        }
+        .footer-notes {
+            font-size: 7pt;
+            margin-top: 10px;
+        }
+        .codes-section {
+            border: 1px solid #000;
+            padding: 5px;
+            margin-top: 10px;
+            font-size: 7pt;
+        }
+        .bold { font-weight: bold; }
+        
+        /* Record container */
+        .record-entry {
+            height: 35px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .time-pair {
+            display: flex;
+            justify-content: space-around;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="{{ request.scheme }}://{{ request.get_host }}/media/logo.jpg" style="height: 50px;" alt="New Brunswick">
+        </div>
+        <div class="title-section">
+            <div class="title-main">Établissement de garderie éducative</div>
+            <div class="title-main">Registre des présences</div>
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-item">
+            <span class="info-label">Nom de l'établissement :</span>
+            <span class="info-value">{{ center.name }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Nom du groupe :</span>
+            <span class="info-value">{{ educator.educator_profile.managed_center.name|default:report_data.0.child.assigned_group.name }}</span>
+        </div>
+        <div class="info-item" style="float: right;">
+            <span class="info-label">Pour la semaine du :</span>
+            <span class="info-value">{{ start_of_week|date:"Y-m-d" }}</span>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th rowspan="2"></th>
+                <th rowspan="2" style="width: 15%;">Nom de l'enfant</th>
+                {% for day in week_days %}
+                <th colspan="2" class="day-header">{{ day|date:"l" }}</th>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% for day in week_days %}
+                <th class="time-col">Arrivée</th>
+                <th class="time-col">Départ</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in report_data %}
+            <tr>
+                <td style="width: 2%;">{{ forloop.counter }}.</td>
+                <td class="name-col">{{ item.child.first_name }} {{ item.child.last_name }}</td>
+                {% for day_data in item.days %}
+                <td colspan="2">
+                    <div class="record-entry">
+                        {% if day_data.is_absent %}
+                            <div class="absence-row">
+                                <span class="bold">Raison de l'absence :</span> {{ day_data.is_absent.get_absence_reason_code_display }}
+                            </div>
+                        {% else %}
+                            {% for record in day_data.records %}
+                                <div class="time-pair">
+                                    <span>{{ record.arrival_time|time:"H:i" }}</span>
+                                    <span>{% if record.departure_time %}{{ record.departure_time|time:"H:i" }}{% else %}--:--{% endif %}</span>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            
+            {% comment %} Fill empty rows up to 10 if needed to match image {% endcomment %}
+            {% if report_data|length < 10 %}
+                {% with ""|center:10 as range %}
+                {% for _ in range %}
+                    {% if forloop.counter > report_data|length %}
+                    <tr>
+                        <td>{{ forloop.counter }}.</td>
+                        <td></td>
+                        {% for _ in week_days %}
+                        <td colspan="2" style="height: 35px;"></td>
+                        {% endfor %}
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+                {% endwith %}
+            {% endif %}
+        </tbody>
+    </table>
+
+    <div class="codes-section">
+        <span class="bold">Codes d’absence :</span> 
+        1 = Diarrhée &nbsp;&nbsp; 2 = Fièvre &nbsp;&nbsp; 3 = Symptômes du rhume &nbsp;&nbsp; 4 = Problèmes de peau &nbsp;&nbsp; 5 = Vomissement &nbsp;&nbsp; 
+        6 = Changement de comportement &nbsp;&nbsp; 7 = Autre maladie &nbsp;&nbsp; 8 = Absence non liée à une maladie
+    </div>
+
+    <div class="footer-notes">
+        <p class="bold">Les heures doivent être consignées dès l’arrivée et le départ de l’enfant, et le registre doit faire état de tous les enfants présents, quel que soit le moment. Dans le cas où un enfant quitte la garderie tôt en raison d’une maladie, le Formulaire de signalement de maladie possible doit être rempli.</p>
+    </div>
+</body>
+</html>
