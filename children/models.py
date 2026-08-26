@@ -191,6 +191,7 @@ class DailyActivityLog(models.Model):
         blank=True,
         related_name="daily_signatures"
     )
+    signature_data = models.TextField(blank=True, null=True, verbose_name="Données de signature")
     signed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:

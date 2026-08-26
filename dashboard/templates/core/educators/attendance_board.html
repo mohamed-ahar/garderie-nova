@@ -32,9 +32,19 @@
                     <a href="?date={{ prev_day|date:'Y-m-d' }}" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
                         <i class="fa-solid fa-chevron-left text-xs"></i>
                     </a>
-                    <div class="px-4 text-center min-w-[120px]">
+                    <div class="px-4 text-center min-w-[120px] relative group cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition-colors py-1"
+                         onclick="this.querySelector('input').showPicker()">
                         <span class="block text-[8px] font-black text-slate-400 uppercase tracking-widest">Selected Date</span>
-                        <span class="text-xs font-bold text-slate-900 dark:text-white">{{ view_date|date:"M d, Y" }}</span>
+                        <div class="flex items-center justify-center gap-2">
+                            <span class="text-xs font-bold text-slate-900 dark:text-white">{{ view_date|date:"M d, Y" }}</span>
+                            <i class="fa-solid fa-calendar-days text-[10px] text-emerald-500"></i>
+                        </div>
+                        <input type="date" 
+                               class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" 
+                               onchange="window.location.href='?date=' + this.value"
+                               max="{{ today|date:'Y-m-d' }}"
+                               value="{{ view_date|date:'Y-m-d' }}"
+                               onclick="event.stopPropagation()">
                     </div>
                     {% if next_day %}
                     <a href="?date={{ next_day|date:'Y-m-d' }}" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">

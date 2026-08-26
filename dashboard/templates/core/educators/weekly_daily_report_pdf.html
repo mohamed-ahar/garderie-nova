@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 0.5cm;
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 7pt;
+            color: #333;
+            line-height: 1.1;
+        }
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 5px;
+        }
+        .header-table td {
+            border: 1px solid #000;
+            padding: 2px 5px;
+        }
+        .title-section {
+            text-align: center;
+            border: none !important;
+        }
+        .title-main {
+            font-size: 14pt;
+            font-weight: bold;
+        }
+        .title-sub {
+            font-style: italic;
+            font-size: 8pt;
+        }
+        
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        .main-table th, .main-table td {
+            border: 1px solid #000;
+            padding: 2px;
+            vertical-align: top;
+        }
+        .col-info { width: 8%; background-color: #e0e0e0; font-weight: bold; text-transform: uppercase; }
+        .col-day { width: 18.4%; }
+        
+        .section-header {
+            background-color: #d0d0d0;
+            font-weight: bold;
+            text-align: left;
+            padding-left: 5px;
+        }
+        
+        .check-box {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border: 1px solid #000;
+            margin-right: 2px;
+            vertical-align: middle;
+        }
+        .checked {
+            background-color: #000;
+        }
+        
+        .food-item { margin-bottom: 2px; }
+        .food-label { font-weight: bold; display: block; border-bottom: 0.5px solid #ccc; margin-bottom: 1px; }
+        
+        .nap-row { border-bottom: 0.5px solid #eee; padding: 1px 0; }
+        
+        .mood-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+        .mood-item { font-size: 6.5pt; }
+
+        .diaper-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 6pt;
+        }
+        .diaper-table td { border: none; padding: 1px; border-bottom: 0.2px solid #ddd; }
+        
+        .footer-notes { font-size: 6pt; margin-top: 5px; }
+        
+        .bold { font-weight: bold; }
+        .center { text-align: center; }
+    </style>
+</head>
+<body>
+    <table class="header-table">
+        <tr>
+            <td rowspan="3" style="width: 15%; border: none;">
+                <img src="{{ request.scheme }}://{{ request.get_host }}/media/logo.jpg" style="height: 40px;" alt="NB">
+            </td>
+            <td class="title-section" style="width: 45%;">
+                <div class="title-main">Rapport quotidien d'activités</div>
+                <div class="title-sub">UNIQUEMENT pour les enfants de 23 mois et moins</div>
+            </td>
+            <td style="width: 15%; background-color: #f0f0f0;">Nom de l'enfant</td>
+            <td style="width: 25%;">{{ child.first_name }} {{ child.last_name }}</td>
+        </tr>
+        <tr>
+            <td style="border: none;"></td>
+            <td style="background-color: #f0f0f0;">Nom de l'établissement</td>
+            <td>{{ center.name }}</td>
+        </tr>
+        <tr>
+            <td style="border: none;"></td>
+            <td style="background-color: #f0f0f0;">Date de la semaine</td>
+            <td>{{ start_of_week|date:"Y-m-d" }}</td>
+        </tr>
+    </table>
+
+    <table class="main-table">
+        <thead>
+            <tr style="background-color: #e0e0e0;">
+                <th class="col-info">INFORMATION</th>
+                {% for day_data in days_data %}
+                <th class="col-day center">{{ day_data.date|date:"l"|upper }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <!-- ALIMENTS / BOISSONS -->
+            <tr>
+                <td class="col-info">ALIMENTS/ BOISSONS</td>
+                {% for day_data in days_data %}
+                <td>
+                    <div class="food-item">
+                        <span class="food-label">Collation AM</span>
+                        <div class="mood-item"><div class="check-box {% if day_data.food.snack_am == 'RIEN' %}checked{% endif %}"></div> Rien</div>
+                        <div class="mood-item"><div class="check-box {% if day_data.food.snack_am == 'PEU' %}checked{% endif %}"></div> Un peu</div>
+                        <div class="mood-item"><div class="check-box {% if day_data.food.snack_am == 'TOUT' %}checked{% endif %}"></div> Presque tout</div>
+                        <div class="mood-item"><div class="check-box {% if day_data.food.snack_am == 'SO' %}checked{% endif %}"></div> s.o.</div>
+                    </div>
+                    <div class="food-item">
+                        <span class="food-label">Dîner</span>
+                        <div class="mood-item"><div class="check-box {% if day_data.food.lunch == 'RIEN' %}checked{% endif %}"></div> Rien</div>
+                        <div class="mood-item"><div class="check-box {% if day_data.food.lunch == 'PEU' %}checked{% endif %}"></div> Un peu</div>
+                        <div class="mood-item"><div class="check-box {% if day_data.food.lunch == 'TOUT' %}checked{% endif %}"></div> Presque tout</div>
+                        <div class="mood-item"><div class="check-box {% if day_data.food.lunch == 'SO' %}checked{% endif %}"></div> s.o.</div>
+                    </div>
+                    <div class="food-item">
+                        <span class="food-label">Collation PM</span>
+                        <div class="mood-item"><div class="check-box {% if day_data.food.snack_pm == 'RIEN' %}checked{% endif %}"></div> Rien</div>
+                        <div class="mood-item"><div class="check-box {% if day_data.food.snack_pm == 'PEU' %}checked{% endif %}"></div> Un peu</div>
+                        <div class="mood-item"><div class="check-box {% if day_data.food.snack_pm == 'TOUT' %}checked{% endif %}"></div> Presque tout</div>
+                        <div class="mood-item"><div class="check-box {% if day_data.food.snack_pm == 'SO' %}checked{% endif %}"></div> s.o.</div>
+                    </div>
+                    <div class="food-item">
+                        <span class="food-label">Boissons / Biberons</span>
+                        {% for bottle in day_data.log.bottles_tracking %}
+                        <div class="mood-item">H: {{ bottle.time }} | {{ bottle.amount }}</div>
+                        {% empty %}
+                        <div style="height: 20px;"></div>
+                        {% endfor %}
+                    </div>
+                </td>
+                {% endfor %}
+            </tr>
+
+            <!-- SIESTE -->
+            <tr>
+                <td class="col-info section-header">SIESTE</td>
+                {% for day_data in days_data %}
+                <td class="center">
+                    {% for nap in day_data.log.nap_tracking %}
+                    <div class="nap-row">De {{ nap.start }} à {{ nap.end }}</div>
+                    {% endfor %}
+                    {% if not day_data.log.nap_tracking %}<div style="height: 15px;"></div>{% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+
+            <!-- HUMEUR -->
+            <tr>
+                <td class="col-info section-header">HUMEUR EN GÉNÉRAL</td>
+                {% for day_data in days_data %}
+                <td>
+                    <div style="display: table; width: 100%;">
+                        <div style="display: table-cell; width: 50%;">
+                            <div class="mood-item"><div class="check-box {% if day_data.log.mood_content %}checked{% endif %}"></div> CONTENT</div>
+                            <div class="mood-item"><div class="check-box {% if day_data.log.mood_amuse %}checked{% endif %}"></div> AMUSÉ</div>
+                            <div class="mood-item"><div class="check-box {% if day_data.log.mood_affectueux %}checked{% endif %}"></div> AFFECTUEUX</div>
+                            <div class="mood-item"><div class="check-box {% if day_data.log.mood_exigeant %}checked{% endif %}"></div> EXIGEANT</div>
+                            <div class="mood-item"><div class="check-box {% if day_data.log.mood_pleurnicheur %}checked{% endif %}"></div> PLEURNICHEUR</div>
+                            <div class="mood-item"><div class="check-box {% if day_data.log.mood_autre %}checked{% endif %}"></div> AUTRE</div>
+                        </div>
+                        <div style="display: table-cell; width: 50%;">
+                            <div class="mood-item"><div class="check-box {% if day_data.log.mood_malheureux %}checked{% endif %}"></div> MALHEUREUX</div>
+                            <div class="mood-item"><div class="check-box {% if day_data.log.mood_tranquille %}checked{% endif %}"></div> TRANQUILLE</div>
+                            <div class="mood-item"><div class="check-box {% if day_data.log.mood_collant %}checked{% endif %}"></div> COLLANT</div>
+                            <div class="mood-item"><div class="check-box {% if day_data.log.mood_fatigue %}checked{% endif %}"></div> FATIGUÉ</div>
+                        </div>
+                    </div>
+                </td>
+                {% endfor %}
+            </tr>
+
+            <!-- ÉTAT DE SANTÉ -->
+            <tr>
+                <td class="col-info section-header">ÉTAT DE SANTÉ</td>
+                {% for day_data in days_data %}
+                <td>
+                    <div class="mood-item"><div class="check-box {% if day_data.log.has_symptoms %}checked{% endif %}"></div> Oui</div>
+                    <div class="mood-item"><div class="check-box {% if day_data.log and not day_data.log.has_symptoms %}checked{% endif %}"></div> Non</div>
+                    <div style="font-size: 5pt; height: 20px; overflow: hidden;">{{ day_data.log.symptoms_desc|truncatechars:50 }}</div>
+                </td>
+                {% endfor %}
+            </tr>
+
+            <!-- COUCHE / TOILETTE -->
+            <tr>
+                <td class="col-info section-header">COUCHE/ TOILETTE</td>
+                {% for day_data in days_data %}
+                <td>
+                    <table class="diaper-table">
+                        <tr style="border-bottom: 0.5px solid #000; font-weight: bold;">
+                            <td>HEURE</td>
+                            <td>TYPE</td>
+                        </tr>
+                        {% for diaper in day_data.diapers %}
+                        <tr>
+                            <td style="width: 20%;">{{ diaper.time }}</td>
+                            <td>
+                                <div style="font-size: 5pt;">
+                                    <div class="check-box {% if diaper.is_sec %}checked{% endif %}"></div> SEC
+                                    <div class="check-box {% if diaper.is_mouille %}checked{% endif %}"></div> MOUILLE
+                                    <div class="check-box {% if diaper.is_toilette %}checked{% endif %}"></div> TOILETTE
+                                    <div class="check-box {% if diaper.is_selles %}checked{% endif %}"></div> SELLES ({{ diaper.consistency }})
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </td>
+                {% endfor %}
+            </tr>
+
+            <!-- COMMENTAIRES -->
+            <tr>
+                <td class="col-info section-header">COMMENTAIRES</td>
+                {% for day_data in days_data %}
+                <td style="height: 40px; font-size: 6pt;">
+                    {{ day_data.log.comments|truncatechars:100 }}
+                </td>
+                {% endfor %}
+            </tr>
+
+            <!-- SIGNATURE -->
+            <tr>
+                <td class="col-info section-header">SIGNATURE</td>
+                {% for day_data in days_data %}
+                <td class="center" style="padding-top: 5px;">
+                    {% if day_data.log.signature_data %}
+                        <img src="{{ day_data.log.signature_data }}" style="height: 30px; width: auto; display: block; margin: 0 auto;">
+                    {% endif %}
+                    <div style="border-top: 0.5px solid #000; margin: 2px 5px 0; font-size: 5pt;">
+                        {{ day_data.log.signed_by.user.full_name }}
+                    </div>
+                </td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer-notes">
+        <span class="bold">Consistance des selles :</span> N - Normales | M - Molles | A - Aqueuses | S - Sanglantes
+    </div>
+</body>
+</html>

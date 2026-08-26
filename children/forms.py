@@ -71,6 +71,7 @@ class DailyCheckupForm(forms.ModelForm):
             'comments': forms.Textarea(attrs={'rows': 3}),
             'symptoms_desc': forms.Textarea(attrs={'rows': 2}),
             'mood_autre_desc': forms.TextInput(attrs={'placeholder': 'Specify...'}),
+            'signature_data': forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):

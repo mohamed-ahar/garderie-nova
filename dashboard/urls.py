@@ -22,6 +22,7 @@ urlpatterns = [
     path("educator/attendance-board/", attendance_board, name="attendance_board"),
     path("educator/weekly-attendance/", weekly_attendance_report, name="weekly_attendance_report"),
     path("educator/weekly-attendance/export/", export_attendance_pdf, name="export_attendance_pdf"),
+    path("educator/weekly-report/<uuid:child_id>/export/", export_weekly_daily_report_pdf, name="export_weekly_daily_report_pdf"),
     path("educator/daily-checkups/<uuid:child_id>/", daily_checkup_form, name="daily_checkup_form"),
     path("educator/attendance/<uuid:child_id>/", mark_attendance, name="mark_attendance"),
     path("children/<uuid:child_id>/", child_profile_view, name="child_profile"),

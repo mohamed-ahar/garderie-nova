@@ -153,14 +153,21 @@
                     {% csrf_token %}
                     
                     {% if not is_today %}
-                    <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 mb-8 flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
-                            <i class="fa-solid fa-lock text-sm"></i>
+                    <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 mb-8 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
+                                <i class="fa-solid fa-lock text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest">History Mode</p>
+                                <p class="text-[11px] text-amber-600/80 font-medium">Viewing record for {{ view_date|date:"F d, Y" }}. Modifications are disabled.</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-[10px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest">History Mode</p>
-                            <p class="text-[11px] text-amber-600/80 font-medium">Viewing record for {{ view_date|date:"F d, Y" }}. Modifications are disabled.</p>
-                        </div>
+                        <a href="{% url 'export_weekly_daily_report_pdf' child.child_id %}?week_start={{ view_date|date:'Y-m-d' }}" 
+                           class="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 text-white font-black text-[10px] uppercase tracking-widest hover:bg-amber-600 transition-all">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>Weekly PDF</span>
+                        </a>
                     </div>
                     {% endif %}
 
@@ -462,8 +469,21 @@
                     <div class="space-y-4">
                         <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-1">Employee Signature (Signature de l'Employé)</h3>
                         <div class="relative group">
-                            <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5 px-1">Signature</label>
-                            {{ form.employee_signature }}
+                            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                <div class="relative w-full aspect-[3/1] bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden mb-3">
+                                    <canvas id="signature-pad" class="absolute inset-0 w-full h-full cursor-crosshair"></canvas>
+                                    {% if daily_log.signature_data %}
+                                        <img id="existing-signature" src="{{ daily_log.signature_data }}" class="absolute inset-0 w-full h-full object-contain pointer-events-none">
+                                    {% endif %}
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <p class="text-[10px] font-bold text-slate-400 italic">Sign within the area above</p>
+                                    <button type="button" id="clear-signature" class="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:text-rose-600 transition-colors">
+                                        Clear Signature
+                                    </button>
+                                </div>
+                                {{ form.signature_data }}
+                            </div>
                         </div>
                     </div>
 
@@ -563,12 +583,12 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/pickerjs@1.2.1/dist/picker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const timeInputs = document.querySelectorAll('input[type="time"]');
 
         timeInputs.forEach(input => {
-            // Force readonly and inputmode to prevent mobile keyboards
             input.setAttribute('readonly', 'readonly');
             input.setAttribute('inputmode', 'none');
             input.style.cursor = 'pointer';
@@ -582,18 +602,50 @@
                     cancel: 'Annuler',
                     confirm: 'Confirmer',
                 },
-                rows: 3,
-                position: function(container, element) {
-                    // Position the container below the input element
-                    var rect = element.getBoundingClientRect();
-                    container.style.position = 'fixed';
-                    container.style.top = (rect.bottom + window.scrollY) + 'px';
-                    container.style.left = (rect.left + window.scrollX) + 'px';
-                    container.style.transform = 'translateX(-50%)';
-                    container.style.marginTop = '10px';
-                }
+                rows: 3
             });
         });
+
+        // Signature Pad
+        const canvas = document.getElementById('signature-pad');
+        const signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgba(255, 255, 255, 0)',
+            penColor: 'rgb(30, 41, 59)'
+        });
+
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            signaturePad.clear();
+        }
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        document.getElementById('clear-signature').addEventListener('click', function() {
+            signaturePad.clear();
+            document.getElementById('id_signature_data').value = '';
+            const existingImg = document.getElementById('existing-signature');
+            if (existingImg) existingImg.style.display = 'none';
+        });
+
+        const form = document.getElementById('daily-log-form');
+        form.addEventListener('submit', function(e) {
+            if (!signaturePad.isEmpty()) {
+                document.getElementById('id_signature_data').value = signaturePad.toDataURL();
+            }
+        });
+
+        {% if not is_today %}
+        const elements = form.querySelectorAll('input, select, textarea, button[type="submit"]');
+        elements.forEach(el => {
+            el.disabled = true;
+            el.classList.add('cursor-not-allowed', 'opacity-70');
+        });
+        signaturePad.off();
+        document.getElementById('clear-signature').style.display = 'none';
+        {% endif %}
     });
 </script>
 {% endblock %}

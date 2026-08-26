@@ -10,6 +10,79 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 
 @login_required(login_url="login")
+def export_weekly_daily_report_pdf(request, child_id):
+    user = request.user
+    if user.role_type != "educator":
+        return render(request, "core/403.html", status=403)
+    
+    child = get_object_or_404(Child, child_id=child_id)
+    
+    date_str = request.GET.get('week_start')
+    if date_str:
+        start_of_week = datetime.strptime(date_str, '%Y-%m-%d').date()
+    else:
+        today = date.today()
+        start_of_week = today - timedelta(days=today.weekday())
+
+    week_days = [start_of_week + timedelta(days=i) for i in range(5)]
+    
+    # Get the logs for these 5 days
+    logs_map = {}
+    logs = DailyActivityLog.objects.filter(
+        report__child=child,
+        date__range=[week_days[0], week_days[-1]]
+    ).select_related('signed_by')
+    
+    for log in logs:
+        logs_map[log.date] = log
+
+    # Prepare data for each day, even if no log exists
+    days_data = []
+    for day in week_days:
+        log = logs_map.get(day)
+        
+        # Process food tracking for easier template access
+        food = {}
+        if log:
+            for entry in log.food_tracking:
+                food[entry.get('name')] = entry.get('amount')
+        
+        # Ensure diaper logs has exactly 6 entries for the grid padding if needed, 
+        # or handle in template. The form has 4, the PDF shows up to 7.
+        diaper_entries = log.diaper_logs if log else []
+        while len(diaper_entries) < 7:
+            diaper_entries.append({})
+
+        days_data.append({
+            'date': day,
+            'log': log,
+            'food': food,
+            'diapers': diaper_entries
+        })
+
+    context = {
+        "child": child,
+        "days_data": days_data,
+        "start_of_week": start_of_week,
+        "center": child.center,
+        "request": request
+    }
+
+    html_string = render_to_string("core/educators/weekly_daily_report_pdf.html", context)
+    
+    try:
+        from weasyprint import HTML
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        pdf = html.write_pdf()
+        
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = f"weekly_report_{child.first_name}_{start_of_week}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+    except ImportError:
+        return HttpResponse("WeasyPrint not installed", status=500)
+
+@login_required(login_url="login")
 def attendance_board(request):
     user = request.user
     if user.role_type != "educator":
@@ -289,6 +362,8 @@ def daily_checkup_form(request, child_id):
         if form.is_valid():
             log = form.save(commit=False)
             log.signed_by = user.educator_profile
+            if log.signature_data:
+                log.signed_at = timezone.now()
             log.save()
             messages.success(request, f"Daily report for {child.first_name} saved.")
             return redirect(f"/educator/daily-checkups/?date={view_date}")
