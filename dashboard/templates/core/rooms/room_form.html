@@ -1,276 +1,230 @@
 {% extends "base.html" %}
 {% load static %}
+
 {% block title %}
-    {% if room %}
-        Edit {{ room.name }}
-    {% else %}
-        Add New Room
-    {% endif %}
+    {% if room %} Edit {{ room.name }} {% else %} Add New Room {% endif %}
 {% endblock %}
+
 {% block content %}
-    <!-- Page Container -->
-    <div class="min-h-screen py-10 px-4 sm:px-6 lg:px-8 font-sans">
-        <div class="max-w-3xl mx-auto">
-            <!-- Header Section -->
-            <div class="mb-8">
-                <a href="{% url 'room_list' %}"
-                   class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors mb-4 group">
-                    <i class="fa-solid fa-arrow-left mr-2 transform group-hover:-translate-x-1 transition-transform"></i>
-                    Back to Room List
-                </a>
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-                            {% if room %}
-                                Edit Room Details
-                            {% else %}
-                                Add New Room
-                            {% endif %}
-                        </h1>
-                        <p class="mt-2 text-slate-500 dark:text-slate-400">
-                            {% if room %}
-                                Manage the capacity and settings for this space.
-                            {% else %}
-                                Configure a new area within your center.
-                            {% endif %}
-                        </p>
+<div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-12 px-6">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-green-500/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-6xl w-full grid lg:grid-cols-12 gap-12 items-start"> 
+        
+        <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
+            <a href="{% url 'room_list' %}" class="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-green-600 transition-colors group">
+                <i class="fa-solid fa-arrow-left transform group-hover:-translate-x-1 transition-transform"></i>
+                Back to Fleet
+            </a>
+
+            <div class="space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/30">
+                    <i class="fa-solid fa-door-open text-green-600 text-[10px]"></i>
+                    <span class="text-[9px] font-black text-green-700 dark:text-green-400 uppercase tracking-[0.2em]">Infrastructure</span>
+                </div>
+                
+                <h1 class="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
+                    {% if room %}Refine your <span class="bg-gradient-to-r from-green-600 to-emerald-400 bg-clip-text text-transparent">Space.</span>{% else %}Define a new <span class="bg-gradient-to-r from-green-600 to-emerald-400 bg-clip-text text-transparent">Room.</span>{% endif %}
+                </h1>
+                
+                <p class="text-base text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-md">
+                    {% if room %}
+                        Adjusting settings for <span class="text-slate-900 dark:text-white font-bold">{{ room.name }}</span> to optimize capacity and safety.
+                    {% else %}
+                        Configure a new area within your center. Ratios and capacity will calculate automatically based on surface area.
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="pt-6 grid grid-cols-2 gap-4">
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Standard Ratio</p>
+                    <p class="text-lg font-bold text-slate-900 dark:text-white">2.75 <span class="text-xs text-slate-500">M²/Child</span></p>
+                </div>
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                        <p class="text-sm font-bold text-slate-900 dark:text-white uppercase">Operational</p>
                     </div>
                 </div>
             </div>
-            <!-- Form Card -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10 overflow-hidden">
-                <!-- Global Errors -->
+        </div>
+
+        <div class="lg:col-span-7">
+            <div class="bg-white dark:bg-slate-900/50 backdrop-blur-xl rounded-[2.5rem] border border-slate-100 dark:border-white/10 p-8 lg:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.03)] relative">
+                
                 {% if form.non_field_errors %}
-                    <div class="p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 flex gap-3">
-                        <i class="fa-solid fa-triangle-exclamation text-red-600 mt-0.5"></i>
-                        <div>
-                            {% for error in form.non_field_errors %}
-                                <p class="text-sm font-medium text-red-700 dark:text-red-400">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    </div>
+                <div class="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 flex items-center gap-3 text-rose-600 dark:text-rose-400">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <p class="text-xs font-bold">{{ form.non_field_errors.0 }}</p>
+                </div>
                 {% endif %}
-                <form method="POST"
-                      id="createRoomForm"
-                      class="divide-y divide-slate-100 dark:divide-slate-800">
+
+                <form method="POST" id="createRoomForm" class="space-y-8">
                     {% csrf_token %}
-                    <!-- Section 1: Location Context -->
-                    <div class="p-8">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                            <!-- Label -->
-                            <div class="md:col-span-1">
-                                <h2 class="text-base font-semibold leading-6 text-slate-900 dark:text-white">Location</h2>
-                                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Where is this room located?</p>
-                            </div>
-                            <!-- Inputs -->
-                            <div class="md:col-span-2 max-w-lg">
-                                {% if user.role_type == "owner" and centers %}
-                                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Center</label>
-                                    <div class="relative">
-                                        <select name="center_id"
-                                                required
-                                                class="appearance-none w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 pl-3 pr-10 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all text-sm font-medium">
-                                            <option value="">Select a center...</option>
-                                            {% for center in centers %}
-                                                <option value="{{ center.center_id }}"
-                                                        {% if room.center.center_id == center.center_id %}selected{% endif %}>
-                                                    {{ center.name }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                        <!-- Custom Chevron -->
-                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
-                                            <i class="fa-solid fa-chevron-down text-xs"></i>
-                                        </div>
-                                    </div>
-                                {% elif target_center or room %}
-                                    <!-- Read Only -->
-                                    <div class="relative flex items-center w-full bg-slate-100 dark:bg-slate-800 rounded-lg py-2.5 px-3 border border-slate-200 dark:border-slate-700">
-                                        <span class="block text-sm font-semibold text-slate-700 dark:text-slate-300 flex-grow">
-                                            {% if target_center %}
-                                                {{ target_center.name }}
-                                            {% elif room %}
-                                                {{ room.center.name }}
-                                            {% endif %}
-                                        </span>
-                                        <i class="fa-solid fa-lock text-slate-400 text-xs"></i>
-                                        <!-- Hidden Input -->
-                                        <input type="hidden"
-                                               name="center_id"
-                                               value="{% if target_center %}{{ target_center.center_id }}{% elif room %}{{ room.center.center_id }}{% endif %}">
-                                    </div>
-                                {% endif %}
-                            </div>
+                    
+                    <div class="space-y-5">
+                        <div class="group">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1 group-focus-within:text-green-600 transition-colors">
+                                Assign to Center
+                            </label>
+                            {% if user.role_type == "owner" and centers %}
+                                <div class="relative">
+                                    <select name="center_id" required class="custom-input appearance-none pr-10">
+                                        <option value="">Select Center...</option>
+                                        {% for center in centers %}
+                                            <option value="{{ center.center_id }}" {% if room.center.center_id == center.center_id %}selected{% endif %}>{{ center.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none"></i>
+                                </div>
+                            {% else %}
+                                <div class="flex items-center justify-between px-5 py-3.5 bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
+                                    <span class="text-sm font-bold text-slate-600 dark:text-slate-300">
+                                        {% if target_center %} {{ target_center.name }} {% elif room %} {{ room.center.name }} {% endif %}
+                                    </span>
+                                    <i class="fa-solid fa-lock text-[10px] text-slate-400"></i>
+                                    <input type="hidden" name="center_id" value="{% if target_center %}{{ target_center.center_id }}{% elif room %}{{ room.center.center_id }}{% endif %}">
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="group">
+                            <label for="id_name" class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1 group-focus-within:text-green-600 transition-colors">
+                                Room Designation
+                            </label>
+                            <input type="text" name="name" id="id_name" required value="{{ form.name.value|default_if_none:'' }}"
+                                   class="custom-input" placeholder="e.g. The Evergreen Suite">
+                            {% if form.name.errors %}<p class="mt-2 text-[10px] text-rose-500 font-bold uppercase"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ form.name.errors.0 }}</p>{% endif %}
                         </div>
                     </div>
-                    <!-- Section 2: Room Specification -->
-                    <div class="p-8">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                            <!-- Label -->
-                            <div class="md:col-span-1">
-                                <h2 class="text-base font-semibold leading-6 text-slate-900 dark:text-white">Details</h2>
-                                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Specifications for capacity calculation.</p>
-                            </div>
-                            <!-- Inputs -->
-                            <div class="md:col-span-2 space-y-6 max-w-lg">
-                                <!-- Room Name -->
-                                <div>
-                                    <label for="id_name"
-                                           class="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                        Room Name <span class="text-red-500">*</span>
-                                    </label>
-                                    <div class="mt-2">
-                                        <input type="text"
-                                               name="name"
-                                               id="id_name"
-                                               required
-                                               value="{{ form.name.value|default_if_none:'' }}"
-                                               class="block w-full rounded-lg border-0 py-2.5 px-3 text-slate-900 dark:text-white bg-white dark:bg-slate-800 ring-1 ring-inset ring-slate-300 dark:ring-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 transition-all shadow-sm"
-                                               placeholder="e.g. Green Monkey Room">
-                                        {% if form.name.errors %}<p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>{% endif %}
-                                    </div>
-                                </div>
-                                <!-- Row: Surface & Capacity -->
-                                <div class="grid grid-cols-2 gap-4">
-                                    <!-- Surface -->
-                                    <div>
-                                        <label for="id_room_surface"
-                                               class="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                            Net Area <span class="text-red-500">*</span>
-                                        </label>
-                                        <div class="relative mt-2 rounded-md shadow-sm">
-                                            <input type="number"
-                                                   step="0.01"
-                                                   name="room_surface"
-                                                   id="id_room_surface"
-                                                   required
-                                                   value="{{ form.room_surface.value|default_if_none:'' }}"
-                                                   class="block w-full rounded-lg border-0 py-2.5 pl-3 pr-12 text-slate-900 dark:text-white bg-white dark:bg-slate-800 ring-1 ring-inset ring-slate-300 dark:ring-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                                                   placeholder="0.00">
-                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                                                <span class="text-slate-500 sm:text-sm font-semibold">m²</span>
-                                            </div>
-                                        </div>
-                                        {% if form.room_surface.errors %}<p class="mt-1 text-sm text-red-600">{{ form.room_surface.errors.0 }}</p>{% endif %}
-                                    </div>
-                                    <!-- Capacity (Add to your form/model) -->
-                                    <div>
-                                        <label for="id_capacity"
-                                               class="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                            Max Children
-                                        </label>
-                                        <div class="relative mt-2 rounded-md shadow-sm">
-                                            <input type="number"
-                                                   name="max_capacity"
-                                                   id="id_max_capacity"
-                                                   value="{{ form.max_capacity.value|default_if_none:'' }}"
-                                                   class="block w-full rounded-lg border-0 py-2.5 pl-3 pr-10 text-slate-900 dark:text-white bg-white dark:bg-slate-800 ring-1 ring-inset ring-slate-300 dark:ring-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                                                   placeholder="Auto">
-                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                                                <i class="fa-solid fa-users text-slate-400 text-xs"></i>
-                                            </div>
-                                        </div>
-                                        <p class="mt-1 text-xs text-slate-400" id="capacityHint">Suggested: --</p>
-                                    </div>
-                                </div>
-                            </div>
+
+                    <div class="grid grid-cols-2 gap-5">
+                        <div class="group">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Net Area (M²)</label>
+                            <input type="number" step="0.01" name="room_surface" id="id_room_surface" required
+                                   value="{{ form.room_surface.value|default_if_none:'' }}" class="custom-input">
+                        </div>
+                        <div class="group">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Max Capacity</label>
+                            <input type="number" name="max_capacity" id="id_max_capacity"
+                                   value="{{ form.max_capacity.value|default_if_none:'' }}" class="custom-input" placeholder="Auto">
+                        </div>
+                        <div class="col-span-2">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight text-right px-1 transition-all" id="capacityHint">Suggested: --</p>
                         </div>
                     </div>
-                    <!-- Section 3: Room Type / Age Group (Modern Radio Cards) -->
-                    <div class="p-8">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                            <div class="md:col-span-1">
-                                <h2 class="text-base font-semibold leading-6 text-slate-900 dark:text-white">Primary Use</h2>
-                                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Determines ratio requirements.</p>
-                            </div>
-                            <div class="md:col-span-2 max-w-lg">
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <!-- Option 1: Infant -->
-                                    <label class="relative cursor-pointer">
-                                        <input type="radio"
-                                               name="age_group"
-                                               value="infant"
-                                               class="peer sr-only"
-                                               required
-                                               {% if room.age_group == "infant" %}checked{% endif %}>
-                                        <div class="h-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 hover:border-blue-400 hover:bg-slate-50 transition-all peer-checked:border-blue-600 peer-checked:ring-1 peer-checked:ring-blue-600 peer-checked:bg-blue-50/50 dark:peer-checked:bg-blue-900/20">
-                                            <div class="flex flex-col items-center text-center gap-2">
-                                                <i class="fa-solid fa-baby text-2xl text-slate-400 peer-checked:text-blue-600"></i>
-                                                <span class="text-sm font-semibold text-slate-900 dark:text-white">Infant</span>
-                                                <span class="text-[10px] text-slate-500">0-18 mo</span>
-                                            </div>
-                                        </div>
-                                    </label>
-                                    <!-- Option 2: Toddler -->
-                                    <label class="relative cursor-pointer">
-                                        <input type="radio" name="age_group" value="toddler" class="peer sr-only" {% if room.age_group == "toddler" %}checked{% endif %}>
-                                        <div class="h-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 hover:border-blue-400 hover:bg-slate-50 transition-all peer-checked:border-blue-600 peer-checked:ring-1 peer-checked:ring-blue-600 peer-checked:bg-blue-50/50 dark:peer-checked:bg-blue-900/20">
-                                            <div class="flex flex-col items-center text-center gap-2">
-                                                <i class="fa-solid fa-shapes text-2xl text-slate-400 peer-checked:text-blue-600"></i>
-                                                <span class="text-sm font-semibold text-slate-900 dark:text-white">Toddler</span>
-                                                <span class="text-[10px] text-slate-500">18 mo - 3 yr</span>
-                                            </div>
-                                        </div>
-                                    </label>
-                                    <!-- Option 3: Pre-School -->
-                                    <label class="relative cursor-pointer">
-                                        <input type="radio" name="age_group" value="preschool" class="peer sr-only" {% if room.age_group == "preschool" %}checked{% endif %}>
-                                        <div class="h-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 hover:border-blue-400 hover:bg-slate-50 transition-all peer-checked:border-blue-600 peer-checked:ring-1 peer-checked:ring-blue-600 peer-checked:bg-blue-50/50 dark:peer-checked:bg-blue-900/20">
-                                            <div class="flex flex-col items-center text-center gap-2">
-                                                <i class="fa-solid fa-book-open-reader text-2xl text-slate-400 peer-checked:text-blue-600"></i>
-                                                <span class="text-sm font-semibold text-slate-900 dark:text-white">Preschool</span>
-                                                <span class="text-[10px] text-slate-500">3 - 5 yr</span>
-                                            </div>
-                                        </div>
-                                    </label>
+
+                    <div class="space-y-3">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Target Age Cohort</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            {% for val, label, sub, icon in age_choices %}
+                            {% endfor %}
+                            
+                            <label class="relative cursor-pointer group/radio">
+                                <input type="radio" name="age_group" value="infant" class="peer sr-only" required {% if room.age_group == "infant" %}checked{% endif %}>
+                                <div class="p-4 rounded-2xl border-2 border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-center transition-all peer-checked:border-green-500 peer-checked:bg-white dark:peer-checked:bg-slate-800 peer-checked:shadow-lg peer-checked:shadow-green-500/5">
+                                    <i class="fa-solid fa-baby mb-2 text-slate-300 peer-checked:text-green-500 transition-colors"></i>
+                                    <p class="text-[10px] font-black text-slate-900 dark:text-white uppercase">Infant</p>
+                                    <p class="text-[9px] font-bold text-slate-400">0-18M</p>
                                 </div>
-                            </div>
+                            </label>
+
+                            <label class="relative cursor-pointer group/radio">
+                                <input type="radio" name="age_group" value="toddler" class="peer sr-only" {% if room.age_group == "toddler" %}checked{% endif %}>
+                                <div class="p-4 rounded-2xl border-2 border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-center transition-all peer-checked:border-green-500 peer-checked:bg-white dark:peer-checked:bg-slate-800 peer-checked:shadow-lg peer-checked:shadow-green-500/5">
+                                    <i class="fa-solid fa-shapes mb-2 text-slate-300 peer-checked:text-green-500 transition-colors"></i>
+                                    <p class="text-[10px] font-black text-slate-900 dark:text-white uppercase">Toddler</p>
+                                    <p class="text-[9px] font-bold text-slate-400">18M-3Y</p>
+                                </div>
+                            </label>
+
+                            <label class="relative cursor-pointer group/radio">
+                                <input type="radio" name="age_group" value="preschool" class="peer sr-only" {% if room.age_group == "preschool" %}checked{% endif %}>
+                                <div class="p-4 rounded-2xl border-2 border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-center transition-all peer-checked:border-green-500 peer-checked:bg-white dark:peer-checked:bg-slate-800 peer-checked:shadow-lg peer-checked:shadow-green-500/5">
+                                    <i class="fa-solid fa-book-open-reader mb-2 text-slate-300 peer-checked:text-green-500 transition-colors"></i>
+                                    <p class="text-[10px] font-black text-slate-900 dark:text-white uppercase">Pre-K</p>
+                                    <p class="text-[9px] font-bold text-slate-400">3Y-5Y</p>
+                                </div>
+                            </label>
                         </div>
                     </div>
-                    <!-- Footer / Action Buttons -->
-                    <div class="bg-slate-50 dark:bg-slate-800/50 px-8 py-5 flex items-center justify-end gap-x-4">
-                        <a href="{% url 'room_list' %}"
-                           type="button"
-                           class="text-sm font-semibold leading-6 text-slate-900 dark:text-white hover:text-slate-700">Cancel</a>
-                        <button type="submit"
-                                onclick="this.disabled=true;this.querySelector('span').innerText='Saving...';this.form.submit();"
-                                class="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors">
-                            <span>
-                                {% if room %}
-                                    Save Changes
-                                {% else %}
-                                    Create Room
-                                {% endif %}
-                            </span>
+
+                    <div class="pt-6 flex flex-col sm:flex-row gap-4">
+                        <button type="submit" 
+                                class="flex-1 relative group overflow-hidden bg-green-600 text-white font-black py-4 rounded-2xl transition-all hover:bg-green-500 active:scale-[0.98] shadow-xl shadow-green-600/20 flex items-center justify-center gap-3 text-xs uppercase tracking-widest">
+                            <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                            <span>{% if room %}Update Room{% else %}Deploy Room{% endif %}</span>
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
                         </button>
+                        <a href="{% url 'room_list' %}" class="px-8 py-4 rounded-2xl border border-slate-200 dark:border-slate-700 text-center text-xs font-black text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all uppercase tracking-widest">
+                            Cancel
+                        </a>
                     </div>
                 </form>
+
+                <div class="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-700 rounded-xl shadow-lg flex items-center justify-center text-white text-xl rotate-12">
+                    <i class="fa-solid fa-cube"></i>
+                </div>
             </div>
         </div>
     </div>
-    <script>
-    
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        const surfaceInput = document.getElementById('id_room_surface');
-        const hintText = document.getElementById('capacityHint');
-        const standardSqmPerChild = 2.75; 
+</div>
 
-        if (surfaceInput && hintText) {
-            surfaceInput.addEventListener('input', (e) => {
-                const surface = parseFloat(e.target.value);
-                if (surface > 0) {
-                    const estimated = Math.floor(surface / standardSqmPerChild);
-                    hintText.innerHTML = `Suggested Capacity: <strong>${estimated}</strong> children`;
-                    hintText.classList.remove('text-slate-400');
-                    hintText.classList.add('text-blue-600');
-                } else {
-                    hintText.innerText = "Suggested: --";
-                    hintText.classList.add('text-slate-400');
-                    hintText.classList.remove('text-blue-600');
-                }
-            });
-        }
-    });
-    </script>
+<style>
+    .custom-input {
+        width: 100%;
+        padding: 0.85rem 1.25rem !important;
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 1.25rem !important;
+        font-size: 0.85rem;
+        font-weight: 700;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        color: #1e293b;
+    }
+    
+    .dark .custom-input {
+        background-color: #0f172a;
+        border-color: #1e293b;
+        color: #f8fafc;
+    }
+
+    .custom-input:focus {
+        border-color: #16a34a;
+        background-color: white;
+        box-shadow: 0 10px 25px -5px rgba(22, 163, 74, 0.08);
+        outline: none;
+    }
+
+    .dark .custom-input:focus {
+        background-color: #1e293b;
+        border-color: #22c55e;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const surfaceInput = document.getElementById('id_room_surface');
+    const hintText = document.getElementById('capacityHint');
+    const standardSqmPerChild = 2.75; 
+
+    if (surfaceInput && hintText) {
+        surfaceInput.addEventListener('input', (e) => {
+            const surface = parseFloat(e.target.value);
+            if (surface > 0) {
+                const estimated = Math.floor(surface / standardSqmPerChild);
+                hintText.innerHTML = `Suggested Capacity: <span class="text-green-600 dark:text-green-400">${estimated} Children</span>`;
+            } else {
+                hintText.innerText = "Suggested: --";
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
