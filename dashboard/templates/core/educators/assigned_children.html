@@ -3,40 +3,70 @@
 {% block title %}My Class | GarderieNova{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto px-2">
-    <div class="relative mb-4-mx-6 -mt-6 overflow-hidden border-b border-white/10">
-        <div class="absolute inset-0 bg-[#0f172a] dark:bg-black"></div>
-        <div class="absolute inset-0 bg-gradient-to-br from-indigo-600/90 via-blue-600/80 to-blue-500/70 opacity-90"></div>
-        
-        <div class="absolute top-[-50%] left-[-10%] w-[70%] h-[150%] bg-blue-400/20 rounded-full blur-[120px] animate-pulse"></div>
-        <div class="absolute bottom-[-50%] right-[-10%] w-[60%] h-[120%] bg-emerald-400/20 rounded-full blur-[100px] animate-pulse" style="animation-delay: 2s;"></div>
-
-        <div class="relative z-10 px-8 pt-10 pb-10">
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-                <div class="space-y-3">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                        <span class="text-[10px] font-black text-white uppercase tracking-[0.2em]">Educator_Portal</span>
-                    </div>
-                    <div>
-                        <h1 class="text-4xl md:text-5xl font-black text-white tracking-tighter leading-none">
-                            My Class
-                        </h1>
-                        <p class="text-blue-100/70 text-sm md:text-base font-medium mt-2 max-w-md">
-                            View and manage children assigned to your care.
-                        </p>
-                    </div>
+<div class="">
+    <div class="relative group mb-12 mt-4 px-2 py-2">
+        <div class="absolute inset-0 bg-gradient-to-r from-indigo-600/20 to-violet-600/20 rounded-[3.5rem] blur-xl opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+    
+        <div class="relative flex flex-col lg:flex-row items-center justify-between gap-8 p-6 md:p-10 rounded-[3rem] md:rounded-[3.5rem] bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-white/5 overflow-hidden shadow-2xl">
+            
+            <div class="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+    
+            <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-8 w-full lg:w-auto">
+                <div class="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-indigo-600 flex items-center justify-center text-white shadow-[0_20px_40px_-10px_rgba(79,70,229,0.5)] rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                    <i class="fa-solid fa-graduation-cap text-2xl md:text-3xl"></i>
                 </div>
-
-                <div class="flex items-center gap-4 px-5 py-3 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10">
-                    <div class="text-right">
-                        <p class="text-[9px] font-black text-blue-200/50 uppercase tracking-widest leading-none">Total_Assigned</p>
-                        <p class="text-xl font-mono font-bold text-white">{{ children.count }}</p>
+    
+                <div class="space-y-2 md:space-y-3">
+                    <div class="flex items-center gap-3">
+                        <span class="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-[0.2em] border border-indigo-500/20">
+                            Educator_Terminal
+                        </span>
+                        <div class="hidden sm:block h-px w-12 bg-slate-200 dark:bg-white/10"></div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">v1.0.0</span>
                     </div>
-                    <div class="w-px h-8 bg-white/10"></div>
-                    <i class="fa-solid fa-graduation-cap text-blue-300/50"></i>
+                    
+                    <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
+                        My <span class="text-indigo-600">Class</span>
+                    </h1>
+                    
+                    <p class="text-slate-500 dark:text-slate-400 font-medium text-sm  max-w-xl leading-relaxed">
+                        Accessing synchronized real-time data for children currently assigned to your academic jurisdiction.
+                    </p>
                 </div>
             </div>
+    
+            <div class="relative z-10 flex flex-col items-center lg:items-end gap-4 w-full lg:w-auto">
+                <div class="flex items-center gap-4 px-5 py-2.5 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/5 w-full lg:w-auto justify-center lg:justify-end">
+                    <div class="text-right">
+                        <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Active_Units</p>
+                        <p class="text-xl font-black text-indigo-600 dark:text-indigo-400 leading-none mt-0.5">
+                            {{ children.count|stringformat:"02d" }}
+                        </p>
+                    </div>
+                    <div class="w-px h-6 bg-slate-200 dark:bg-white/10"></div>
+                    <i class="fa-solid fa-users text-indigo-500/50 text-sm"></i>
+                </div>
+    
+                <a href="{% url 'dashboard_redirect' %}" class="group/btn relative h-14 md:h-16 pl-8 md:pl-10 pr-4 bg-slate-900 dark:bg-white rounded-full flex items-center gap-4 md:gap-6 transition-all hover:pr-6 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.3)] w-full lg:w-auto justify-between lg:justify-start">
+                    <span class="text-white dark:text-slate-900 font-black text-[10px] md:text-xs uppercase tracking-[0.2em]">Return to Core</span>
+                    
+                    <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white transition-all group-hover/btn:scale-110 group-hover/btn:rotate-[360deg] duration-500">
+                        <i class="fa-solid fa-house-user text-xs"></i>
+                    </div>
+                </a>
+                
+                <div class="flex justify-end gap-4 px-4 w-full">
+                    <div class="flex flex-col items-end">
+                        <span class="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">Data Sync</span>
+                        <span class="text-[10px] font-bold text-emerald-500 uppercase flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Live
+                        </span>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-bl-[100px] -mr-16 -mt-16 pointer-events-none"></div>
         </div>
     </div>
 
