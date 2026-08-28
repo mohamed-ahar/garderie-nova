@@ -11,37 +11,66 @@
 
     <div class="relative z-10 max-w-7xl mx-auto">
         <div class="relative mb-24">
-            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-12">
-                <div class="space-y-8 max-w-3xl">
-                    <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-2xl backdrop-blur-xl">
-                        <span class="relative flex h-2.5 w-2.5">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                        </span>
-                        <span class="text-[10px] font-black text-slate-600 dark:text-emerald-400 uppercase tracking-[0.4em]">GarderieNova v1.0.0</span>
+            {# Logic to handle role-based colors using standard Django Template Language #}
+            {% if user.role_type == 'director' or user.role_type == 'owner' %}
+                <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-12">
+                    <div class="space-y-8 max-w-3xl">
+                        <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-2xl backdrop-blur-xl">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                            </span>
+                            <span class="text-[10px] font-black text-slate-600 dark:text-emerald-400 uppercase tracking-[0.4em]">GarderieNova v1.0.0</span>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h1 class="text-6xl font-black text-slate-900 dark:text-white tracking-[-0.05em] leading-[0.9]">
+                                The Academy <br>
+                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-slate-900 dark:to-white animate-gradient-x">
+                                    Curriculum.
+                                </span>
+                            </h1>
+                            <p class="text-base text-slate-600 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                                Access high-fidelity pedagogical assets. A curated matrix designed for directors.
+                            </p>
+                        </div>
                     </div>
-                    
-                    <h1 class="text-5xl font-black text-slate-900 dark:text-white tracking-[ -0.05em] leading-[0.85]">
-                        The Academy <br>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-500 via-green-400 to-black animate-gradient-x">Curriculum.</span>
-                    </h1>
-                    
-                    <p class="text-sm text-slate-800 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
-                        Access high-fidelity pedagogical assets. A curated matrix designed for the next generation of digital learning.
-                    </p>
+        
+                    <a href="{% url 'curriculum:add_lesson' %}" class="group relative flex items-center gap-6 bg-slate-900 dark:bg-white p-2 pl-8 rounded-[2.5rem] transition-all hover:scale-[0.98] active:scale-95 shadow-2xl">
+                        <span class="text-white dark:text-slate-900 font-black text-xs uppercase tracking-[0.2em]">Deploy New Asset</span>
+                        <div class="w-14 h-14 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xl transition-transform group-hover:rotate-90 shadow-lg shadow-emerald-500/20">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                    </a>
                 </div>
-
-                {% if user.role_type == 'director' or user.role_type == 'owner' %}
-                <a href="{% url 'curriculum:add_lesson' %}" class="group relative flex items-center gap-6 bg-slate-900 dark:bg-white p-2 pl-8 rounded-[2.5rem] transition-all hover:scale-[0.98] active:scale-95 shadow-2xl">
-                    <span class="text-white dark:text-slate-900 font-black text-xs uppercase tracking-[0.2em]">Deploy New Asset</span>
-                    <div class="w-14 h-14 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xl transition-transform group-hover:rotate-90">
-                        <i class="fa-solid fa-plus"></i>
+        
+            {% else %}
+                <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-12">
+                    <div class="space-y-8 max-w-3xl">
+                        <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-2xl backdrop-blur-xl">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
+                            </span>
+                            <span class="text-[10px] font-black text-slate-600 dark:text-indigo-400 uppercase tracking-[0.4em]">GarderieNova v1.0.0</span>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h1 class="text-6xl font-black text-slate-900 dark:text-white tracking-[-0.05em] leading-[0.9]">
+                                The Academy <br>
+                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-500 to-slate-900 dark:to-white animate-gradient-x">
+                                    Curriculum.
+                                </span>
+                            </h1>
+                            <p class="text-base text-slate-600 dark:text-slate-400 font-medium max-w-xl leading-relaxed">
+                                Access high-fidelity pedagogical assets. A curated matrix designed for educators.
+                            </p>
+                        </div>
                     </div>
-                </a>
-                {% endif %}
-            </div>
+                    {# No "Add Asset" button for educators #}
+                </div>
+            {% endif %}
         </div>
-
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
             {% for lesson in lessons %}
             <div class="group relative h-[480px] rounded-[3.5rem] bg-white dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5 p-10 flex flex-col justify-between transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_50px_100px_-20px_rgba(16,185,129,0.1)] overflow-hidden backdrop-blur-sm">
