@@ -265,26 +265,24 @@ def delete_director(request, director_id):
         return redirect("list_directors")
     
     return render(request, "core/owner/delete_director_confirm.html", {"director": director})
-
 @login_required
 def list_vice_directors(request):
-    # 1. Njibu l-profile dyal l-Owner li dakhil
     owner_profile = getattr(request.user, 'owner_profile', None)
     
     if not owner_profile:
         messages.error(request, "Access denied. Owner profile not found.")
         return redirect('login')
 
-    # 2. Filter b l-Organization dyal had l-Owner
+    # L-farq hna: Ghan-filteriw hta b l-user__role_type
+    # Bach ila wella Director, wakha ybqa lih profile ViceDirector, may-ban-sh hna
     vice_directors = ViceDirector.objects.filter(
-        organization=owner_profile.owned_organization
-    ).select_related('user', 'center') # select_related bach n-khffu l-load 3la DB
+        organization=owner_profile.owned_organization,
+        user__role_type='vice_director'  # <--- HAD l-filter howa li gha-y-ghaber l-promoted people
+    ).select_related('user', 'center')
  
     return render(request, 'core/owner/list_vice_directors.html', {
         'vice_directors': vice_directors
     })
-
-
 @login_required
 def add_vice_director(request):
     owner_profile = getattr(request.user, 'owner_profile', None)
@@ -322,64 +320,44 @@ def add_vice_director(request):
         form = ViceDirectorCreationForm()
     
     return render(request, 'core/owner/add_vice_director.html', {'form': form})
-
 @login_required
 @transaction.atomic
 def switch_staff_role(request, user_id):
     if request.method == "POST":
         target_user = get_object_or_404(User, user_id=user_id)
-        
-        # 1. Njibu l-Organization dyal l-Owner (Safe Way)
         owner_profile = getattr(request.user, 'owner_profile', None)
         owner_org = owner_profile.owned_organization if owner_profile else None
             
         if target_user.role_type == 'vice_director':
-            # --- ACTION: PROMOTE TO DIRECTOR ---
-            vd_profile = getattr(target_user, 'vice_director_profile', None)
-            
-            # Khass n-t-akkdo bli l-organization kayna
-            final_org = vd_profile.organization if (vd_profile and vd_profile.organization) else owner_org
-
-            # A. Update User Role
-            target_user.role_type = 'director'
+            # --- PROMOTE ---
+            target_user.role_type = 'director' # Role f User model kiwelli Director
             target_user.save()
 
-            # B. Clean old profile & Create new one
+            # Mseh l-vice profile bach may-bqa t-wahed ychoufou
             ViceDirector.objects.filter(user=target_user).delete()
             
-            # Hna l-moufid: update_or_create bach may-kounch Error 500
+            # Crea Director profile
             Director.objects.update_or_create(
                 user=target_user,
-                defaults={
-                    'organization': final_org,
-                    'hired_at': date.today() # Optionnel: date d lyawm
-                }
+                defaults={'organization': owner_org}
             )
             
-            messages.success(request, f"Promotion Done! {target_user.full_name} is now in the Directors list.")
+            messages.success(request, f"{target_user.full_name} is now a Director.")
             return redirect('list_directors')
 
         elif target_user.role_type == 'director':
-            # --- ACTION: DEMOTE TO VICE ---
-            d_profile = getattr(target_user, 'director_profile', None)
-            final_org = d_profile.organization if (d_profile and d_profile.organization) else owner_org
-
-            # A. N-khwiw l-Center ila kan m-lyé
-            from dashboard.models import Center
-            Center.objects.filter(director=d_profile).update(director=None)
-
-            # B. Update User Role
+            # --- DEMOTE ---
             target_user.role_type = 'vice_director'
             target_user.save()
 
-            # C. Swap Profiles
             Director.objects.filter(user=target_user).delete()
+            
             ViceDirector.objects.update_or_create(
                 user=target_user, 
-                defaults={'organization': final_org}
+                defaults={'organization': owner_org}
             )
 
-            messages.warning(request, f"{target_user.full_name} returned to Vice Director rank.")
+            messages.warning(request, f"{target_user.full_name} returned to Vice rank.")
             return redirect('list_vice_directors')
 
     return redirect('owner_dashboard')

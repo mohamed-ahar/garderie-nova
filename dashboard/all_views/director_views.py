@@ -116,7 +116,9 @@ def create_director_general(request):
     return render(request, "core/owner/create_director.html", {"form": form})
 
 @login_required
+@transaction.atomic
 def assign_director_to_center(request, center_id):
+    # 1. Kantakdu belli l-Owner hoa li kaysayeb had l-center
     center = get_object_or_404(
         Center, center_id=center_id, organization__owner__user=request.user
     )
@@ -124,11 +126,19 @@ def assign_director_to_center(request, center_id):
     if request.method == "POST":
         form = AssignDirectorForm(request.POST, instance=center, user=request.user)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Director assigned successfully.")
+            # Save l-center (bach l-FK dyal director f Center model t-zad)
+            center = form.save()
+            
+            # 2. Hna l-muhim: Updati l-Profile dyal dik l-Director
+            # Bach f l-base de données, l-Director i-walli "khdam" f had l-center
+            if center.director:
+                director_profile = center.director
+                director_profile.center = center
+                director_profile.save()
+
+            messages.success(request, f"Director {center.director.user.full_name} assigned to {center.name}.")
             return redirect("owner_centers_list")
     else:
-        # Hna l-form khassu i-koun aware b l-user bach i-filter l-directors
         form = AssignDirectorForm(instance=center, user=request.user)
 
     return render(
