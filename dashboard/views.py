@@ -1,6 +1,9 @@
+from datetime import date
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.db import transaction # Zid had l-import l-foq
+from django.contrib.auth.hashers import make_password
 from django.db import models
 from django.db.models import Prefetch
 from .models import (
@@ -23,6 +26,9 @@ from .forms import (
     DirectorCreationForm,
     AssignDirectorForm,
     RoomForm,
+    ViceDirectorCreationForm,
+    ViceDirectorForm,
+
 )
 from django.shortcuts import render, get_object_or_404
 from .models import Center, Organization
@@ -33,7 +39,9 @@ from django.conf import settings
 from django.contrib import messages
 from django.utils import timezone
 from django.urls import reverse
-
+from django.db import transaction
+from django.contrib.auth.decorators import login_required
+from accounts.models import User, ViceDirector, Director
 import csv
 import io
 from django.shortcuts import render, redirect, get_object_or_404
@@ -42,7 +50,7 @@ from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.utils.dateparse import parse_date
 
-from accounts.models import User, ParentProfile
+from accounts.models import User,Director, ViceDirector, ParentProfile
 from dashboard.models import Center, Group, Child, ParentChildRelationship
 
 
@@ -205,3 +213,186 @@ def delete_center(request, center_id):
     
     # Optional: Render a confirmation page for GET requests
     return render(request, "core/owner/delete_confirm.html", {"center": center})
+@login_required
+def list_directors(request):
+    # 1. Khass njibu l-Organization dyal had l-Owner
+    owner_org = request.user.owner_profile.owned_organization 
+
+    # 2. Njibu ay Director m-lyé m3a had l-org
+    # Sawa2an kan Director mn l-bedya aw t-promota mn Vice
+    directors = Director.objects.filter(
+        organization=owner_org
+    ).select_related('user', 'managed_center').order_by('-user__date_joined')
+
+    # 3. Njibu l-Centers li mazzal ma 3ndhomch Director bach n-assigniw l-jdad
+    from .models import Center
+    available_centers = Center.objects.filter(
+        organization=owner_org,
+        director__isnull=True
+    )
+
+    context = {
+        'directors': directors,
+        'available_centers': available_centers
+    }
+    return render(request, 'core/owner/list_directors.html', context)
+
+@login_required
+def director_profile(request, director_id):
+    """
+    View bach l-owner y-chouf l-profile dyal wahed l-director kamil.
+    """
+    # Security: Kan-choufo ghi l-director li taba3 l-had l-owner
+    director = get_object_or_404(
+        Director.objects.select_related('user', 'managed_center', 'organization'),
+        user_id=director_id,
+        organization__owner__user=request.user
+    )
+    
+    return render(request, 'core/owner/director_profile.html', {'director': director})
+
+@login_required
+def delete_director(request, director_id):
+    director = get_object_or_404(
+        Director, user_id=director_id, organization__owner__user=request.user
+    )
+    
+    if request.method == "POST":
+        user = director.user
+        user_name = user.full_name
+        user.delete() 
+        messages.warning(request, f"The account for {user_name} has been removed.")
+        return redirect("list_directors")
+    
+    return render(request, "core/owner/delete_director_confirm.html", {"director": director})
+
+@login_required
+def list_vice_directors(request):
+   
+    vice_directors = ViceDirector.objects.filter(
+        user__role_type='vice_director',
+        # Hna n-qedru n-filteriw b l-Email domain aw b relation khra ila 3ndek
+        # Walakin ahsan tariqa hiya n-jibohom kamlin li t-creeyaw f had l-environment:
+    ).select_related('user')
+ 
+    
+    return render(request, 'core/owner/list_vice_directors.html', {'vice_directors': vice_directors})
+
+
+
+@login_required
+def add_vice_director(request):
+    # Njibu l-Organization dyal l-Owner li dakhil dba
+    owner_profile = getattr(request.user, 'owner', None)
+    org = owner_profile.owned_organization if owner_profile else None
+
+    if request.method == 'POST':
+        form = ViceDirectorCreationForm(request.POST)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    user = User.objects.create_user(
+                        email=form.cleaned_data['email'],
+                        password=form.cleaned_data['password'],
+                        full_name=form.cleaned_data['full_name'],
+                        role_type='vice_director'
+                    )
+                    # T-akked l-Organization t-passat hna bach l-filter i-khdem
+                    ViceDirector.objects.create(
+                        user=user, 
+                        organization=org, 
+                        center=None
+                    )
+                    
+                messages.success(request, "Vice Director created successfully.")
+                return redirect('list_vice_directors')
+            except Exception as e:
+                messages.error(request, f"Error creating staff: {str(e)}")
+    else:
+        form = ViceDirectorCreationForm()
+    return render(request, 'core/owner/add_vice_director.html', {'form': form})
+
+@login_required
+@transaction.atomic
+def switch_staff_role(request, user_id):
+    if request.method == "POST":
+        target_user = get_object_or_404(User, user_id=user_id)
+        
+        # 1. Njibu l-Organization dyal l-Owner (Safe Way)
+        owner_profile = getattr(request.user, 'owner_profile', None)
+        owner_org = owner_profile.owned_organization if owner_profile else None
+            
+        if target_user.role_type == 'vice_director':
+            # --- ACTION: PROMOTE TO DIRECTOR ---
+            vd_profile = getattr(target_user, 'vice_director_profile', None)
+            
+            # Khass n-t-akkdo bli l-organization kayna
+            final_org = vd_profile.organization if (vd_profile and vd_profile.organization) else owner_org
+
+            # A. Update User Role
+            target_user.role_type = 'director'
+            target_user.save()
+
+            # B. Clean old profile & Create new one
+            ViceDirector.objects.filter(user=target_user).delete()
+            
+            # Hna l-moufid: update_or_create bach may-kounch Error 500
+            Director.objects.update_or_create(
+                user=target_user,
+                defaults={
+                    'organization': final_org,
+                    'hired_at': date.today() # Optionnel: date d lyawm
+                }
+            )
+            
+            messages.success(request, f"Promotion Done! {target_user.full_name} is now in the Directors list.")
+            return redirect('list_directors')
+
+        elif target_user.role_type == 'director':
+            # --- ACTION: DEMOTE TO VICE ---
+            d_profile = getattr(target_user, 'director_profile', None)
+            final_org = d_profile.organization if (d_profile and d_profile.organization) else owner_org
+
+            # A. N-khwiw l-Center ila kan m-lyé
+            from dashboard.models import Center
+            Center.objects.filter(director=d_profile).update(director=None)
+
+            # B. Update User Role
+            target_user.role_type = 'vice_director'
+            target_user.save()
+
+            # C. Swap Profiles
+            Director.objects.filter(user=target_user).delete()
+            ViceDirector.objects.update_or_create(
+                user=target_user, 
+                defaults={'organization': final_org}
+            )
+
+            messages.warning(request, f"{target_user.full_name} returned to Vice Director rank.")
+            return redirect('list_vice_directors')
+
+    return redirect('owner_dashboard')
+@login_required
+def edit_vice_director(request, vice_id):
+    vd = get_object_or_404(ViceDirector, user_id=vice_id, center__organization__owner__user=request.user)
+    user = vd.user
+    
+    if request.method == "POST":
+        user.full_name = request.POST.get('full_name')
+        user.phone_number = request.POST.get('phone_number')
+        vd.center_id = request.POST.get('center')
+        user.save()
+        vd.save()
+        messages.success(request, "Updated successfully!")
+        return redirect('list_vice_directors')
+    
+    centers = request.user.owner_profile.owned_organization.centers.all()
+    return render(request, 'core/owner/edit_vice_director.html', {'vd': vd, 'centers': centers})
+
+@login_required
+def delete_vice_director(request, vice_id):
+    vd = get_object_or_404(ViceDirector, user_id=vice_id, center__organization__owner__user=request.user)
+    if request.method == "POST":
+        vd.user.delete() # CASCADE ghadi ymsah l-profile m3ah
+        return redirect('list_vice_directors')
+    return render(request, 'core/owner/delete_vice_confirm.html', {'vd': vd})

@@ -139,13 +139,7 @@
         {% block head %}{% endblock %}
     </head>
     <body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 font-sans antialiased">
-        <div id="global-loader">
-            <div class="spinner"></div>
-            <div style="margin-top: 20px;
-                        font-weight: 700;
-                        color: #16a34a;
-                        letter-spacing: -0.5px">GarderieNova</div>
-        </div>
+     
         {% include "accounts/includes/sidebar.html" %}
         <main class=" transition-all duration-500 ease-in-out {% if sidebar_state == 'closed' %}sidebar-hidden{% endif %}">
             {% include "accounts/includes/header.html" %}
@@ -183,14 +177,7 @@
             </div>
         </div>
         <script>
-            function removeLoader() {
-            const loader = document.getElementById('global-loader');
-            if (loader) {
-                loader.style.opacity = '0';
-                loader.style.visibility = 'hidden';
-            }
-        }
-        window.addEventListener('load', () => setTimeout(removeLoader, 500));
+       
         const sidebar = document.getElementById('sidebar');
         const userMenu = document.getElementById('user-menu');
         const themeIcon = document.getElementById('theme-icon');

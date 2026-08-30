@@ -77,5 +77,18 @@ urlpatterns = [
     path("rooms/create/", room_create_view, name="room_create"),
     path("rooms/<uuid:room_id>/edit/", room_edit_view, name="room_edit"),
     path("rooms/<uuid:room_id>/delete/", room_delete_view, name="room_delete"),
+    path("directors/", list_directors, name="list_directors"),
+    path("directors/<uuid:director_id>/profile/", views.director_profile, name="director_profile"),
+    path("directors/<uuid:director_id>/delete/", delete_director, name="delete_director"),
+    # --- Vice Director Management ---
+    path('vice-directors/', views.list_vice_directors, name='list_vice_directors'),
+    path('vice-directors/add/', views.add_vice_director, name='add_vice_director'),
+    path('vice-directors/edit/<uuid:vice_id>/', views.edit_vice_director, name='edit_vice_director'),
+    path('vice-directors/delete/<uuid:vice_id>/', views.delete_vice_director, name='delete_vice_director'),
+
+    # --- Role Switching Logic (The Magic Button) ---
+    # Had l-URL kikhdem l-Director o l-Vice Director f mara whda
+    path('staff/switch-role/<uuid:user_id>/', views.switch_staff_role, name='switch_staff_role'),    
+    
     
 ]

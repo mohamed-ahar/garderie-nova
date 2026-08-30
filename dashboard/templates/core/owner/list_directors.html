@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="relative min-h-screen bg-[#fcfcfd] dark:bg-slate-950 p-6 md:p-12 md:pt-4 overflow-hidden">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-5%] right-[-5%] w-[400px] h-[400px] bg-indigo-500/5 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-[5%] left-[-5%] w-[300px] h-[300px] bg-rose-500/5 rounded-full blur-[80px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12 relative">
+            <div class="relative space-y-4">
+                <div class="inline-flex items-center gap-3 px-4 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-indigo-400 dark:border-slate-800 shadow-sm">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                    </span>
+                    <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.3em]">Executive Team</span>
+                    <div class="w-px h-3 bg-slate-200 dark:bg-slate-700"></div>
+                    <span class="text-[10px] font-extrabold text-indigo-500 dark:text-indigo-400 uppercase">{{ directors|length }} Directors</span>
+                </div>
+        
+                <div class="space-y-1">
+                    <h1 class="text-3xl lg:text-3xl font-black text-slate-950 dark:text-white tracking-[-0.05em] leading-[0.9]">
+                        Organization <br>
+                        <span class="bg-gradient-to-r from-rose-500 to-indigo-600 bg-clip-text text-transparent">Leadership.</span>
+                    </h1>
+                </div>
+            </div>
+        
+            <div class="flex flex-col md:flex-row items-center gap-6">
+                <a href="{% url 'add_director_general' %}" 
+                   class="group relative inline-flex items-center gap-4 px-8 py-5 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-[2rem] transition-all duration-500 hover:shadow-xl hover:-translate-y-1 active:scale-[0.96] overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r from-slate-800 to-indigo-900 dark:from-indigo-50 dark:to-white opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <span class="relative z-10 flex items-center gap-3 font-black text-xs uppercase tracking-[0.2em]">
+                        <div class="w-8 h-8 rounded-xl bg-white/10 dark:bg-slate-900/5 text-lg flex items-center justify-center group-hover:rotate-12 transition-transform duration-500">
+                            <i class="fa-solid fa-user-plus text-[10px]"></i>
+                        </div>
+                        Add New Director
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for director in directors %}
+            <div class="group relative">
+                <div class="relative overflow-hidden rounded-[2.5rem] border bg-white dark:bg-slate-900 
+                    {% if not director.managed_center %} border-indigo-500/40 shadow-indigo-500/10 {% else %} border-slate-200 dark:border-slate-800 {% endif %} 
+                    transition-all duration-500 hover:shadow-2xl">
+                    
+                    <div class="p-8 relative z-10">
+                        <div class="flex items-start justify-between mb-8">
+                            <div class="relative">
+                                <div class="w-20 h-20 rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center border-4 border-white dark:border-slate-900 shadow-xl overflow-hidden group-hover:scale-105 transition-transform duration-500">
+                                    {% if director.user.profile_photo %}
+                                        <img src="{{ director.user.profile_photo.url }}" alt="" class="w-full h-full object-cover">
+                                    {% else %}
+                                        <span class="text-2xl font-black text-indigo-600 dark:text-indigo-400">
+                                            {{ director.user.full_name|slice:":1" }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <div class="absolute -bottom-2 -right-2 w-8 h-8 rounded-full {% if director.managed_center %}bg-emerald-500{% else %}bg-indigo-500{% endif %} border-4 border-white dark:border-slate-900 flex items-center justify-center">
+                                    <i class="fa-solid {% if director.managed_center %}fa-check{% else %}fa-crown{% endif %} text-[10px] text-white"></i>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <a href="{% url 'director_profile' director.user_id %}" 
+                                   class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-indigo-100 dark:border-indigo-800/50 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-sm"
+                                   title="View Profile">
+                                    <i class="fa-solid fa-id-card-alt text-sm"></i>
+                                </a>
+
+                                <form action="{% url 'switch_staff_role' director.user.user_id %}" method="POST" onsubmit="return confirm('Demote {{ director.user.full_name }} back to Vice Director rank?')">
+                                    {% csrf_token %}
+                                    <button type="submit" 
+                                            class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-100 dark:border-amber-800/50 hover:bg-amber-600 hover:text-white transition-all duration-300 shadow-sm"
+                                            title="Demote to Vice Director">
+                                        <i class="fa-solid fa-arrow-down-long text-sm"></i>
+                                    </button>
+                                </form>
+
+                                <a href="{% url 'delete_director' director.user_id %}" 
+                                   class="w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-100 dark:border-rose-800/50 hover:bg-rose-600 hover:text-white transition-all duration-300 shadow-sm"
+                                   title="Delete Account">
+                                    <i class="fa-solid fa-trash-can text-sm"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                                    {{ director.user.full_name }}
+                                </h3>
+                                <p class="text-sm font-bold text-indigo-500 flex items-center gap-2 mt-1">
+                                    <i class="fa-solid fa-envelope text-xs opacity-50"></i>
+                                    {{ director.user.email }}
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 py-4 border-y border-slate-50 dark:border-slate-800">
+                                <div class="p-3 rounded-2xl bg-slate-50/50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800/50 text-center">
+                                    <span class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</span>
+                                    <span class="text-[10px] font-black {% if director.managed_center %}text-emerald-600{% else %}text-indigo-600{% endif %} uppercase">
+                                        {% if director.managed_center %}Active{% else %}Promoted{% endif %}
+                                    </span> 
+                                </div>
+                                <div class="p-3 rounded-2xl bg-slate-50/50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800/50 text-center">
+                                    <span class="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned</span>
+                                    <span class="text-sm font-black text-slate-900 dark:text-white uppercase">
+                                        {% if director.managed_center %}1{% else %}0{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-3">Managed Infrastructure</span>
+                                <div class="flex flex-wrap gap-2">
+                                    {% if director.managed_center %}
+                                        <span class="w-full px-3 py-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 transition-colors flex items-center gap-2">
+                                            <i class="fa-solid fa-school-flag opacity-50"></i> {{ director.managed_center.name }}
+                                        </span>
+                                    {% else %}
+                                        <div class="w-full p-4 rounded-xl bg-indigo-50/30 dark:bg-indigo-900/10 border border-dashed border-indigo-200 dark:border-indigo-800/50 text-center">
+                                            <span class="text-[10px] font-bold text-indigo-500 italic uppercase block mb-2">
+                                                <i class="fa-solid fa-circle-exclamation mr-1"></i> Awaiting Center Assignment
+                                            </span>
+                                            <a href="{% url 'owner_centers_list' %}" class="text-[9px] font-black bg-indigo-600 text-white px-3 py-1.5 rounded-lg uppercase hover:bg-indigo-700 transition-all">
+                                                Assign Center
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full py-20 text-center">
+                <div class="w-20 h-20 bg-slate-100 dark:bg-slate-900 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
+                    <i class="fa-solid fa-users-slash text-2xl text-slate-300"></i>
+                </div>
+                <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2">No Directors Found</h3>
+                <p class="text-sm text-slate-500">Start by adding your first director to manage your centers.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

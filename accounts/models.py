@@ -109,22 +109,41 @@ class Director(models.Model):
 
 
 class ViceDirector(models.Model):
+    # OneToOne m3a User: Kol ViceDirector 3ndou account wahed
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
         primary_key=True,
         related_name="vice_director_profile",
     )
+    
+    # Organization: Darouriya bach n-3rfo l-staff dyal ay Owner
+    organization = models.ForeignKey(
+        "dashboard.Organization", 
+        on_delete=models.CASCADE, 
+        related_name="vice_directors",
+        null=True, 
+        blank=True
+    )
+    
+    # Center: Optional (null=True) bach n-qdro n-creeyohom "Pending"
     center = models.ForeignKey(
-        "dashboard.Center", on_delete=models.CASCADE, related_name="vice_directors"
+        "dashboard.Center", 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name="vice_directors"
     )
 
-    specific_permissions = models.JSONField(default=dict)
+    # Permissions khassin (JSON) bach ila bghina n-3tiwhom access l-chi 7aja khassa
+    specific_permissions = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        verbose_name = "Vice Director"
+        verbose_name_plural = "Vice Directors"
 
     def __str__(self):
         return f"Vice Director: {self.user.full_name}"
-
-
 class Educator(models.Model):
     user = models.OneToOneField(
         User,

@@ -98,32 +98,37 @@ def owner_centers_list(request):
 # hna dyal send email sir setting 3endak tensa
 @login_required
 def create_director_general(request):
+    # Njibu l-Org dyal l-Owner
+    owner_org = request.user.owner_profile.owned_organization
+
     if request.method == "POST":
-        # Pass request.user bach n-rbeto l-director b l-owner
         form = DirectorCreationForm(request.POST, user=request.user)
         if form.is_valid():
-            director = form.save()
-            return redirect("owner_centers_list")
+            director = form.save(commit=False)
+            # FORCE l-organization bach t-ban f l-list
+            director.organization = owner_org
+            director.save()
+            messages.success(request, f"Director {director.user.full_name} created successfully.")
+            return redirect("list_directors") # Redirect l-list bach t-checkih
     else:
         form = DirectorCreationForm(user=request.user)
 
     return render(request, "core/owner/create_director.html", {"form": form})
 
-
+@login_required
 def assign_director_to_center(request, center_id):
-    # Kan-jibo l-center w t-akked m-rbot b l-org dyal had l-user
     center = get_object_or_404(
         Center, center_id=center_id, organization__owner__user=request.user
     )
 
     if request.method == "POST":
-        # Pass user to form in POST
         form = AssignDirectorForm(request.POST, instance=center, user=request.user)
         if form.is_valid():
             form.save()
+            messages.success(request, "Director assigned successfully.")
             return redirect("owner_centers_list")
     else:
-        # Pass user to form in GET zebi hna finkenti nasiha
+        # Hna l-form khassu i-koun aware b l-user bach i-filter l-directors
         form = AssignDirectorForm(instance=center, user=request.user)
 
     return render(

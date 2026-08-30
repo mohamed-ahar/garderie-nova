@@ -144,67 +144,84 @@
         </a>
         <nav class="flex-1 px-4 space-y-4 overflow-y-auto custom-scrollbar">
             <p class="px-5 text-[10px] text-white dark:text-slate-500 uppercase tracking-[0.2em] opacity-80">Main Menu</p>
-            <ul class="space-y-2">
-                {% if user.is_authenticated %} {% if user.role_type == 'owner' %}
+            <ul class="space-y-3">
+                {% if user.is_authenticated %} 
+                {% if user.role_type == 'owner' %}
+                
                 <li class="dropdown-group relative group">
-                    <div class="absolute inset-0 bg-emerald-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
-                    <button onclick="toggleDropdown(this)" data-section-id="network_admin" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-indigo-600 text-white overflow-hidden  transition-all duration-300 active:scale-[0.98]">
-                                <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-                                <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
-                                    <i class="fa-solid fa-layer-group text-[14px]"></i>
-                                </div>
-                                <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
-                                    <span class="font-extrabold tracking-wide text-[13.5px]">Network Admin</span>
-                                    <span class="text-[8.5px] font-bold text-white uppercase tracking-[0.15em]">Owner Dashboard</span>
-                                </div>
-                                <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'network_admin' %}transform: rotate(90deg){% endif %}"></i>
-                            </button>
-                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'network_admin' %}max-height: 1000px{% endif %}">
-                        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5">
+                    <div class="absolute inset-0 bg-indigo-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                    <button onclick="toggleDropdown(this)" data-section-id="admin_management" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-indigo-600 text-white overflow-hidden transition-all duration-300 active:scale-[0.98]">
+                        <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                        <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">
+                            <i class="fa-solid fa-layer-group text-[14px]"></i>
+                        </div>
+                        <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
+                            <span class="font-extrabold tracking-wide text-[13.5px]">Management</span>
+                            <span class="text-[8.5px] font-bold text-indigo-200 uppercase tracking-[0.15em]">System Control</span>
+                        </div>
+                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'admin_management' %}transform: rotate(90deg){% endif %}"></i>
+                    </button>
+            
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'admin_management' %}max-height: 1000px{% endif %}">
+                        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5 backdrop-blur-md">
                             <a href="{% url 'owner_dashboard' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
-                                <i class="fa-solid fa-plus mr-3 opacity-70"></i>
+                                <i class="fa-solid fa-gauge-high mr-3 opacity-70 text-[10px]"></i>
                                 <span class="sidebar-label font-bold">Admin Dashboard</span>
                             </a>
-                            <a href="{% url 'create_center' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
-                                <i class="fa-solid fa-plus mr-3 opacity-70"></i>
-                                <span class="sidebar-label font-bold">Create Center</span>
-                            </a>
-                            <a href="{% url 'add_director_general' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
-                                <i class="fa-solid fa-user-plus mr-3 opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                                <span class="sidebar-label font-bold">Add New Director</span>
-                            </a>
-                            <a href="{% url 'owner_centers_list' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all group">
-                                <i class="fa-solid fa-layer-group mr-3 opacity-70 group-hover:opacity-100"></i>
+                            <a href="{% url 'owner_centers_list' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-school mr-3 opacity-70 text-[10px]"></i>
                                 <span class="sidebar-label font-bold">Manage My Centers</span>
                             </a>
-
-
+                            <div class="h-px bg-white/5 my-1 mx-2"></div>
+                            <a href="{% url 'list_directors' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-user-tie mr-3 opacity-70 text-[10px]"></i>
+                                <span class="sidebar-label font-bold">Manage Directors</span>
+                            </a>
+                            <a href="{% url 'list_vice_directors' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-users-gear mr-3 opacity-70 text-[10px]"></i>
+                                <span class="sidebar-label font-bold">Vice Directors Fleet</span>
+                            </a>
                         </div>
                     </div>
                 </li>
-
-                {% if quick_assign_centers %}
-                <li class="mt-6 space-y-2">
-                    <div class="px-4 flex items-center justify-between">
-                        <span class="sidebar-label text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Quick Assign</span>
-                        <div class="h-[1px] flex-grow ml-3 bg-slate-800/50"></div>
-                    </div>
-
-                    <div class="space-y-1 px-2">
-                        {% for center in quick_assign_centers %}
-                        <a href="{% url 'assign_director' center.center_id %}" class="flex items-center px-4 py-2.5 text-[11px] text-white/60 hover:bg-slate-800/40 hover:text-emerald-400 rounded-xl transition-all group">
-                            <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-lg bg-slate-800/50 group-hover:bg-emerald-500/10 transition-colors mr-3">
-                                <i class="fa-solid fa-link text-[10px] opacity-50 group-hover:opacity-100"></i>
-                            </div>
-                            <div class="sidebar-label flex flex-col overflow-hidden">
-                                <span class="font-bold truncate">{{ center.name }}</span>
-                                <span class="text-[8px] text-slate-500 group-hover:text-emerald-400/70 font-medium tracking-tight">Assign Director</span>
-                            </div>
-                        </a>
-                        {% endfor %}
+            
+                <li class="dropdown-group relative group mt-2">
+                    <div class="absolute inset-0 bg-indigo-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                    <button onclick="toggleDropdown(this)" data-section-id="quick_creations" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-indigo-600 text-white overflow-hidden transition-all duration-300 active:scale-[0.98]">
+                        <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                        <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:scale-110">
+                            <i class="fa-solid fa-circle-plus text-[14px]"></i>
+                        </div>
+                        <div class="sidebar-label relative z-10 flex flex-col items-start text-left">
+                            <span class="font-extrabold tracking-wide text-[13.5px]">Creation Hub</span>
+                            <span class="text-[8.5px] font-bold text-indigo-200 uppercase tracking-[0.15em]">Add New Data</span>
+                        </div>
+                        <i class="sidebar-label fa-solid fa-chevron-right text-[10px] ml-auto transition-transform duration-500 chevron" style="{% if open_section == 'quick_creations' %}transform: rotate(90deg){% endif %}"></i>
+                    </button>
+            
+                    <div class="dropdown-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out relative z-20" style="{% if open_section == 'quick_creations' %}max-height: 1000px{% endif %}">
+                        <div class="mt-2 mx-2 bg-slate-800/50 rounded-xl p-2 space-y-1 border border-white/5 backdrop-blur-md">
+                            <a href="{% url 'create_center' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-plus-circle mr-3 opacity-70 text-[10px]"></i>
+                                <span class="sidebar-label font-bold">Create Center</span>
+                            </a>
+                            <a href="{% url 'add_director_general' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-user-shield mr-3 opacity-70 text-[10px]"></i>
+                                <span class="sidebar-label font-bold">Add Director</span>
+                            </a>
+                            <a href="{% url 'add_vice_director' %}" class="flex items-center px-4 py-3 text-[12px] text-white/80 hover:bg-indigo-500 hover:text-white rounded-lg transition-all">
+                                <i class="fa-solid fa-user-plus mr-3 opacity-70 text-[10px]"></i>
+                                <span class="sidebar-label font-bold">Onboard Vice Director</span>
+                            </a>
+                        </div>
                     </div>
                 </li>
-                {% endif %} {% endif %} {% if user.role_type == 'director' %}
+            
+                {% endif %}
+               
+            </ul>
+            
+                {% if user.role_type == 'director' %}
               <li class="dropdown-group relative group mb-2">
     <button onclick="toggleDropdown(this)" data-section-id="director_admin" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-green-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
         <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-md border border-white/30 transition-transform duration-300 group-hover:rotate-[8deg]">

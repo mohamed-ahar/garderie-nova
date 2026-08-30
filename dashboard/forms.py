@@ -2,8 +2,38 @@ from django import forms
 from django.contrib.auth import get_user_model
 from accounts.models import Director, User
 from dashboard.models import Center, Room, Organization
+from accounts.models import ViceDirector
 
 User = get_user_model()
+class ViceDirectorCreationForm(forms.ModelForm):
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'premium-input'}))
+    full_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'premium-input'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'premium-input'}))
+
+    class Meta:
+        model = ViceDirector
+        fields = [] # Khawi: hit center ma-bqash darouri f l-bedya
+
+    def __init__(self, *args, **kwargs):
+        kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+# 2. Form dyal l-Edit (Profile Update) - Center m-hyyed mn hna
+class ViceDirectorForm(forms.ModelForm):
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'premium-input'})
+    )
+    full_name = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'premium-input'})
+    )
+
+    class Meta:
+        model = ViceDirector
+        # Hiyydna 'center' mn hna: l-Owner ma-iqderch i-beddel l-node f l-edit
+        fields = ['specific_permissions']
+
+    def __init__(self, *args, **kwargs):
+        # Ma-biqatsh hta logic dyal queryset d l-center hit field m-hyyed
+        super().__init__(*args, **kwargs)
 
 # -- Center Form
 class CenterCreationForm(forms.ModelForm):
@@ -89,13 +119,22 @@ class AssignDirectorForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if user:
-            # Filter directors: belong to owner's org AND not assigned to any center yet
-            self.fields['director'].queryset = Director.objects.filter(
-                organization__owner__user=user, 
-                managed_center__isnull=True
-            )
+            # 1. Njibu l-Organization dyal l-Owner
+            try:
+                # Kandiru filter b l-User li dakhil (Owner)
+                owner_org = Organization.objects.get(owner__user=user)
+                
+                # 2. Queryset: Kan-jibu ay Director taba3 l-had l-Org
+                # AND mazzal ma m-assigni l-center (bach may-kounch double assignment)
+                self.fields['director'].queryset = Director.objects.filter(
+                    organization=owner_org, 
+                    managed_center__isnull=True
+                ).select_related('user') # Optimisation
+                
+            except Organization.DoesNotExist:
+                self.fields['director'].queryset = Director.objects.none()
         
-        self.fields['director'].label = "Available Directors (Created by you)"
+        self.fields['director'].label = "Available Directors (Promoted or Created)"
 
 class RoomForm(forms.ModelForm):
     class Meta:

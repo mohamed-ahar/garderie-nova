@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="relative min-h-[80vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-12 px-6">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-500/5 rounded-full blur-[120px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-lg w-full">
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-red-100 dark:border-red-900/20 p-10 shadow-[0_20px_50px_rgba(239,68,68,0.05)] text-center relative overflow-hidden">
+            
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-red-50 dark:bg-red-950/30 text-red-600 mb-8 rotate-3 border border-red-100 dark:border-red-900/30">
+                <i class="fa-solid fa-user-slash text-3xl"></i>
+            </div>
+
+            <div class="space-y-4 mb-10">
+                <h1 class="text-3xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
+                    Terminate <br>
+                    <span class="text-red-600">Personnel Access?</span>
+                </h1>
+                <p class="text-sm text-slate-400 font-medium leading-relaxed px-4">
+                    You are about to remove <span class="text-slate-900 dark:text-white font-bold">{{ vd.user.full_name }}</span> from <span class="text-slate-900 dark:text-white font-bold">{{ vd.center.name }}</span>. This action will permanently delete their account credentials.
+                </p>
+            </div>
+
+            <div class="bg-slate-50 dark:bg-slate-950/50 rounded-2xl p-4 mb-8 border border-slate-100 dark:border-slate-800 flex items-center gap-4 text-left">
+                <div class="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-500 font-black">
+                    {{ vd.user.full_name|slice:":1" }}
+                </div>
+                <div>
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Assigned Node</h4>
+                    <p class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ vd.center.name }}</p>
+                </div>
+            </div>
+
+            <form method="POST" class="space-y-3">
+                {% csrf_token %}
+                <button type="submit" 
+                        class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-4 px-6 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-red-200 dark:shadow-none text-xs uppercase tracking-[0.2em]">
+                    Confirm Termination
+                </button>
+                
+                <a href="{% url 'list_vice_directors' %}" 
+                   class="inline-block w-full py-4 px-6 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-black text-xs uppercase tracking-[0.2em] transition-colors">
+                    Aborted Action
+                </a>
+            </form>
+
+            <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-red-500/5 rounded-full blur-2xl"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
