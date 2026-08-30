@@ -116,12 +116,15 @@
                                 </a>
                             </div>
 
-                            <form action="{% url 'delete_vice_director' vd.user.user_id %}" method="POST" onsubmit="return confirm('Archive this candidate? This action is permanent.')">
-                                {% csrf_token %}
-                                <button type="submit" class="w-12 h-12 flex items-center justify-center text-slate-300 hover:text-rose-500 transition-colors">
-                                    <i class="fa-solid fa-trash-can text-sm"></i>
-                                </button>
-                            </form>
+                            <form action="{% url 'delete_vice_director' vd.user.user_id %}" 
+                            method="POST" 
+                            onsubmit="return confirm('⚠️ Critical Action: Are you sure you want to archive {{ vd.user.full_name }}? This will revoke all access levels.')">
+                          {% csrf_token %}
+                          <button type="submit" 
+                                  class="group/trash w-12 h-12 flex items-center justify-center bg-rose-50 dark:bg-rose-500/10 text-rose-300 hover:text-rose-600 dark:hover:text-rose-400 rounded-2xl transition-all duration-300 hover:rotate-12 hover:scale-110">
+                              <i class="fa-solid fa-trash-can text-sm group-hover/trash:animate-bounce"></i>
+                          </button>
+                      </form>
                         </div>
                     </div>
                 </div>

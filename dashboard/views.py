@@ -380,8 +380,25 @@ def edit_vice_director(request, vice_id):
 
 @login_required
 def delete_vice_director(request, vice_id):
-    vd = get_object_or_404(ViceDirector, user_id=vice_id, center__organization__owner__user=request.user)
+    # 1. Kandiro l-filter b l-Organization dyal l-owner li daxel daba
+    # Hakka kankono sur bli kams7o ghir nas dyalna
+    owner_org = request.user.owner_profile.owned_organization
+    
+    vd = get_object_or_404(
+        ViceDirector, 
+        user__user_id=vice_id, 
+        organization=owner_org
+    )
+
     if request.method == "POST":
-        vd.user.delete() # CASCADE ghadi ymsah l-profile m3ah
+        full_name = vd.user.full_name
+        
+        # 2. Deleting the User object will CASCADE delete the ViceDirector profile
+        vd.user.delete()
+        
+        # 3. Add a success notification
+        messages.success(request, f"Profile for {full_name} has been permanently archived.")
         return redirect('list_vice_directors')
+
+    # Ila kanti mazzal khdam b separate confirmation page
     return render(request, 'core/owner/delete_vice_confirm.html', {'vd': vd})
