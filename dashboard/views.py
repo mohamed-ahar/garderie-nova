@@ -268,48 +268,59 @@ def delete_director(request, director_id):
 
 @login_required
 def list_vice_directors(request):
-   
-    vice_directors = ViceDirector.objects.filter(
-        user__role_type='vice_director',
-        # Hna n-qedru n-filteriw b l-Email domain aw b relation khra ila 3ndek
-        # Walakin ahsan tariqa hiya n-jibohom kamlin li t-creeyaw f had l-environment:
-    ).select_related('user')
- 
+    # 1. Njibu l-profile dyal l-Owner li dakhil
+    owner_profile = getattr(request.user, 'owner_profile', None)
     
-    return render(request, 'core/owner/list_vice_directors.html', {'vice_directors': vice_directors})
+    if not owner_profile:
+        messages.error(request, "Access denied. Owner profile not found.")
+        return redirect('login')
 
+    # 2. Filter b l-Organization dyal had l-Owner
+    vice_directors = ViceDirector.objects.filter(
+        organization=owner_profile.owned_organization
+    ).select_related('user', 'center') # select_related bach n-khffu l-load 3la DB
+ 
+    return render(request, 'core/owner/list_vice_directors.html', {
+        'vice_directors': vice_directors
+    })
 
 
 @login_required
 def add_vice_director(request):
-    # Njibu l-Organization dyal l-Owner li dakhil dba
-    owner_profile = getattr(request.user, 'owner', None)
+    owner_profile = getattr(request.user, 'owner_profile', None)
     org = owner_profile.owned_organization if owner_profile else None
+
+    if not org:
+        messages.error(request, "You must be linked to an organization to add staff.")
+        return redirect('owner_dashboard')
 
     if request.method == 'POST':
         form = ViceDirectorCreationForm(request.POST)
         if form.is_valid():
             try:
                 with transaction.atomic():
+                    # Create the User
                     user = User.objects.create_user(
                         email=form.cleaned_data['email'],
                         password=form.cleaned_data['password'],
                         full_name=form.cleaned_data['full_name'],
                         role_type='vice_director'
                     )
-                    # T-akked l-Organization t-passat hna bach l-filter i-khdem
+                    
+                    # Create ViceDirector profile linked to THIS organization
                     ViceDirector.objects.create(
                         user=user, 
-                        organization=org, 
+                        organization=org, # Hna l-farq: dima m-lyé m3a l-Owner
                         center=None
                     )
                     
-                messages.success(request, "Vice Director created successfully.")
+                messages.success(request, f"Vice Director {user.full_name} added to {org.name}.")
                 return redirect('list_vice_directors')
             except Exception as e:
-                messages.error(request, f"Error creating staff: {str(e)}")
+                messages.error(request, f"Error: {str(e)}")
     else:
         form = ViceDirectorCreationForm()
+    
     return render(request, 'core/owner/add_vice_director.html', {'form': form})
 
 @login_required
