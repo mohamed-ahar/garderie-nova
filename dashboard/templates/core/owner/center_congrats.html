@@ -16,8 +16,8 @@
         border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    /* Green glow matching your new green-600 theme */
-    .green-glow {
+    /* indigo glow matching your new indigo-600 theme */
+    .indigo-glow {
         box-shadow: 0 20px 80px -15px rgba(22, 163, 74, 0.2);
     }
 
@@ -46,16 +46,16 @@
         }); 
      }, 300)">
 
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg h-64 bg-green-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg h-64 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
     <div class="relative max-w-md w-full">
         <div x-show="show" x-cloak
              x-transition:enter="transition ease-out duration-500"
              x-transition:enter-start="opacity-0 scale-95 translate-y-4"
              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-             class="glass-effect rounded-[2.5rem] p-8 md:p-12 text-center relative z-10 green-glow">
+             class="glass-effect rounded-[2.5rem] p-8 md:p-12 text-center relative z-10 indigo-glow">
             
-            <div class="mx-auto w-20 h-20 bg-gradient-to-tr from-green-600 to-emerald-400 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-green-500/20 animate-check">
+            <div class="mx-auto w-20 h-20 bg-gradient-to-tr from-indigo-600 to-emerald-400 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-indigo-500/20 animate-check">
                 <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5" d="M5 13l4 4L19 7"></path>
                 </svg>
@@ -63,7 +63,7 @@
 
             <div class="space-y-3 mb-8">
                 <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter font-sofia">
-                    Creation <span class="text-green-600">Complete!</span>
+                    Creation <span class="text-indigo-600">Complete!</span>
                 </h1>
                 
                 <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 shadow-sm">
@@ -79,13 +79,13 @@
 
             <div class="flex flex-col gap-3">
                 <a href="{% url 'owner_dashboard' %}" 
-                   class="group w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 rounded-xl font-black transition-all hover:bg-green-600 hover:text-white active:scale-[0.98] flex items-center justify-center gap-3 shadow-lg text-sm uppercase tracking-widest font-sofia">
+                   class="group w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 rounded-xl font-black transition-all hover:bg-indigo-600 hover:text-white active:scale-[0.98] flex items-center justify-center gap-3 shadow-lg text-sm uppercase tracking-widest font-sofia">
                     <span>Back to Console</span>
                     <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
                 </a>
                 
                 <a href="{% url 'create_center' %}" 
-                   class="w-full py-2 text-slate-400 hover:text-green-600 dark:hover:text-green-500 font-black text-[10px] uppercase tracking-[0.2em] transition-colors font-sofia">
+                   class="w-full py-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-500 font-black text-[10px] uppercase tracking-[0.2em] transition-colors font-sofia">
                     Add another center
                 </a>
             </div>

@@ -363,20 +363,46 @@ def switch_staff_role(request, user_id):
     return redirect('owner_dashboard')
 @login_required
 def edit_vice_director(request, vice_id):
-    vd = get_object_or_404(ViceDirector, user_id=vice_id, center__organization__owner__user=request.user)
-    user = vd.user
+    owner_profile = getattr(request.user, 'owner_profile', None)
+    if not owner_profile:
+        messages.error(request, "Access denied.")
+        return redirect('login')
+
+    vd = get_object_or_404(
+        ViceDirector, 
+        user__user_id=vice_id, 
+        organization=owner_profile.owned_organization
+    )
+    user_to_edit = vd.user # Smina hada 'user_to_edit' bach may-t-khaltch m3a 'request.user'
     
     if request.method == "POST":
-        user.full_name = request.POST.get('full_name')
-        user.phone_number = request.POST.get('phone_number')
-        vd.center_id = request.POST.get('center')
-        user.save()
-        vd.save()
-        messages.success(request, "Updated successfully!")
-        return redirect('list_vice_directors')
+        full_name = request.POST.get('full_name')
+        
+        if not full_name:
+            messages.error(request, "Full name is required.")
+        else:
+            # Update hna
+            user_to_edit.full_name = full_name
+            user_to_edit.phone_number = request.POST.get('phone_number')
+            user_to_edit.email = request.POST.get('email')
+            
+            # Khalliw l-role kima huwa bach matrach l-qalba
+            # user_to_edit.role = 'VICE_DIRECTOR' 
+            
+            center_id = request.POST.get('center')
+            vd.center_id = center_id if center_id else None
+            
+            user_to_edit.save()
+            vd.save()
+            
+            messages.success(request, f"Updated: {user_to_edit.full_name}")
+            return redirect('list_vice_directors')
     
-    centers = request.user.owner_profile.owned_organization.centers.all()
-    return render(request, 'core/owner/edit_vice_director.html', {'vd': vd, 'centers': centers})
+    centers = owner_profile.owned_organization.centers.all()
+    return render(request, 'core/owner/edit_vice_director.html', {
+        'vd': vd, 
+        'centers': centers
+    })
 
 @login_required
 def delete_vice_director(request, vice_id):

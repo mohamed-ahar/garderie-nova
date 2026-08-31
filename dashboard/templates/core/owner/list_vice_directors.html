@@ -28,18 +28,18 @@
                         <span class="bg-gradient-to-r from-indigo-600 via-indigo-600 to-indigo-500 bg-clip-text text-transparent italic">Pipeline.</span>
                     </h1>
                     <p class="text-sm text-slate-500 dark:text-slate-400 font-medium max-w-md leading-relaxed border-l-2 border-indigo-500/30 pl-4 mt-4">
-                        Manage your executive reserve. Review performance metrics and <span class="text-slate-900 dark:text-white font-bold underline decoration-indigo-500/30">authorize promotions</span> to the directorial board.
+                        Manage your executive reserve. Review performance metrics and <span class="text-slate-900 dark:text-white font-bold underline decoration-indigo-500/30">authorize promotions</span>.
                     </p>
                 </div>
             </div>
         
             <div class="flex items-center">
                 <a href="{% url 'add_vice_director' %}" 
-                   class="group relative inline-flex items-center gap-6 px-10 py-6 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-[2.5rem] transition-all duration-500 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] hover:-translate-y-2 active:scale-[0.96] overflow-hidden">
+                   class="group relative inline-flex items-center gap-6 px-10 py-6 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-[2.5rem] transition-all duration-500 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] hover:-translate-y-2 active:scale-[0.96] overflow-hidden border-2 border-transparent hover:border-indigo-500/20">
                     <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <span class="relative z-10 flex items-center gap-4 font-black text-xs uppercase tracking-[0.2em]">
                         <div class="w-10 h-10 rounded-2xl bg-white/10 dark:bg-slate-900/5 flex items-center justify-center group-hover:rotate-90 transition-transform duration-500">
-                            <i class="fa-solid fa-plus text-sm"></i>
+                            <i class="fa-solid fa-plus text-sm text-white group-hover:text-white"></i>
                         </div>
                         Recruit New VD
                     </span>
@@ -52,16 +52,16 @@
             <div class="group relative">
                 <div class="relative overflow-hidden rounded-[3rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-all duration-700 hover:shadow-[0_40px_80px_-20px_rgba(79,70,229,0.15)] group-hover:-translate-y-3">
                     
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-500/20 transition-all duration-700"></div>
 
                     <div class="p-8 relative z-10">
-                        <div class="flex items-start justify-between mb-10">
+                        <div class="flex items-start justify-between mb-8">
                             <div class="flex items-center gap-5">
                                 <div class="relative">
-                                    <div class="w-20 h-20 rounded-[2rem] p-1.5 bg-gradient-to-tr from-indigo-500 to-indigo-500 rotate-3 group-hover:rotate-6 transition-transform duration-500 shadow-2xl">
+                                    <div class="w-20 h-20 rounded-[2rem] p-1.5 bg-gradient-to-tr from-indigo-500 to-indigo-300 rotate-3 group-hover:rotate-6 transition-transform duration-500 shadow-xl shadow-indigo-500/20">
                                         <div class="w-full h-full rounded-[1.8rem] bg-white dark:bg-slate-800 overflow-hidden border-4 border-white dark:border-slate-900">
                                             {% if vd.user.profile_photo %}
-                                                <img src="{{ vd.user.profile_photo.url }}" class="w-full h-full object-cover">
+                                                <img src="{{ vd.user.profile_photo.url }}" class="w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-700">
                                             {% else %}
                                                 <div class="w-full h-full flex items-center justify-center text-2xl font-black text-indigo-500 bg-indigo-50/50 uppercase">
                                                     {{ vd.user.full_name|slice:":1" }}
@@ -69,62 +69,60 @@
                                             {% endif %}
                                         </div>
                                     </div>
-                                    <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-indigo-500 border-4 border-white dark:border-slate-900 rounded-full shadow-lg flex items-center justify-center">
-                                        <i class="fa-solid fa-bolt text-[8px] text-white"></i>
+                                    <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 border-4 border-white dark:border-slate-900 rounded-full shadow-lg flex items-center justify-center">
+                                        <i class="fa-solid fa-check text-[8px] text-white"></i>
                                     </div>
                                 </div>
                                 <div>
                                     <h3 class="text-xl font-black text-slate-900 dark:text-white mb-1 tracking-tight">{{ vd.user.full_name }}</h3>
-                                    <span class="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Rank: Vice Director</span>
+                                    <span class="flex items-center gap-2 text-[9px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">
+                                        <i class="fa-solid fa-shield-halved"></i> Vice Director
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="mb-10 space-y-4">
-                            <div class="flex justify-between items-end">
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Promotion Path</span>
-                                <span class="text-xs font-black text-indigo-600">Active Pool</span>
-                            </div>
-                            <div class="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-indigo-500 to-indigo-500 w-[75%] rounded-full"></div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="bg-slate-50 dark:bg-slate-950/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
-                                    <span class="block text-[8px] font-black text-slate-400 uppercase mb-1">Authorization</span>
-                                    <span class="text-[10px] font-bold text-slate-700 dark:text-slate-300">Level 02</span>
+                        <div class="mb-8 space-y-4">
+                            <div class="bg-slate-50 dark:bg-slate-950/50 p-4 rounded-[2rem] border border-slate-100 dark:border-slate-800">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Assigned Center</span>
+                                    <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 uppercase">Live</span>
                                 </div>
-                                <div class="bg-slate-50 dark:bg-slate-950/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
-                                    <span class="block text-[8px] font-black text-slate-400 uppercase mb-1">Status</span>
-                                    <span class="text-[10px] font-bold text-indigo-600 animate-pulse">Waitlist</span>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm">
+                                        <i class="fa-solid fa-location-dot text-indigo-500 text-xs"></i>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200">
+                                        {% if vd.center %}{{ vd.center.name }}{% else %}Unassigned{% endif %}
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between pt-8 border-t border-slate-100 dark:border-slate-800">
-                            <div class="flex items-center gap-3">
-                                <form action="{% url 'switch_staff_role' vd.user.user_id %}" method="POST" onsubmit="return confirm('Initiate official promotion to Director rank?')">
-                                    {% csrf_token %}
-                                    <button type="submit" class="group/btn h-14 px-6 flex items-center justify-center gap-3 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 dark:shadow-none overflow-hidden relative">
-                                        <i class="fa-solid fa-crown text-xs relative z-10"></i>
-                                        <span class="text-[10px] font-black uppercase tracking-widest relative z-10">Promote</span>
-                                    </button>
-                                </form>
+                        <div class="grid grid-cols-4 gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
+                            <form action="{% url 'switch_staff_role' vd.user.user_id %}" method="POST" class="col-span-2">
+                                {% csrf_token %}
+                                <button type="submit" 
+                                        onclick="return confirm('Promote {{ vd.user.full_name }} to Director?')"
+                                        class="w-full h-12 flex items-center justify-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95">
+                                    <i class="fa-solid fa-crown text-[10px]"></i>
+                                    <span class="text-[9px] font-black uppercase tracking-widest">Promote</span>
+                                </button>
+                            </form>
 
-                                <a href="{% url 'edit_vice_director' vd.user.user_id %}" 
-                                   class="w-14 h-14 flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-400 rounded-2xl border border-slate-100 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700 hover:text-indigo-600 transition-all">
-                                    <i class="fa-solid fa-sliders text-xs"></i>
-                                </a>
-                            </div>
+                            <a href="{% url 'edit_vice_director' vd.user.user_id %}" 
+                               class="h-12 flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-white dark:hover:bg-slate-700 border border-transparent hover:border-slate-200 dark:hover:border-slate-600 transition-all active:scale-95 group/edit">
+                                <i class="fa-solid fa-user-pen text-xs group-hover/edit:text-indigo-500"></i>
+                            </a>
 
-                            <form action="{% url 'delete_vice_director' vd.user.user_id %}" 
-                            method="POST" 
-                            onsubmit="return confirm('⚠️ Critical Action: Are you sure you want to archive {{ vd.user.full_name }}? This will revoke all access levels.')">
-                          {% csrf_token %}
-                          <button type="submit" 
-                                  class="group/trash w-12 h-12 flex items-center justify-center bg-rose-50 dark:bg-rose-500/10 text-rose-300 hover:text-rose-600 dark:hover:text-rose-400 rounded-2xl transition-all duration-300 hover:rotate-12 hover:scale-110">
-                              <i class="fa-solid fa-trash-can text-sm group-hover/trash:animate-bounce"></i>
-                          </button>
-                      </form>
+                            <form action="{% url 'delete_vice_director' vd.user.user_id %}" method="POST" class="h-12">
+                                {% csrf_token %}
+                                <button type="submit" 
+                                        onclick="return confirm('Archive {{ vd.user.full_name }}?')"
+                                        class="w-full h-full flex items-center justify-center bg-rose-50 dark:bg-rose-500/10 text-rose-500 rounded-2xl hover:bg-rose-500 hover:text-white transition-all active:scale-95">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -136,7 +134,7 @@
                     <i class="fa-solid fa-user-clock text-6xl text-slate-200 dark:text-slate-800 relative"></i>
                 </div>
                 <h3 class="text-2xl font-black text-slate-900 dark:text-white italic tracking-tight">The Pool is Currently Empty.</h3>
-                <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm">No vice directors are currently awaiting assignment or promotion.</p>
+                <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm">No candidates found in the current pipeline.</p>
             </div>
             {% endfor %}
         </div>
