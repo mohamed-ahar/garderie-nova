@@ -1,0 +1,7 @@
+[
+  {
+    "id": "garderie-nova-app",
+    "execute-command": "/home/garderie-nova/deploy.sh",
+    "command-working-directory": "/home/garderie-nova/"
+  }
+]
