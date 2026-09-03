@@ -213,7 +213,7 @@ def run_seed():
         room_types = [("Infants", 10), ("Toddlers", 15), ("Preschool", 20)]
         for r_name, capacity in room_types:
             Room.objects.create(
-                center=center, name=r_name, max_capacity=capacity, room_surface=0
+                center=center, name=r_name
             )
 
         for _ in range(4):

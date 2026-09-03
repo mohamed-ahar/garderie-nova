@@ -150,7 +150,6 @@ def assign_director_to_center(request, center_id):
 def room_list_view(request):
     user = request.user
     rooms = Room.objects.all()
-    print(rooms, user)
     if user.role_type == "owner":
         rooms = Room.objects.all().select_related("center")
     elif user.role_type == "director" and hasattr(user, "director_profile"):
