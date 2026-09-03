@@ -138,7 +138,7 @@
         </style>
         {% block head %}{% endblock %}
     </head>
-    <body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 font-sans antialiased">
+    <body class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 font-sans antialiased" data-user-role="{{ user.role_type }}">
      
         {% include "accounts/includes/sidebar.html" %}
         <main class=" transition-all duration-500 ease-in-out {% if sidebar_state == 'closed' %}sidebar-hidden{% endif %}">
@@ -363,6 +363,53 @@
                 userMenu.classList.add('opacity-0', 'invisible', 'translate-y-4');
             }
         }
+
+        // Highlight active link in sidebar
+        (function() {
+            const currentPath = window.location.pathname;
+            const sidebarLinks = document.querySelectorAll('#sidebar a');
+            
+            // Get user role from body class or data attribute
+            const body = document.body;
+            let roleClass = 'indigo'; // default
+            if (body.classList.contains('role-director') || document.cookie.includes('role=director')) {
+                roleClass = 'emerald';
+            } else if (body.classList.contains('role-parent') || document.cookie.includes('role=parent')) {
+                roleClass = 'rose';
+            }
+            
+            // Role-based highlight colors
+            const roleColors = {
+                'director': { bg: 'bg-emerald-500', hover: 'hover:bg-emerald-500' },
+                'parent': { bg: 'bg-rose-500', hover: 'hover:bg-rose-500' },
+                'owner': { bg: 'bg-indigo-500', hover: 'hover:bg-indigo-500' },
+                'educator': { bg: 'bg-indigo-500', hover: 'hover:bg-indigo-500' },
+                'default': { bg: 'bg-indigo-500', hover: 'hover:bg-indigo-500' }
+            };
+            
+            // Try to detect role from page context
+            const userRoleEl = document.querySelector('[data-user-role]');
+            const userRole = userRoleEl ? userRoleEl.getAttribute('data-user-role') : null;
+            const colors = roleColors[userRole] || roleColors['default'];
+            
+            sidebarLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath && (linkPath === currentPath || currentPath.startsWith(linkPath + '/'))) {
+                    link.classList.add(colors.bg, 'text-white');
+                    link.classList.remove('text-white/80');
+                    
+                    // Open parent dropdown
+                    let parentDropdown = link.closest('.dropdown-content');
+                    if (parentDropdown) {
+                        parentDropdown.style.maxHeight = parentDropdown.scrollHeight + 'px';
+                        const chevron = parentDropdown.previousElementSibling?.querySelector('.chevron');
+                        if (chevron) {
+                            chevron.style.transform = 'rotate(90deg)';
+                        }
+                    }
+                }
+            });
+        })();
         </script>
 
         {% if messages %}
