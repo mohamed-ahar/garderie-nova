@@ -127,6 +127,82 @@ def group_edit_view(request, group_id):
                 educator=educator, group=group, is_active=True
             )
 
+            # Smart auto-assignment: find children without educator and assign to maximize ratio
+            from datetime import date
+            from itertools import combinations
+            
+            def get_child_factor(child):
+                """Calculate the ratio factor for a child based on age."""
+                today = date.today()
+                age_months = (today.year - child.birth_date.year) * 12 + today.month - child.birth_date.month
+                if today.day < child.birth_date.day:
+                    age_months -= 1
+                
+                if age_months < 24:
+                    return 0.333
+                elif 24 <= age_months < 36:
+                    return 0.200
+                elif 36 <= age_months < 48:
+                    return 0.125
+                elif 48 <= age_months < 60:
+                    return 0.100
+                else:
+                    return 0.067
+
+            def is_educator_compliant_with_children(educator, children_list):
+                """Check if educator would be compliant with a given set of children."""
+                # Check age mixing
+                has_under_24m = False
+                has_over_24m = False
+                today = date.today()
+                
+                for child in children_list:
+                    age_months = (today.year - child.birth_date.year) * 12 + today.month - child.birth_date.month
+                    if today.day < child.birth_date.day:
+                        age_months -= 1
+                    
+                    if age_months < 24:
+                        has_under_24m = True
+                    else:
+                        has_over_24m = True
+                
+                if has_under_24m and has_over_24m:
+                    return False, "Cannot mix children under 24 months with older children"
+                
+                # Check ratio
+                total_factor = sum(get_child_factor(c) for c in children_list)
+                if total_factor > 1.05:
+                    return False, f"Ratio exceeded (Points: {total_factor:.3f} / 1.05 max)"
+                
+                return True, ""
+            
+            # Get children in this group who have no educator assigned
+            unassigned_children = list(group.enrolled_children.filter(assigned_educator__isnull=True))
+            
+            if unassigned_children:
+                # Brute force: try all possible combinations to maximize ratio
+                best_children = []
+                best_ratio = 0.0
+                
+                # Sort children by factor (descending) for better combinations
+                sorted_children = sorted(unassigned_children, key=get_child_factor, reverse=True)
+                
+                # Try all possible subsets
+                n = len(sorted_children)
+                for r in range(n + 1):
+                    for combo in combinations(sorted_children, r):
+                        is_compliant, error_msg = is_educator_compliant_with_children(educator, combo)
+                        if is_compliant:
+                            total_ratio = sum(get_child_factor(c) for c in combo)
+                            if total_ratio > best_ratio:
+                                best_ratio = total_ratio
+                                best_children = list(combo)
+                
+                # Assign the best combination of children to the educator
+                for child in best_children:
+                    child.assigned_educator = educator
+                    child.save()
+            
             group.current_educators = StaffAssignment.objects.filter(
                 group=group, is_active=True
             ).count()
