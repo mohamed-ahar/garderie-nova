@@ -9,8 +9,8 @@ urlpatterns = [
     path("", include("dashboard.urls")),
     path("reports/", include("reports.urls")),
     path("communication/",include("communication.urls")),
-        path("curriculum/",include("curriculum.urls")),
-
+    path("curriculum/",include("curriculum.urls")),
+    path("chat/", include("chat_back.urls")),
 ]
 
 if settings.DEBUG:

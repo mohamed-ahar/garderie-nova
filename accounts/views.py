@@ -190,6 +190,20 @@ def parent_dashboard(request):
     return render(request, "parent_dashboard.html", {'children': children})
 
 
+from django.http import JsonResponse
+
+def get_me(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Not authenticated"}, status=401)
+    
+    return JsonResponse({
+        "user_id": str(request.user.user_id),
+        "full_name": request.user.full_name,
+        "email": request.user.email,
+        "role_type": request.user.role_type,
+    })
+
+
 @login_required
 def personal_profile(request):
     user = request.user

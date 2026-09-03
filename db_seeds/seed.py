@@ -20,7 +20,6 @@ from dashboard.models import (
     Group,
     Child,
     ParentChildRelationship,
-    AttendanceLog,
     StaffAssignment,
 )
 
@@ -113,7 +112,6 @@ LAST_NAMES = [
 
 def clean_db():
     print("Cleaning database...")
-    AttendanceLog.objects.all().delete()
     ParentChildRelationship.objects.all().delete()
     Child.objects.all().delete()
     Group.objects.all().delete()

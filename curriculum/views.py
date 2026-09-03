@@ -10,7 +10,7 @@ from django.db.models import Q
 # --- 1. Dashboard / List View ---
 class LessonListView(LoginRequiredMixin, ListView):
     model = Lesson
-    template_name = 'lesson_list.html'
+    template_name = 'Lesson_list.html'
     context_object_name = 'lessons'
 
     def get_queryset(self):

@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "dashboard.apps.DashboardConfig",
     "accounts.apps.AccountsConfig",
+    "chat_back.apps.ChatBackConfig",
     'communication',
     'channels',
     'curriculum',
@@ -46,7 +47,21 @@ MIDDLEWARE = [
 ROOT_URLCONF = "core.urls"
 
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:3000",
+]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:3000",
+]
+
+# When deployed on same domain, these might need to be adjusted
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (

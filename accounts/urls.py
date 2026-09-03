@@ -8,6 +8,7 @@ from .views import (
     educator_dashboard,
     parent_dashboard,
     personal_profile,
+    get_me,
 )
 
 urlpatterns = [
@@ -23,4 +24,5 @@ urlpatterns = [
     path("dashboard/educator/", educator_dashboard, name="educator_dashboard"),
     path("dashboard/parent/", parent_dashboard, name="parent_dashboard"),
     path("profile/", personal_profile, name="personal_profile"),
+    path("me/", get_me, name="get_me"),
 ]
