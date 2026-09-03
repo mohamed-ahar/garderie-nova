@@ -476,6 +476,79 @@ def child_list_view(request):
 
 
 @login_required(login_url="login")
+def director_add_child(request):
+    """Director can add a child manually to their center"""
+    user = request.user
+    if user.role_type != "director":
+        return render(request, "core/403.html", status=403)
+    
+    try:
+        center = user.director_profile.managed_center
+        if not center:
+             messages.error(request, "You are not assigned to any center.")
+             return redirect("dashboard_redirect")
+    except AttributeError:
+        messages.error(request, "Director profile not found.")
+        return redirect("dashboard_redirect")
+
+    if request.method == "POST":
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        birth_date = request.POST.get("birth_date")
+        status = request.POST.get("status", "active")
+        parent_email = request.POST.get("parent_email")
+        parent_name = request.POST.get("parent_name")
+        
+        if not first_name or not birth_date:
+            messages.error(request, "First name and birth date are required.")
+            return redirect("director_add_child")
+        
+        # Create or find parent user
+        parent_user = None
+        if parent_email:
+            parent_user, created = User.objects.get_or_create(
+                email=parent_email,
+                defaults={
+                    "full_name": parent_name or parent_email,
+                    "role_type": "parent"
+                }
+            )
+            if created:
+                parent_user.set_unusable_password()
+                parent_user.save()
+                
+                # Create parent profile
+                ParentProfile.objects.create(user=parent_user)
+        
+        # Create child
+        child = Child.objects.create(
+            center=center,
+            first_name=first_name,
+            last_name=last_name or "",
+            birth_date=birth_date,
+            status=status
+        )
+        
+        # Create parent relationship if parent exists
+        if parent_user:
+            try:
+                parent_profile = parent_user.parent_profile
+                ParentChildRelationship.objects.create(
+                    parent=parent_profile,
+                    child=child,
+                    relationship_type="Parent",
+                    is_emergency_contact=True
+                )
+            except ParentProfile.DoesNotExist:
+                pass
+        
+        messages.success(request, f"Child {first_name} added successfully.")
+        return redirect("child_list")
+
+    return render(request, "core/director/add_child.html", {"center": center})
+
+
+@login_required(login_url="login")
 def transfer_requests_list(request):
     user = request.user
     if user.role_type != "director":

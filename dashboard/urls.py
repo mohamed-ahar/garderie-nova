@@ -17,6 +17,7 @@ urlpatterns = [
         name='import_children_csv'
     ),
     path("children/", child_list_view, name="child_list"),
+    path("children/add/", director_add_child, name="director_add_child"),
     path("educator/my-children/", educator_assigned_children, name="educator_assigned_children"),
     path("educator/daily-checkups/", daily_checkup_list, name="daily_checkup_list"),
     path("educator/attendance-board/", attendance_board, name="attendance_board"),
