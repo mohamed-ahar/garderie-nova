@@ -1,18 +1,19 @@
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, OuterRef, Subquery, Count, Max
+from django.db.models.functions import Coalesce
 from django.core.paginator import Paginator
 from accounts.models import User, Educator, Director
 from dashboard.models import Child, ParentChildRelationship
 from communication.models import DirectorConnection
 from .models import Message, ChatInvitation, Block
+from .utils import get_allowed_contact_ids
 
 @login_required
 def block_user(request, user_id):
     try:
         user_to_block = User.objects.get(user_id=user_id)
         Block.objects.get_or_create(blocker=request.user, blocked=user_to_block)
-        # Also remove any existing invitations
         ChatInvitation.objects.filter(
             (Q(sender=request.user) & Q(recipient=user_to_block)) |
             (Q(sender=user_to_block) & Q(recipient=request.user))
@@ -47,75 +48,10 @@ def get_blocked_users(request):
 @login_required
 def get_contacts(request):
     user = request.user
-    role = user.role_type
-    allowed_user_ids = set()
+    allowed_user_ids = get_allowed_contact_ids(user)
 
-    # 1. PARENT: Educators of their children
-    if role == "parent":
-        children = Child.objects.filter(parent_relationships__parent__user=user)
-        educator_user_ids = Educator.objects.filter(
-            assigned_children__in=children
-        ).values_list("user_id", flat=True).distinct()
-        allowed_user_ids.update(educator_user_ids)
+    blocked_by_me = list(Block.objects.filter(blocker=user).values_list('blocked_id', flat=True))
 
-    # 2. DIRECTOR: Internal directors + confirmed external directors + Educators in their Center
-    elif role == "director":
-        director_profile = getattr(user, "director_profile", None)
-        if director_profile:
-            if director_profile.organization:
-                internal_directors = Director.objects.filter(
-                    organization=director_profile.organization
-                ).exclude(user_id=user.user_id).values_list("user_id", flat=True)
-                allowed_user_ids.update(internal_directors)
-
-            confirmed_connections = DirectorConnection.objects.filter(
-                (Q(from_director=director_profile) | Q(to_director=director_profile)),
-                is_confirmed=True
-            ).values_list("from_director__user_id", "to_director__user_id")
-
-            for from_id, to_id in confirmed_connections:
-                if from_id != user.user_id: allowed_user_ids.add(from_id)
-                if to_id != user.user_id: allowed_user_ids.add(to_id)
-
-            managed_center = getattr(director_profile, "managed_center", None)
-            if managed_center:
-                educator_user_ids = managed_center.educators.values_list("user_id", flat=True)
-                allowed_user_ids.update(educator_user_ids)
-
-    # 3. EDUCATOR: Director of their Center + Parents of their assigned children
-    elif role == "educator":
-        educator_profile = getattr(user, "educator_profile", None)
-        if educator_profile:
-            if educator_profile.center and educator_profile.center.director:
-                allowed_user_ids.add(educator_profile.center.director.user_id)
-            
-            parent_user_ids = ParentChildRelationship.objects.filter(
-                child__assigned_educator=educator_profile
-            ).values_list("parent__user_id", flat=True).distinct()
-            allowed_user_ids.update(parent_user_ids)
-
-    # 4. OWNER/ADMIN: Can talk to everyone
-    else:
-        allowed_user_ids = set(User.objects.exclude(user_id=user.user_id).values_list("user_id", flat=True))
-
-    # ADD INVITED CONTACTS:
-    accepted_invites = ChatInvitation.objects.filter(
-        (Q(sender=user) | Q(recipient=user)),
-        status='accepted'
-    ).values_list('sender_id', 'recipient_id')
-    
-    for s_id, r_id in accepted_invites:
-        if s_id != user.id: allowed_user_ids.add(s_id)
-        if r_id != user.id: allowed_user_ids.add(r_id)
-
-    # EXCLUDE BLOCKED USERS
-    blocked_by_me = Block.objects.filter(blocker=user).values_list('blocked_id', flat=True)
-    i_am_blocked_by = Block.objects.filter(blocked=user).values_list('blocker_id', flat=True)
-    all_blocked_ids = set(list(blocked_by_me) + list(i_am_blocked_by))
-    
-    allowed_user_ids = allowed_user_ids - all_blocked_ids
-
-    # Fetch contacts with last message and unread count
     last_msg_subquery = Message.objects.filter(
         (Q(sender=OuterRef('pk')) & Q(recipient=user)) |
         (Q(sender=user) & Q(recipient=OuterRef('pk')))
@@ -130,9 +66,14 @@ def get_contacts(request):
     contacts_qs = User.objects.filter(user_id__in=allowed_user_ids).annotate(
         last_message_text=Subquery(last_msg_subquery.values('content')[:1]),
         last_message_type=Subquery(last_msg_subquery.values('attachment_type')[:1]),
-        unread_count=Subquery(unread_count_subquery),
+        unread_count=Coalesce(Subquery(unread_count_subquery), 0),
         last_msg_time=Subquery(last_msg_subquery.values('timestamp')[:1])
     ).order_by('-last_msg_time', 'full_name')
+
+    # Mark current user as online if they are fetching contacts
+    if not user.is_online:
+        user.is_online = True
+        user.save(update_fields=['is_online'])
 
     contacts = [
         {
@@ -141,8 +82,9 @@ def get_contacts(request):
             "role": u.role_type,
             "avatar": u.full_name[:2].upper() if u.full_name else "??",
             "lastMessage": u.last_message_text if u.last_message_text else (f"Sent an {u.last_message_type}" if u.last_message_type else ""),
-            "unreadCount": u.unread_count or 0,
-            "is_blocked": str(u.user_id) in blocked_by_me
+            "unreadCount": u.unread_count if u.unread_count else 0,
+            "is_blocked": str(u.user_id) in blocked_by_me,
+            "is_online": u.is_online
         }
         for u in contacts_qs
     ]
@@ -159,7 +101,6 @@ def search_users(request):
         Q(full_name__icontains=query) | Q(email__icontains=query)
     ).exclude(user_id=request.user.user_id)[:10]
     
-    # Get existing invitations to show status
     sent_invites = {i.recipient_id: i.status for i in request.user.sent_invitations.all()}
     received_invites = {i.sender_id: i.status for i in request.user.received_invitations.all()}
     
@@ -204,7 +145,7 @@ def send_invitation(request):
 
 @login_required
 def manage_invitation(request, invitation_id):
-    action = request.POST.get('action') # 'accept', 'reject', 'revoke'
+    action = request.POST.get('action')
     try:
         if action == 'revoke':
             invite = ChatInvitation.objects.get(id=invitation_id, sender=request.user)
@@ -255,7 +196,6 @@ def mark_messages_as_read(request, recipient_id):
     if messages.exists():
         messages.update(is_read=True, is_delivered=True)
         
-        # Notify sender via WebSocket
         from channels.layers import get_channel_layer
         from asgiref.sync import async_to_sync
         channel_layer = get_channel_layer()
@@ -319,7 +259,6 @@ def upload_file(request):
         try:
             recipient = User.objects.get(user_id=recipient_id)
             
-            # CHECK PERMISSION
             is_blocked = Block.objects.filter(
                 (Q(blocker=request.user, blocked=recipient)) |
                 (Q(blocker=recipient, blocked=request.user))
@@ -341,7 +280,6 @@ def upload_file(request):
                 attachment_type=attachment_type
             )
             
-            # Notify via WebSocket (since we are in a view, we need to use channel_layer)
             from channels.layers import get_channel_layer
             from asgiref.sync import async_to_sync
             channel_layer = get_channel_layer()
@@ -362,7 +300,6 @@ def upload_file(request):
                 }
             }
             
-            # Send to recipient and sender
             async_to_sync(channel_layer.group_send)(f"user_{recipient_id}", message_data)
             async_to_sync(channel_layer.group_send)(f"user_{request.user.id}", message_data)
 

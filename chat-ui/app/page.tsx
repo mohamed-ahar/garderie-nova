@@ -21,6 +21,7 @@ export default function Home() {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isContactsLoading, setIsContactsLoading] = useState(true);
+  const [onlineStatuses, setOnlineStatuses] = useState<Record<string, {is_online: boolean, last_seen?: string}>>({});
   
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
@@ -49,10 +50,21 @@ export default function Home() {
     });
   }, [currentUser?.id, selectedContact?.id]);
 
-  const { messages, sendMessage, sendFile, isConnected, setMessages, isLoadingHistory } = useChat(
+  const handleStatusUpdate = useCallback((status: { user_id: string; is_online: boolean; last_seen?: string }) => {
+    setOnlineStatuses(prev => ({
+      ...prev,
+      [status.user_id]: {
+        is_online: status.is_online,
+        last_seen: status.last_seen
+      }
+    }));
+  }, []);
+
+  const { messages, sendMessage, sendJson, sendFile, isConnected, setMessages, isLoadingHistory } = useChat(
     selectedContact?.id || null,
     currentUser?.id || null,
-    updateContactsOnMessage
+    updateContactsOnMessage,
+    handleStatusUpdate
   );
 
   const [inputValue, setInputValue] = useState("");
@@ -121,6 +133,53 @@ export default function Home() {
 
   useEffect(() => {
     fetchContacts();
+  }, [fetchContacts]);
+
+  // Perform initial status check for all contacts once connected
+  useEffect(() => {
+    if (isConnected && contacts.length > 0) {
+      contacts.forEach(contact => {
+        sendJson({
+          type: "check_online",
+          user_id: contact.id
+        });
+      });
+    }
+  }, [isConnected, contacts.length, sendJson]); 
+
+  // Update contacts with online status from WebSocket
+  useEffect(() => {
+    setContacts(prev => prev.map(contact => {
+      const status = onlineStatuses[contact.id];
+      if (status) {
+        return {
+          ...contact,
+          is_online: status.is_online,
+          last_seen: status.last_seen
+        };
+      }
+      return contact;
+    }));
+  }, [onlineStatuses]);
+
+  // Update selected contact's online status
+  useEffect(() => {
+    if (selectedContact && onlineStatuses[selectedContact.id]) {
+      const status = onlineStatuses[selectedContact.id];
+      setSelectedContact(prev => prev ? { 
+        ...prev, 
+        is_online: status.is_online,
+        last_seen: status.last_seen
+      } : null);
+    }
+  }, [selectedContact?.id, onlineStatuses]);
+
+  // Refresh contacts periodically to update online status
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchContacts();
+    }, 30000); // Refresh every 30 seconds
+    return () => clearInterval(interval);
   }, [fetchContacts]);
 
   useEffect(() => {

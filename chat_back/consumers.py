@@ -3,7 +3,10 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from django.utils import timezone
+from django.core.cache import cache
 from .models import Message, ChatInvitation, Block
+from .utils import get_allowed_contact_ids
 
 User = get_user_model()
 
@@ -15,13 +18,34 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
+        # Handle multiple tabs/connections
+        user_id_str = str(self.user.user_id)
+        connection_count = cache.get(f"user_conn_{user_id_str}", 0)
+        cache.set(f"user_conn_{user_id_str}", connection_count + 1, 86400)
+
+        # Mark user as online if this is the first connection
+        if connection_count == 0:
+            await self.set_user_online(True)
+            await self.broadcast_status(True)
+
         # Group name for this user
-        self.user_group_name = f"user_{self.user.id}"
+        self.user_group_name = f"user_{user_id_str}"
 
         await self.channel_layer.group_add(
             self.user_group_name,
             self.channel_name
         )
+
+        # Join status groups of all contacts to receive their updates
+        contact_ids = await self.get_contact_ids()
+        for contact_id in contact_ids:
+            await self.channel_layer.group_add(
+                f"status_{contact_id}",
+                self.channel_name
+            )
+
+        # Also join own status group so others can find us if needed
+        # (Actually others join OUR status group, so we send TO it)
 
         await self.accept()
         
@@ -32,16 +56,30 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 f"user_{sender_id}",
                 {
                     "type": "messages_delivered",
-                    "recipient_id": str(self.user.user_id)
+                    "recipient_id": user_id_str
                 }
             )
 
     async def disconnect(self, close_code):
+        if hasattr(self, 'user'):
+            user_id_str = str(self.user.user_id)
+            connection_count = cache.get(f"user_conn_{user_id_str}", 1)
+            new_count = max(0, connection_count - 1)
+            cache.set(f"user_conn_{user_id_str}", new_count, 86400)
+
+            # Mark user as offline if this was the last connection
+            if new_count == 0:
+                await self.set_user_online(False)
+                await self.broadcast_status(False)
+        
         if hasattr(self, 'user_group_name'):
             await self.channel_layer.group_discard(
                 self.user_group_name,
                 self.channel_name
             )
+        
+        # Clean up status group subscriptions if needed
+        # (Channel layer usually handles this on disconnect)
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -68,7 +106,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             if message:
                 recipient_group_name = f"user_{recipient_id}"
-                sender_group_name = f"user_{self.user.id}"
+                sender_group_name = f"user_{self.user.user_id}"
                 
                 message_data = {
                     "type": "chat_message",
@@ -101,6 +139,49 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if recipient_id:
                 await self.mark_as_read(recipient_id)
 
+        elif message_type == "check_online":
+            target_user_id = data.get("user_id")
+            if target_user_id:
+                status_data = await self.get_user_status(target_user_id)
+                await self.send(text_data=json.dumps({
+                    "type": "online_status",
+                    "user_id": target_user_id,
+                    "is_online": status_data["is_online"],
+                    "last_seen": status_data["last_seen"]
+                }))
+
+    async def online_status(self, event):
+        # This is called when someone we are 'subscribed' to changes status
+        await self.send(text_data=json.dumps(event))
+
+    async def broadcast_status(self, is_online):
+        # Send our status to our own status group
+        # Anyone who has us as a contact will be in this group
+        await self.channel_layer.group_send(
+            f"status_{self.user.user_id}",
+            {
+                "type": "online_status",
+                "user_id": str(self.user.user_id),
+                "is_online": is_online,
+                "last_seen": timezone.now().isoformat() if not is_online else None
+            }
+        )
+
+    @database_sync_to_async
+    def get_contact_ids(self):
+        return [str(uid) for uid in get_allowed_contact_ids(self.user)]
+
+    @database_sync_to_async
+    def get_user_status(self, user_id):
+        try:
+            u = User.objects.get(user_id=user_id)
+            return {
+                "is_online": u.is_online,
+                "last_seen": u.last_seen.isoformat() if u.last_seen else None
+            }
+        except User.DoesNotExist:
+            return {"is_online": False, "last_seen": None}
+
     async def chat_message(self, event):
         # If this is an incoming message (not sent by us in another tab)
         # mark it as delivered immediately
@@ -123,6 +204,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def messages_read(self, event):
         await self.send(text_data=json.dumps(event))
+
+    async def ping(self, event):
+        # Respond to ping with pong to keep connection alive
+        await self.send(text_data=json.dumps({
+            "type": "pong",
+            "timestamp": timezone.now().isoformat()
+        }))
 
     @database_sync_to_async
     def check_permission(self, recipient_id):
@@ -189,4 +277,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "type": "messages_read",
                 "recipient_id": str(self.user.user_id)
             }
+        )
+
+    @database_sync_to_async
+    def set_user_online(self, is_online):
+        User.objects.filter(user_id=self.user.user_id).update(
+            is_online=is_online,
+            last_seen=timezone.now() if not is_online else None
         )

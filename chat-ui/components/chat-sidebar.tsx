@@ -18,6 +18,8 @@ export interface Contact {
   lastMessage?: string;
   time?: string;
   unreadCount?: number;
+  is_online?: boolean;
+  last_seen?: string;
 }
 
 interface ChatSidebarProps {
@@ -124,7 +126,11 @@ export function ChatSidebar({ onSelectChat, onSelectContact, currentUser, select
                   <Avatar>
                     <AvatarFallback>{chat.avatar}</AvatarFallback>
                   </Avatar>
-                  {chat.unreadCount && chat.unreadCount > 0 && selectedId !== chat.id && (
+                  {/* Online indicator */}
+                  {chat.is_online && (
+                    <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background bg-green-500" />
+                  )}
+                  {chat.unreadCount! > 0 && selectedId !== chat.id && (
                     <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                       {chat.unreadCount}
                     </span>
@@ -132,12 +138,12 @@ export function ChatSidebar({ onSelectChat, onSelectContact, currentUser, select
                 </div>
                 <div className="flex w-full flex-col overflow-hidden">
                   <div className="flex items-center justify-between">
-                    <span className={`text-sm truncate ${chat.unreadCount && chat.unreadCount > 0 ? 'font-bold' : 'font-medium'}`}>
+                    <span className={`text-sm truncate ${(chat.unreadCount ?? 0) > 0 ? 'font-bold' : 'font-medium'}`}>
                       {chat.name}
                     </span>
                     <span className="text-[10px] text-muted-foreground uppercase shrink-0">{chat.role}</span>
                   </div>
-                  <span className={`truncate text-xs ${chat.unreadCount && chat.unreadCount > 0 ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
+                  <span className={`truncate text-xs ${(chat.unreadCount ?? 0) > 0 ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
                     {chat.lastMessage || "Start a conversation"}
                   </span>
                 </div>

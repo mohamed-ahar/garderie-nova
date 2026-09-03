@@ -11,6 +11,10 @@ from django.shortcuts import render, redirect
 
 
 def login_view(request):
+    # If user is already authenticated, redirect to dashboard
+    if request.user.is_authenticated:
+        return redirect("dashboard_redirect")
+    
     if request.method == "POST":
         u_input = request.POST.get("email")
         p = request.POST.get("password")
