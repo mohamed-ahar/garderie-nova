@@ -30,6 +30,7 @@ urlpatterns = [
     path("educator/daily-checkups/<uuid:child_id>/", daily_checkup_form, name="daily_checkup_form"),
     path("educator/attendance/<uuid:child_id>/", mark_attendance, name="mark_attendance"),
     path("children/<uuid:child_id>/", child_profile_view, name="child_profile"),
+    path("children/<uuid:child_id>/timeline/", child_activity_timeline, name="child_activity_timeline"),
     
     path("", RedirectView.as_view(url="dashboard/", permanent=False)),
     path("groups/", group_list_view, name="group_list"),

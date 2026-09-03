@@ -120,7 +120,11 @@
                         <div class="flex gap-3">
                             <a href="{% url 'child_profile' child.child_id %}" class="flex-1 group/btn relative flex items-center justify-center gap-2 py-4 bg-rose-600 rounded-2xl text-white font-black text-[11px] uppercase tracking-widest overflow-hidden transition-all hover:bg-rose-700 hover:shadow-xl hover:shadow-rose-500/30">
                                 <i class="fa-solid fa-fingerprint text-sm opacity-50 group-hover/btn:scale-110 transition-transform"></i>
-                                Access Profile
+                                Profile
+                            </a>
+                            <a href="{% url 'child_activity_timeline' child.child_id %}" class="flex-1 group/btn relative flex items-center justify-center gap-2 py-4 bg-violet-600 rounded-2xl text-white font-black text-[11px] uppercase tracking-widest overflow-hidden transition-all hover:bg-violet-700 hover:shadow-xl hover:shadow-violet-500/30">
+                                <i class="fa-solid fa-clock-rotate-left text-sm opacity-50 group-hover/btn:scale-110 transition-transform"></i>
+                                Timeline
                             </a>
                             <a href="{% url 'enrollment_edit' child.child_id %}" class="w-14 h-14 flex items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group/edit">
                                 <i class="fa-solid fa-gear text-slate-400 group-hover/edit:rotate-90 transition-transform duration-500"></i>

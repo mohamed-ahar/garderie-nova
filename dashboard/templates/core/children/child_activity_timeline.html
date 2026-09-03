@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Activity Timeline - {{ child.first_name }} | GarderieNova{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    
+    <!-- Header -->
+    <div class="relative bg-gradient-to-r from-violet-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 rounded-[3rem] p-8 md:p-10 shadow-xl border border-violet-100 dark:border-slate-800 mb-8 overflow-hidden">
+        <!-- Background Decor -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -ml-16 -mb-16"></div>
+
+        <div class="relative z-10">
+            <div class="flex items-center gap-2 mb-4">
+                <a href="{% url 'child_profile' child.child_id %}" class="text-sm font-bold text-violet-600 hover:text-violet-800 dark:text-violet-400">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Profile
+                </a>
+            </div>
+            
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div class="flex items-center gap-5">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center text-white text-2xl font-black shadow-lg">
+                        {{ child.first_name|slice:":1" }}{{ child.last_name|slice:":1" }}
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-black text-slate-900 dark:text-white">
+                            Activity Timeline
+                        </h1>
+                        <p class="text-slate-500 dark:text-slate-400 font-medium">
+                            {{ child.first_name }} {{ child.last_name }} • {{ child.center.name }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Date Filter -->
+                <form method="get" class="flex flex-wrap items-center gap-3 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-3 rounded-2xl border border-violet-100 dark:border-slate-700">
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase">From:</label>
+                        <input type="date" name="date_from" value="{{ date_from }}" 
+                            class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-sm font-bold text-slate-700 dark:text-slate-200">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase">To:</label>
+                        <input type="date" name="date_to" value="{{ date_to }}" 
+                            class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-sm font-bold text-slate-700 dark:text-slate-200">
+                    </div>
+                    <button type="submit" class="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl transition-all">
+                        <i class="fa-solid fa-filter"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="space-y-6">
+        {% if timeline_events %}
+            {% for event in timeline_events %}
+                {% if event.type == 'attendance' %}
+                    <!-- Attendance Event -->
+                    <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-100 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl {% if event.is_absent %}bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-500{% else %}bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-500{% endif %}">
+                                <i class="fa-solid {% if event.is_absent %}fa-calendar-xmark{% else %}fa-calendar-check{% endif %} text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="font-black text-lg text-slate-900 dark:text-white">
+                                        {% if event.is_absent %}Absent{% else %}Present{% endif %}
+                                    </h3>
+                                    <span class="text-sm font-bold text-slate-400">{{ event.date|date:"l, M d, Y" }}</span>
+                                </div>
+                                {% if not event.is_absent %}
+                                    <div class="flex flex-wrap gap-4 text-sm">
+                                        {% if event.arrival_time %}
+                                        <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                                            <i class="fa-solid fa-arrow-right text-emerald-500"></i>
+                                            <span class="font-bold">Arrived: {{ event.arrival_time }}</span>
+                                        </div>
+                                        {% endif %}
+                                        {% if event.departure_time %}
+                                        <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                                            <i class="fa-solid fa-arrow-left text-amber-500"></i>
+                                            <span class="font-bold">Left: {{ event.departure_time }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <p class="text-sm text-red-500 font-medium">Child was absent on this day</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Activity Event -->
+                    <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-100 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-500">
+                                <i class="fa-solid fa-clipboard-list text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between mb-1">
+                                    <h3 class="font-black text-lg text-slate-900 dark:text-white">
+                                        Daily Report - {{ event.day_name }}
+                                    </h3>
+                                    <span class="text-sm font-bold text-slate-400">{{ event.date|date:"l, M d, Y" }}</span>
+                                </div>
+                                {% if event.signed_by %}
+                                <p class="text-xs text-slate-400">
+                                    Signed by: {{ event.signed_by.user.full_name }}
+                                    {% if event.signed_at %}at {{ event.signed_at|time:"H:i" }}{% endif %}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Mood -->
+                        {% if event.mood %}
+                        <div class="mb-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl">
+                            <p class="text-xs font-bold text-slate-400 uppercase mb-2">Mood</p>
+                            <div class="flex flex-wrap gap-2">
+                                {% for mood in event.mood %}
+                                <span class="px-3 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 text-sm font-bold rounded-full">
+                                    {{ mood }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Food Tracking - Only show if there are actual values -->
+                        {% with has_food=False %}
+                        {% for food in event.food_tracking %}
+                            {% if food.name or food.amount %}
+                                {% with has_food=True %}
+                                {% endwith %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if has_food %}
+                        <div class="mb-4 p-4 bg-orange-50 dark:bg-orange-900/10 rounded-2xl border border-orange-100 dark:border-orange-900/20">
+                            <p class="text-xs font-bold text-orange-600 uppercase mb-2">Meals</p>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                {% for food in event.food_tracking %}
+                                    {% if food.name or food.amount %}
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-slate-800 rounded-xl">
+                                        <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ food.name|default:"Meal" }}</span>
+                                        <span class="text-xs font-bold {% if food.amount == 'TOUT' %}text-emerald-500{% elif food.amount == 'PEU' %}text-amber-500{% elif food.amount %}{% else %}text-slate-400{% endif %}">
+                                            {% if food.amount %}{{ food.amount }}{% else %}-{% endif %}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+
+                        <!-- Bottle Tracking - Only show if there are actual values -->
+                        {% with has_bottle=False %}
+                        {% for bottle in event.bottles_tracking %}
+                            {% if bottle.time or bottle.amount %}
+                                {% with has_bottle=True %}
+                                {% endwith %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if has_bottle %}
+                        <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/20">
+                            <p class="text-xs font-bold text-blue-600 uppercase mb-2">Bottles / Beverages</p>
+                            <div class="space-y-2">
+                                {% for bottle in event.bottles_tracking %}
+                                    {% if bottle.time or bottle.amount %}
+                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-slate-800 rounded-xl">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fa-solid fa-bottle-water text-blue-500"></i>
+                                            <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{% if bottle.time %}{{ bottle.time }}{% else %}--{% endif %}</span>
+                                        </div>
+                                        <span class="text-xs font-bold {% if bottle.amount == 'TOUT' %}text-emerald-500{% elif bottle.amount == 'PEU' %}text-amber-500{% elif bottle.amount == 'RIEN' %}text-red-500{% elif bottle.amount %}{% else %}text-slate-400{% endif %}">
+                                            {% if bottle.amount %}{{ bottle.amount }}{% else %}-{% endif %}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+
+                        <!-- Nap Tracking - Only show if there are actual values -->
+                        {% with has_nap=False %}
+                        {% for nap in event.nap_tracking %}
+                            {% if nap.start or nap.end %}
+                                {% with has_nap=True %}
+                                {% endwith %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if has_nap %}
+                        <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/20">
+                            <p class="text-xs font-bold text-blue-600 uppercase mb-2">Nap Time</p>
+                            <div class="space-y-2">
+                                {% for nap in event.nap_tracking %}
+                                    {% if nap.start or nap.end %}
+                                    <div class="flex items-center gap-3 p-2 bg-white dark:bg-slate-800 rounded-xl">
+                                        <i class="fa-solid fa-moon text-blue-500"></i>
+                                        <span class="text-sm font-bold text-slate-700 dark:text-slate-200">
+                                            {% if nap.start %}{{ nap.start }}{% else %}--{% endif %} - {% if nap.end %}{{ nap.end }}{% else %}--{% endif %}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+
+                        <!-- Health / Symptoms -->
+                        {% if event.has_symptoms %}
+                        <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/20">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-triangle-exclamation text-red-500"></i>
+                                <p class="text-sm font-bold text-red-600">Health Notes</p>
+                            </div>
+                            <p class="text-sm text-slate-600 dark:text-slate-300">{{ event.symptoms_desc|default:"Symptoms noted" }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Comments -->
+                        {% if event.comments %}
+                        <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl">
+                            <p class="text-xs font-bold text-slate-400 uppercase mb-2">Comments</p>
+                            <p class="text-sm text-slate-600 dark:text-slate-300">{{ event.comments }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <!-- No Events -->
+            <div class="text-center py-16">
+                <div class="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-clock-rotate-left text-3xl text-slate-400"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-700 dark:text-slate-300 mb-2">No Activity Found</h3>
+                <p class="text-slate-500 dark:text-slate-400 mb-6">No activities or attendance records found for this date range.</p>
+                <a href="{% url 'child_activity_timeline' child.child_id %}" class="inline-flex items-center gap-2 px-6 py-3 bg-violet-600 text-white font-bold rounded-2xl hover:bg-violet-700 transition-all">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    View All Activities
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
