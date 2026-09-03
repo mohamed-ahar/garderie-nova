@@ -104,52 +104,51 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-5">
-                        <div class="group">
-                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Net Area (M²)</label>
-                            <input type="number" step="0.01" name="room_surface" id="id_room_surface" required
-                                   value="{{ form.room_surface.value|default_if_none:'' }}" class="custom-input">
-                        </div>
-                        <div class="group">
-                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Max Capacity</label>
-                            <input type="number" name="max_capacity" id="id_max_capacity"
-                                   value="{{ form.max_capacity.value|default_if_none:'' }}" class="custom-input" placeholder="Auto">
-                        </div>
-                        <div class="col-span-2">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight text-right px-1 transition-all" id="capacityHint">Suggested: --</p>
-                        </div>
-                    </div>
-
                     <div class="space-y-3">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Target Age Cohort</label>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Target Age Cohort *</label>
                         <div class="grid grid-cols-3 gap-3">
-                            {% for val, label, sub, icon in age_choices %}
-                            {% endfor %}
-                            
                             <label class="relative cursor-pointer group/radio">
                                 <input type="radio" name="age_group" value="infant" class="peer sr-only" required {% if room.age_group == "infant" %}checked{% endif %}>
                                 <div class="p-4 rounded-2xl border-2 border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-center transition-all peer-checked:border-green-500 peer-checked:bg-white dark:peer-checked:bg-slate-800 peer-checked:shadow-lg peer-checked:shadow-green-500/5">
                                     <i class="fa-solid fa-baby mb-2 text-slate-300 peer-checked:text-green-500 transition-colors"></i>
                                     <p class="text-[10px] font-black text-slate-900 dark:text-white uppercase">Infant</p>
-                                    <p class="text-[9px] font-bold text-slate-400">0-18M</p>
+                                    <p class="text-[9px] font-bold text-slate-400">0-23M</p>
                                 </div>
                             </label>
 
                             <label class="relative cursor-pointer group/radio">
-                                <input type="radio" name="age_group" value="toddler" class="peer sr-only" {% if room.age_group == "toddler" %}checked{% endif %}>
+                                <input type="radio" name="age_group" value="2y" class="peer sr-only" {% if room.age_group == "2y" %}checked{% endif %}>
                                 <div class="p-4 rounded-2xl border-2 border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-center transition-all peer-checked:border-green-500 peer-checked:bg-white dark:peer-checked:bg-slate-800 peer-checked:shadow-lg peer-checked:shadow-green-500/5">
                                     <i class="fa-solid fa-shapes mb-2 text-slate-300 peer-checked:text-green-500 transition-colors"></i>
-                                    <p class="text-[10px] font-black text-slate-900 dark:text-white uppercase">Toddler</p>
-                                    <p class="text-[9px] font-bold text-slate-400">18M-3Y</p>
+                                    <p class="text-[10px] font-black text-slate-900 dark:text-white uppercase">2 Years</p>
+                                    <p class="text-[9px] font-bold text-slate-400">2Y</p>
                                 </div>
                             </label>
 
                             <label class="relative cursor-pointer group/radio">
-                                <input type="radio" name="age_group" value="preschool" class="peer sr-only" {% if room.age_group == "preschool" %}checked{% endif %}>
+                                <input type="radio" name="age_group" value="3y" class="peer sr-only" {% if room.age_group == "3y" %}checked{% endif %}>
+                                <div class="p-4 rounded-2xl border-2 border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-center transition-all peer-checked:border-green-500 peer-checked:bg-white dark:peer-checked:bg-slate-800 peer-checked:shadow-lg peer-checked:shadow-green-500/5">
+                                    <i class="fa-solid fa-shapes mb-2 text-slate-300 peer-checked:text-green-500 transition-colors"></i>
+                                    <p class="text-[10px] font-black text-slate-900 dark:text-white uppercase">3 Years</p>
+                                    <p class="text-[9px] font-bold text-slate-400">3Y</p>
+                                </div>
+                            </label>
+
+                            <label class="relative cursor-pointer group/radio">
+                                <input type="radio" name="age_group" value="4y" class="peer sr-only" {% if room.age_group == "4y" %}checked{% endif %}>
                                 <div class="p-4 rounded-2xl border-2 border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-center transition-all peer-checked:border-green-500 peer-checked:bg-white dark:peer-checked:bg-slate-800 peer-checked:shadow-lg peer-checked:shadow-green-500/5">
                                     <i class="fa-solid fa-book-open-reader mb-2 text-slate-300 peer-checked:text-green-500 transition-colors"></i>
-                                    <p class="text-[10px] font-black text-slate-900 dark:text-white uppercase">Pre-K</p>
-                                    <p class="text-[9px] font-bold text-slate-400">3Y-5Y</p>
+                                    <p class="text-[10px] font-black text-slate-900 dark:text-white uppercase">4 Years</p>
+                                    <p class="text-[9px] font-bold text-slate-400">4Y</p>
+                                </div>
+                            </label>
+
+                            <label class="relative cursor-pointer group/radio">
+                                <input type="radio" name="age_group" value="5y+" class="peer sr-only" {% if room.age_group == "5y+" %}checked{% endif %}>
+                                <div class="p-4 rounded-2xl border-2 border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-center transition-all peer-checked:border-green-500 peer-checked:bg-white dark:peer-checked:bg-slate-800 peer-checked:shadow-lg peer-checked:shadow-green-500/5">
+                                    <i class="fa-solid fa-graduation-cap mb-2 text-slate-300 peer-checked:text-green-500 transition-colors"></i>
+                                    <p class="text-[10px] font-black text-slate-900 dark:text-white uppercase">5+ Years</p>
+                                    <p class="text-[9px] font-bold text-slate-400">5Y+</p>
                                 </div>
                             </label>
                         </div>

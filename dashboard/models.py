@@ -44,18 +44,37 @@ class Center(models.Model):
 
 
 class Room(models.Model):
+    AGE_GROUP_CHOICES = [
+        ('infant', 'Infant (0-23 months)'),
+        ('2y', '2 years'),
+        ('3y', '3 years'),
+        ('4y', '4 years'),
+        ('5y+', '5+ years'),
+    ]
+    
+    # Capacity per educator for each age group (based on NB regulations)
+    CAPACITY_PER_EDUCATOR = {
+        'infant': 5,    # Infants: 1 educator per 5 children
+        '2y': 6,       # 2 years: 1 educator per 6 children
+        '3y': 10,       # 3 years: 1 educator per 10 children
+        '4y': 12,       # 4 years: 1 educator per 12 children
+        '5y+': 15,     # 5+ years: 1 educator per 15 children
+    }
+    
     room_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     center = models.ForeignKey(Center, on_delete=models.CASCADE, related_name="rooms")
     name = models.CharField(max_length=100)
-    room_surface = models.DecimalField(
-        max_digits=10, decimal_places=2, help_text="Room surface area in square meters"
-    )
-    max_capacity = models.IntegerField(
-        help_text="Maximum capacity based on fire regulations"
-    )
     age_group = models.CharField(
-        max_length=100, blank=True, help_text="Intended age group for the room"
+        max_length=100, choices=AGE_GROUP_CHOICES, help_text="Intended age group for the room"
     )
+    max_capacity = models.IntegerField(default=0, help_text="Maximum capacity (auto-calculated based on age group)")
+
+    def save(self, *args, **kwargs):
+        # Auto-calculate capacity based on age group
+        if self.age_group and self.age_group in self.CAPACITY_PER_EDUCATOR:
+            # Default to 1 educator, calculate capacity
+            self.max_capacity = self.CAPACITY_PER_EDUCATOR[self.age_group]
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

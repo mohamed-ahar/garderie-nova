@@ -129,12 +129,27 @@
     
                             <div class="grid grid-cols-2 gap-3 mb-6">
                                 <div class="p-4 bg-white/10 border border-white/10 group-hover:bg-slate-50 group-hover:border-slate-100 rounded-3xl transition-all duration-500">
-                                    <p class="text-[8px] font-black text-white/50 group-hover:text-slate-400 uppercase tracking-widest mb-1">Surface</p>
+                                    <p class="text-[8px] font-black text-white/50 group-hover:text-slate-400 uppercase tracking-widest mb-1">Age Group</p>
                                     <div class="flex items-baseline gap-1">
-                                        <span class="text-xl font-black text-white group-hover:text-slate-900 transition-colors">{{ room.room_surface }}</span>
-                                        <span class="text-[10px] font-bold text-white/40 group-hover:text-slate-400">m²</span>
+                                        <span class="text-lg font-black text-white group-hover:text-slate-900 transition-colors">
+                                            {% if room.age_group == 'infant' %}Infant
+                                            {% elif room.age_group == '2y' %}2 Years
+                                            {% elif room.age_group == '3y' %}3 Years
+                                            {% elif room.age_group == '4y' %}4 Years
+                                            {% elif room.age_group == '5y+' %}5+ Years
+                                            {% else %}Not Set{% endif %}
+                                        </span>
                                     </div>
                                 </div>
+                                <div class="p-4 bg-white/10 border border-white/10 group-hover:bg-slate-50 group-hover:border-slate-100 rounded-3xl transition-all duration-500">
+                                    <p class="text-[8px] font-black text-white/50 group-hover:text-slate-400 uppercase tracking-widest mb-1">Max Capacity</p>
+                                    <div class="flex items-baseline gap-1">
+                                        <span class="text-xl font-black text-white group-hover:text-slate-900 transition-colors">{{ room.max_capacity }}</span>
+                                        <span class="text-[10px] font-bold text-white/40 group-hover:text-slate-400">children</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 gap-3 mb-6">
                                 <div class="p-4 bg-white/10 border border-white/10 group-hover:bg-slate-50 group-hover:border-slate-100 rounded-3xl transition-all duration-500">
                                     <p class="text-[8px] font-black text-white/50 group-hover:text-slate-400 uppercase tracking-widest mb-1">Status</p>
                                     <div class="flex items-center gap-2">

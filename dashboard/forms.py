@@ -139,22 +139,19 @@ class AssignDirectorForm(forms.ModelForm):
 class RoomForm(forms.ModelForm):
     class Meta:
         model = Room
-        fields = ['name', 'room_surface','max_capacity','age_group']
+        fields = ['name', 'age_group']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all',
                 'placeholder': 'Room name (e.g., Room A)'
             }),
-            'room_surface': forms.NumberInput(attrs={
+            'age_group': forms.Select(attrs={
                 'class': 'w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all',
-                'placeholder': 'Room surface area in m²',
-                'step': '0.01',
-                'min': '0'
             }),
         }
         labels = {
             'name': 'Room Name',
-            'room_surface': 'Room Surface (m²)',
+            'age_group': 'Age Group',
         }
 
 class CSVUploadForm(forms.Form):
