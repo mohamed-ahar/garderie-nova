@@ -1,11 +1,13 @@
 "use client";
 
-import { MessageSquare, Plus, Search, Settings } from "lucide-react";
+import { MessageSquare, Plus, Search, Settings, UserPlus, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState, useEffect } from "react";
+import { UserSearchDialog } from "./user-search-dialog";
+import { InvitationsDialog } from "./invitations-dialog";
 
 export interface Contact {
   id: string;
@@ -24,10 +26,27 @@ interface ChatSidebarProps {
   selectedId?: string | null;
   contacts: Contact[];
   loading: boolean;
+  onRefreshContacts?: () => void;
 }
 
-export function ChatSidebar({ onSelectChat, onSelectContact, currentUser, selectedId, contacts, loading }: ChatSidebarProps) {
+export function ChatSidebar({ onSelectChat, onSelectContact, currentUser, selectedId, contacts, loading, onRefreshContacts }: ChatSidebarProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isInvitesOpen, setIsInvitesOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    const fetchPending = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/chat/invitations/", { credentials: 'include' });
+        const data = await res.json();
+        setPendingCount(data.received.length);
+      } catch (err) { }
+    };
+    fetchPending();
+    const interval = setInterval(fetchPending, 30000); // Check every 30s
+    return () => clearInterval(interval);
+  }, []);
 
   const filteredContacts = contacts.filter(c => 
     c.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -39,10 +58,30 @@ export function ChatSidebar({ onSelectChat, onSelectContact, currentUser, select
       {/* Sidebar Header */}
       <div className="p-4 border-b flex items-center justify-between sticky top-0 bg-background z-10">
         <h2 className="font-semibold text-lg tracking-tight">Messages</h2>
-        <Button variant="ghost" size="icon">
-          <Plus className="h-5 w-5" />
-        </Button>
+        <div className="flex gap-1">
+          <Button variant="ghost" size="icon" className="relative" onClick={() => setIsInvitesOpen(true)} title="Invitations">
+            <Inbox className="h-5 w-5" />
+            {pendingCount > 0 && (
+              <span className="absolute top-1 right-1 flex h-3 w-3 items-center justify-center rounded-full bg-primary text-[8px] font-bold text-primary-foreground">
+                {pendingCount}
+              </span>
+            )}
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => setIsSearchOpen(true)} title="Find People">
+            <UserPlus className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
+
+      <UserSearchDialog isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <InvitationsDialog 
+        isOpen={isInvitesOpen} 
+        onClose={() => setIsInvitesOpen(false)} 
+        onActionSuccess={() => {
+          onRefreshContacts?.();
+          setPendingCount(prev => Math.max(0, prev - 1));
+        }}
+      />
 
       {/* Search Bar */}
       <div className="p-4">

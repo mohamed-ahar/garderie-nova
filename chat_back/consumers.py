@@ -2,7 +2,8 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
-from .models import Message
+from django.db.models import Q
+from .models import Message, ChatInvitation, Block
 
 User = get_user_model()
 
@@ -51,6 +52,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
             content = data.get("content")
 
             if not recipient_id or not content:
+                return
+
+            # CHECK PERMISSION
+            can_message = await self.check_permission(recipient_id)
+            if not can_message:
+                await self.send(text_data=json.dumps({
+                    "type": "error",
+                    "message": "You do not have permission to message this user."
+                }))
                 return
 
             # Save message to database
@@ -113,6 +123,32 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def messages_read(self, event):
         await self.send(text_data=json.dumps(event))
+
+    @database_sync_to_async
+    def check_permission(self, recipient_id):
+        try:
+            recipient = User.objects.get(user_id=recipient_id)
+            
+            # Check if blocked
+            is_blocked = Block.objects.filter(
+                (Q(blocker=self.user, blocked=recipient)) |
+                (Q(blocker=recipient, blocked=self.user))
+            ).exists()
+            if is_blocked: return False
+
+            # Check if invitation accepted
+            # NOTE: Owner/Admin can talk to everyone
+            if self.user.role_type in ["admin", "owner"] or recipient.role_type in ["admin", "owner"]:
+                return True
+
+            is_connected = ChatInvitation.objects.filter(
+                (Q(sender=self.user, recipient=recipient) | Q(sender=recipient, recipient=self.user)),
+                status='accepted'
+            ).exists()
+            
+            return is_connected
+        except User.DoesNotExist:
+            return False
 
     @database_sync_to_async
     def save_message(self, recipient_id, content):

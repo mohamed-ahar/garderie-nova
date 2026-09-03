@@ -8,6 +8,8 @@ export interface Message {
   recipient_id?: string;
   sender_name: string;
   content: string;
+  attachment?: string;
+  attachment_type?: "image" | "video" | "file";
   timestamp: string;
   is_delivered?: boolean;
   is_read?: boolean;
@@ -201,5 +203,54 @@ export function useChat(
     }
   }, [recipientId]);
 
-  return { messages, sendMessage, isConnected, setMessages, isLoadingHistory };
+  const sendFile = useCallback(async (file: File, content: string = "") => {
+    if (!recipientId) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("recipient_id", recipientId);
+    formData.append("content", content);
+    
+    let type: "image" | "video" | "file" = "file";
+    if (file.type.startsWith("image/")) type = "image";
+    else if (file.type.startsWith("video/")) type = "video";
+    
+    formData.append("attachment_type", type);
+
+    const getCookie = (name: string) => {
+      let cookieValue = null;
+      if (typeof document !== 'undefined' && document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    };
+
+    try {
+      const response = await fetch("http://localhost:8000/chat/upload/", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-CSRFToken": getCookie('csrftoken') || "",
+        },
+        credentials: 'include',
+      });
+      
+      if (!response.ok) throw new Error("Upload failed");
+      
+      const data = await response.json();
+      return data.message;
+    } catch (error) {
+      console.error("Error sending file:", error);
+      throw error;
+    }
+  }, [recipientId]);
+
+  return { messages, sendMessage, sendFile, isConnected, setMessages, isLoadingHistory };
 }
