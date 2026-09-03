@@ -31,6 +31,20 @@ def unblock_user(request, user_id):
         return JsonResponse({"error": "User not found"}, status=404)
 
 @login_required
+def get_blocked_users(request):
+    blocked_rels = Block.objects.filter(blocker=request.user).select_related('blocked')
+    return JsonResponse({
+        "blocked_users": [
+            {
+                "id": str(b.blocked.user_id),
+                "name": b.blocked.full_name,
+                "email": b.blocked.email,
+                "role": b.blocked.role_type
+            } for b in blocked_rels
+        ]
+    })
+
+@login_required
 def get_contacts(request):
     user = request.user
     role = user.role_type

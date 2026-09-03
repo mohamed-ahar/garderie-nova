@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquare, Plus, Search, Settings, UserPlus, Inbox } from "lucide-react";
+import { MessageSquare, Plus, Search, Settings, UserPlus, Inbox, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState, useEffect } from "react";
 import { UserSearchDialog } from "./user-search-dialog";
 import { InvitationsDialog } from "./invitations-dialog";
+import { BlockedUsersDialog } from "./blocked-users-dialog";
 
 export interface Contact {
   id: string;
@@ -33,6 +34,7 @@ export function ChatSidebar({ onSelectChat, onSelectContact, currentUser, select
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isInvitesOpen, setIsInvitesOpen] = useState(false);
+  const [isBlockedOpen, setIsBlockedOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
@@ -81,6 +83,11 @@ export function ChatSidebar({ onSelectChat, onSelectContact, currentUser, select
           onRefreshContacts?.();
           setPendingCount(prev => Math.max(0, prev - 1));
         }}
+      />
+      <BlockedUsersDialog 
+        isOpen={isBlockedOpen} 
+        onClose={() => setIsBlockedOpen(false)} 
+        onUnblockSuccess={onRefreshContacts}
       />
 
       {/* Search Bar */}
@@ -151,8 +158,8 @@ export function ChatSidebar({ onSelectChat, onSelectContact, currentUser, select
             <div className="text-[10px] text-muted-foreground uppercase truncate">{currentUser?.role}</div>
           </div>
         </div>
-        <Button variant="ghost" size="icon" className="shrink-0">
-          <Settings className="h-4 w-4" />
+        <Button variant="ghost" size="icon" className="shrink-0" onClick={() => setIsBlockedOpen(true)} title="Blocked Users">
+          <Ban className="h-4 w-4" />
         </Button>
       </div>
     </div>
