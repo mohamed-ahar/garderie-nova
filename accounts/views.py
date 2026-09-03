@@ -87,10 +87,32 @@ def logout_view(request):
 def owner_dashboard(request):
     centers = Center.objects.filter(
         organization__owner__user=request.user
-    ).select_related("organization", "director", "director__user")
- 
-    centers_count=centers.count()
-    return render(request, "owner_dashboard.html",{"centers": centers, "centers_count": centers_count})
+    ).select_related("organization", "director", "director__user").prefetch_related("groups")
+    
+    # Calculate sum of ratios for each center
+    centers_with_ratios = []
+    for center in centers:
+        # Sum all current_total_points from all groups in this center
+        total_ratio_points = sum(
+            group.current_total_points for group in center.groups.all()
+        )
+        # Convert back to actual ratio (stored as integer * 1000)
+        total_ratio = total_ratio_points / 1000.0
+        
+        centers_with_ratios.append({
+            "center": center,
+            "director": center.director,
+            "total_ratio": total_ratio,
+            "total_ratio_points": total_ratio_points,
+            "group_count": center.groups.count(),
+        })
+    
+    centers_count = centers.count()
+    return render(request, "owner_dashboard.html", {
+        "centers": centers,
+        "centers_count": centers_count,
+        "centers_with_ratios": centers_with_ratios,
+    })
 
 
 @login_required

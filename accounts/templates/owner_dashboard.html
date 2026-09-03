@@ -90,6 +90,94 @@
 
    
 
+
+    <!-- Centers Overview with Director and Ratio Information -->
+    <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-8 shadow-[0_20px_50px_rgba(0,0,0,0.05)] mb-8">
+        <div class="flex items-center gap-4 mb-8">
+            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-rose-500 rounded-2xl flex items-center justify-center">
+                <i class="fa-solid fa-building text-white"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Centers Overview</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Director assignments and group ratio summaries</p>
+            </div>
+        </div>
+
+        {% if centers_with_ratios %}
+        <div class="grid gap-4">
+            {% for item in centers_with_ratios %}
+            <div class="group relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 hover:border-indigo-500/30 transition-all duration-300">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <!-- Center Info -->
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center shadow-sm">
+                            <i class="fa-solid fa-school text-indigo-500 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ item.center.name }}</h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">{{ item.center.address|truncatechars:50 }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Director Info -->
+                    <div class="flex items-center gap-3 px-4 py-2 bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600">
+                        <div class="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center">
+                            <i class="fa-solid fa-user-tie text-white text-xs"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Director</p>
+                            {% if item.director %}
+                            <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ item.director.user.full_name }}</p>
+                            {% else %}
+                            <p class="text-sm font-semibold text-rose-500">Not Assigned</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="flex items-center gap-6">
+                        <!-- Groups Count -->
+                        <div class="text-center px-4 py-2 bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600">
+                            <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Groups</p>
+                            <p class="text-xl font-black text-slate-900 dark:text-white">{{ item.group_count }}</p>
+                        </div>
+
+                        <!-- Total Ratio -->
+                        <div class="text-center px-4 py-2 bg-gradient-to-br from-indigo-50 to-rose-50 dark:from-indigo-900/20 dark:to-rose-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800">
+                            <p class="text-xs text-indigo-600 dark:text-indigo-400 uppercase tracking-wider font-semibold">Total Ratio</p>
+                            <p class="text-2xl font-black bg-gradient-to-r from-indigo-500 to-rose-500 bg-clip-text text-transparent">
+                                {{ item.total_ratio|floatformat:3 }}
+                            </p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400">points: {{ item.total_ratio_points }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar for Ratio Visualization -->
+                <div class="mt-4">
+                    <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+                        <span>Ratio Utilization</span>
+                        <span>{% if item.total_ratio > 0 %}{{ item.total_ratio|floatformat:1 }}/1.0+{% else %}0{% endif %}</span>
+                    </div>
+                    <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-indigo-500 to-rose-500 rounded-full transition-all duration-500" 
+                             style="width: {% if item.total_ratio > 1 %}100{% else %}{{ item.total_ratio|floatformat:3|add:0|floatformat:0 }}{% endif %}%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-building-circle-xmark text-slate-400 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">No Centers Found</h3>
+            <p class="text-slate-500 dark:text-slate-400">You don't have any centers assigned to your organization yet.</p>
+        </div>
+        {% endif %}
+    </div>
 </div>
 <style>
     @keyframes grow-width {
