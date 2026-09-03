@@ -8,6 +8,7 @@ from dashboard.models import Child, ParentChildRelationship
 from communication.models import DirectorConnection
 from .models import Message, ChatInvitation, Block
 from .utils import get_allowed_contact_ids
+from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 def block_user(request, user_id):
@@ -187,6 +188,7 @@ def get_invitations(request):
     })
 
 @login_required
+@csrf_exempt
 def mark_messages_as_read(request, recipient_id):
     messages = Message.objects.filter(
         sender_id=recipient_id,
@@ -210,6 +212,7 @@ def mark_messages_as_read(request, recipient_id):
     return JsonResponse({"status": "success"})
 
 @login_required
+@csrf_exempt
 def get_messages(request, recipient_id):
     user = request.user
     page_number = request.GET.get('page', 1)
