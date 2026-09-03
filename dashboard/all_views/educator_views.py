@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-from ..models import Child
+from ..models import Child, ParentChildRelationship
 from datetime import date, timedelta, datetime
 from children.models import WeeklyChildReport, DailyActivityLog, Attendance
 from children.forms import DailyCheckupForm, AttendanceForm
@@ -77,6 +77,176 @@ def export_weekly_daily_report_pdf(request, child_id):
         
         response = HttpResponse(pdf, content_type='application/pdf')
         filename = f"weekly_report_{child.first_name}_{start_of_week}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+    except ImportError:
+        return HttpResponse("WeasyPrint not installed", status=500)
+
+@login_required(login_url="login")
+def parent_export_weekly_report_pdf(request, child_id):
+    """
+    Allow parents to export weekly reports for their children.
+    Only accessible by parents who are linked to the child.
+    """
+    user = request.user
+    
+    # Check if user is a parent
+    if user.role_type != "parent":
+        return render(request, "core/403.html", status=403)
+    
+    child = get_object_or_404(Child, child_id=child_id)
+    
+    # Verify that the requesting user is a parent of this child
+    is_parent = ParentChildRelationship.objects.filter(
+        parent=user.parent_profile,
+        child=child
+    ).exists()
+    
+    if not is_parent:
+        return render(request, "core/403.html", status=403)
+    
+    # Get the week start date from query params
+    date_str = request.GET.get('week_start')
+    if date_str:
+        try:
+            start_of_week = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            today = date.today()
+            start_of_week = today - timedelta(days=today.weekday())
+    else:
+        today = date.today()
+        start_of_week = today - timedelta(days=today.weekday())
+
+    week_days = [start_of_week + timedelta(days=i) for i in range(5)]
+    
+    # Get the logs for these 5 days
+    logs_map = {}
+    logs = DailyActivityLog.objects.filter(
+        report__child=child,
+        date__range=[week_days[0], week_days[-1]]
+    ).select_related('signed_by')
+    
+    for log in logs:
+        logs_map[log.date] = log
+
+    # Prepare data for each day
+    days_data = []
+    for day in week_days:
+        log = logs_map.get(day)
+        
+        # Process food tracking for easier template access
+        food = {}
+        if log:
+            for entry in log.food_tracking:
+                food[entry.get('name')] = entry.get('amount')
+        
+        # Ensure diaper logs has entries
+        diaper_entries = log.diaper_logs if log else []
+        while len(diaper_entries) < 7:
+            diaper_entries.append({})
+
+        days_data.append({
+            'date': day,
+            'log': log,
+            'food': food,
+            'diapers': diaper_entries
+        })
+
+    context = {
+        "child": child,
+        "days_data": days_data,
+        "start_of_week": start_of_week,
+        "center": child.center,
+        "request": request
+    }
+
+    html_string = render_to_string("core/educators/weekly_daily_report_pdf.html", context)
+    
+    try:
+        from weasyprint import HTML
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        pdf = html.write_pdf()
+        
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = f"rapport_hebdomadaire_{child.first_name}_{start_of_week}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+    except ImportError:
+        return HttpResponse("WeasyPrint not installed", status=500)
+
+@login_required(login_url="login")
+def parent_export_attendance_pdf(request, child_id):
+    """
+    Allow parents to export attendance reports for their children.
+    Only accessible by parents who are linked to the child.
+    """
+    user = request.user
+    
+    # Check if user is a parent
+    if user.role_type != "parent":
+        return render(request, "core/403.html", status=403)
+    
+    child = get_object_or_404(Child, child_id=child_id)
+    
+    # Verify that the requesting user is a parent of this child
+    is_parent = ParentChildRelationship.objects.filter(
+        parent=user.parent_profile,
+        child=child
+    ).exists()
+    
+    if not is_parent:
+        return render(request, "core/403.html", status=403)
+    
+    # Get the week start date from query params
+    date_str = request.GET.get('week_start')
+    if date_str:
+        try:
+            start_of_week = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            today = date.today()
+            start_of_week = today - timedelta(days=today.weekday())
+    else:
+        today = date.today()
+        start_of_week = today - timedelta(days=today.weekday())
+
+    week_days = [start_of_week + timedelta(days=i) for i in range(5)]
+    
+    # Get attendance for each day - format for template compatibility
+    days_data = []
+    for day in week_days:
+        records = Attendance.objects.filter(child=child, date=day).order_by('arrival_time')
+        has_presence = records.filter(is_absent=False).exists()
+        is_absent = records.filter(is_absent=True).exists() and not has_presence
+        
+        days_data.append({
+            'date': day,
+            'records': records.filter(is_absent=False),
+            'is_absent': records.filter(is_absent=True).first() if is_absent else None
+        })
+
+    # Format as report_data for template compatibility
+    report_data = [{
+        'child': child,
+        'days': days_data
+    }]
+
+    context = {
+        "report_data": report_data,
+        "week_days": week_days,
+        "start_of_week": start_of_week,
+        "center": child.center,
+        "educator": None,  # Parent export doesn't need educator
+    }
+
+    html_string = render_to_string("core/educators/weekly_attendance_pdf.html", context)
+    
+    try:
+        from weasyprint import HTML
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        pdf = html.write_pdf()
+        
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = f"presence_{child.first_name}_{start_of_week}.pdf"
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
     except ImportError:

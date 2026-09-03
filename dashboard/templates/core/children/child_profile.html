@@ -107,6 +107,12 @@
                 </button>
                 
                 {% if user.role_type == 'parent' %}
+                <button onclick="switchTab('reports')" id="tab-reports" class="w-full text-left px-6 py-4 rounded-2xl font-bold transition-all text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md">
+                    <i class="fa-solid fa-file-pdf w-6"></i> Reports
+                </button>
+                {% endif %}
+                
+                {% if user.role_type == 'parent' %}
                 <a href="{% url 'enrollment_edit' child.child_id %}" class="block w-full mt-6 px-6 py-4 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-center transition-all shadow-lg shadow-rose-500/30 hover:-translate-y-0.5">
                     <i class="fa-solid fa-pen-to-square mr-2"></i> Edit Profile
                 </a>
@@ -426,6 +432,103 @@
                     <div class="alert alert-info">Development details not available.</div>
                 {% endif %}
             </div>
+
+            <!-- Reports Tab - Only visible to parents -->
+            <div id="content-reports" class="space-y-6 tab-content hidden">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 shadow-sm border border-rose-100 dark:border-slate-800">
+                    <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 text-sm">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+                        Download Reports
+                    </h3>
+                    <p class="text-slate-500 dark:text-slate-400 mb-8">Export and download your child's weekly reports and attendance records.</p>
+                    
+                    <!-- Weekly Activity Report -->
+                    <div class="p-6 rounded-2xl bg-gradient-to-r from-rose-50 to-orange-50 dark:from-rose-900/20 dark:to-orange-900/20 border border-rose-100 dark:border-rose-800 mb-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/30">
+                                    <i class="fa-solid fa-utensils text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-black text-slate-900 dark:text-white">Weekly Activity Report</h4>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">Download daily activities, meals, naps, and more</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-3">
+                                <a href="{% url 'parent_export_weekly_report_pdf' child.child_id %}" class="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-rose-500/30 hover:-translate-y-0.5 flex items-center gap-2">
+                                    <i class="fa-solid fa-download"></i>
+                                    This Week
+                                </a>
+                                <a href="{% url 'parent_export_weekly_report_pdf' child.child_id %}?week_start={{ prev_week|urlencode }}" class="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                    Last Week
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Report -->
+                    <div class="p-6 rounded-2xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-100 dark:border-blue-800">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl bg-blue-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                                    <i class="fa-solid fa-calendar-check text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-black text-slate-900 dark:text-white">Attendance Report</h4>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">Download attendance records and presence history</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-3">
+                                <a href="{% url 'parent_export_attendance_pdf' child.child_id %}" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 flex items-center gap-2">
+                                    <i class="fa-solid fa-download"></i>
+                                    This Week
+                                </a>
+                                <a href="{% url 'parent_export_attendance_pdf' child.child_id %}?week_start={{ prev_week|urlencode }}" class="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                    Last Week
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">This Week</p>
+                        </div>
+                        <p class="text-2xl font-black text-slate-900 dark:text-white">{{ stats.present_days|default:0 }}/{{ stats.total_days|default:5 }} Days</p>
+                        <p class="text-xs text-slate-500">Days present this week</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">Arrival</p>
+                        </div>
+                        <p class="text-2xl font-black text-slate-900 dark:text-white">{{ stats.avg_arrival|default:"--:--" }}</p>
+                        <p class="text-xs text-slate-500">Average arrival time</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                                <i class="fa-solid fa-moon"></i>
+                            </div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">Nap Time</p>
+                        </div>
+                        <p class="text-2xl font-black text-slate-900 dark:text-white">{{ stats.avg_nap|default:"N/A" }}</p>
+                        <p class="text-xs text-slate-500">Average nap duration</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -456,7 +559,7 @@ function switchTab(tabId) {
 document.addEventListener('DOMContentLoaded', () => {
     // Check hash on load
     const hash = window.location.hash.replace('#', '');
-    if (hash && ['identity', 'health', 'development'].includes(hash)) {
+    if (hash && ['identity', 'health', 'development', 'reports'].includes(hash)) {
         switchTab(hash);
     }
 });
