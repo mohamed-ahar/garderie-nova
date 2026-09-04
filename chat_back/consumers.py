@@ -5,8 +5,9 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.utils import timezone
 from django.core.cache import cache
-from .models import Message, ChatInvitation, Block
+from .models import Message, ChatInvitation
 from .utils import get_allowed_contact_ids
+from dashboard.models import Child
 
 User = get_user_model()
 
@@ -85,6 +86,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         message_type = data.get("type", "chat_message")
 
+        # Get the host from the scope for URL building
+        headers = dict(self.scope.get('headers', []))
+        host = headers.get(b'host', b'localhost:8000').decode()
+
         if message_type == "chat_message":
             recipient_id = data.get("recipient_id")
             content = data.get("content")
@@ -108,6 +113,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 recipient_group_name = f"user_{recipient_id}"
                 sender_group_name = f"user_{self.user.user_id}"
                 
+                # Build attachment info with full URL
+                attachment_url = None
+                if message.attachment:
+                    attachment_url = f"http://{host}/media/{message.attachment.name}"
+                
+                # Build profile photo URL
+                profile_photo_url = None
+                try:
+                    if self.user.profile_photo:
+                        profile_photo_url = f"http://{host}{self.user.profile_photo.url}"
+                except:
+                    pass
+                
                 message_data = {
                     "type": "chat_message",
                     "message": {
@@ -115,7 +133,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         "sender_id": str(self.user.user_id),
                         "recipient_id": str(recipient_id),
                         "sender_name": self.user.full_name,
+                        "sender_profile_photo": profile_photo_url,
                         "content": content,
+                        "attachment": attachment_url,
+                        "attachment_type": message.attachment_type,
                         "timestamp": message.timestamp.isoformat(),
                         "is_delivered": message.is_delivered,
                         "is_read": message.is_read,
@@ -217,35 +238,69 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             recipient = User.objects.get(user_id=recipient_id)
             
-            # Check if blocked
-            is_blocked = Block.objects.filter(
-                (Q(blocker=self.user, blocked=recipient)) |
-                (Q(blocker=recipient, blocked=self.user))
-            ).exists()
-            if is_blocked: return False
-
-            # Check if invitation accepted
-            # NOTE: Owner/Admin can talk to everyone
-            if self.user.role_type in ["admin", "owner"] or recipient.role_type in ["admin", "owner"]:
+            # 1. Admin/Owner/Directors
+            if (
+                self.user.role_type in ["admin", "owner"] or 
+                recipient.role_type in ["admin", "owner"] or
+                (self.user.role_type == "director" and recipient.role_type == "director")
+            ):
                 return True
 
-            is_connected = ChatInvitation.objects.filter(
+            # 2. Accepted invitation
+            if ChatInvitation.objects.filter(
                 (Q(sender=self.user, recipient=recipient) | Q(sender=recipient, recipient=self.user)),
                 status='accepted'
-            ).exists()
+            ).exists():
+                return True
+
+            # 3. Contextual connections (Same center, assigned children, etc.)
+            user = self.user
+            if user.role_type == "parent" and recipient.role_type == "parent":
+                user_centers = Child.objects.filter(parent_relationships__parent__user=user).values_list("center_id", flat=True)
+                return Child.objects.filter(parent_relationships__parent__user=recipient, center_id__in=user_centers).exists()
             
-            return is_connected
+            if user.role_type == "educator" and recipient.role_type == "director":
+                u_prof = getattr(user, "educator_profile", None)
+                r_prof = getattr(recipient, "director_profile", None)
+                if u_prof and r_prof and r_prof.managed_center:
+                    return str(u_prof.center_id) == str(r_prof.managed_center.center_id)
+            
+            if user.role_type == "director" and recipient.role_type == "educator":
+                u_prof = getattr(user, "director_profile", None)
+                r_prof = getattr(recipient, "educator_profile", None)
+                if u_prof and r_prof and u_prof.managed_center:
+                    return str(u_prof.managed_center.center_id) == str(r_prof.center_id)
+
+            if user.role_type == "parent" and recipient.role_type == "educator":
+                return Child.objects.filter(parent_relationships__parent__user=user, assigned_educator__user=recipient).exists()
+            
+            if user.role_type == "educator" and recipient.role_type == "parent":
+                return Child.objects.filter(parent_relationships__parent__user=recipient, assigned_educator__user=user).exists()
+
+            if user.role_type == "director" and recipient.role_type == "parent":
+                u_prof = getattr(user, "director_profile", None)
+                if u_prof and u_prof.managed_center:
+                    return Child.objects.filter(parent_relationships__parent__user=recipient, center_id=u_prof.managed_center.center_id).exists()
+
+            if user.role_type == "parent" and recipient.role_type == "director":
+                r_prof = getattr(recipient, "director_profile", None)
+                if r_prof and r_prof.managed_center:
+                    return Child.objects.filter(parent_relationships__parent__user=user, center_id=r_prof.managed_center.center_id).exists()
+
+            return False
         except User.DoesNotExist:
             return False
 
     @database_sync_to_async
-    def save_message(self, recipient_id, content):
+    def save_message(self, recipient_id, content, attachment=None, attachment_type=None):
         try:
             recipient = User.objects.get(user_id=recipient_id)
             return Message.objects.create(
                 sender=self.user,
                 recipient=recipient,
-                content=content
+                content=content,
+                attachment=attachment,
+                attachment_type=attachment_type
             )
         except User.DoesNotExist:
             return None

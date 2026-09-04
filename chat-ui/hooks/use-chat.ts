@@ -7,6 +7,7 @@ export interface Message {
   sender_id: string;
   recipient_id?: string;
   sender_name: string;
+  sender_profile_photo?: string | null;
   content: string;
   attachment?: string;
   attachment_type?: "image" | "video" | "file";
@@ -20,7 +21,8 @@ export function useChat(
   recipientId: string | null, 
   currentUserId: string | null,
   onAnyMessageReceived?: (message: any) => void,
-  onStatusUpdate?: (status: { user_id: string; is_online: boolean; last_seen?: string }) => void
+  onStatusUpdate?: (status: { user_id: string; is_online: boolean; last_seen?: string }) => void,
+  currentUser?: { id: string; name: string; profile_photo?: string | null } | null
 ) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
@@ -28,6 +30,7 @@ export function useChat(
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastTempIdRef = useRef<string | null>(null);
 
   // Use refs for values needed in the onmessage handler to avoid closure staleness
   const recipientIdRef = useRef(recipientId);
@@ -126,14 +129,30 @@ export function useChat(
         const curRecipientId = recipientIdRef.current;
         const curUserId = currentUserIdRef.current;
 
+        // Debug logging
+        console.log("Processing chat_message:", {
+          messageSender: newMessage.sender_id,
+          messageRecipient: newMessage.recipient_id,
+          currentUser: curUserId,
+          currentRecipient: curRecipientId
+        });
+
         newMessage.role = newMessage.sender_id === curUserId ? "user" : "received";
         
         // Notify parent about ANY received message (for sidebar)
         onAnyMessageReceivedRef.current?.(newMessage);
 
         // ONLY append to messages if it belongs to the current conversation
-        const isFromMeToHim = newMessage.sender_id === curUserId && newMessage.recipient_id === curRecipientId;
-        const isFromHimToMe = newMessage.sender_id === curRecipientId && newMessage.recipient_id === curUserId;
+        // Convert to strings for comparison to handle UUID vs string mismatches
+        const msgSenderId = String(newMessage.sender_id).toLowerCase();
+        const msgRecipientId = String(newMessage.recipient_id).toLowerCase();
+        const curUserIdStr = String(curUserId).toLowerCase();
+        const curRecipientIdStr = String(curRecipientId).toLowerCase();
+
+        const isFromMeToHim = msgSenderId === curUserIdStr && msgRecipientId === curRecipientIdStr;
+        const isFromHimToMe = msgSenderId === curRecipientIdStr && msgRecipientId === curUserIdStr;
+
+        console.log("Message filter check:", { isFromMeToHim, isFromHimToMe });
 
         if (isFromMeToHim || isFromHimToMe) {
           if (isFromHimToMe && socket.readyState === WebSocket.OPEN) {
@@ -143,6 +162,21 @@ export function useChat(
             }));
           }
           setMessages((prev) => {
+            // Check if we have a temp message that needs to be replaced
+            const tempIndex = prev.findIndex(m => 
+              typeof m.id === 'string' && 
+              m.id.startsWith('temp_') && 
+              m.content === newMessage.content &&
+              m.sender_id === newMessage.sender_id
+            );
+            
+            if (tempIndex !== -1) {
+              // Replace temp message with real one
+              const updated = [...prev];
+              updated[tempIndex] = newMessage;
+              return updated;
+            }
+            
             // Prevent duplicates (e.g. from same-sender broadcast)
             if (prev.some(m => m.id === newMessage.id)) return prev;
             return [...prev, newMessage];
@@ -221,6 +255,25 @@ export function useChat(
 
   const sendMessage = useCallback((content: string) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN && recipientId) {
+      // Create optimistic message for immediate display
+      const tempId = `temp_${Date.now()}`;
+      const optimisticMessage: Message = {
+        id: tempId,
+        sender_id: currentUserId || "",
+        recipient_id: recipientId,
+        sender_name: currentUser?.name || "You",
+        sender_profile_photo: currentUser?.profile_photo || null,
+        content: content,
+        timestamp: new Date().toISOString(),
+        is_delivered: false,
+        is_read: false,
+        role: "user"
+      };
+      
+      // Add optimistic message immediately
+      setMessages(prev => [...prev, optimisticMessage]);
+      
+      // Send via WebSocket
       socketRef.current.send(
         JSON.stringify({
           type: "chat_message",
@@ -228,8 +281,11 @@ export function useChat(
           content: content,
         })
       );
+      
+      // Store temp ID for replacement when real message arrives
+      lastTempIdRef.current = tempId;
     }
-  }, [recipientId]);
+  }, [recipientId, currentUserId, currentUser]);
 
   const sendJson = useCallback((data: any) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
@@ -240,15 +296,35 @@ export function useChat(
   const sendFile = useCallback(async (file: File, content: string = "") => {
     if (!recipientId) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("recipient_id", recipientId);
-    formData.append("content", content);
-    
     let type: "image" | "video" | "file" = "file";
     if (file.type.startsWith("image/")) type = "image";
     else if (file.type.startsWith("video/")) type = "video";
     
+    // Create optimistic message for immediate display (with local blob URL)
+    const tempId = `temp_${Date.now()}`;
+    const localBlobUrl = URL.createObjectURL(file);
+    const optimisticMessage: Message = {
+      id: tempId,
+      sender_id: currentUserId || "",
+      recipient_id: recipientId,
+      sender_name: currentUser?.name || "You",
+      sender_profile_photo: currentUser?.profile_photo || null,
+      content: content,
+      attachment: localBlobUrl,
+      attachment_type: type,
+      timestamp: new Date().toISOString(),
+      is_delivered: false,
+      is_read: false,
+      role: "user"
+    };
+    
+    // Add optimistic message immediately
+    setMessages(prev => [...prev, optimisticMessage]);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("recipient_id", recipientId);
+    formData.append("content", content);
     formData.append("attachment_type", type);
 
     const getCookie = (name: string) => {
@@ -279,12 +355,37 @@ export function useChat(
       if (!response.ok) throw new Error("Upload failed");
       
       const data = await response.json();
+      
+      // Replace optimistic message with real one from server
+      setMessages(prev => {
+        const index = prev.findIndex(m => m.id === tempId);
+        if (index !== -1) {
+          const updated = [...prev];
+          updated[index] = {
+            ...data.message,
+            role: "user" as const
+          };
+          // Clean up local blob URL
+          URL.revokeObjectURL(localBlobUrl);
+          return updated;
+        }
+        // Clean up local blob URL if not found
+        URL.revokeObjectURL(localBlobUrl);
+        return prev;
+      });
+      
       return data.message;
     } catch (error) {
       console.error("Error sending file:", error);
+      // Remove optimistic message on error
+      setMessages(prev => {
+        const filtered = prev.filter(m => m.id !== tempId);
+        URL.revokeObjectURL(localBlobUrl);
+        return filtered;
+      });
       throw error;
     }
-  }, [recipientId]);
+  }, [recipientId, currentUserId, currentUser]);
 
   return { messages, sendMessage, sendJson, sendFile, isConnected, setMessages, isLoadingHistory };
 }

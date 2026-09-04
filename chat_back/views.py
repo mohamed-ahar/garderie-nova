@@ -6,56 +6,15 @@ from django.core.paginator import Paginator
 from accounts.models import User, Educator, Director
 from dashboard.models import Child, ParentChildRelationship
 from communication.models import DirectorConnection
-from .models import Message, ChatInvitation, Block
+from .models import Message, ChatInvitation
 from .utils import get_allowed_contact_ids
 from django.views.decorators.csrf import csrf_exempt
-
-@login_required
-@csrf_exempt
-def block_user(request, user_id):
-    try:
-        user_to_block = User.objects.get(user_id=user_id)
-        Block.objects.get_or_create(blocker=request.user, blocked=user_to_block)
-        ChatInvitation.objects.filter(
-            (Q(sender=request.user) & Q(recipient=user_to_block)) |
-            (Q(sender=user_to_block) & Q(recipient=request.user))
-        ).delete()
-        return JsonResponse({"status": "success"})
-    except User.DoesNotExist:
-        return JsonResponse({"error": "User not found"}, status=404)
-
-@login_required
-@csrf_exempt
-def unblock_user(request, user_id):
-    try:
-        user_to_unblock = User.objects.get(user_id=user_id)
-        Block.objects.filter(blocker=request.user, blocked=user_to_unblock).delete()
-        return JsonResponse({"status": "success"})
-    except User.DoesNotExist:
-        return JsonResponse({"error": "User not found"}, status=404)
-
-@login_required
-@csrf_exempt
-def get_blocked_users(request):
-    blocked_rels = Block.objects.filter(blocker=request.user).select_related('blocked')
-    return JsonResponse({
-        "blocked_users": [
-            {
-                "id": str(b.blocked.user_id),
-                "name": b.blocked.full_name,
-                "email": b.blocked.email,
-                "role": b.blocked.role_type
-            } for b in blocked_rels
-        ]
-    })
 
 @login_required
 @csrf_exempt
 def get_contacts(request):
     user = request.user
     allowed_user_ids = get_allowed_contact_ids(user)
-
-    blocked_by_me = list(Block.objects.filter(blocker=user).values_list('blocked_id', flat=True))
 
     last_msg_subquery = Message.objects.filter(
         (Q(sender=OuterRef('pk')) & Q(recipient=user)) |
@@ -86,9 +45,9 @@ def get_contacts(request):
             "name": u.full_name,
             "role": u.role_type,
             "avatar": u.full_name[:2].upper() if u.full_name else "??",
+            "profile_photo": request.build_absolute_uri(u.profile_photo.url) if u.profile_photo else None,
             "lastMessage": u.last_message_text if u.last_message_text else (f"Sent an {u.last_message_type}" if u.last_message_type else ""),
             "unreadCount": u.unread_count if u.unread_count else 0,
-            "is_blocked": str(u.user_id) in blocked_by_me,
             "is_online": u.is_online
         }
         for u in contacts_qs
@@ -103,26 +62,85 @@ def search_users(request):
     if not query:
         return JsonResponse({"users": []})
     
-    users = User.objects.filter(
+    user = request.user
+    users_qs = User.objects.filter(
         Q(full_name__icontains=query) | Q(email__icontains=query)
-    ).exclude(user_id=request.user.user_id)[:10]
+    ).exclude(user_id=user.user_id)
+
+    if user.role_type == 'educator':
+        educator_profile = getattr(user, 'educator_profile', None)
+        if educator_profile and educator_profile.center:
+            users_qs = users_qs.filter(
+                role_type='educator',
+                educator_profile__center=educator_profile.center
+            )
+        else:
+            users_qs = users_qs.none()
+    elif user.role_type == 'parent':
+        parent_profile = getattr(user, 'parent_profile', None)
+        if parent_profile:
+            # Find all centers where this parent has children
+            centers = Child.objects.filter(parent_relationships__parent=parent_profile).values_list('center', flat=True).distinct()
+            users_qs = users_qs.filter(
+                role_type='parent',
+                parent_profile__children_relationships__child__center__in=centers
+            ).distinct()
+        else:
+            users_qs = users_qs.none()
+    elif user.role_type in ['director', 'vice_director']:
+        # Directors can find ALL other directors
+        # PLUS educators and parents in their center
+        center = None
+        if user.role_type == "director":
+            profile = getattr(user, "director_profile", None)
+            center = getattr(profile, "managed_center", None) if profile else None
+        else: # vice_director
+            profile = getattr(user, "vice_director_profile", None)
+            center = profile.center if profile else None
+        
+        if center:
+            users_qs = users_qs.filter(
+                Q(role_type='director') | 
+                Q(role_type='educator', educator_profile__center=center) |
+                Q(role_type='parent', parent_profile__children_relationships__child__center=center)
+            ).distinct()
+        else:
+            users_qs = users_qs.filter(role_type='director')
+    elif user.role_type == 'owner':
+        owner_profile = getattr(user, "owner_profile", None)
+        org = getattr(owner_profile, "owned_organization", None) if owner_profile else None
+        if org:
+            users_qs = users_qs.filter(
+                Q(role_type='director', director_profile__organization=org) |
+                Q(role_type='educator', educator_profile__center__organization=org) |
+                Q(role_type='parent', parent_profile__children_relationships__child__center__organization=org)
+            ).distinct()
+        else:
+            users_qs = users_qs.none()
     
-    sent_invites = {i.recipient_id: i.status for i in request.user.sent_invitations.all()}
-    received_invites = {i.sender_id: i.status for i in request.user.received_invitations.all()}
+    users = users_qs[:10]
+    
+    sent_invites = {}
+    received_invites = {}
+    if user.role_type == 'educator':
+        sent_invites = {i.recipient_id: i.status for i in request.user.sent_invitations.all()}
+        received_invites = {i.sender_id: i.status for i in request.user.received_invitations.all()}
     
     results = []
     for u in users:
         status = "none"
-        if u.id in sent_invites:
-            status = f"sent_{sent_invites[u.id]}"
-        elif u.id in received_invites:
-            status = f"received_{received_invites[u.id]}"
+        if user.role_type == 'educator':
+            if u.user_id in sent_invites:
+                status = f"sent_{sent_invites[u.user_id]}"
+            elif u.user_id in received_invites:
+                status = f"received_{received_invites[u.user_id]}"
             
         results.append({
             "id": str(u.user_id),
             "name": u.full_name,
             "email": u.email,
             "role": u.role_type,
+            "profile_photo": request.build_absolute_uri(u.profile_photo.url) if u.profile_photo else None,
             "invitation_status": status
         })
         
@@ -239,6 +257,7 @@ def get_messages(request, recipient_id):
             "id": msg.id,
             "sender_id": str(msg.sender.user_id),
             "sender_name": msg.sender.full_name,
+            "sender_profile_photo": request.build_absolute_uri(msg.sender.profile_photo.url) if msg.sender.profile_photo else None,
             "content": msg.content,
             "attachment": request.build_absolute_uri(msg.attachment.url) if msg.attachment else None,
             "attachment_type": msg.attachment_type,
@@ -271,17 +290,49 @@ def upload_file(request):
         try:
             recipient = User.objects.get(user_id=recipient_id)
             
-            is_blocked = Block.objects.filter(
-                (Q(blocker=request.user, blocked=recipient)) |
-                (Q(blocker=recipient, blocked=request.user))
-            ).exists()
+            # Allow messaging if:
+            # 1. Either is an admin/owner
+            # 2. Both are directors
+            # 3. They have an accepted invitation
+            # 4. Peer Parents in the same center
+            # 5. Peer Educators in the same center
+            # 6. Educator <-> Director of same center
+            # 7. Educator <-> Parent of assigned child
             
-            is_connected = ChatInvitation.objects.filter(
-                (Q(sender=request.user, recipient=recipient) | Q(sender=recipient, recipient=request.user)),
-                status='accepted'
-            ).exists() or request.user.role_type in ["admin", "owner"] or recipient.role_type in ["admin", "owner"]
+            is_connected = (
+                request.user.role_type in ["admin", "owner"] or 
+                recipient.role_type in ["admin", "owner"] or
+                (request.user.role_type == "director" and recipient.role_type == "director") or
+                ChatInvitation.objects.filter(
+                    (Q(sender=request.user, recipient=recipient) | Q(sender=recipient, recipient=request.user)),
+                    status='accepted'
+                ).exists()
+            )
 
-            if is_blocked or not is_connected:
+            if not is_connected:
+                # Check contextual connections
+                user = request.user
+                if user.role_type == "parent" and recipient.role_type == "parent":
+                    user_centers = Child.objects.filter(parent_relationships__parent__user=user).values_list("center_id", flat=True)
+                    is_connected = Child.objects.filter(parent_relationships__parent__user=recipient, center_id__in=user_centers).exists()
+                
+                elif user.role_type == "educator" and recipient.role_type == "director":
+                    u_prof = getattr(user, "educator_profile", None)
+                    r_prof = getattr(recipient, "director_profile", None)
+                    is_connected = u_prof and r_prof and u_prof.center_id == getattr(r_prof.managed_center, "center_id", None)
+                
+                elif user.role_type == "director" and recipient.role_type == "educator":
+                    u_prof = getattr(user, "director_profile", None)
+                    r_prof = getattr(recipient, "educator_profile", None)
+                    is_connected = u_prof and r_prof and getattr(u_prof.managed_center, "center_id", None) == r_prof.center_id
+
+                elif user.role_type == "parent" and recipient.role_type == "educator":
+                    is_connected = Child.objects.filter(parent_relationships__parent__user=user, assigned_educator__user=recipient).exists()
+                
+                elif user.role_type == "educator" and recipient.role_type == "parent":
+                    is_connected = Child.objects.filter(parent_relationships__parent__user=recipient, assigned_educator__user=user).exists()
+
+            if not is_connected:
                 return JsonResponse({"error": "No permission to message this user"}, status=403)
 
             message = Message.objects.create(
@@ -303,6 +354,7 @@ def upload_file(request):
                     "sender_id": str(request.user.user_id),
                     "recipient_id": str(recipient_id),
                     "sender_name": request.user.full_name,
+                    "sender_profile_photo": request.build_absolute_uri(request.user.profile_photo.url) if request.user.profile_photo else None,
                     "content": content,
                     "attachment": request.build_absolute_uri(message.attachment.url),
                     "attachment_type": attachment_type,

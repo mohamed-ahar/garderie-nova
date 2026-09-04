@@ -227,6 +227,7 @@ def get_me(request):
         "full_name": request.user.full_name,
         "email": request.user.email,
         "role_type": request.user.role_type,
+        "profile_photo": request.user.profile_photo.url if request.user.profile_photo else None,
     })
 
 

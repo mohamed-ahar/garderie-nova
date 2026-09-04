@@ -17,7 +17,7 @@ import { getCookie } from "@/lib/utils";
 import { MediaPreview } from "@/components/media-preview";
 
 export default function Home() {
-  const [currentUser, setCurrentUser] = useState<{ id: string; name: string; role: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ id: string; name: string; role: string; profile_photo?: string | null } | null>(null);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isContactsLoading, setIsContactsLoading] = useState(true);
@@ -32,21 +32,33 @@ export default function Home() {
 
   // Handle updates to contacts from WebSocket or other events
   const updateContactsOnMessage = useCallback((newMessage: any) => {
+    console.log("Sidebar updateContactsOnMessage called:", newMessage);
+    
     setContacts(prev => {
-      const partnerId = newMessage.sender_id === currentUser?.id ? newMessage.recipient_id : newMessage.sender_id;
+      // Convert IDs to lowercase strings for robust comparison
+      const msgSenderId = String(newMessage.sender_id).toLowerCase();
+      const msgRecipientId = String(newMessage.recipient_id).toLowerCase();
+      const currentUserId = String(currentUser?.id).toLowerCase();
+      const selectedId = String(selectedContact?.id).toLowerCase();
+      
+      const partnerId = msgSenderId === currentUserId ? msgRecipientId : msgSenderId;
+      console.log("Calculated partnerId:", partnerId, "selectedId:", selectedId);
 
-      const existingContact = prev.find(c => c.id === partnerId);
-      if (!existingContact) return prev;
+      const existingContact = prev.find(c => String(c.id).toLowerCase() === partnerId);
+      if (!existingContact) {
+        console.log("No existing contact found for partnerId:", partnerId);
+        return prev;
+      }
 
       const updatedContact = {
         ...existingContact,
         lastMessage: newMessage.attachment_type ? `Sent an ${newMessage.attachment_type}` : newMessage.content,
-        unreadCount: (newMessage.sender_id === partnerId && selectedContact?.id !== partnerId)
+        unreadCount: (msgSenderId === partnerId && selectedId !== partnerId)
           ? (existingContact.unreadCount || 0) + 1
           : existingContact.unreadCount
       };
 
-      return [updatedContact, ...prev.filter(c => c.id !== partnerId)];
+      return [updatedContact, ...prev.filter(c => String(c.id).toLowerCase() !== partnerId)];
     });
   }, [currentUser?.id, selectedContact?.id]);
 
@@ -64,7 +76,8 @@ export default function Home() {
     selectedContact?.id || null,
     currentUser?.id || null,
     updateContactsOnMessage,
-    handleStatusUpdate
+    handleStatusUpdate,
+    currentUser
   );
 
   const [inputValue, setInputValue] = useState("");
@@ -109,7 +122,8 @@ export default function Home() {
           setCurrentUser({
             id: data.user_id,
             name: data.full_name,
-            role: data.role_type
+            role: data.role_type,
+            profile_photo: data.profile_photo ? `http://localhost:8000${data.profile_photo}` : null
           });
         }
       })
@@ -174,11 +188,11 @@ export default function Home() {
     }
   }, [selectedContact?.id, onlineStatuses]);
 
-  // Refresh contacts periodically to update online status
+  // Refresh contacts periodically to update online status (less frequently)
   useEffect(() => {
     const interval = setInterval(() => {
       fetchContacts();
-    }, 30000); // Refresh every 30 seconds
+    }, 60000); // Refresh every 60 seconds to reduce unnecessary refreshes
     return () => clearInterval(interval);
   }, [fetchContacts]);
 
@@ -268,10 +282,6 @@ export default function Home() {
               <ChatHeader 
                 isConnected={isConnected} 
                 selectedContact={selectedContact} 
-                onBlockUpdate={() => {
-                  fetchContacts();
-                  setSelectedContact(null);
-                }}
               />
             </div>
           )}
@@ -306,7 +316,10 @@ export default function Home() {
                   key={msg.id || index}
                   variant={msg.role === "user" ? "sent" : "received"}
                 >
-                  <ChatBubbleAvatar fallback={msg.sender_name?.[0] || "U"} />
+                  <ChatBubbleAvatar 
+                    src={msg.sender_profile_photo || undefined} 
+                    fallback={msg.sender_name?.[0] || "U"} 
+                  />
                   <ChatBubbleMessage
                     variant={msg.role === "user" ? "sent" : "received"}
                     className={msg.role === "user" ? "bg-primary text-primary-foreground shadow-md" : "bg-white border shadow-sm"}
