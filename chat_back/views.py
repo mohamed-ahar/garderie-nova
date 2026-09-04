@@ -11,6 +11,7 @@ from .utils import get_allowed_contact_ids
 from django.views.decorators.csrf import csrf_exempt
 
 @login_required
+@csrf_exempt
 def block_user(request, user_id):
     try:
         user_to_block = User.objects.get(user_id=user_id)
@@ -24,6 +25,7 @@ def block_user(request, user_id):
         return JsonResponse({"error": "User not found"}, status=404)
 
 @login_required
+@csrf_exempt
 def unblock_user(request, user_id):
     try:
         user_to_unblock = User.objects.get(user_id=user_id)
@@ -33,6 +35,7 @@ def unblock_user(request, user_id):
         return JsonResponse({"error": "User not found"}, status=404)
 
 @login_required
+@csrf_exempt
 def get_blocked_users(request):
     blocked_rels = Block.objects.filter(blocker=request.user).select_related('blocked')
     return JsonResponse({
@@ -47,6 +50,7 @@ def get_blocked_users(request):
     })
 
 @login_required
+@csrf_exempt
 def get_contacts(request):
     user = request.user
     allowed_user_ids = get_allowed_contact_ids(user)
@@ -93,6 +97,7 @@ def get_contacts(request):
     return JsonResponse({"contacts": contacts})
 
 @login_required
+@csrf_exempt
 def search_users(request):
     query = request.GET.get('q', '')
     if not query:
@@ -124,6 +129,7 @@ def search_users(request):
     return JsonResponse({"users": results})
 
 @login_required
+@csrf_exempt
 def send_invitation(request):
     recipient_id = request.POST.get('recipient_id')
     if not recipient_id:
@@ -145,6 +151,7 @@ def send_invitation(request):
         return JsonResponse({"error": "User not found"}, status=404)
 
 @login_required
+@csrf_exempt
 def manage_invitation(request, invitation_id):
     action = request.POST.get('action')
     try:
@@ -164,6 +171,7 @@ def manage_invitation(request, invitation_id):
         return JsonResponse({"error": "Invitation not found"}, status=404)
 
 @login_required
+@csrf_exempt
 def get_invitations(request):
     received = request.user.received_invitations.filter(status='pending')
     sent = request.user.sent_invitations.filter(status='pending')
@@ -249,6 +257,7 @@ def get_messages(request, recipient_id):
     })
 
 @login_required
+@csrf_exempt
 def upload_file(request):
     if request.method == 'POST' and request.FILES.get('file'):
         uploaded_file = request.FILES['file']
