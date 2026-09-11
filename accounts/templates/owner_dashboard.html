@@ -97,73 +97,136 @@
             <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-rose-500 rounded-2xl flex items-center justify-center">
                 <i class="fa-solid fa-building text-white"></i>
             </div>
-            <div>
-                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Centers Overview</h2>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Director assignments and group ratio summaries</p>
+            <div class="relative group flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 rounded-[2rem] bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-800/50 border border-slate-200/60 dark:border-slate-800/60 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] transition-all duration-500 hover:shadow-[0_20px_50px_-12px_rgba(79,70,229,0.1)]">
+    
+                <div class="flex items-center gap-6">
+                    <div class="relative flex-shrink-0">
+                        <div class="absolute -inset-2 bg-gradient-to-r from-indigo-500 to-rose-500 rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                        
+                        <div class="relative w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-sm border border-slate-100 dark:border-slate-700 rotate-3 group-hover:rotate-0 transition-all duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-transparent rounded-2xl"></div>
+                            <i class="fa-solid fa-chart-line text-2xl bg-gradient-to-br from-indigo-600 to-rose-500 bg-clip-text text-transparent"></i>
+                        </div>
+                        
+                        <span class="absolute -top-1 -right-1 flex h-4 w-4">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-4 w-4 bg-indigo-500 border-2 border-white dark:border-slate-900"></span>
+                        </span>
+                    </div>
+            
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-3">
+                            <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-300">
+                                Centers Overview
+                            </h2>
+                            <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/50">
+                                Live Data
+                            </span>
+                        </div>
+                        <p class="text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                            <i class="fa-solid fa-layer-group text-indigo-400/70 text-xs"></i>
+                            Director assignments and group ratio summaries
+                        </p>
+                    </div>
+                </div>
+            
+                <div class="flex items-center gap-3 self-end md:self-center">
+                    <div class="flex -space-x-3 overflow-hidden">
+                        <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-slate-900 bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                            <i class="fa-solid fa-user-tie text-[10px] text-slate-400"></i>
+                        </div>
+                        <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-slate-900 bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                            <i class="fa-solid fa-users-gear text-[10px] text-slate-400"></i>
+                        </div>
+                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500 ring-2 ring-white dark:ring-slate-900 text-[10px] font-bold text-white shadow-lg shadow-indigo-200">
+                            +4
+                        </div>
+                    </div>
+                    <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
+                    <button class="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-500 hover:border-indigo-500 hover:shadow-lg transition-all active:scale-90">
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </button>
+                </div>
+            
+                <div class="absolute bottom-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent"></div>
             </div>
         </div>
 
         {% if centers_with_ratios %}
-        <div class="grid gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for item in centers_with_ratios %}
-            <div class="group relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 hover:border-indigo-500/30 transition-all duration-300">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    <!-- Center Info -->
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center shadow-sm">
-                            <i class="fa-solid fa-school text-indigo-500 text-xl"></i>
+            <div class="group relative flex flex-col bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200/60 dark:border-slate-800 p-2 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden">
+                
+                <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-colors duration-500"></div>
+        
+                <div class="relative p-6 pb-2">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-rose-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200/50 dark:shadow-none transition-transform duration-500 group-hover:rotate-6">
+                            <i class="fa-solid fa-school text-white text-xl"></i>
                         </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ item.center.name }}</h3>
-                            <p class="text-sm text-slate-500 dark:text-slate-400">{{ item.center.address|truncatechars:50 }}</p>
+                        <div class="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <span class="text-xs font-black text-slate-600 dark:text-slate-300 tracking-tighter">{{ item.group_count }} Groups</span>
                         </div>
                     </div>
-
-                    <!-- Director Info -->
-                    <div class="flex items-center gap-3 px-4 py-2 bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600">
-                        <div class="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center">
-                            <i class="fa-solid fa-user-tie text-white text-xs"></i>
+                    
+                    <h3 class="text-xl font-black text-slate-900 dark:text-white mb-1 group-hover:text-indigo-600 transition-colors">{{ item.center.name }}</h3>
+                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                        <i class="fa-solid fa-location-dot text-[10px] text-rose-400"></i>
+                        {{ item.center.address|truncatechars:35 }}
+                    </p>
+                </div>
+        
+                <div class="flex-grow p-6 pt-2">
+                    <div class="flex items-center gap-3 p-3 bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700/50 mb-6">
+                        <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-[10px] shadow-sm shadow-emerald-200">
+                            <i class="fa-solid fa-user-tie"></i>
                         </div>
-                        <div>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Director</p>
+                        <div class="overflow-hidden">
+                            <p class="text-[9px] text-slate-400 uppercase font-black tracking-widest">Director</p>
                             {% if item.director %}
-                            <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ item.director.user.full_name }}</p>
+                            <p class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{{ item.director.user.full_name }}</p>
                             {% else %}
-                            <p class="text-sm font-semibold text-rose-500">Not Assigned</p>
+                            <p class="text-xs font-bold text-rose-500 italic">Unassigned</p>
                             {% endif %}
                         </div>
                     </div>
-
-                    <!-- Stats -->
-                    <div class="flex items-center gap-6">
-                        <!-- Groups Count -->
-                        <div class="text-center px-4 py-2 bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600">
-                            <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Groups</p>
-                            <p class="text-xl font-black text-slate-900 dark:text-white">{{ item.group_count }}</p>
+        
+                    <div class="relative p-5 rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 text-white overflow-hidden shadow-lg shadow-indigo-200 dark:shadow-none">
+                        <div class="relative z-10 flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] opacity-70 uppercase font-black tracking-widest">Efficiency Ratio</p>
+                                <p class="text-3xl font-black">{{ item.total_ratio|floatformat:3 }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[9px] opacity-70 uppercase font-bold tracking-tighter">Points</p>
+                                <p class="text-lg font-black">{{ item.total_ratio_points }}</p>
+                            </div>
                         </div>
-
-                        <!-- Total Ratio -->
-                        <div class="text-center px-4 py-2 bg-gradient-to-br from-indigo-50 to-rose-50 dark:from-indigo-900/20 dark:to-rose-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800">
-                            <p class="text-xs text-indigo-600 dark:text-indigo-400 uppercase tracking-wider font-semibold">Total Ratio</p>
-                            <p class="text-2xl font-black bg-gradient-to-r from-indigo-500 to-rose-500 bg-clip-text text-transparent">
-                                {{ item.total_ratio|floatformat:3 }}
-                            </p>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400">points: {{ item.total_ratio_points }}</p>
+                        <i class="fa-solid fa-chart-simple absolute -right-2 -bottom-2 text-5xl opacity-10 rotate-12"></i>
+                    </div>
+                </div>
+        
+                <div class="p-6 pt-0 mt-auto">
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="text-[10px] font-black text-slate-400 uppercase">Usage Capacity</span>
+                        <span class="text-[11px] font-bold {% if item.total_ratio > 0.9 %}text-rose-500{% else %}text-indigo-600{% endif %}">
+                            {% if item.total_ratio > 0 %}{{ item.total_ratio|floatformat:1 }}{% else %}0{% endif %} / 1.0
+                        </span>
+                    </div>
+                    <div class="h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-200 dark:border-slate-700">
+                        <div class="h-full bg-gradient-to-r from-indigo-400 via-purple-500 to-rose-500 rounded-full transition-all duration-1000"
+                             style="width: {% if item.total_ratio >= 1 %}100{% else %}{% widthratio item.total_ratio 1 100 %}{% endif %}%">
                         </div>
                     </div>
                 </div>
-
-                <!-- Progress Bar for Ratio Visualization -->
-                <div class="mt-4">
-                    <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
-                        <span>Ratio Utilization</span>
-                        <span>{% if item.total_ratio > 0 %}{{ item.total_ratio|floatformat:1 }}/1.0+{% else %}0{% endif %}</span>
-                    </div>
-                    <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-indigo-500 to-rose-500 rounded-full transition-all duration-500" 
-                             style="width: {% if item.total_ratio > 1 %}100{% else %}{{ item.total_ratio|floatformat:3|add:0|floatformat:0 }}{% endif %}%">
-                        </div>
-                    </div>
+        
+                <div class="absolute top-4 right-4 flex flex-col gap-2 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                    <button class="w-8 h-8 bg-white/90 dark:bg-slate-800/90 backdrop-blur rounded-lg shadow-md flex items-center justify-center text-slate-500 hover:text-indigo-500 transition-colors">
+                        <i class="fa-solid fa-pen-to-square text-xs"></i>
+                    </button>
+                    <button class="w-8 h-8 bg-white/90 dark:bg-slate-800/90 backdrop-blur rounded-lg shadow-md flex items-center justify-center text-slate-500 hover:text-rose-500 transition-colors">
+                        <i class="fa-solid fa-gear text-xs"></i>
+                    </button>
                 </div>
             </div>
             {% endfor %}
