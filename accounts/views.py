@@ -40,7 +40,7 @@ def login_view(request):
                 return render(
                     request,
                     "login.html",
-                    {"error": "Invalid password. Please try again.", "type": "error"},
+                    {"error": "Invalid email or password. Please try again.", "type": "error"},
                 )
         else:
             # Username/Email ghalat
@@ -49,7 +49,7 @@ def login_view(request):
                 request,
                 "login.html",
                 {
-                    "error": "No account found with this email/username.",
+                    "error": "Invalid email or password. Please try again.",
                     "type": "error",
                 },
             )

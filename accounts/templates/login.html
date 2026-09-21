@@ -25,33 +25,6 @@
         }
         </script>
         <style>
-        #global-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #ffffff;
-            z-index: 99999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
-        }
-        html.dark #global-loader { background-color: #020617; }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(34, 197, 94, 0.2);
-            border-left-color: #16a34a;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-6px); }
@@ -70,13 +43,6 @@
         </style>
     </head>
     <body class="bg-white dark:bg-slate-950 font-sans antialiased">
-        <div id="global-loader">
-            <div class="spinner"></div>
-            <div style="margin-top: 20px;
-                        font-weight: 700;
-                        color: #16a34a;
-                        letter-spacing: -0.5px">GarderieNova</div>
-        </div>
         <div class="fixed top-6 right-6 z-50 flex items-center gap-3">
             <div class="relative">
                 <select id="langSwitcher"
@@ -252,10 +218,7 @@
                                 <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] skew-x-[-20deg]">
                                 </div>
                                 <div class="flex justify-center items-center gap-3 relative z-10">
-                                    <i id="btnSpinner"
-                                       class="fa-solid fa-circle-notch fa-spin hidden text-lg"></i>
-                                    <span id="btnText"
-                                          class="uppercase tracking-widest text-sm"
+                                    <span class="uppercase tracking-widest text-sm"
                                           data-i18n="btn_login">Authenticate</span>
                                     <i class="fa-solid fa-chevron-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
                                 </div>
@@ -277,16 +240,6 @@
             </style>
         </div>
         <script>
-        function removeLoader() {
-            const loader = document.getElementById('global-loader');
-            if (loader) {
-                loader.style.opacity = '0';
-                loader.style.visibility = 'hidden';
-            }
-        }
-        window.addEventListener('load', () => setTimeout(removeLoader, 500));
-        
-        // ... rest of your original scripts (translations, theme toggle, etc) ...
         const translations = {
             en: {
                 hero_1: 'Childcare Management', hero_2: 'optimized', hero_3: 'for NB families.',
@@ -325,8 +278,6 @@
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('garderie_theme', isDark ? 'dark' : 'light');
             themeIcon.className = isDark ? 'fa-solid fa-moon text-lg' : 'fa-solid fa-sun text-lg';
-            const loader = document.getElementById('global-loader');
-            if(loader) loader.style.backgroundColor = isDark ? '#020617' : '#ffffff';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -341,15 +292,6 @@
             themeToggle.addEventListener('click', toggleTheme);
         });
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            const btn = document.getElementById('loginBtn');
-            const spinner = document.getElementById('btnSpinner');
-            const text = document.getElementById('btnText');
-            btn.classList.add('opacity-80', 'pointer-events-none');
-            spinner.classList.remove('hidden');
-            const currentLang = localStorage.getItem('garderie_lang') || 'en';
-            text.textContent = currentLang === 'fr' ? 'Vérification...' : 'Verifying Credentials...';
-        });
         </script>
     </body>
 </html>
