@@ -232,7 +232,7 @@
         
                 <div class="divide-y divide-slate-100 dark:divide-slate-800/50">
                     {% for group in groups %}
-                    <div class="group/row p-6 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10 transition-all cursor-pointer">
+                    <a href="{% url 'group_edit' group.group_id %}" class="group/row block p-6 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10 transition-all cursor-pointer">
                         <div class="flex flex-col md:flex-row md:items-center gap-6">
                             
                             <div class="relative">
@@ -301,7 +301,7 @@
                                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em]">Updated Just Now</span>
                             </div>
                         </div>
-                    </div>
+                    </a>
                     {% endfor %}
                 </div>
             </div>
