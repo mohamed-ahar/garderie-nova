@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load dashboard_tags %}
 {% block content %}
 <div class="relative min-h-screen bg-white dark:bg-slate-950 overflow-hidden">
     
@@ -197,14 +198,19 @@
                 <div class="relative z-10 text-left">
                     <div class="flex items-center justify-between mb-4">
                         <div class="p-2 bg-violet-500/10 rounded-xl text-violet-500">
-                            <i class="fa-solid fa-microchip text-sm"></i>
+                            <i class="fa-solid fa-scale-balanced text-sm"></i>
                         </div>
-                        <i class="fa-solid fa-check-double {% if open_alerts > 0 %}text-amber-500{% else %}text-emerald-500{% endif %} text-[10px]"></i>
+                        <span class="text-[9px] font-black {% if total_educators >= total_required_educators %}text-emerald-500{% else %}text-amber-500{% endif %} uppercase tracking-widest">
+                            {% if total_educators >= total_required_educators %}Compliant{% else %}Understaffed{% endif %}
+                        </span>
                     </div>
-                    <p class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-1">System Status</p>
-                    <h3 class="text-3xl font-black {% if open_alerts > 0 %}text-amber-500{% else %}text-emerald-500{% endif %} tracking-tighter">
-                        {% if open_alerts > 0 %}Alert{% else %}Optimal{% endif %}
+                    <p class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-1">Center Ratio</p>
+                    <h3 class="text-3xl font-black {% if overall_ratio %}text-violet-500{% else %}text-slate-400{% endif %} tracking-tighter">
+                        {% if overall_ratio %}1:{{ overall_ratio }}{% else %}N/A{% endif %}
                     </h3>
+                    <p class="text-[9px] text-slate-400 mt-1">
+                        {{ total_educators }} / {{ total_required_educators }} staff required
+                    </p>
                 </div>
             </div>
         </div>
@@ -248,18 +254,33 @@
                                 </div>
                                 
                                 <div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                    {% if group.calculated_max_capacity > 0 %}
                                     <div class="h-full {% if group.is_compliant %}bg-emerald-500{% else %}bg-rose-500{% endif %} transition-all duration-1000" 
-                                         style="width: {% if group.current_occupancy > 0 %}{{ group.current_occupancy }}{% else %}15{% endif %}%"></div>
+                                         style="width: {% widthratio group.current_occupancy group.calculated_max_capacity 100 %}%"></div>
+                                    {% else %}
+                                    <div class="h-full bg-slate-300 dark:bg-slate-700 transition-all duration-1000" style="width: 0%"></div>
+                                    {% endif %}
                                 </div>
         
                                 <div class="flex items-center gap-6">
                                     <div class="flex items-center gap-2">
                                         <i class="fa-solid fa-child text-emerald-500 text-xs"></i>
-                                        <span class="text-xs font-bold text-slate-600 dark:text-slate-300">{{ group.current_occupancy }} <span class="text-slate-400 font-medium tracking-tight">Children</span></span>
+                                        <span class="text-xs font-bold text-slate-600 dark:text-slate-300">{{ group.current_occupancy }} / {{ group.calculated_max_capacity }} <span class="text-slate-400 font-medium tracking-tight">Children</span></span>
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <i class="fa-solid fa-user-tie text-emerald-500 text-xs"></i>
                                         <span class="text-xs font-bold text-slate-600 dark:text-slate-300">{{ group.current_educators }} / {{ group.required_educators }} <span class="text-slate-400 font-medium tracking-tight">Staff</span></span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-scale-balanced text-blue-500 text-xs"></i>
+                                        <span class="text-xs font-bold text-slate-600 dark:text-slate-300">
+                                            {% if group.current_educators > 0 and group.current_occupancy > 0 %}
+                                                1:{{ group.current_occupancy|div:group.current_educators }}
+                                            {% else %}
+                                                N/A
+                                            {% endif %}
+                                            <span class="text-slate-400 font-medium tracking-tight">Ratio</span>
+                                        </span>
                                     </div>
                                 </div>
                             </div>

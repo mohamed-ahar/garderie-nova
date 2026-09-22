@@ -136,6 +136,8 @@ def director_dashboard(request):
     total_educators = 0
     active_children = 0
     open_alerts = 0
+    overall_ratio = None
+    total_required_educators = 0
 
     if center:
         groups = center.groups.all().order_by('name')
@@ -149,6 +151,11 @@ def director_dashboard(request):
         total_educators = Educator.objects.filter(center=center).count()
         active_children = Child.objects.filter(center=center, status='active').count()
         open_alerts = groups.filter(is_compliant=False).count()
+        
+        # Calculate overall center ratio and total required educators
+        total_required_educators = sum(g.required_educators for g in groups)
+        if total_educators > 0 and active_children > 0:
+            overall_ratio = active_children // total_educators
 
     context = {
         'center': center,
@@ -158,6 +165,8 @@ def director_dashboard(request):
         'total_educators': total_educators,
         'active_children': active_children,
         'open_alerts': open_alerts,
+        'overall_ratio': overall_ratio,
+        'total_required_educators': total_required_educators,
     }
     return render(request, "director_dashboard.html", context)
 
