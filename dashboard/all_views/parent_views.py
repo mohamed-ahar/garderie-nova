@@ -14,6 +14,7 @@ from ..models import (
     User,
     TransferRequest,
     TransferSignature,
+    TransferHistory,
 )
 
 
@@ -421,6 +422,34 @@ def sign_transfer_request(request, request_id):
                 child.assigned_group = None
                 child.assigned_educator = None
                 child.save()
+                
+                # Create Transfer History record
+                signed_parents = TransferSignature.objects.filter(transfer_request=transfer_req).select_related('parent')
+                parent_names = [sig.parent.full_name for sig in signed_parents]
+                
+                outgoing_director_name = ""
+                incoming_director_name = ""
+                
+                if old_center and old_center.director:
+                    outgoing_director_name = old_center.director.user.full_name
+                if child.center and child.center.director:
+                    incoming_director_name = child.center.director.user.full_name
+                
+                TransferHistory.objects.create(
+                    child_first_name=child.first_name,
+                    child_last_name=child.last_name,
+                    child_birth_date=child.birth_date,
+                    child_id_reference=child.child_id,
+                    from_center_name=old_center.name if old_center else "Unknown",
+                    from_center_id=old_center.center_id if old_center else None,
+                    to_center_name=child.center.name,
+                    to_center_id=child.center.center_id,
+                    reason=transfer_req.reason,
+                    outgoing_director_name=outgoing_director_name,
+                    incoming_director_name=incoming_director_name,
+                    parent_signatures=parent_names,
+                    original_request_id=transfer_req.request_id,
+                )
                 
                 # Notify Parents (Completion)
                 for p_user_id in all_parents_ids:

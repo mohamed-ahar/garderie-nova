@@ -14,6 +14,7 @@ from ..models import (
     CenterParentAccess,
     Notification,
     TransferRequest,
+    TransferHistory,
 )
 
 from ..forms import (
@@ -649,3 +650,32 @@ def process_transfer_request(request, request_id):
             messages.success(request, "Transfer request rejected.")
             
     return redirect("transfer_requests_list")
+
+
+@login_required(login_url="login")
+def transfer_history_view(request):
+    """View transfer history for director's center"""
+    user = request.user
+    if user.role_type != "director":
+        return render(request, "core/403.html", status=403)
+        
+    try:
+        center = user.director_profile.managed_center
+    except AttributeError:
+        messages.error(request, "Director profile not found or no center assigned.")
+        return redirect("dashboard_redirect")
+        
+    if not center:
+        messages.error(request, "No center assigned.")
+        return redirect("dashboard_redirect")
+    
+    # Get transfer history for this center (both incoming and outgoing)
+    incoming_history = TransferHistory.objects.filter(to_center_id=center.center_id).order_by('-transfer_date')
+    outgoing_history = TransferHistory.objects.filter(from_center_id=center.center_id).order_by('-transfer_date')
+    
+    context = {
+        "center": center,
+        "incoming_history": incoming_history,
+        "outgoing_history": outgoing_history,
+    }
+    return render(request, "core/director/transfer_history.html", context)

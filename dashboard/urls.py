@@ -59,6 +59,7 @@ urlpatterns = [
     path("waitlist/", waitlist_view, name="waitlist_manage"),
     path("transfer-requests/", transfer_requests_list, name="transfer_requests_list"),
     path("transfer-requests/<uuid:request_id>/process/", process_transfer_request, name="process_transfer_request"),
+    path("transfer-history/", transfer_history_view, name="transfer_history"),
     path("access-requests/", manage_parent_access_requests, name="manage_parent_access_requests"),
     path("access-requests/<int:request_id>/update/", update_parent_access, name="update_parent_access"),
     

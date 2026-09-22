@@ -511,3 +511,49 @@ class TransferSignature(models.Model):
 
     def __str__(self):
         return f"Signature by {self.parent.full_name} for {self.transfer_request}"
+
+
+class TransferHistory(models.Model):
+    """
+    Permanent log of all completed child transfers between centers.
+    This record persists even if the original TransferRequest or centers are deleted.
+    """
+    history_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    
+    # Child information (stored as text for historical record)
+    child_first_name = models.CharField(max_length=100)
+    child_last_name = models.CharField(max_length=100)
+    child_birth_date = models.DateField()
+    child_id_reference = models.UUIDField(null=True, blank=True)  # Reference to original child ID
+    
+    # Center information (stored as text for historical record)
+    from_center_name = models.CharField(max_length=255)
+    from_center_id = models.UUIDField(null=True, blank=True)  # Reference to original center ID
+    to_center_name = models.CharField(max_length=255)
+    to_center_id = models.UUIDField(null=True, blank=True)  # Reference to original center ID
+    
+    # Transfer details
+    transfer_date = models.DateTimeField(auto_now_add=True)
+    reason = models.TextField(blank=True, null=True)
+    
+    # Approval information
+    outgoing_director_name = models.CharField(max_length=255, blank=True)
+    incoming_director_name = models.CharField(max_length=255, blank=True)
+    
+    # Parent signatures (stored as JSON for historical record)
+    parent_signatures = models.JSONField(default=list, help_text="List of parent names who signed")
+    
+    # Original transfer request reference (may be null if deleted)
+    original_request_id = models.UUIDField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Transfer History"
+        verbose_name_plural = "Transfer Histories"
+        ordering = ['-transfer_date']
+
+    def __str__(self):
+        return f"{self.child_first_name} {self.child_last_name}: {self.from_center_name} → {self.to_center_name}"
+
+    @property
+    def child_full_name(self):
+        return f"{self.child_first_name} {self.child_last_name}"

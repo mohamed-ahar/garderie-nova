@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="relative min-h-screen bg-white dark:bg-slate-950 overflow-hidden">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-10%] left-[10%] w-[600px] h-[600px] bg-blue-400/10 rounded-full blur-[140px]"></div>
+        <div class="absolute bottom-[10%] right-[5%] w-[500px] h-[500px] bg-emerald-400/10 rounded-full blur-[120px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-6 py-12 space-y-12">
+        
+        <div class="flex items-center justify-between">
+            <div>
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <i class="fa-solid fa-clock-rotate-left text-violet-500 text-xs"></i>
+                    <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Transfer History Log</span>
+                </div>
+                <h1 class="text-4xl font-black text-slate-900 dark:text-white mt-4 tracking-tight">
+                    Child Movement Log
+                </h1>
+                <p class="text-sm text-slate-400 font-medium mt-2">
+                    Complete history of children transferred in and out of {{ center.name }}.
+                </p>
+            </div>
+            <a href="{% url 'transfer_requests_list' %}" class="px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold hover:scale-105 transition-all shadow-lg">
+                <i class="fa-solid fa-arrow-left mr-2"></i> Back to Requests
+            </a>
+        </div>
+
+        <!-- Incoming Transfers -->
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200/60 dark:border-slate-800/50 shadow-sm overflow-hidden">
+            <div class="p-8 border-b border-slate-100 dark:border-slate-800/50 bg-emerald-50/30 dark:bg-emerald-950/10">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                            <i class="fa-solid fa-arrow-down text-emerald-500 mr-2"></i>
+                            Incoming Transfers
+                        </h3>
+                        <p class="text-xs text-slate-500 font-medium">Children who have joined your center</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 text-sm font-bold">
+                        {{ incoming_history.count }} records
+                    </span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 dark:border-slate-800 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <th class="py-4 pl-6">Child Name</th>
+                            <th class="py-4">From Center</th>
+                            <th class="py-4">Transfer Date</th>
+                            <th class="py-4">Approved By</th>
+                            <th class="py-4">Parent Signatures</th>
+                            <th class="py-4 pr-6">Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                        {% for record in incoming_history %}
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="py-4 pl-6">
+                                <div class="font-bold text-slate-900 dark:text-white">{{ record.child_full_name }}</div>
+                                <div class="text-xs text-slate-400">{{ record.child_birth_date|date:"M d, Y" }}</div>
+                            </td>
+                            <td class="py-4">
+                                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium">
+                                    <i class="fa-solid fa-building text-slate-400"></i>
+                                    {{ record.from_center_name }}
+                                </span>
+                            </td>
+                            <td class="py-4">
+                                <div class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ record.transfer_date|date:"M d, Y" }}</div>
+                                <div class="text-xs text-slate-400">{{ record.transfer_date|date:"H:i" }}</div>
+                            </td>
+                            <td class="py-4">
+                                <div class="text-xs text-slate-600 dark:text-slate-400">
+                                    <div><i class="fa-solid fa-arrow-right text-rose-400 mr-1"></i> {{ record.outgoing_director_name|default:"N/A" }}</div>
+                                    <div><i class="fa-solid fa-arrow-left text-emerald-400 mr-1"></i> {{ record.incoming_director_name|default:"N/A" }}</div>
+                                </div>
+                            </td>
+                            <td class="py-4">
+                                <div class="flex flex-wrap gap-1">
+                                    {% for parent in record.parent_signatures %}
+                                        <span class="px-2 py-0.5 rounded bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300 text-[10px] font-medium">
+                                            {{ parent }}
+                                        </span>
+                                    {% empty %}
+                                        <span class="text-slate-400 text-xs">None</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td class="py-4 pr-6">
+                                <span class="text-xs text-slate-500">{{ record.reason|default:"—" }}</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="py-12 text-center text-slate-400 italic">
+                                <i class="fa-solid fa-inbox text-3xl mb-3 block opacity-50"></i>
+                                <p>No incoming transfer records found.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Outgoing Transfers -->
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200/60 dark:border-slate-800/50 shadow-sm overflow-hidden">
+            <div class="p-8 border-b border-slate-100 dark:border-slate-800/50 bg-rose-50/30 dark:bg-rose-950/10">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                            <i class="fa-solid fa-arrow-up text-rose-500 mr-2"></i>
+                            Outgoing Transfers
+                        </h3>
+                        <p class="text-xs text-slate-500 font-medium">Children who have left your center</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-lg bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400 text-sm font-bold">
+                        {{ outgoing_history.count }} records
+                    </span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 dark:border-slate-800 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <th class="py-4 pl-6">Child Name</th>
+                            <th class="py-4">To Center</th>
+                            <th class="py-4">Transfer Date</th>
+                            <th class="py-4">Approved By</th>
+                            <th class="py-4">Parent Signatures</th>
+                            <th class="py-4 pr-6">Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                        {% for record in outgoing_history %}
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="py-4 pl-6">
+                                <div class="font-bold text-slate-900 dark:text-white">{{ record.child_full_name }}</div>
+                                <div class="text-xs text-slate-400">{{ record.child_birth_date|date:"M d, Y" }}</div>
+                            </td>
+                            <td class="py-4">
+                                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-medium">
+                                    <i class="fa-solid fa-building text-emerald-400"></i>
+                                    {{ record.to_center_name }}
+                                </span>
+                            </td>
+                            <td class="py-4">
+                                <div class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ record.transfer_date|date:"M d, Y" }}</div>
+                                <div class="text-xs text-slate-400">{{ record.transfer_date|date:"H:i" }}</div>
+                            </td>
+                            <td class="py-4">
+                                <div class="text-xs text-slate-600 dark:text-slate-400">
+                                    <div><i class="fa-solid fa-arrow-right text-rose-400 mr-1"></i> {{ record.outgoing_director_name|default:"N/A" }}</div>
+                                    <div><i class="fa-solid fa-arrow-left text-emerald-400 mr-1"></i> {{ record.incoming_director_name|default:"N/A" }}</div>
+                                </div>
+                            </td>
+                            <td class="py-4">
+                                <div class="flex flex-wrap gap-1">
+                                    {% for parent in record.parent_signatures %}
+                                        <span class="px-2 py-0.5 rounded bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300 text-[10px] font-medium">
+                                            {{ parent }}
+                                        </span>
+                                    {% empty %}
+                                        <span class="text-slate-400 text-xs">None</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td class="py-4 pr-6">
+                                <span class="text-xs text-slate-500">{{ record.reason|default:"—" }}</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="py-12 text-center text-slate-400 italic">
+                                <i class="fa-solid fa-outbox text-3xl mb-3 block opacity-50"></i>
+                                <p>No outgoing transfer records found.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
