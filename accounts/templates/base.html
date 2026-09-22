@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" class="{{ theme }}">
     <head>
@@ -432,11 +433,31 @@
                         boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
                     },
                 }).showToast();
+                // Clear form backups on success messages (form was submitted successfully)
+                {% if message.tags == 'success' %}
+                if (typeof clearCurrentPageFormBackups === 'function') {
+                    clearCurrentPageFormBackups();
+                }
+                {% endif %}
                 {% endfor %}
             });
         </script>
         {% endif %}
 
+        <!-- Form Backup System - Auto-saves form data to prevent data loss -->
+        <script src="{% static 'js/form-backup.js' %}"></script>
+        
+        {% if clear_form_backup_path %}
+        <!-- Session-based form backup cleanup -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                if (typeof clearFormBackup === 'function') {
+                    clearFormBackup('{{ clear_form_backup_path }}');
+                }
+            });
+        </script>
+        {% endif %}
+        
         {% block scripts %}
         {% endblock %}
     </body>

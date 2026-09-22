@@ -90,7 +90,7 @@ def request_center_access(request):
             messages.success(
                 request, f"Demande envoyée à {center.name}. En attente d'approbation."
             )
-
+        request.session['clear_form_backup'] = request.path 
         return redirect("request_center_access")
 
     # Show centers where the parent does NOT have an accepted request
@@ -236,7 +236,7 @@ def register_child_view(request):
             ),
             action_url="/waitlist/",
         )
-
+        request.session['clear_form_backup'] = request.path 
         messages.success(request, "Enfant inscrit sur la liste d'attente avec succès.")
         return redirect("dashboard_redirect")
 
@@ -456,7 +456,7 @@ def sign_transfer_request(request, request_id):
                 messages.success(request, "Transfer signed and completed successfully.")
             else:
                 messages.success(request, "Signature recorded. Waiting for other parent(s) to sign.")
-                
+            request.session['clear_form_backup'] = request.path 
             return redirect("transfer_request")
     
     # Context for template

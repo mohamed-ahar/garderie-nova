@@ -94,6 +94,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "dashboard.context_processors.theme_sidebar.theme",
                 "dashboard.context_processors.theme_sidebar.sidebar",
+                "dashboard.context_processors.form_backup.form_backup_cleanup",
                 'communication.context_processors.unread_messages_count',
             ],
         },
@@ -159,6 +160,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 AUTH_USER_MODEL = "accounts.User"
 import os
 MEDIA_URL = '/media/'
