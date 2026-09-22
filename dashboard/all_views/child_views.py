@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from datetime import date, timedelta, datetime
-from dashboard.models import Child, ParentChildRelationship
+from dashboard.models import Child, ParentChildRelationship, TransferHistory
 from children.models import DailyActivityLog, Attendance
 from reports.models import EnrollmentForm
 
@@ -50,6 +50,11 @@ def child_profile_view(request, child_id):
     today = date.today()
     start_of_week = today - timedelta(days=today.weekday())
     prev_week = start_of_week - timedelta(days=7)
+
+    # --- Fetch Transfer History ---
+    transfer_history = TransferHistory.objects.filter(
+        child_id_reference=child.child_id
+    ).order_by('-transfer_date')
 
     # Calculate statistics for the reports tab (only for parents)
     stats = {}
@@ -122,6 +127,7 @@ def child_profile_view(request, child_id):
         'today': timezone.now().date(),
         'prev_week': prev_week.strftime('%Y-%m-%d'),
         'stats': stats,
+        'transfer_history': transfer_history,
     }
     
     return render(request, 'core/children/child_profile.html', context)

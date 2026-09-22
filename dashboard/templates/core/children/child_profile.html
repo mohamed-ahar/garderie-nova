@@ -106,6 +106,12 @@
                     <i class="fa-solid fa-shapes w-6"></i> Development
                 </button>
                 
+                {% if transfer_history.exists %}
+                <button onclick="switchTab('transfers')" id="tab-transfers" class="w-full text-left px-6 py-4 rounded-2xl font-bold transition-all text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md">
+                    <i class="fa-solid fa-right-left w-6"></i> Transfer History
+                </button>
+                {% endif %}
+                
                 {% if user.role_type == 'parent' %}
                 <button onclick="switchTab('reports')" id="tab-reports" class="w-full text-left px-6 py-4 rounded-2xl font-bold transition-all text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md">
                     <i class="fa-solid fa-file-pdf w-6"></i> Reports
@@ -431,6 +437,87 @@
                 {% else %}
                     <div class="alert alert-info">Development details not available.</div>
                 {% endif %}
+            </div>
+
+            <!-- Transfers Tab -->
+            <div id="content-transfers" class="space-y-6 tab-content hidden">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 shadow-sm border border-rose-100 dark:border-slate-800">
+                    <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 dark:text-violet-400 text-sm">
+                            <i class="fa-solid fa-right-left"></i>
+                        </div>
+                        Transfer History
+                    </h3>
+                    <p class="text-slate-500 dark:text-slate-400 mb-6">Complete record of center transfers for {{ child.first_name }}.</p>
+                    
+                    <div class="space-y-4">
+                        {% for transfer in transfer_history %}
+                        <div class="p-6 rounded-2xl bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-800/30 border border-slate-200 dark:border-slate-700">
+                            <div class="flex flex-col md:flex-row md:items-center gap-4">
+                                <div class="flex items-center gap-3 flex-1">
+                                    <div class="w-12 h-12 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                                        <i class="fa-solid fa-building text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">From</p>
+                                        <p class="font-bold text-slate-900 dark:text-white">{{ transfer.from_center_name }}</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-center">
+                                    <div class="w-10 h-10 rounded-full bg-violet-500 flex items-center justify-center text-white">
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center gap-3 flex-1">
+                                    <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                        <i class="fa-solid fa-building text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">To</p>
+                                        <p class="font-bold text-slate-900 dark:text-white">{{ transfer.to_center_name }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div>
+                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Date</p>
+                                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ transfer.transfer_date|date:"M d, Y" }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Outgoing Director</p>
+                                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ transfer.outgoing_director_name|default:"N/A" }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Incoming Director</p>
+                                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ transfer.incoming_director_name|default:"N/A" }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Parent Signatures</p>
+                                    <div class="flex flex-wrap gap-1">
+                                        {% for parent in transfer.parent_signatures %}
+                                            <span class="px-2 py-0.5 rounded bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300 text-[10px] font-medium">
+                                                {{ parent }}
+                                            </span>
+                                        {% empty %}
+                                            <span class="text-slate-400 text-xs">None</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if transfer.reason %}
+                            <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Reason</p>
+                                <p class="text-sm text-slate-600 dark:text-slate-300">{{ transfer.reason }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
 
             <!-- Reports Tab - Only visible to parents -->
