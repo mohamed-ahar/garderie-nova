@@ -50,7 +50,7 @@ interface ChatSidebarProps {
 
   onSelectContact?: (contact: Contact) => void;
 
-  currentUser?: { name: string; id: string; role: string } | null;
+  currentUser?: { name: string; id: string; role: string; profile_photo?: string | null } | null;
 
   selectedId?: string | null;
 
