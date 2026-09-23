@@ -10,7 +10,7 @@ export interface Message {
   sender_profile_photo?: string | null;
   content: string;
   attachment?: string;
-  attachment_type?: "image" | "video" | "file";
+  attachment_type?: "image" | "video" | "file" | "audio";
   timestamp: string;
   is_delivered?: boolean;
   is_read?: boolean;
@@ -73,10 +73,7 @@ export function useChat(
 
   useEffect(() => {
     if (isConnected && recipientId && socketRef.current?.readyState === WebSocket.OPEN) {
-      socketRef.current.send(JSON.stringify({
-        type: "mark_read",
-        recipient_id: recipientId
-      }));
+      // Logic removed - managed in page.tsx with visibility checks
     }
   }, [recipientId, isConnected]);
 
@@ -110,14 +107,6 @@ export function useChat(
           socket.send(JSON.stringify({ type: "ping" }));
         }
       }, 10000); // Ping every 10 seconds
-
-      // Mark as read immediately on connect if a recipient is selected
-      if (recipientIdRef.current) {
-        socket.send(JSON.stringify({
-          type: "mark_read",
-          recipient_id: recipientIdRef.current
-        }));
-      }
     };
 
     socket.onmessage = (event) => {
@@ -155,12 +144,6 @@ export function useChat(
         console.log("Message filter check:", { isFromMeToHim, isFromHimToMe });
 
         if (isFromMeToHim || isFromHimToMe) {
-          if (isFromHimToMe && socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify({
-              type: "mark_read",
-              recipient_id: curRecipientId
-            }));
-          }
           setMessages((prev) => {
             // Check if we have a temp message that needs to be replaced
             const tempIndex = prev.findIndex(m => 
@@ -296,9 +279,10 @@ export function useChat(
   const sendFile = useCallback(async (file: File, content: string = "") => {
     if (!recipientId) return;
 
-    let type: "image" | "video" | "file" = "file";
+    let type: "image" | "video" | "file" | "audio" = "file";
     if (file.type.startsWith("image/")) type = "image";
     else if (file.type.startsWith("video/")) type = "video";
+    else if (file.type.startsWith("audio/")) type = "audio";
     
     // Create optimistic message for immediate display (with local blob URL)
     const tempId = `temp_${Date.now()}`;

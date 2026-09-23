@@ -46,7 +46,7 @@ def get_contacts(request):
             "role": u.role_type,
             "avatar": u.full_name[:2].upper() if u.full_name else "??",
             "profile_photo": request.build_absolute_uri(u.profile_photo.url) if u.profile_photo else None,
-            "lastMessage": u.last_message_text if u.last_message_text else (f"Sent an {u.last_message_type}" if u.last_message_type else ""),
+            "lastMessage": u.last_message_text if u.last_message_text else ("Voice message" if u.last_message_type == 'audio' else (f"Sent an {u.last_message_type}" if u.last_message_type else "")),
             "unreadCount": u.unread_count if u.unread_count else 0,
             "is_online": u.is_online
         }

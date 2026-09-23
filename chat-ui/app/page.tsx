@@ -8,7 +8,7 @@ import {
 import { ChatInput } from "@/components/ui/chat/chat-input";
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
 import { Button } from "@/components/ui/button";
-import { Send, Loader2, Sparkles, Check, CheckCheck, File, Image as ImageIcon, Video as VideoIcon } from "lucide-react";
+import { Send, Loader2, Sparkles, Check, CheckCheck, File as FileIcon, Image as ImageIcon, Video as VideoIcon, Mic, Square, Trash2 } from "lucide-react";
 import { ChatSidebar, Contact } from "@/components/chat-sidebar";
 import { ChatHeader } from "@/components/chat-header";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
@@ -29,6 +29,79 @@ export default function Home() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Audio recording states
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        const file = new File([audioBlob], `audio_msg_${Date.now()}.webm`, { type: "audio/webm" });
+        if (selectedContact) {
+          await sendFile(file, "");
+        }
+        // Stop all tracks to release the microphone
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime((prev) => prev + 1);
+      }, 1000);
+    } catch (err) {
+      console.error("Failed to start recording", err);
+      alert("Could not access microphone. Please check permissions.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+    }
+  };
+
+  const cancelRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      // Temporarily remove onstop to prevent sending
+      mediaRecorderRef.current.onstop = () => {
+        const tracks = mediaRecorderRef.current?.stream.getTracks();
+        tracks?.forEach(track => track.stop());
+      };
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
   // Handle updates to contacts from WebSocket or other events
   const updateContactsOnMessage = useCallback((newMessage: any) => {
@@ -52,7 +125,11 @@ export default function Home() {
 
       const updatedContact = {
         ...existingContact,
-        lastMessage: newMessage.attachment_type ? `Sent an ${newMessage.attachment_type}` : newMessage.content,
+        lastMessage: newMessage.attachment_type === "audio" 
+          ? "Voice message" 
+          : newMessage.attachment_type 
+            ? `Sent an ${newMessage.attachment_type}` 
+            : newMessage.content,
         unreadCount: (msgSenderId === partnerId && selectedId !== partnerId)
           ? (existingContact.unreadCount || 0) + 1
           : existingContact.unreadCount
@@ -196,8 +273,35 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [fetchContacts]);
 
+  const [isTabFocused, setIsTabFocused] = useState(true);
+
+  // Focus tracking
   useEffect(() => {
-    if (selectedContact?.id && isConnected) {
+    const handleVisibilityChange = () => {
+      setIsTabFocused(document.visibilityState === 'visible');
+    };
+    const handleFocus = () => setIsTabFocused(true);
+    const handleBlur = () => setIsTabFocused(false);
+
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('blur', handleBlur);
+    
+    // Initial check
+    handleVisibilityChange();
+
+    return () => {
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, []);
+
+  const markAsRead = useCallback(() => {
+    if (selectedContact?.id && isConnected && isTabFocused) {
+      console.log("Marking messages as read for:", selectedContact.id);
+      
+      // 1. HTTP API Call
       fetch(`http://localhost:8001/chat/messages/${selectedContact.id}/read/`, {
         method: "POST",
         headers: { "X-CSRFToken": getCookie('csrftoken') || "" },
@@ -205,8 +309,21 @@ export default function Home() {
       }).then(() => {
         setContacts(prev => prev.map(c => c.id === selectedContact.id ? { ...c, unreadCount: 0 } : c));
       }).catch(err => console.error("Failed to mark messages as read", err));
+
+      // 2. WebSocket notification
+      sendJson({
+        type: "mark_read",
+        recipient_id: selectedContact.id
+      });
     }
-  }, [selectedContact?.id, messages.length, isConnected]);
+  }, [selectedContact?.id, isConnected, isTabFocused, sendJson]);
+
+  // Trigger markAsRead when focus state changes or new messages arrive
+  useEffect(() => {
+    if (isTabFocused && selectedContact?.id) {
+      markAsRead();
+    }
+  }, [isTabFocused, selectedContact?.id, messages.length, markAsRead]);
 
   const handleSendMessage = () => {
     if (inputValue.trim()) {
@@ -350,9 +467,18 @@ export default function Home() {
                               rel="noopener noreferrer"
                               className="flex items-center gap-2 p-2 bg-muted/20 rounded hover:bg-muted/30 transition-colors underline"
                             >
-                              <File className="w-4 h-4" />
+                              <FileIcon className="w-4 h-4" />
                               <span className="text-xs truncate">Download File</span>
                             </a>
+                          )}
+                          {msg.attachment_type === "audio" && (
+                            <div className="flex items-center gap-2 py-1 min-w-[200px]">
+                              <audio 
+                                src={msg.attachment} 
+                                controls 
+                                className="h-8 w-full max-w-[240px]"
+                              />
+                            </div>
                           )}
                         </div>
                       )}
@@ -363,8 +489,8 @@ export default function Home() {
                         {msg.role === "user" && (
                           <span className="flex items-center gap-0.5 ml-1">
                             {msg.is_read ? (
-                              // READ: Double tick, Solid White
-                              <CheckCheck className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                              // READ: Double tick, Bright Blue
+                              <CheckCheck className="w-3.5 h-3.5 text-blue-400" strokeWidth={3} />
                             ) : msg.is_delivered ? (
                               // DELIVERED: Double tick, Faded (50% opacity)
                               <CheckCheck className="w-3.5 h-3.5 text-white/50" />
@@ -413,7 +539,7 @@ export default function Home() {
                   size="icon"
                   className="shrink-0 h-10 w-10 rounded-full text-muted-foreground hover:text-primary transition-colors"
                   onClick={() => imageInputRef.current?.click()}
-                  disabled={!selectedContact || isUploading}
+                  disabled={!selectedContact || isUploading || isRecording}
                   title="Send Image"
                 >
                   <ImageIcon className="w-5 h-5" />
@@ -423,7 +549,7 @@ export default function Home() {
                   size="icon"
                   className="shrink-0 h-10 w-10 rounded-full text-muted-foreground hover:text-primary transition-colors"
                   onClick={() => videoInputRef.current?.click()}
-                  disabled={!selectedContact || isUploading}
+                  disabled={!selectedContact || isUploading || isRecording}
                   title="Send Video"
                 >
                   <VideoIcon className="w-5 h-5" />
@@ -433,34 +559,73 @@ export default function Home() {
                   size="icon"
                   className="shrink-0 h-10 w-10 rounded-full text-muted-foreground hover:text-primary transition-colors"
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={!selectedContact || isUploading}
+                  disabled={!selectedContact || isUploading || isRecording}
                   title="Send File"
                 >
-                  <File className="w-5 h-5" />
+                  <FileIcon className="w-5 h-5" />
                 </Button>
               </div>
 
-              <ChatInput
-                placeholder={!selectedContact ? "Select a contact first" : isConnected ? "Type your message..." : "Connecting to server..."}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }
-                }}
-                disabled={!selectedContact}
-                className="min-h-[50px] bg-muted/30 border-0 focus-visible:ring-1 focus-visible:ring-primary rounded-xl px-4 py-3"
-              />
-              <Button
-                size="icon"
-                className="shrink-0 h-[50px] w-[50px] rounded-xl bg-primary hover:bg-primary/90 shadow-md transition-all hover:scale-105"
-                onClick={handleSendMessage}
-                disabled={!isConnected || !selectedContact || (!inputValue.trim() && !isUploading)}
-              >
-                {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-              </Button>
+              {isRecording ? (
+                <div className="flex-1 flex items-center gap-4 bg-muted/30 rounded-xl px-4 py-3 min-h-[50px] animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="flex items-center gap-2 text-primary animate-pulse">
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                    <span className="text-sm font-medium">Recording {formatTime(recordingTime)}</span>
+                  </div>
+                  <div className="flex-1" />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-destructive hover:bg-destructive/10 rounded-full"
+                    onClick={cancelRecording}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-primary hover:bg-primary/10 rounded-full"
+                    onClick={stopRecording}
+                  >
+                    <Square className="w-4 h-4 fill-current" />
+                  </Button>
+                </div>
+              ) : (
+                <ChatInput
+                  placeholder={!selectedContact ? "Select a contact first" : isConnected ? "Type your message..." : "Connecting to server..."}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                  disabled={!selectedContact}
+                  className="min-h-[50px] bg-muted/30 border-0 focus-visible:ring-1 focus-visible:ring-primary rounded-xl px-4 py-3"
+                />
+              )}
+
+              {inputValue.trim() || isUploading ? (
+                <Button
+                  size="icon"
+                  className="shrink-0 h-[50px] w-[50px] rounded-xl bg-primary hover:bg-primary/90 shadow-md transition-all hover:scale-105"
+                  onClick={handleSendMessage}
+                  disabled={!isConnected || !selectedContact || (!inputValue.trim() && !isUploading)}
+                >
+                  {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                </Button>
+              ) : (
+                <Button
+                  size="icon"
+                  className={`shrink-0 h-[50px] w-[50px] rounded-xl shadow-md transition-all hover:scale-105 ${isRecording ? 'bg-destructive hover:bg-destructive/90 text-white' : 'bg-primary hover:bg-primary/90 text-white'}`}
+                  onClick={isRecording ? stopRecording : startRecording}
+                  disabled={!isConnected || !selectedContact}
+                  title={isRecording ? "Stop Recording" : "Record Audio"}
+                >
+                  {isRecording ? <Square className="w-5 h-5 fill-current" /> : <Mic className="w-5 h-5" />}
+                </Button>
+              )}
             </div>
           </div>
         </div>

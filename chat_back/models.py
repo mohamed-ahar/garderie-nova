@@ -14,7 +14,7 @@ class Message(models.Model):
     )
     content = models.TextField(blank=True, null=True)
     attachment = models.FileField(upload_to='chat_attachments/', null=True, blank=True)
-    attachment_type = models.CharField(max_length=20, null=True, blank=True) # 'image', 'video', 'file'
+    attachment_type = models.CharField(max_length=20, null=True, blank=True) # 'image', 'video', 'file', 'audio'
     timestamp = models.DateTimeField(auto_now_add=True)
     is_delivered = models.BooleanField(default=False)
     is_read = models.BooleanField(default=False)
