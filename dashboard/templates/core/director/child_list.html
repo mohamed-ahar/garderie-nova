@@ -232,6 +232,13 @@
                                                 title="{% if enrollment.locked_for_editing %}Unlock Form for Parents{% else %}Lock Form from Parents{% endif %}">
                                             <i class="fa-solid {% if enrollment.locked_for_editing %}fa-lock text-red-500{% else %}fa-lock-open text-green-500{% endif %} text-xs"></i>
                                         </button>
+                                        {% if enrollment.is_fully_signed %}
+                                        <a href="{% url 'download_enrollment_pdf' child.child_id %}" 
+                                           class="w-9 h-9 flex items-center justify-center text-white bg-emerald-500 hover:bg-emerald-600 rounded-xl border border-emerald-600 transition-all shadow-sm"
+                                           title="Download Enrollment Document (All parents signed)">
+                                            <i class="fa-solid fa-file-pdf text-xs"></i>
+                                        </a>
+                                        {% endif %}
                                     {% endif %}
                                 {% endfor %}
                             {% endif %}

@@ -169,7 +169,7 @@ def parent_export_weekly_report_pdf(request, child_id):
         
         response = HttpResponse(pdf, content_type='application/pdf')
         filename = f"rapport_hebdomadaire_{child.first_name}_{start_of_week}.pdf"
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        response['Content-Disposition'] = f'inline; filename="{filename}"'
         return response
     except ImportError:
         return HttpResponse("WeasyPrint not installed", status=500)

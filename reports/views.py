@@ -4,6 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.contrib import messages
 from django.conf import settings
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML, CSS
 from datetime import datetime
 import os
 import json
@@ -547,3 +550,80 @@ def toggle_enrollment_lock(request, child_id):
         messages.error(request, "Enrollment form does not exist for this child.")
 
     return redirect('child_list')  # Redirect back to the child list page
+
+
+@login_required
+def download_enrollment_pdf(request, child_id):
+    """
+    Generate and download enrollment form as PDF.
+    Only accessible by directors and only when all parents have signed.
+    """
+    user = request.user
+    
+    # Permission check - only directors and superusers
+    if user.role_type != 'director' and not user.is_superuser:
+        messages.error(request, "Access denied. Only directors can download enrollment documents.")
+        return redirect('dashboard_redirect')
+    
+    child = get_object_or_404(Child, pk=child_id)
+    
+    # Get the active enrollment form
+    enrollment_form = child.enrollment_forms.filter(is_active=True).first()
+    if not enrollment_form:
+        messages.error(request, "No active enrollment form found for this child.")
+        return redirect('child_list')
+    
+    # Check if all parents have signed
+    total_parents = child.parent_relationships.count()
+    signed_parents = enrollment_form.signatures.count()
+    
+    if signed_parents < total_parents:
+        messages.error(request, f"Cannot download: Only {signed_parents} of {total_parents} parents have signed. All parents must sign before downloading.")
+        return redirect('child_list')
+    
+    # Get all related data
+    authorized_pickups = enrollment_form.authorized_pickups.all()
+    emergency_contacts = enrollment_form.emergency_contacts.all()
+    unauthorized_contacts = enrollment_form.unauthorized_contacts.all()
+    signatures = enrollment_form.signatures.all().select_related('parent')
+    
+    # Get parents info
+    parent_relationships = child.parent_relationships.all().select_related('parent__user')
+    
+    # Prepare context for PDF template
+    context = {
+        'child': child,
+        'enrollment': enrollment_form,
+        'authorized_pickups': authorized_pickups,
+        'emergency_contacts': emergency_contacts,
+        'unauthorized_contacts': unauthorized_contacts,
+        'signatures': signatures,
+        'parent_relationships': parent_relationships,
+        'generated_date': datetime.now(),
+        'center': child.center,
+        'medical_history_diseases': [
+            ('measles', 'Rougeole', 'rubella', 'Rubéole'),
+            ('mumps', 'Oreillons', 'chickenpox', 'Varicelle'),
+            ('meningitis', 'Méningite', 'whooping_cough', 'Coqueluche (toux coquelucheuse)'),
+        ],
+        'health_conditions': [
+            ('asthma', 'Asthme', 'diabetes', 'Diabète'),
+            ('eczema', 'Eczéma/Psoriasis', 'epilepsy', 'Épilepsie/Convulsions'),
+        ]
+    }
+    
+    # Render HTML template
+    html_string = render_to_string('reports/enrollment_pdf.html', context)
+    
+    # Generate PDF
+    html = HTML(string=html_string, base_url=request.build_absolute_uri('/'))
+    
+    # Create PDF with CSS
+    pdf = html.write_pdf()
+    
+    # Create response
+    filename = f"enrollment_{child.first_name}_{child.last_name}_{datetime.now().strftime('%Y%m%d')}.pdf"
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    
+    return response

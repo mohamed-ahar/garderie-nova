@@ -13,4 +13,9 @@ urlpatterns = [
         views.toggle_enrollment_lock,
         name="toggle_enrollment_lock",
     ),
+    path(
+        "enrollment/download/<uuid:child_id>/",
+        views.download_enrollment_pdf,
+        name="download_enrollment_pdf",
+    ),
 ]

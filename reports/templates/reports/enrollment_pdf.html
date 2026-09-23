@@ -1,0 +1,659 @@
+{% load dashboard_tags %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Profil de l'enfant - {{ child.first_name }} {{ child.last_name }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm 1cm 1.5cm 1cm;
+        }
+        
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9pt;
+            line-height: 1.3;
+            color: black;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page-break {
+            page-break-after: always;
+        }
+
+        .header-top {
+            font-weight: bold;
+            font-size: 16pt;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .header-sub {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-section {
+            width: 250px;
+        }
+
+        .center-title {
+            text-align: right;
+            font-weight: bold;
+            font-size: 11pt;
+        }
+
+        .registration-dates {
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .registration-dates span {
+            margin-right: 40px;
+        }
+
+        .underline {
+            display: inline-block;
+            border-bottom: 1px solid black;
+            min-width: 120px;
+            padding: 0 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+            table-layout: fixed;
+        }
+
+        td {
+            border: 1px solid black;
+            padding: 6px;
+            vertical-align: top;
+            word-wrap: break-word;
+        }
+
+        .label {
+            font-size: 8pt;
+            margin-bottom: 4px;
+            display: block;
+            color: #333;
+        }
+
+        .value {
+            font-weight: bold;
+            font-size: 10pt;
+            display: block;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .bg-gray {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .bg-gray td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .checkbox {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 1px solid black;
+            margin-right: 6px;
+            background-color: white;
+            text-align: center;
+            line-height: 12px;
+            font-size: 8pt;
+        }
+
+        .checked::after {
+            content: "X";
+            font-weight: bold;
+        }
+
+        .footer-note {
+            font-size: 8.5pt;
+            font-style: italic;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .footer-page {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8pt;
+            padding: 10px 0;
+            border-top: 1px solid #ccc;
+            background: white;
+        }
+
+        .footer-page .left-text {
+            width: 70%;
+        }
+
+        .footer-page .page-num {
+            width: 20%;
+            text-align: right;
+            font-weight: bold;
+            font-size: 10pt;
+        }
+
+        .section-header {
+            font-weight: bold;
+            background-color: #f2f2f2;
+            padding: 6px;
+            border: 1px solid black;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 10pt;
+        }
+
+        .history-table td {
+            text-align: left;
+        }
+
+        .history-table .centered-cell {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .signature-img {
+            display: block;
+            max-width: 300px;
+            max-height: 100px;
+            margin: 5px 0;
+        }
+
+        .signature-row {
+            margin-top: 20px;
+            page-break-inside: avoid;
+        }
+    </style>
+</head>
+<body>
+    <!-- PAGE 1 -->
+    <div class="header-top">
+        Profil de l’enfant
+    </div>
+
+    <div class="header-sub">
+        <div class="logo-section">
+            {% if center.logo %}
+                <img src="{{ center.logo.url }}" alt="Logo" style="max-height: 60px;">
+            {% else %}
+                <div style="font-weight: bold; font-size: 14pt; color: #0056b3;">{{ center.name|default:"Garderie Nova" }}</div>
+            {% endif %}
+        </div>
+        <div class="center-title">
+            Établissement de garderie éducative<br>
+            Profil de l’enfant
+        </div>
+    </div>
+
+    <div class="registration-dates">
+        <span>Date d’inscription <span class="underline">{{ enrollment.registration_date|date:"Y-m-d"|default:"&nbsp;" }}</span></span>
+        <span>Date de début <span class="underline">{{ enrollment.start_date|date:"Y-m-d"|default:"&nbsp;" }}</span></span>
+    </div>
+
+    <table>
+        <tr>
+            <td colspan="2">
+                <span class="label">Nom de l’enfant</span>
+                <span class="value">{{ child.last_name }}</span>
+            </td>
+            <td>
+                <span class="label">Prénom</span>
+                <span class="value">{{ child.first_name }}</span>
+            </td>
+            <td>
+                <span class="label">Nom de famille</span>
+                <span class="value">{{ child.last_name }}</span>
+            </td>
+            <td style="width: 140px;">
+                <div class="checkbox-container" style="margin-top: 10px;">
+                    <div class="checkbox-item">
+                        <span class="checkbox {% if child.gender == 'masculin' %}checked{% endif %}"></span> Masculin
+                    </div>
+                    <div class="checkbox-item">
+                        <span class="checkbox {% if child.gender == 'féminin' %}checked{% endif %}"></span> Féminin
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <span class="label">Date de naissance</span>
+                <span class="value">{{ child.birth_date|date:"Y-m-d" }}</span>
+            </td>
+            <td colspan="2">
+                <span class="label">Numéro d’assurance-maladie</span>
+                <span class="value">{{ child.medicare_number|default:"&nbsp;" }}</span>
+            </td>
+            <td>
+                <span class="label">Date d'expiration</span>
+                <span class="value">{{ child.medicare_expiry|date:"Y-m-d"|default:"&nbsp;" }}</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <span class="label">Adresse Rue</span>
+                <span class="value">{{ child.address|default:"&nbsp;" }}</span>
+            </td>
+            <td style="width: 80px;">
+                <span class="label">Numéro d’app..</span>
+                <span class="value">&nbsp;</span>
+            </td>
+            <td>
+                <span class="label">Ville</span>
+                <span class="value">&nbsp;</span>
+            </td>
+            <td>
+                <span class="label">Province / Code postal</span>
+                <span class="value">&nbsp;</span>
+            </td>
+        </tr>
+    </table>
+
+    {% for rel in parent_relationships|slice:":2" %}
+    <table style="margin-top: 10px;">
+        <tr>
+            <td colspan="2" style="width: 50%;">
+                <span class="label">Nom du parent/tuteur</span>
+                <span class="value">{{ rel.parent.user.full_name }}</span>
+            </td>
+            <td style="width: 25%;">
+                <span class="label">Adresse électronique</span>
+                <span class="value">{{ rel.parent.user.email }}</span>
+            </td>
+            <td style="width: 25%;">
+                <span class="label">Téléphone (domicile)</span>
+                <span class="value">{{ rel.parent.user.phone_number|default:"&nbsp;" }}</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <span class="label">Adresse Rue (si elle diffère de celle de l'enfant)</span>
+                <span class="value">{{ rel.parent.home_address|default:"&nbsp;" }}</span>
+            </td>
+            <td style="width: 80px;">
+                <span class="label">Numéro d’app..</span>
+                <span class="value">&nbsp;</span>
+            </td>
+            <td>
+                <span class="label">Ville</span>
+                <span class="value">&nbsp;</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <span class="label">Lieu de travail</span>
+                <span class="value">&nbsp;</span>
+            </td>
+            <td>
+                <span class="label">Téléphone (travail)</span>
+                <span class="value">&nbsp;</span>
+            </td>
+            <td>
+                <span class="label">Téléphone cellulaire</span>
+                <span class="value">{{ rel.parent.user.phone_number|default:"&nbsp;" }}</span>
+            </td>
+        </tr>
+    </table>
+    {% endfor %}
+
+    <div class="section-header">Arrangement d’hébergement de l’enfant</div>
+    <div style="border: 1px solid black; border-top: none; min-height: 40px; padding: 5px;">
+        &nbsp;
+    </div>
+
+    <div class="section-header">À part vous, qui est autorisé à aller chercher votre enfant?</div>
+    <table>
+        <tr class="bg-gray">
+            <td style="width: 25%;">Nom</td>
+            <td style="width: 20%;">Lien de parenté</td>
+            <td style="width: 30%;">Adresse</td>
+            <td style="width: 25%;">Numéro de téléphone le jour</td>
+        </tr>
+        {% for pickup in authorized_pickups|slice:":4" %}
+        <tr>
+            <td style="height: 25px;"><span class="bold">{{ pickup.name }}</span></td>
+            <td><span class="bold">{{ pickup.relationship }}</span></td>
+            <td><span class="bold">{{ pickup.address }}</span></td>
+            <td><span class="bold">{{ pickup.phone_day }}</span></td>
+        </tr>
+        {% endfor %}
+        {% for i in "1234"|make_list %}
+            {% if forloop.counter > authorized_pickups.count %}
+            <tr><td style="height: 25px;">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+
+    <div class="footer-note">
+        Si les parents changent les dispositions pour qu’une autre personne ramasse leur enfant, ils doivent en informer la garderie au préalable.
+    </div>
+
+    <div class="footer-page">
+        <div class="left-text">Manuel de l’exploitant – Garderie éducative à temps plein et à temps partiel</div>
+        <div class="page-num">125</div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- PAGE 2 -->
+    <div class="section-header">Qui n’est pas autorisé à aller chercher votre enfant?</div>
+    <div style="border: 1px solid black; border-top: none; padding: 5px;">
+        {% for unauth in unauthorized_contacts|slice:":3" %}
+            <div style="border-bottom: 1px solid #ccc; padding: 6px;">Nom: <span class="value" style="display:inline;">{{ unauth.name }}</span></div>
+        {% endfor %}
+        {% for i in "123"|make_list %}
+            {% if forloop.counter > unauthorized_contacts.count %}
+            <div style="border-bottom: 1px solid #ccc; padding: 6px;">Nom: &nbsp;</div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="footer-note" style="margin-bottom: 15px;">
+        Les documents appropriés, par exemple l’ordonnance de garde, doivent être joints à ce formulaire s’il est interdit à un parent d’être en contact avec l’enfant. Veuillez en discuter avec l’exploitant ou l’administrateur de votre garderie.
+    </div>
+
+    <div class="section-header">Coordonnées de deux personnes avec qui communiquer en cas d’urgence et qui peuvent intervenir en moins d’une heure s’il s’avère impossible de joindre les parents ou les tuteurs</div>
+    <table>
+        <tr class="bg-gray">
+            <td style="width: 25%;">Nom</td>
+            <td style="width: 20%;">Lien de parenté</td>
+            <td style="width: 30%;">Adresse</td>
+            <td style="width: 25%;">Numéro de téléphone le jour</td>
+        </tr>
+        {% for contact in emergency_contacts|slice:":2" %}
+        <tr>
+            <td style="height: 25px;"><span class="bold">{{ contact.name }}</span></td>
+            <td><span class="bold">{{ contact.relationship }}</span></td>
+            <td><span class="bold">{{ contact.address }}</span></td>
+            <td><span class="bold">{{ contact.phone_day }}</span></td>
+        </tr>
+        {% endfor %}
+        {% for i in "12"|make_list %}
+            {% if forloop.counter > emergency_contacts.count %}
+            <tr><td style="height: 25px;">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+
+    <div style="font-weight: bold; font-size: 11pt; margin-top: 15px; margin-bottom: 8px;">Dossier de santé de l’enfant</div>
+    
+    <div style="border: 2px solid black; padding: 8px;">
+        <span class="bold">ALERTE D’ALLERGIE :</span> Veuillez préciser les allergies graves de l’enfant.
+        <div style="border-bottom: 1px solid black; min-height: 45px; margin-top: 8px;">
+            <span class="value">{{ enrollment.allergies_severe|default:"" }}</span>
+        </div>
+    </div>
+
+    <div style="margin-top: 12px;">
+        Les allergies inscrites ci-dessus sont-elles suffisamment graves pour exiger l’utilisation d’un dispositif EpiPen, de médicaments ou d’un traitement d’urgence?
+        <div class="checkbox-container" style="margin-top: 5px;">
+            <div class="checkbox-item">
+                <span class="checkbox {% if enrollment.requires_epipen %}checked{% endif %}"></span> Oui
+            </div>
+            <div class="checkbox-item">
+                <span class="checkbox {% if not enrollment.requires_epipen %}checked{% endif %}"></span> Non
+            </div>
+        </div>
+        <div class="footer-note">Le cas échéant, veuillez remplir le formulaire Gestion d’une allergie extrême et plan d’urgence, lequel est disponible auprès de l’exploitant.</div>
+    </div>
+
+    <div style="margin-top: 12px;">
+        Veuillez indiquer toute allergie alimentaire, réaction à un médicament ou allergie de contact (ne constituant pas un danger mortel).
+        <div style="border-bottom: 1px solid black; min-height: 45px; margin-top: 5px;">
+            <span class="value">{{ enrollment.non_fatal_allergies|default:"" }}</span>
+        </div>
+    </div>
+
+    <div style="margin-top: 12px; border: 1px solid black; padding: 8px;">
+        Votre enfant requiert-il régulièrement des services routiniers essentiels dans le cadre d’un horaire quotidien, par exemple l’introduction d’un cathéter, des procédures d’hygiène spéciales, l’administration continue de médicaments ou l’observation de certaines affections, comme le diabète, afin de déterminer quand il est nécessaire d’intervenir?
+        <div class="checkbox-container" style="margin-top: 5px;">
+            <div class="checkbox-item">
+                <span class="checkbox {% if enrollment.routine_services_required %}checked{% endif %}"></span> Oui
+            </div>
+            <div class="checkbox-item">
+                <span class="checkbox {% if not enrollment.routine_services_required %}checked{% endif %}"></span> Non
+            </div>
+        </div>
+        <div class="footer-note">Le cas échéant, veuillez remplir le formulaire Services routiniers essentiels et plan d’urgence, lequel est disponible auprès de l’exploitant.</div>
+        {% if enrollment.routine_services_required %}
+        <div style="margin-top: 8px; border-top: 1px dotted #333; padding-top: 5px;">
+            <span class="label">Détails:</span>
+            <span class="value">{{ enrollment.routine_services_details }}</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <div style="margin-top: 20px;">
+        Nom du médecin <span class="underline" style="min-width: 350px;">{{ enrollment.doctor_name|default:"&nbsp;" }}</span>
+        <br><br>
+        Téléphone <span class="underline" style="min-width: 350px;">{{ enrollment.doctor_phone|default:"&nbsp;" }}</span>
+        <br><br>
+        Adresse <span class="underline" style="min-width: 500px;">{{ enrollment.doctor_address|default:"&nbsp;" }}</span>
+    </div>
+
+    <div class="footer-page">
+        <div class="left-text">Éducation et Développement de la petite enfance</div>
+        <div class="page-num">126</div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- PAGE 3 -->
+    <div class="section-header">Antécédents médicaux – Veuillez indiquer si votre enfant a déjà été atteint d’une des maladies suivantes :</div>
+    <table class="history-table">
+        <tr class="bg-gray">
+            <td style="text-align: left;">Maladie</td><td style="width: 50px;">Oui</td><td style="width: 50px;">Non</td>
+            <td style="text-align: left;">Maladie</td><td style="width: 50px;">Oui</td><td style="width: 50px;">Non</td>
+        </tr>
+        {% for key1, label1, key2, label2 in medical_history_diseases %}
+        <tr>
+            <td>{{ label1 }}</td>
+            <td class="centered-cell"><span class="checkbox {% if enrollment.medical_history_flags|get_item:key1 is True %}checked{% endif %}"></span></td>
+            <td class="centered-cell"><span class="checkbox {% if enrollment.medical_history_flags|get_item:key1 is False %}checked{% endif %}"></span></td>
+            <td>{{ label2 }}</td>
+            <td class="centered-cell"><span class="checkbox {% if enrollment.medical_history_flags|get_item:key2 is True %}checked{% endif %}"></span></td>
+            <td class="centered-cell"><span class="checkbox {% if enrollment.medical_history_flags|get_item:key2 is False %}checked{% endif %}"></span></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="section-header">État de santé – Indiquer si votre enfant souffre d’une des affections suivantes :</div>
+    <table class="history-table">
+        <tr class="bg-gray">
+            <td style="text-align: left;">Affection</td><td style="width: 50px;">Oui</td><td style="width: 50px;">Non</td>
+            <td style="text-align: left;">Affection</td><td style="width: 50px;">Oui</td><td style="width: 50px;">Non</td>
+        </tr>
+        {% for key1, label1, key2, label2 in health_conditions %}
+        <tr>
+            <td>{{ label1 }}</td>
+            <td class="centered-cell"><span class="checkbox {% if enrollment.medical_history_flags|get_item:key1 is True %}checked{% endif %}"></span></td>
+            <td class="centered-cell"><span class="checkbox {% if enrollment.medical_history_flags|get_item:key1 is False %}checked{% endif %}"></span></td>
+            <td>{{ label2 }}</td>
+            <td class="centered-cell"><span class="checkbox {% if enrollment.medical_history_flags|get_item:key2 is True %}checked{% endif %}"></span></td>
+            <td class="centered-cell"><span class="checkbox {% if enrollment.medical_history_flags|get_item:key2 is False %}checked{% endif %}"></span></td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td>Autre :</td>
+            <td colspan="2">&nbsp;</td>
+            <td>Autre :</td>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+    </table>
+
+    <div class="section-header">Traitement médical continu – Indiquer tout traitement médical continu dont votre enfant pourrait avoir besoin.</div>
+    <table style="border: 1px solid black; border-top: none;">
+        <tr class="bg-gray">
+            <td>Nom du médicament</td>
+            <td>Posologie</td>
+        </tr>
+        <tr>
+            <td style="height: 30px;"><span class="value">{{ enrollment.continuous_medication|default:"" }}</span></td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr class="bg-gray">
+            <td colspan="2">Affection traitée</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="height: 30px;">&nbsp;</td>
+        </tr>
+    </table>
+
+    <div class="section-header">Immunisations – Preuve d’immunisation à fournir</div>
+    <div style="border: 1px solid black; border-top: none; padding: 8px; font-size: 8.5pt;">
+        <div style="display: flex; flex-wrap: wrap; text-align: center;">
+            <div style="width: 25%; margin-bottom: 5px;">Diphtérie</div><div style="width: 25%;">Rubéole</div><div style="width: 25%;">Oreillons</div><div style="width: 25%;">Tétanos</div>
+            <div style="width: 25%;">Varicelle</div><div style="width: 25%;">Rougeole</div><div style="width: 25%;">Polio</div><div style="width: 25%;">Méningococcie</div>
+            <div style="width: 33%; margin-top: 5px;">Haemophilus influenza de type B</div><div style="width: 33%;">Coqueluche</div><div style="width: 33%;">Pneumococcie</div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 15px;">
+        <span class="label">Y a-t-il des activités auxquelles votre enfant ne peut participer pour des raisons médicales?</span>
+        <div style="border: 1px solid black; min-height: 50px; padding: 8px; margin-top: 5px;">
+            <span class="value">{{ enrollment.activity_restrictions|default:"" }}</span>
+        </div>
+    </div>
+
+    <div style="margin-top: 15px;">
+        <span class="label">Veuillez indiquer toute restriction alimentaire (y compris médicales, culturelles ou religieuses) :</span>
+        <div style="border: 1px solid black; min-height: 50px; padding: 8px; margin-top: 5px;">
+            <span class="value">{{ enrollment.dietary_restrictions }} {{ enrollment.cultural_dietary_restrictions }}</span>
+        </div>
+    </div>
+
+    <div style="text-align: center; font-weight: bold; margin-top: 25px; font-size: 10pt; color: #d32f2f;">
+        Veuillez informer immédiatement l’exploitant ou l’administrateur de la garderie de tout changement de l’état de santé de votre enfant.
+    </div>
+
+    <div class="footer-page">
+        <div class="left-text">Manuel de l’exploitant – Garderie éducative à temps plein et à temps partiel</div>
+        <div class="page-num">127</div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- PAGE 4 -->
+    <div class="section-header">Historique du programme préscolaire et des services de garde</div>
+    <div style="border: 1px solid black; border-top: none; padding: 8px;">
+        Votre enfant a-t-il déjà fréquenté une garderie ou participé à un programme préscolaire? 
+        <div class="checkbox-container" style="display:inline-flex; margin-left: 10px;">
+            <div class="checkbox-item">
+                <span class="checkbox {% if enrollment.preschool_history %}checked{% endif %}"></span> Oui
+            </div>
+            <div class="checkbox-item" style="margin-left: 10px;">
+                <span class="checkbox {% if not enrollment.preschool_history %}checked{% endif %}"></span> Non
+            </div>
+        </div>
+        <br><br>
+        Le cas échéant, pendant combien de temps? <span class="value" style="display:inline;">{{ enrollment.preschool_duration|default:"" }}</span>
+        <br><br>
+        Le cas échéant, décrivez l’expérience de votre enfant :
+        <div style="border-bottom: 1px solid #ccc; min-height: 40px; margin-top: 5px;"><span class="value">{{ enrollment.preschool_history|default:"" }}</span></div>
+    </div>
+
+    <div style="font-weight: bold; font-size: 11pt; margin-top: 15px; margin-bottom: 5px;">Développement de l’enfant</div>
+    <div class="section-header">Autonomie – De quel type d’aide votre enfant a-t-il besoin pour faire ce qui suit :</div>
+    <table>
+        <tr class="bg-gray">
+            <td style="width: 40%; text-align: left;">Domaine</td><td style="text-align: left;">Type d'aide nécessaire</td>
+        </tr>
+        <tr><td>Habillage/déshabillage</td><td><span class="value">{{ enrollment.autonomy_dressing }}</span></td></tr>
+        <tr><td>Alimentation</td><td><span class="value">{{ enrollment.autonomy_eating }}</span></td></tr>
+        <tr><td>Propreté</td><td><span class="value">{{ enrollment.autonomy_toilet }}</span></td></tr>
+        <tr><td>Lavage des mains/brossage des dents</td><td><span class="value">{{ enrollment.autonomy_hygiene }}</span></td></tr>
+        <tr><td>Autre (motricité globale/fine) :</td><td><span class="value">{{ enrollment.autonomy_other }} {{ enrollment.motor_skills }}</span></td></tr>
+    </table>
+
+    <div style="margin-top: 15px;">
+        <span class="label">Conseils ou suggestions pour une transition positive :</span>
+        <div style="border: 1px solid black; min-height: 70px; padding: 8px; margin-top: 5px;">
+            <span class="value">{{ enrollment.transition_tips|default:"" }}</span>
+        </div>
+    </div>
+
+    <div style="margin-top: 15px;">
+        <span class="label">Dites-nous-en davantage au sujet de votre enfant (ce qu’il aime faire, etc.) :</span>
+        <div style="border: 1px solid black; min-height: 70px; padding: 8px; margin-top: 5px;">
+            <span class="value">{{ enrollment.interests_hobbies|default:"" }}</span>
+        </div>
+    </div>
+
+    <div style="margin-top: 15px;">
+        <span class="label">Autres détails à partager :</span>
+        <div style="border: 1px solid black; min-height: 50px; padding: 8px; margin-top: 5px;">
+            <span class="value">{{ enrollment.additional_info|default:"" }}</span>
+        </div>
+    </div>
+
+    <div class="signature-row">
+        {% for signature in signatures %}
+        <table style="margin-bottom: 20px;">
+            <tr>
+                <td style="width: 70%;">
+                    <span class="label">Signature du parent ou du tuteur ({{ signature.parent.full_name }})</span>
+                    <div style="min-height: 110px; display: flex; align-items: center; justify-content: center;">
+                        {% if signature.signature_data %}
+                            <img src="{{ signature.signature_data }}" class="signature-img">
+                        {% endif %}
+                    </div>
+                </td>
+                <td style="width: 30%; vertical-align: middle; text-align: center;">
+                    <span class="label">Date</span>
+                    <span class="value" style="font-size: 12pt;">{{ signature.signed_at|date:"Y-m-d" }}</span>
+                </td>
+            </tr>
+        </table>
+        {% endfor %}
+    </div>
+
+    <div style="font-weight: bold; margin-top: 25px; text-align: center; border: 1px solid #333; padding: 10px; background: #f9f9f9;">
+        L’exactitude des renseignements figurant dans le présent formulaire doit être vérifiée tous les ans.
+        <br>
+        Veuillez informer immédiatement l’exploitant ou l’administrateur de tout changement.
+    </div>
+
+    <div class="footer-page">
+        <div class="left-text">Éducation et Développement de la petite enfance</div>
+        <div class="page-num">128</div>
+    </div>
+</body>
+</html>
