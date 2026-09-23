@@ -247,7 +247,7 @@ def parent_export_attendance_pdf(request, child_id):
         
         response = HttpResponse(pdf, content_type='application/pdf')
         filename = f"presence_{child.first_name}_{start_of_week}.pdf"
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        response['Content-Disposition'] = f'inline; filename="{filename}"'
         return response
     except ImportError:
         return HttpResponse("WeasyPrint not installed", status=500)
@@ -292,14 +292,21 @@ def attendance_board(request):
             if open_record:
                 messages.warning(request, f"{child.first_name} is already marked as present.")
             else:
-                # If they were previously marked absent, we keep the record but they are now present
-                Attendance.objects.create(
-                    child=child, 
-                    date=view_date,
-                    arrival_time=timezone.now().time(), 
-                    is_absent=False
-                )
-                messages.success(request, f"Arrival marked for {child.first_name}.")
+                # Check if they were previously marked absent
+                absence_record = Attendance.objects.filter(child=child, date=view_date, is_absent=True).first()
+                if absence_record:
+                    absence_record.is_absent = False
+                    absence_record.arrival_time = timezone.now().time()
+                    absence_record.save()
+                    messages.success(request, f"Arrival marked for {child.first_name} (updated from absence).")
+                else:
+                    Attendance.objects.create(
+                        child=child, 
+                        date=view_date,
+                        arrival_time=timezone.now().time(), 
+                        is_absent=False
+                    )
+                    messages.success(request, f"Arrival marked for {child.first_name}.")
         
         elif action == "quick_departure":
             latest_open = Attendance.objects.filter(
@@ -379,6 +386,15 @@ def mark_attendance(request, child_id):
         attendance = get_object_or_404(Attendance, attendance_id=attendance_id, child=child)
         if attendance.date != view_date:
              return redirect("attendance_board")
+    else:
+        # If no ID provided, default to editing the latest open record for this date
+        # to prevent duplicate entries if they are already "In"
+        attendance = Attendance.objects.filter(
+            child=child, 
+            date=view_date, 
+            departure_time__isnull=True, 
+            is_absent=False
+        ).last()
     
     if request.method == "POST":
         if not is_today:
@@ -561,9 +577,18 @@ def educator_assigned_children(request):
         return redirect("dashboard_redirect")
 
     children = Child.objects.filter(assigned_educator=educator_profile).select_related('center', 'assigned_group')
+    
+    # Get the group name from the first child's assigned group
+    group_name = None
+    if children.exists():
+        first_child = children.first()
+        if first_child and first_child.assigned_group:
+            group_name = first_child.assigned_group.name
 
     context = {
         "children": children,
+        "group_name": group_name,
+        "center": educator_profile.center,
     }
     return render(request, "core/educators/assigned_children.html", context)
 

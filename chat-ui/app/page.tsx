@@ -104,7 +104,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:8000/me", {
+    fetch("http://localhost:8001/me", {
       headers: { "Accept": "application/json" },
       credentials: 'include',
     })
@@ -112,7 +112,7 @@ export default function Home() {
         if (!res.ok) {
           // Redirect to backend login with 'next' pointing back to this chat app
           const chatAppUrl = encodeURIComponent(window.location.origin);
-          window.location.href = `http://localhost:8000/?next=${chatAppUrl}`;
+          window.location.href = `http://localhost:8001/?next=${chatAppUrl}`;
           throw new Error("Not authenticated");
         }
         return res.json();
@@ -123,7 +123,7 @@ export default function Home() {
             id: data.user_id,
             name: data.full_name,
             role: data.role_type,
-            profile_photo: data.profile_photo ? `http://localhost:8000${data.profile_photo}` : null
+            profile_photo: data.profile_photo ? `http://localhost:8001${data.profile_photo}` : null
           });
         }
       })
@@ -133,7 +133,7 @@ export default function Home() {
   const fetchContacts = useCallback(() => {
     if (!currentUser) return;
     setIsContactsLoading(true);
-    fetch("http://localhost:8000/chat/contacts/", { credentials: 'include' })
+    fetch("http://localhost:8001/chat/contacts/", { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setContacts(data.contacts || []);
@@ -198,7 +198,7 @@ export default function Home() {
 
   useEffect(() => {
     if (selectedContact?.id && isConnected) {
-      fetch(`http://localhost:8000/chat/messages/${selectedContact.id}/read/`, {
+      fetch(`http://localhost:8001/chat/messages/${selectedContact.id}/read/`, {
         method: "POST",
         headers: { "X-CSRFToken": getCookie('csrftoken') || "" },
         credentials: 'include',

@@ -60,7 +60,7 @@ export function UserSearchDialog({ isOpen, onClose, onSelectUser }: { isOpen: bo
 
     try {
 
-      const res = await fetch(`http://localhost:8000/chat/search-users/?q=${encodeURIComponent(q)}`, {
+      const res = await fetch(`http://localhost:8001/chat/search-users/?q=${encodeURIComponent(q)}`, {
 
         credentials: 'include'
 
@@ -106,7 +106,7 @@ export function UserSearchDialog({ isOpen, onClose, onSelectUser }: { isOpen: bo
 
     try {
 
-      await fetch("http://localhost:8000/chat/invitations/send/", {
+      await fetch("http://localhost:8001/chat/invitations/send/", {
 
         method: "POST",
 

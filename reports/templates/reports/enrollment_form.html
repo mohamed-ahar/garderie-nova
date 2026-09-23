@@ -112,6 +112,30 @@
                 </div>
 
                 <div class="p-8 md:p-10 space-y-8">
+                    <!-- Profile Photo Upload -->
+                    <div class="flex flex-col md:flex-row items-start md:items-center gap-6 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <div class="relative group">
+                            <div class="w-28 h-28 md:w-32 md:h-32 rounded-2xl overflow-hidden border-4 border-white dark:border-slate-700 shadow-xl bg-white dark:bg-slate-900">
+                                {% if child.profile_photo %}
+                                    <img id="child-photo-preview" src="{{ child.profile_photo.url }}" class="w-full h-full object-cover" alt="{{ child.first_name }}">
+                                {% else %}
+                                    <div id="child-photo-placeholder" class="w-full h-full bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900/30 dark:to-emerald-900/30 flex items-center justify-center">
+                                        <i class="fa-solid fa-camera text-3xl text-teal-400 dark:text-teal-600"></i>
+                                    </div>
+                                    <img id="child-photo-preview" src="" class="w-full h-full object-cover hidden" alt="">
+                                {% endif %}
+                            </div>
+                            <label for="child_profile_photo" class="absolute -bottom-2 -right-2 w-9 h-9 bg-teal-600 hover:bg-teal-700 rounded-xl flex items-center justify-center text-white text-sm shadow-lg cursor-pointer transition-all hover:scale-110">
+                                <i class="fa-solid fa-camera"></i>
+                            </label>
+                            <input type="file" name="profile_photo" id="child_profile_photo" class="hidden" accept="image/*" onchange="previewChildPhoto(this)">
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-slate-700 dark:text-slate-200 mb-1">Photo de profil</h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Ajoutez une photo pour identifier facilement votre enfant. Formats acceptés: JPG, PNG, WEBP.</p>
+                        </div>
+                    </div>
+
                     <!-- Names & Gender -->
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
                         <div class="md:col-span-5 space-y-2">
@@ -940,6 +964,26 @@
         });
     });
     {% endif %}
+
+    // Child Photo Preview
+    function previewChildPhoto(input) {
+        const preview = document.getElementById('child-photo-preview');
+        const placeholder = document.getElementById('child-photo-placeholder');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                if (placeholder) {
+                    placeholder.classList.add('hidden');
+                }
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+            };
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 </script>
 <script src="{% static 'reports/js/form_helper.js' %}"></script>
 {% endblock content %}

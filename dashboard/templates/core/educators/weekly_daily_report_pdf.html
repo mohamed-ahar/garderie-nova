@@ -246,8 +246,8 @@
             <tr>
                 <td class="col-info section-header">COMMENTAIRES</td>
                 {% for day_data in days_data %}
-                <td style="height: 40px; font-size: 6pt;">
-                    {{ day_data.log.comments|truncatechars:100 }}
+                <td style="height: 60px; font-size: 7pt; overflow-wrap: break-word; word-wrap: break-word; word-break: break-all;">
+                    {{ day_data.log.comments }}
                 </td>
                 {% endfor %}
             </tr>

@@ -14,13 +14,25 @@
         <div class="relative flex flex-col md:flex-row items-center gap-8">
             <!-- Avatar -->
             <div class="relative group">
-                <div class="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-2xl">
+                <div class="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-2xl relative">
                     {% if child.profile_photo %}
                         <img src="{{ child.profile_photo.url }}" class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110" alt="{{ child.first_name }}">
                     {% else %}
                         <div class="w-full h-full bg-rose-50 dark:bg-slate-800 flex items-center justify-center text-4xl font-black text-rose-300 dark:text-slate-600">
                             {{ child.first_name|first }}{{ child.last_name|first }}
                         </div>
+                    {% endif %}
+
+                    {% if user.role_type == 'parent' %}
+                    <form id="childPhotoForm" method="POST" enctype="multipart/form-data" class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        {% csrf_token %}
+                        <input type="file" name="profile_photo" id="childPhotoInput" class="hidden" onchange="document.getElementById('childPhotoForm').submit()">
+                        <label for="childPhotoInput" class="cursor-pointer w-full h-full flex items-center justify-center">
+                            <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white text-xl">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+                        </label>
+                    </form>
                     {% endif %}
                 </div>
                 <div class="absolute -bottom-2 -right-2 w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg border-2 border-white dark:border-slate-900
@@ -527,9 +539,9 @@
                         <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 text-sm">
                             <i class="fa-solid fa-file-pdf"></i>
                         </div>
-                        Download Reports
+                        View Reports
                     </h3>
-                    <p class="text-slate-500 dark:text-slate-400 mb-8">Export and download your child's weekly reports and attendance records.</p>
+                    <p class="text-slate-500 dark:text-slate-400 mb-8">View your child's weekly reports and attendance records.</p>
                     
                     <!-- Weekly Activity Report -->
                     <div class="p-6 rounded-2xl bg-gradient-to-r from-rose-50 to-orange-50 dark:from-rose-900/20 dark:to-orange-900/20 border border-rose-100 dark:border-rose-800 mb-6">
@@ -540,16 +552,16 @@
                                 </div>
                                 <div>
                                     <h4 class="text-lg font-black text-slate-900 dark:text-white">Weekly Activity Report</h4>
-                                    <p class="text-sm text-slate-500 dark:text-slate-400">Download daily activities, meals, naps, and more</p>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">View daily activities, meals, naps, and more</p>
                                 </div>
                             </div>
                             <div class="flex flex-wrap gap-3">
-                                <a href="{% url 'parent_export_weekly_report_pdf' child.child_id %}" class="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-rose-500/30 hover:-translate-y-0.5 flex items-center gap-2">
-                                    <i class="fa-solid fa-download"></i>
+                                <a href="{% url 'parent_export_weekly_report_pdf' child.child_id %}" target="_blank" class="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-rose-500/30 hover:-translate-y-0.5 flex items-center gap-2">
+                                    <i class="fa-solid fa-eye"></i>
                                     This Week
                                 </a>
-                                <a href="{% url 'parent_export_weekly_report_pdf' child.child_id %}?week_start={{ prev_week|urlencode }}" class="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
-                                    <i class="fa-solid fa-arrow-left"></i>
+                                <a href="{% url 'parent_export_weekly_report_pdf' child.child_id %}?week_start={{ prev_week|urlencode }}" target="_blank" class="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
+                                    <i class="fa-solid fa-eye"></i>
                                     Last Week
                                 </a>
                             </div>
@@ -586,16 +598,16 @@
                                 </div>
                                 <div>
                                     <h4 class="text-lg font-black text-slate-900 dark:text-white">Attendance Report</h4>
-                                    <p class="text-sm text-slate-500 dark:text-slate-400">Download attendance records and presence history</p>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">View attendance records and presence history</p>
                                 </div>
                             </div>
                             <div class="flex flex-wrap gap-3">
-                                <a href="{% url 'parent_export_attendance_pdf' child.child_id %}" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 flex items-center gap-2">
-                                    <i class="fa-solid fa-download"></i>
+                                <a href="{% url 'parent_export_attendance_pdf' child.child_id %}" target="_blank" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 flex items-center gap-2">
+                                    <i class="fa-solid fa-eye"></i>
                                     This Week
                                 </a>
-                                <a href="{% url 'parent_export_attendance_pdf' child.child_id %}?week_start={{ prev_week|urlencode }}" class="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
-                                    <i class="fa-solid fa-arrow-left"></i>
+                                <a href="{% url 'parent_export_attendance_pdf' child.child_id %}?week_start={{ prev_week|urlencode }}" target="_blank" class="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
+                                    <i class="fa-solid fa-eye"></i>
                                     Last Week
                                 </a>
                             </div>

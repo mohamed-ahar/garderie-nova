@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -15,12 +15,14 @@ def child_profile_view(request, child_id):
     
     # --- Permission Check ---
     has_access = False
+    is_parent = False
     
     if user.is_superuser:
         has_access = True
     elif user.role_type == 'parent':
         if child.parent_relationships.filter(parent__user=user).exists():
             has_access = True
+            is_parent = True
     elif user.role_type == 'director':
         # Check if director manages the child's center
         if hasattr(user, 'director_profile') and user.director_profile.managed_center == child.center:
@@ -42,6 +44,14 @@ def child_profile_view(request, child_id):
     if not has_access:
         messages.error(request, "Vous n'avez pas la permission de voir ce profil.")
         raise PermissionDenied("Access Denied")
+
+    # --- Handle Photo Upload (for Parents) ---
+    if request.method == 'POST' and is_parent:
+        if 'profile_photo' in request.FILES:
+            child.profile_photo = request.FILES['profile_photo']
+            child.save()
+            messages.success(request, f"La photo de profil de {child.first_name} a été mise à jour.")
+            return redirect('child_profile', child_id=child.child_id)
 
     # --- Fetch Enrollment Data ---
     enrollment = child.enrollment_forms.filter(is_active=True).first()

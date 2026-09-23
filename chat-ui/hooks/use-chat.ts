@@ -53,7 +53,7 @@ export function useChat(
     }
 
     setIsLoadingHistory(true);
-    fetch(`http://localhost:8000/chat/messages/${recipientId}/`, {
+    fetch(`http://localhost:8001/chat/messages/${recipientId}/`, {
       credentials: 'include',
     })
       .then(res => res.json())
@@ -88,7 +88,7 @@ export function useChat(
     }
 
     // Try localhost instead of localhost for better compatibility
-    const socketUrl = `ws://localhost:8000/ws/chat/`;
+    const socketUrl = `ws://localhost:8001/ws/chat/`;
     console.log("Connecting to WebSocket:", socketUrl);
     const socket = new WebSocket(socketUrl);
     socketRef.current = socket;
@@ -343,7 +343,7 @@ export function useChat(
     };
 
     try {
-      const response = await fetch("http://localhost:8000/chat/upload/", {
+      const response = await fetch("http://localhost:8001/chat/upload/", {
         method: "POST",
         body: formData,
         headers: {

@@ -1,80 +1,8 @@
 {% extends "base.html" %}
 
 {% block head %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pickerjs@1.2.1/dist/picker.min.css">
 <style>
-    /* iPhone Style Wheel Picker Customization */
-    .picker {
-        background-color: rgba(255, 255, 255, 0.9) !important;
-        backdrop-filter: blur(20px) !important;
-        -webkit-backdrop-filter: blur(20px) !important;
-        border-radius: 2.5rem 2.5rem 0 0 !important;
-        border: none !important;
-        box-shadow: 0 -10px 40px rgba(0,0,0,0.15) !important;
-    }
-
-    .dark .picker {
-        background-color: rgba(15, 23, 42, 0.9) !important;
-    }
-
-    .picker-content {
-        height: 200px !important;
-    }
-
-    .picker-item {
-        font-size: 1.25rem !important;
-        font-weight: 600 !important;
-        color: #94a3b8 !important;
-    }
-
-    .picker-picked {
-        color: #1e293b !important;
-        font-size: 1.5rem !important;
-        font-weight: 800 !important;
-    }
-
-    .dark .picker-picked {
-        color: #f8fafc !important;
-    }
-
-    .picker-footer {
-        border-top: 1px solid rgba(0,0,0,0.05) !important;
-        padding: 1rem 2rem !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        background: transparent !important;
-    }
-
-    .dark .picker-footer {
-        border-color: rgba(255,255,255,0.05) !important;
-    }
-
-    .picker-button {
-        background: none !important;
-        font-weight: 800 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.1em !important;
-        font-size: 0.75rem !important;
-        border: none !important;
-    }
-
-    .picker-confirm {
-        color: #6366f1 !important;
-    }
-
-    .picker-cancel {
-        color: #94a3b8 !important;
-    }
-
-    /* Selection highlight */
-    .picker-cell::before, .picker-cell::after {
-        border-color: rgba(99, 102, 241, 0.2) !important;
-    }
-
-    /* Prevent native keyboard on mobile */
-    input[type="time"] {
-        caret-color: transparent !important;
-    }
+    /* Prevent native keyboard on mobile if using custom pickers - removed for standard picker */
 </style>
 {% endblock %}
 
@@ -582,30 +510,9 @@
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/pickerjs@1.2.1/dist/picker.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const timeInputs = document.querySelectorAll('input[type="time"]');
-
-        timeInputs.forEach(input => {
-            input.setAttribute('readonly', 'readonly');
-            input.setAttribute('inputmode', 'none');
-            input.style.cursor = 'pointer';
-
-            new Picker(input, {
-                format: 'HH:mm',
-                headers: true,
-                controls: true,
-                text: {
-                    title: 'Choisir l\'heure',
-                    cancel: 'Annuler',
-                    confirm: 'Confirmer',
-                },
-                rows: 3
-            });
-        });
-
         // Signature Pad
         const canvas = document.getElementById('signature-pad');
         const signaturePad = new SignaturePad(canvas, {

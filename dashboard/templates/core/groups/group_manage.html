@@ -116,14 +116,15 @@
                             {% for educator in assigned_educators %}
                                 <tr class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                                     <td class="px-8 py-5">
-                                        <div class="flex items-center gap-4">
+                                        <a href="{% url 'educator_detail' educator.user.user_id %}" class="flex items-center gap-4 hover:opacity-80 transition-opacity">
                                             <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold">
                                                 {{ educator.user.full_name|first }}
                                             </div>
                                             <div>
                                                 <p class="text-sm font-bold text-slate-900 dark:text-white">{{ educator.user.full_name }}</p>
+                                                <p class="text-[10px] text-slate-400 font-medium">View Profile</p>
                                             </div>
-                                        </div>
+                                        </a>
                                     </td>
                                     <td class="px-6 py-5">
                                         <div class="flex flex-col">
@@ -206,7 +207,7 @@
                             {% for child in assigned_children %}
                                 <tr class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                                     <td class="px-8 py-5">
-                                        <div class="flex items-center gap-4">
+                                        <a href="{% url 'child_profile' child.child_id %}" class="flex items-center gap-4 hover:opacity-80 transition-opacity">
                                             <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 font-bold overflow-hidden">
                                                 {% if child.profile_photo %}
                                                     <img src="{{ child.profile_photo.url }}"
@@ -217,8 +218,9 @@
                                             </div>
                                             <div>
                                                 <p class="text-sm font-bold text-slate-900 dark:text-white">{{ child.first_name }} {{ child.last_name }}</p>
+                                                <p class="text-[10px] text-slate-400 font-medium">View Profile</p>
                                             </div>
-                                        </div>
+                                        </a>
                                     </td>
                                     <td class="px-6 py-5">
                                         <span class="text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg">
@@ -385,7 +387,17 @@
                                 <p class="font-bold text-slate-800 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
                                     {{ edu.user.full_name }}
                                 </p>
-                                <p class="text-xs text-slate-500">Available</p>
+                                {% with current_group=edu.current_group %}
+                                    {% if current_group %}
+                                        <p class="text-[10px] font-black uppercase tracking-wider text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-lg inline-block mt-1">
+                                            Assigned: {{ current_group.name }}
+                                        </p>
+                                    {% else %}
+                                        <p class="text-[10px] font-black uppercase tracking-wider text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded-lg inline-block mt-1">
+                                            Free
+                                        </p>
+                                    {% endif %}
+                                {% endwith %}
                             </div>
                         </button>
                     </form>

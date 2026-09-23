@@ -11,6 +11,21 @@ class AttendanceForm(forms.ModelForm):
             'absence_reason_notes': forms.Textarea(attrs={'rows': 2}),
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        is_absent = cleaned_data.get('is_absent')
+        arrival_time = cleaned_data.get('arrival_time')
+        departure_time = cleaned_data.get('departure_time')
+
+        if not is_absent:
+            if not arrival_time:
+                self.add_error('arrival_time', "Arrival time is required if the child is not absent.")
+            
+            if arrival_time and departure_time and departure_time <= arrival_time:
+                self.add_error('departure_time', "Departure time must be after arrival time.")
+        
+        return cleaned_data
+
 class DailyCheckupForm(forms.ModelForm):
     # Food fields (to match template)
     snack_am_amount = forms.ChoiceField(choices=DailyActivityLog.Amount.choices, required=False)

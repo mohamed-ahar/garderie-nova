@@ -15,6 +15,6 @@ def replace_for_embed(url):
     if match:
         video_id = match.group(1)
         # On ajoute enablejsapi=1 et on enlève les restrictions qui causent l'erreur 153
-        return f"https://www.youtube.com/embed/{video_id}?enablejsapi=1&rel=0&origin=http://localhost:8000"
+        return f"https://www.youtube.com/embed/{video_id}?enablejsapi=1&rel=0&origin=http://localhost:8001"
     
     return url

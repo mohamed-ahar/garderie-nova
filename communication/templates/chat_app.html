@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Chat - GarderieNova{% endblock %}
+
+{% block head %}
+<style>
+    /* Override the main content area to be full height without padding */
+    main {
+        height: 100vh !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: hidden;
+    }
+    
+    /* Hide header for this page */
+    header, .header-container {
+        display: none !important;
+    }
+    
+    /* Full screen iframe container */
+    .chat-iframe-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+    
+    .chat-iframe-container iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    
+    /* Adjust for sidebar - shift iframe to the right */
+    @media (min-width: 1024px) {
+        .chat-iframe-container {
+            left: 288px;
+            width: calc(100% - 288px);
+        }
+        
+        .chat-iframe-container.sidebar-hidden {
+            left: 0;
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-iframe-container" id="chat-iframe-container">
+    <iframe src="http://localhost:3000" 
+            title="Chat Application"
+            allow="microphone; camera; fullscreen"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals">
+        Your browser does not support iframes.
+    </iframe>
+</div>
+
+<script>
+    // Listen for sidebar toggle to adjust iframe position
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar');
+        const iframeContainer = document.getElementById('chat-iframe-container');
+        
+        if (sidebar && iframeContainer) {
+            // Create observer for sidebar class changes
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.attributeName === 'class') {
+                        if (sidebar.classList.contains('-translate-x-full')) {
+                            iframeContainer.classList.add('sidebar-hidden');
+                        } else {
+                            iframeContainer.classList.remove('sidebar-hidden');
+                        }
+                    }
+                });
+            });
+            
+            observer.observe(sidebar, { attributes: true });
+            
+            // Set initial state
+            if (sidebar.classList.contains('-translate-x-full')) {
+                iframeContainer.classList.add('sidebar-hidden');
+            }
+        }
+    });
+</script>
+{% endblock %}

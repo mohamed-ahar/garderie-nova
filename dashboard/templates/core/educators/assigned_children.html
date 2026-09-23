@@ -32,6 +32,15 @@
                     <p class="text-slate-500 dark:text-slate-400 font-medium text-sm  max-w-xl leading-relaxed">
                         Accessing synchronized real-time data for children currently assigned to your academic jurisdiction.
                     </p>
+                    
+                    {% if group_name %}
+                    <div class="flex items-center gap-2 mt-2">
+                        <span class="px-3 py-1 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-black uppercase tracking-[0.15em] border border-purple-500/20">
+                            <i class="fa-solid fa-users mr-1.5"></i>
+                            {{ group_name }}
+                        </span>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
     
@@ -92,7 +101,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
                     {% for child in children %}
-                    <tr class="group hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5 transition-colors child-row">
+                    <tr class="group hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5 transition-colors child-row cursor-pointer" onclick="window.location.href='{% url 'child_profile' child.child_id %}'">
                         <td class="px-8 py-5">
                             <div class="flex items-center gap-4">
                                 <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
@@ -119,10 +128,10 @@
                         </td>
                         <td class="px-8 py-5 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <a href="{% url 'child_profile' child.child_id %}" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all" title="View Profile">
+                                <a href="{% url 'child_profile' child.child_id %}" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all" title="View Profile" onclick="event.stopPropagation()">
                                     <i class="fa-solid fa-eye text-xs"></i>
                                 </a>
-                                <a href="#" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all" title="Daily Log">
+                                <a href="#" class="w-9 h-9 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800/50 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl border border-slate-100 dark:border-slate-700 transition-all" title="Daily Log" onclick="event.stopPropagation()">
                                     <i class="fa-solid fa-clipboard-check text-xs"></i>
                                 </a>
                             </div>

@@ -176,3 +176,9 @@ def delete_message(request, message_id):
 def unread_count_api(request):
     count = Message.objects.filter(receiver=request.user, is_read=False).count()
     return JsonResponse({'unread_count': count})
+
+
+@login_required
+def chat_app(request):
+    """View that renders the chat app in a full-screen iframe."""
+    return render(request, "chat_app.html")

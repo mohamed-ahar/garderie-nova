@@ -256,6 +256,17 @@ class Educator(models.Model):
         print(errors)
         return self.is_compliant
 
+    @property
+    def current_group(self):
+        """
+        Returns the active group this educator is currently assigned to.
+        """
+        # Note: We use .all() and filter in-memory if prefetched, 
+        # but for simplicity we can just use the manager if not prefetched.
+        # If prefetched, assignments.all() will be populated.
+        active_assignments = [a for a in self.assignments.all() if a.is_active]
+        return active_assignments[0].group if active_assignments else None
+
     def __str__(self):
         return f"Educator: {self.user.full_name}"
 

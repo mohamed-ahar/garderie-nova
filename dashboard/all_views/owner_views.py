@@ -1,3 +1,4 @@
+from django.db import models
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -291,6 +292,12 @@ def group_edit_view(request, group_id):
         Educator.objects.filter(center=group.center)
         .exclude(assignments__group=group, assignments__is_active=True)
         .select_related("user")
+        .prefetch_related(
+            models.Prefetch(
+                "assignments",
+                queryset=StaffAssignment.objects.filter(is_active=True).select_related("group"),
+            )
+        )
     )
 
     # Children not in this group

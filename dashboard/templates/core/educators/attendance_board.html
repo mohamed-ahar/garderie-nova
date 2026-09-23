@@ -149,8 +149,9 @@
                                                 {% csrf_token %}
                                                 <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
                                                 <input type="hidden" name="action" value="quick_arrival">
-                                                <button type="submit" class="p-2.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-sm shadow-emerald-500/20" title="Mark Arrival">
+                                                <button type="submit" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-sm shadow-emerald-500/20" title="Mark Arrival">
                                                     <i class="fa-solid fa-user-plus text-xs"></i>
+                                                    <span class="text-[10px] font-black uppercase tracking-widest">Arrival</span>
                                                 </button>
                                             </form>
                                         {% else %}
@@ -158,20 +159,23 @@
                                                 {% csrf_token %}
                                                 <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
                                                 <input type="hidden" name="action" value="quick_departure">
-                                                <button type="submit" class="p-2.5 rounded-xl bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-sm shadow-orange-500/20" title="Mark Departure">
+                                                <button type="submit" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-sm shadow-orange-500/20" title="Mark Departure">
                                                     <i class="fa-solid fa-user-minus text-xs"></i>
+                                                    <span class="text-[10px] font-black uppercase tracking-widest">Departure</span>
                                                 </button>
                                             </form>
                                         {% endif %}
                                         
                                         {% if not item.records %}
-                                            <a href="{% url 'mark_attendance' item.child.child_id %}?absent=1&date={{ view_date|date:'Y-m-d' }}" class="p-2.5 rounded-xl bg-rose-500 text-white hover:bg-rose-600 transition-all shadow-sm shadow-rose-500/20" title="Mark Absent">
+                                            <a href="{% url 'mark_attendance' item.child.child_id %}?absent=1&date={{ view_date|date:'Y-m-d' }}" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-rose-500 text-white hover:bg-rose-600 transition-all shadow-sm shadow-rose-500/20" title="Mark Absent">
                                                 <i class="fa-solid fa-user-xmark text-xs"></i>
+                                                <span class="text-[10px] font-black uppercase tracking-widest">Absent</span>
                                             </a>
                                         {% endif %}
 
-                                        <a href="{% url 'mark_attendance' item.child.child_id %}?date={{ view_date|date:'Y-m-d' }}" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 transition-all" title="Full History/Edit">
+                                        <a href="{% url 'mark_attendance' item.child.child_id %}?date={{ view_date|date:'Y-m-d' }}" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 transition-all" title="Full History/Edit">
                                             <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+                                            <span class="text-[10px] font-black uppercase tracking-widest">Edit</span>
                                         </a>
                                     {% else %}
                                         <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-3 py-1 bg-slate-50 dark:bg-slate-800 rounded-lg">View Only</span>

@@ -155,6 +155,9 @@
                         {% if day_data.is_absent %}
                             <div class="absence-row">
                                 <span class="bold">Raison de l'absence :</span> {{ day_data.is_absent.get_absence_reason_code_display }}
+                                {% if day_data.is_absent.absence_reason_notes %}
+                                    <br><span class="bold">Note:</span> {{ day_data.is_absent.absence_reason_notes }}
+                                {% endif %}
                             </div>
                         {% else %}
                             {% for record in day_data.records %}

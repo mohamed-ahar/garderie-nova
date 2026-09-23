@@ -3,94 +3,96 @@
 {% block title %}Educator Profile | GarderieNova{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto px-2">
-<div class="flex flex-col gap-8">
-    <!-- Header -->
-    <div class="relative w-full max-w-7xl mx-auto py-12 px-12 overflow-hidden">
-        <div class="absolute inset-0 pointer-events-none">
-            <div class="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] opacity-40"></div>
-            <div class="absolute bottom-[-20%] right-[-10%] w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px] opacity-40"></div>
-            <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-        </div>
-    
-        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-end">
-            
-            <div class="lg:col-span-7 space-y-10">
-                <div class="space-y-6">
-                    <div class="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
-                        <div class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                        </div>
-                        <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.25em]">Registry Node: Active</span>
-                    </div>
-    
-                    <div class="space-y-4">
-                        <h1 class="text-6xl lg:text-8xl font-black text-slate-900 dark:text-white leading-[0.85] tracking-[-0.04em]">
-                            {{ educator.user.full_name }}<br>
-                            <span class="bg-gradient-to-br from-emerald-500 via-teal-400 to-blue-500 bg-clip-text text-transparent italic font-serif text-5xl lg:text-7xl">Educator Core</span>
-                        </h1>
-                        <p class="text-lg text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-md border-l-2 border-emerald-500/30 pl-6">
-                            Managing institutional assets, grade distributions, and encrypted student synchronization.
-                        </p>
-                    </div>
-                </div>
-    
-                <div class="pt-4">
-                    <a href="{% url 'educator_list' %}" class="group inline-flex items-center gap-5 text-[11px] font-black text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-all uppercase tracking-[0.2em]">
-                        <div class="w-12 h-12 rounded-2xl border-2 border-slate-200 dark:border-slate-800 flex items-center justify-center group-hover:border-emerald-500/50 group-hover:bg-emerald-500/10 transition-all duration-300">
-                            <i class="fa-solid fa-chevron-left group-hover:-translate-x-1 transition-transform"></i>
-                        </div>
-                        <div class="flex flex-col">
-                            <span>Exit Registry</span>
-                            <span class="text-[8px] opacity-50">Back to directory</span>
-                        </div>
-                    </a>
-                </div>
+<div class="max-w-[1440px] mx-auto px-8 lg:px-12 py-12">
+    <div class="flex flex-col gap-16">
+        <!-- Header -->
+        <div class="relative w-full overflow-hidden">
+            <div class="absolute inset-0 pointer-events-none">
+                <div class="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] opacity-40"></div>
+                <div class="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px] opacity-40"></div>
             </div>
-    
-            <div class="lg:col-span-5">
-                <div class="relative group">
-                    <div class="absolute -inset-1 bg-gradient-to-tr from-emerald-600 to-blue-500 rounded-[3.5rem] blur-2xl opacity-10 group-hover:opacity-25 transition duration-1000"></div>
-                    
-                    <div class="relative bg-white dark:bg-[#0f172a] rounded-[3rem] border border-slate-200 dark:border-slate-800 p-6 shadow-2xl overflow-hidden">
+        
+            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-end">
+                
+                <div class="lg:col-span-7 space-y-12">
+                    <div class="space-y-8">
+                        <div class="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md">
+                            <div class="relative flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                            </div>
+                            <span class="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.3em]">Registry Node: Active</span>
+                        </div>
+        
+                        <div class="space-y-6">
+                            <h1 class="text-7xl lg:text-[10rem] font-black text-slate-900 dark:text-white leading-[0.8] tracking-[-0.05em]">
+                                {{ educator.user.full_name }}<br>
+                                <span class="bg-gradient-to-br from-emerald-500 via-teal-400 to-blue-500 bg-clip-text text-transparent italic font-serif text-6xl lg:text-[6rem]">Educator Core</span>
+                            </h1>
+                            <p class="text-xl text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-xl border-l-4 border-emerald-500/30 pl-8">
+                                Managing institutional assets, grade distributions, and encrypted student synchronization.
+                            </p>
+                        </div>
+                    </div>
+        
+                    <div class="pt-6">
+                        <a href="{% url 'educator_list' %}" class="group inline-flex items-center gap-6 text-[12px] font-black text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-all uppercase tracking-[0.25em]">
+                            <div class="w-14 h-14 rounded-3xl border-2 border-slate-200 dark:border-slate-800 flex items-center justify-center group-hover:border-emerald-500/50 group-hover:bg-emerald-500/10 transition-all duration-300 shadow-sm group-hover:shadow-emerald-500/20">
+                                <i class="fa-solid fa-chevron-left group-hover:-translate-x-1.5 transition-transform text-lg"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <span>Exit Registry</span>
+                                <span class="text-[9px] opacity-50 font-bold">Back to directory</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+        
+                <div class="lg:col-span-5">
+                    <div class="relative group">
+                        <div class="absolute -inset-2 bg-gradient-to-tr from-emerald-600 to-blue-500 rounded-[4rem] blur-3xl opacity-10 group-hover:opacity-30 transition duration-1000"></div>
                         
-                        <div class="flex justify-between items-center mb-10 px-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-950 shadow-lg">
-                                    <i class="fa-solid fa-fingerprint text-sm"></i>
+                        <div class="relative bg-white dark:bg-[#0f172a] rounded-[3.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-2xl overflow-hidden">
+                            
+                            <div class="flex justify-between items-center mb-12 px-2">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-950 shadow-xl">
+                                        <i class="fa-solid fa-fingerprint text-lg"></i>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest leading-none">Auth_Token</span>
+                                        <span class="text-[10px] font-black text-emerald-500 uppercase">Verified</span>
+                                    </div>
                                 </div>
-                                <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest">Auth_Token_Verified</span>
-                            </div>
-                            <div class="flex gap-1.5">
-                                <div class="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div>
-                                <div class="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div>
-                            </div>
-                        </div>
-    
-                        <div class="space-y-4 px-2 pb-4">
-                            <a href="{% url 'educator_edit' educator.user.user_id %}" 
-                               class="group relative w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-7 rounded-[2rem] transition-all flex items-center justify-center gap-5 text-[13px] uppercase tracking-[0.3em] overflow-hidden hover:scale-[1.02] active:scale-[0.98]">
-                                <span class="relative z-10">Modify Profile</span>
-                                <i class="fa-solid fa-wand-magic-sparkles text-xs relative z-10 group-hover:rotate-12 transition-transform"></i>
-                                
-                                <div class="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            </a>
-    
-                            <div class="mt-8 py-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                                <div class="flex items-center gap-2">
-                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Sync Nominal</span>
+                                <div class="flex gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                                    <div class="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700"></div>
                                 </div>
-                                <span class="text-[9px] font-mono text-slate-500 uppercase">Node ID: {{ educator.user.user_id|slice:":8" }}</span>
+                            </div>
+        
+                            <div class="space-y-6">
+                                <a href="{% url 'educator_edit' educator.user.user_id %}" 
+                                   class="group relative w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-8 rounded-[2.5rem] transition-all flex items-center justify-center gap-6 text-[14px] uppercase tracking-[0.35em] overflow-hidden hover:scale-[1.02] active:scale-[0.98] shadow-2xl shadow-slate-900/20 dark:shadow-white/5">
+                                    <span class="relative z-10">Modify Profile</span>
+                                    <i class="fa-solid fa-wand-magic-sparkles text-sm relative z-10 group-hover:rotate-12 transition-transform"></i>
+                                    
+                                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                </a>
+        
+                                <div class="mt-10 py-5 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]"></span>
+                                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sync Nominal</span>
+                                    </div>
+                                    <span class="text-[10px] font-mono text-slate-500 font-bold">NODE_ID: {{ educator.user.user_id|slice:":8"|upper }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+        
             </div>
-    
         </div>
-    </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
     

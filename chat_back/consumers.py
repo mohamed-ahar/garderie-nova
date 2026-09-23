@@ -88,7 +88,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # Get the host from the scope for URL building
         headers = dict(self.scope.get('headers', []))
-        host = headers.get(b'host', b'localhost:8000').decode()
+        host = headers.get(b'host', b'localhost:8001').decode()
 
         if message_type == "chat_message":
             recipient_id = data.get("recipient_id")

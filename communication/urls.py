@@ -4,6 +4,9 @@ from . import views
 app_name = "communication"
 
 urlpatterns = [
+    # --- Chat App (iframe) ---
+    path("chat/", views.chat_app, name="chat_app"),
+    
     # --- Messaging ---
     path("inbox/", views.inbox, name="inbox"),
     path("sent/", views.sent_messages, name="sent_messages"),
