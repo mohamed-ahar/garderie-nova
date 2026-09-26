@@ -252,6 +252,10 @@
                 <i class="fa-solid fa-door-open mr-3 opacity-70 text-[11px]"></i>
                 <span class="sidebar-label">Manage Rooms</span>
             </a>
+            <a href="{% url 'manage_principal' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                <i class="fa-solid fa-user-tie mr-3 opacity-70 text-[11px]"></i>
+                <span class="sidebar-label">Manage Principals</span>
+            </a>
             
         </div>
     </div>
@@ -369,7 +373,7 @@
                         </div>
                     </div>
                 </li>
-                {% endif %} {% if user.role_type == 'educator' %}
+                {% endif %} {% if user.role_type == 'educator' or user.role_type == 'educator_principal' %}
                 <li class="dropdown-group relative group">
                     <button onclick="toggleDropdown(this)" data-section-id="classroom_hub" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-slate-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
                                 <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-9 h-9 bg-white/10 rounded-xl border border-white/20 transition-transform duration-300 group-hover:rotate-[8deg]">

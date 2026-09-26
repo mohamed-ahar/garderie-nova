@@ -38,6 +38,7 @@ class User(AbstractUser):
         ("director", "Director"),
         ("vice_director", "Vice Director"),
         ("educator", "Educator"),
+        ("educator_principal", "Educator Principal"),
         ("parent", "Parent"),
     )
 
@@ -280,3 +281,36 @@ class ParentProfile(models.Model):
 
     def __str__(self):
         return f"Parent: {self.user.full_name}"
+class EducatorPrincipal(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,
+        related_name="educator_principal_profile",
+    )
+    center = models.ForeignKey(
+        "dashboard.Center", 
+        on_delete=models.CASCADE, 
+        related_name="principals"
+    )
+
+    def get_center_compliance_report(self):
+        """
+        Returns a summary of all educators in the same center,
+        including their current compliance status and ratio errors.
+        """
+        # Fetch all educators in the same center
+        educators = self.center.educators.all()
+        
+        report = []
+        for educator in educators:
+            report.append({
+                "name": educator.user.full_name,
+                "is_compliant": educator.is_compliant,
+                "errors": educator.compliance_errors,
+                # Triggering recalculation if necessary
+            })
+        return report
+
+    def __str__(self):
+        return f"Principal: {self.user.full_name}"

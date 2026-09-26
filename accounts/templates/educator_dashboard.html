@@ -11,37 +11,51 @@
     <div class="relative z-10 grid lg:grid-cols-12 gap-8 p-8 md:p-12 items-center">
         
         <div class="lg:col-span-7 space-y-8">
-            <div class="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-white dark:border-slate-700 shadow-sm">
-                <span class="relative flex h-3 w-3">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
-                </span>
-                <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.3em]">Classroom Live</span>
+            <div class="flex items-center gap-4">
+                <div class="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-white dark:border-slate-700 shadow-sm">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                    </span>
+                    <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.3em]">System Live</span>
+                </div>
+        
+                {% if user.role_type == 'educator_principal' %}
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20">
+                    <i class="fa-solid fa-crown text-[10px]"></i>
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em]">Principal Access</span>
+                </div>
+                {% endif %}
             </div>
-
+        
             <div class="space-y-2">
                 <h1 class="text-5xl md:text-5xl font-black text-slate-900 dark:text-white leading-[0.9] tracking-tighter">
-                    Keep inspiring,<br>
-                    <span class="bg-gradient-to-r from-indigo-600 via-indigo-400 to-black bg-clip-text text-transparent">
+                    {% if user.role_type == 'educator_principal' %} Educator Principal,{% else %}Keep inspiring,{% endif %}<br>
+                    <span class="bg-gradient-to-r from-indigo-600 via-indigo-400 to-black dark:to-white bg-clip-text text-transparent">
                         {{ user.full_name|default:user.username }}
                     </span>
                 </h1>
-                <p class="text-sm text-slate-800 font-medium max-w-md pt-4 leading-relaxed">
-                    Your morning session begins now <span class="text-slate-900 dark:text-white font-bold underline decoration-indigo-500 underline-offset-4"></span>. The classroom is ready and your roster is synchronized.
+                <p class="text-sm text-slate-800 dark:text-slate-400 font-medium max-w-md pt-4 leading-relaxed">
+                    {% if user.role_type == 'educator_principal' %}
+                        Your administrative oversight begins now. All institutional centers are synchronized and reporting is ready for your review.
+                    {% else %}
+                        Your morning session begins now. The classroom is ready and your roster is synchronized.
+                    {% endif %}
                 </p>
             </div>
-
+        
             <div class="flex flex-wrap gap-5 pt-4">
-                <a href="#" class="group/btn relative px-10 py-5 bg-indigo-600 dark:bg-indigo-500 text-white dark:text-slate-950 font-black rounded-[2rem] overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-indigo-500/20">
-                    <div class="absolute inset-0 bg-gradient-to-r from-black via-green-400 to-white/0 -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] skew-x-[-20deg]"></div>
+                <a href="#" class="group/btn relative px-10 py-5 bg-indigo-600 text-white font-black rounded-[2rem] overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-indigo-500/20">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black via-indigo-400 to-white/0 -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] skew-x-[-20deg]"></div>
                     <span class="relative flex items-center gap-3">
-                        <i class="fa-solid fa-bolt-lightning"></i> Start Session
+                        <i class="fa-solid {% if user.role_type == 'educator_principal' %}fa-shield-halved{% else %}fa-bolt-lightning{% endif %}"></i> 
+                        {% if user.role_type == 'educator_principal' %}Dashboard Control{% else %}Start Session{% endif %}
                     </span>
                 </a>
                 <a href="{% url 'daily_checkup_list' %}" class="px-10 py-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-black rounded-[2rem] hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-3 shadow-sm">
-                    <i class="fa-solid fa-clipboard-check text-indigo-500"></i> Daily Checkups
+                    <i class="fa-solid fa-clipboard-check text-indigo-500"></i> 
+                    {% if user.role_type == 'educator_principal' %}Institutional Reports{% else %}Daily Checkups{% endif %}
                 </a>
-            
             </div>
         </div>
         <div class="lg:col-span-5 relative">

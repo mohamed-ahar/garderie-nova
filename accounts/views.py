@@ -3,11 +3,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Director, Owner, ParentProfile, User
+from .models import Director, Educator, EducatorPrincipal, Owner, ParentProfile, User
 from dashboard.models import Center, ParentChildRelationship, Child
 from django.db.models import Q
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
+from django.db import transaction
 
 
 def login_view(request):
@@ -71,7 +72,8 @@ def dashboard_redirect(request):
         return redirect("owner_dashboard")
     elif role == "director":
         return redirect("director_dashboard")
-    elif role == "educator":
+    elif role == "educator" or role == "educator_principal":
+        # هادي هي البلاصة فين زدنا educator_principal
         return redirect("educator_dashboard")
     elif role == "parent":
         return redirect("parent_dashboard")
@@ -174,21 +176,40 @@ def director_dashboard(request):
 @login_required(login_url="login")
 def educator_dashboard(request):
     user = request.user
-    if user.role_type != "educator":
+    
+    if user.role_type not in ["educator", "educator_principal"]:
         return render(request, "core/403.html", status=403)
 
-    # Get the count of children assigned to this educator
+    assigned_children_count = 0
+    is_principal = (user.role_type == "educator_principal")
+
     try:
-        educator_profile = user.educator_profile
-        assigned_children_count = Child.objects.filter(assigned_educator=educator_profile).count()
-    except AttributeError:
+        if not is_principal:
+            # حالة الأستاذ العادي
+            educator_profile = user.educator_profile
+            assigned_children_count = Child.objects.filter(assigned_educator=educator_profile).count()
+        
+        else:
+            # حالة الـ Principal
+            # تأكد أن اسم الـ related_name في الـ Model هو educator_principal_profile
+            # أو استخدم user.educatorprincipal (بدون underscore إذا كان هذا هو الاسم الافتراضي)
+            principal_profile = user.educatorprincipal 
+            center = principal_profile.center
+            
+            # الآن نحن نفلتر الأطفال بناءً على كائن المركز (Center instance) مباشرة
+            assigned_children_count = Child.objects.filter(center=center).count()
+            
+    except Exception as e:
+        # إضافة print لطباعة الخطأ في الـ Terminal لمعرفة اسم الـ relation الصحيح
+        print(f"Error in dashboard: {e}")
         assigned_children_count = 0
 
     context = {
         "assigned_children_count": assigned_children_count,
+        "is_principal": is_principal,
     }
+    
     return render(request, "educator_dashboard.html", context)
-
 @login_required
 def parent_dashboard(request):
     user = request.user
@@ -266,3 +287,49 @@ def personal_profile(request):
 
     return render(request, "profile.html", context)
 
+@login_required
+def manage_principal(request):
+    # 1. التحقق من الصلاحية
+    if request.user.role_type != 'director':
+        return redirect('dashboard_redirect')
+        
+    director = request.user.director_profile
+    center = director.organization.centers.first()
+    
+    # نجيبو الـ educators اللي تابعين لنفس المركز
+    educators = Educator.objects.filter(center=center)
+    
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        user_to_promote = get_object_or_404(User, user_id=user_id)
+        
+        # 2. تحديث الـ role والـ Profile
+        user_to_promote.role_type = 'educator_principal'
+        user_to_promote.save()
+        
+        # التأكد من عدم تكرار الإنشاء إذا كان موجوداً مسبقاً
+        EducatorPrincipal.objects.get_or_create(user=user_to_promote, center=center)
+        
+        # 3. البقاء في نفس الصفحة (Self-Redirect)
+        messages.success(request, f"{user_to_promote.full_name} has been promoted successfully.")
+        return redirect(request.path) 
+
+    return render(request, 'manage_principal.html', {'educators': educators})
+@login_required
+def remove_principal(request):
+    if request.user.role_type != 'director':
+        return redirect('dashboard_redirect')
+
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        user = User.objects.get(user_id=user_id)
+        
+        with transaction.atomic():
+            # 1. رجعو educator عادي
+            user.role_type = 'educator'
+            user.save()
+            
+            # 2. مسح الـ profile ديال الـ Principal
+            EducatorPrincipal.objects.filter(user=user).delete()
+            
+        return redirect('manage_principal')

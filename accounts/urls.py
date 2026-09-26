@@ -10,6 +10,7 @@ from .views import (
     personal_profile,
     get_me,
 )
+from accounts import views
 
 urlpatterns = [
     # 1. Login Page (kat-asta3mel template login.html li sayebna)
@@ -25,4 +26,6 @@ urlpatterns = [
     path("dashboard/parent/", parent_dashboard, name="parent_dashboard"),
     path("profile/", personal_profile, name="personal_profile"),
     path("me/", get_me, name="get_me"),
+    path('manage-principal/', views.manage_principal, name='manage_principal'),
+    path('remove-principal/', views.remove_principal, name='remove_principal'),
 ]
