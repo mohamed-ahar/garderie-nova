@@ -3,104 +3,125 @@
 {% block title %}Add Child | GarderieNova{% endblock %}
 
 {% block content %}
-<div class="relative mb-6 -mx-0 -mt-6 overflow-hidden border-b border-white/10">
-    <div class="absolute inset-0 bg-[#0f172a] dark:bg-black"></div>
-    <div class="absolute inset-0 bg-gradient-to-br from-emerald-600/90 via-emerald-600/80 to-emerald-500/70 opacity-90"></div>
+<div class="relative min-h-[90vh] bg-white dark:bg-slate-950 overflow-hidden flex items-center justify-center py-12 px-6">
     
-    <div class="absolute top-[-50%] left-[-10%] w-[70%] h-[150%] bg-emerald-400/20 rounded-full blur-[120px] animate-pulse"></div>
-    <div class="absolute bottom-[-50%] right-[-10%] w-[60%] h-[120%] bg-green-400/20 rounded-full blur-[100px] animate-pulse" style="animation-delay: 2s;"></div>
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-green-400/5 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[10%] right-[5%] w-[400px] h-[400px] bg-rose-400/5 rounded-full blur-[100px]"></div>
+    </div>
 
-    <div class="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
-
-    <div class="relative z-10 px-8 pt-10 pb-6">
-        <div class="flex items-center justify-between">
-            <div class="space-y-2">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span class="text-[10px] font-black text-white uppercase tracking-[0.2em]">Manual_Addition</span>
+    <div class="relative z-10 max-w-5xl w-full grid lg:grid-cols-12 gap-12 items-start">
+        
+        <div class="lg:col-span-5 flex flex-col pt-10 h-full space-y-6"> 
+            <div class="flex items-center justify-between">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <i class="fa-solid fa-child-reaching text-green-500 text-[10px]"></i>
+                    <span class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Enrollment Portal</span>
                 </div>
-                <h1 class="text-4xl md:text-5xl font-black text-white tracking-tighter leading-none">
-                    Add Child
+                <a href="{% url 'director_dashboard' %}" class="group inline-flex items-center gap-2 text-[9px] font-black text-slate-400 hover:text-green-600 uppercase tracking-[0.2em] transition-all">
+                    <i class="fa-solid fa-arrow-left text-[8px]"></i> Back
+                </a>
+            </div>
+
+            <div class="space-y-3">
+                <h1 class="text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
+                    Enroll a new<br>
+                    <span class="bg-gradient-to-r from-green-600 to-teal-400 bg-clip-text text-transparent">Little Child</span>
                 </h1>
-                <p class="text-emerald-100/70 text-sm md:text-base font-medium mt-2 max-w-md">
-                    Manually add a child to your center.
+                <p class="text-base text-slate-400 font-medium leading-relaxed">
+                    Manually add a child to your center database. Ensure all details match official documentation.
                 </p>
             </div>
-            <a href="{% url 'child_list' %}" class="group relative inline-flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-md text-white rounded-2xl text-sm font-bold transition-all hover:bg-white/20 border border-white/20">
-                <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
-                <span class="uppercase tracking-widest">Back to List</span>
-            </a>
+
+            <div class="flex flex-col gap-3 pt-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center text-white text-[10px] font-bold shadow-lg animate-pulse">1</div>
+                    <span class="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Child Details</span>
+                </div>
+                <div class="flex items-center gap-3 opacity-40">
+                    <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-500">2</div>
+                    <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Parent Association</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-7">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] relative animate-in fade-in zoom-in duration-700 ease-out">
+                
+                <form method="POST" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 animate-in slide-in-from-bottom-4 duration-500 delay-200">
+                        <div class="space-y-1.5 group">
+                            <label class="block text-[10px] font-black text-slate-400 group-focus-within:text-green-500 uppercase tracking-[0.2em] px-1 transition-colors">First Name *</label>
+                            <input type="text" name="first_name" required>
+                        </div>
+                        <div class="space-y-1.5 group">
+                            <label class="block text-[10px] font-black text-slate-400 group-focus-within:text-green-500 uppercase tracking-[0.2em] px-1 transition-colors">Last Name</label>
+                            <input type="text" name="last_name">
+                        </div>
+                        <div class="space-y-1.5 group">
+                            <label class="block text-[10px] font-black text-slate-400 group-focus-within:text-green-500 uppercase tracking-[0.2em] px-1 transition-colors">Birth Date *</label>
+                            <input type="date" name="birth_date" required>
+                        </div>
+                        <div class="space-y-1.5 group">
+                            <label class="block text-[10px] font-black text-slate-400 group-focus-within:text-green-500 uppercase tracking-[0.2em] px-1 transition-colors">Status</label>
+                            <select name="status">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="waitlist">Waitlist</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="pt-8 mt-4 border-t border-slate-50 dark:border-slate-800 space-y-6 animate-in slide-in-from-bottom-4 duration-500 delay-300">
+                        <h3 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Parent Info (Optional)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div class="space-y-1.5 group">
+                                <label class="block text-[10px] font-black text-slate-400 group-focus-within:text-green-500 uppercase tracking-[0.2em] px-1 transition-colors">Parent Email</label>
+                                <input type="email" name="parent_email">
+                            </div>
+                            <div class="space-y-1.5 group">
+                                <label class="block text-[10px] font-black text-slate-400 group-focus-within:text-green-500 uppercase tracking-[0.2em] px-1 transition-colors">Parent Name</label>
+                                <input type="text" name="parent_name">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-4 rounded-2xl hover:scale-[1.01] transition-all duration-300 shadow-xl shadow-green-500/10 active:scale-[0.98] flex items-center justify-center gap-3">
+                        Enroll Child <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </button>
+                </form>
+
+                <div class="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl shadow-lg flex items-center justify-center text-white text-xl rotate-12">
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="max-w-3xl mx-auto">
-    <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden">
-        <form method="POST" class="p-8 space-y-6">
-            {% csrf_token %}
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">First Name *</label>
-                    <input type="text" name="first_name" required 
-                           class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                </div>
-                
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Last Name</label>
-                    <input type="text" name="last_name" 
-                           class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Birth Date *</label>
-                    <input type="date" name="birth_date" required 
-                           class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                </div>
-                
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Status</label>
-                    <select name="status" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="waitlist">Waitlist</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="border-t border-slate-100 dark:border-slate-800 pt-6">
-                <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Parent Information (Optional)</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Link a parent account to this child. If the parent doesn't exist, you can create one.</p>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Parent Email</label>
-                        <input type="email" name="parent_email" 
-                               class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                               placeholder="parent@example.com">
-                    </div>
-                    
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Parent Name</label>
-                        <input type="text" name="parent_name" 
-                               class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                               placeholder="John Doe">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="flex items-center justify-end gap-4 pt-4">
-                <a href="{% url 'child_list' %}" class="px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                    Cancel
-                </a>
-                <button type="submit" class="px-8 py-3 rounded-xl bg-emerald-500 text-white font-black hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/30">
-                    <i class="fa-solid fa-plus mr-2"></i>
-                    Add Child
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+<style>
+    input, select {
+        width: 100%;
+        padding: 0.85rem 1.2rem !important;
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 1rem !important;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .dark input, .dark select {
+        background-color: #0f172a;
+        border-color: #1e293b;
+        color: #ffffff;
+    }
+    input:focus, select:focus {
+        border-color: #10b981;
+        background-color: #ffffff;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);
+    }
+    .dark input:focus { background-color: #020617; }
+</style>
 {% endblock %}

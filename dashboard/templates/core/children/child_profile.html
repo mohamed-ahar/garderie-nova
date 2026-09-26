@@ -14,32 +14,39 @@
         <div class="relative flex flex-col md:flex-row items-center gap-8">
             <!-- Avatar -->
             <div class="relative group">
-                <div class="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-2xl relative">
+                <div class="absolute -inset-1 bg-gradient-to-tr from-rose-500 to-indigo-500 rounded-[2.5rem] opacity-20 group-hover:opacity-50 blur-xl transition-opacity duration-500"></div>
+                
+                <div class="w-32 h-32 md:w-44 md:h-44 rounded-[2.5rem] overflow-hidden border-4 border-white dark:border-slate-900 shadow-2xl relative bg-white dark:bg-slate-800">
                     {% if child.profile_photo %}
-                        <img src="{{ child.profile_photo.url }}" class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110" alt="{{ child.first_name }}">
+                        <img src="{{ child.profile_photo.url }}" class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110" alt="{{ child.first_name }}">
                     {% else %}
-                        <div class="w-full h-full bg-rose-50 dark:bg-slate-800 flex items-center justify-center text-4xl font-black text-rose-300 dark:text-slate-600">
+                        <div class="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 flex items-center justify-center text-5xl font-black text-rose-300 dark:text-slate-600">
                             {{ child.first_name|first }}{{ child.last_name|first }}
                         </div>
                     {% endif %}
-
+            
                     {% if user.role_type == 'parent' %}
-                    <form id="childPhotoForm" method="POST" enctype="multipart/form-data" class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <form id="childPhotoForm" method="POST" enctype="multipart/form-data" class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm">
                         {% csrf_token %}
                         <input type="file" name="profile_photo" id="childPhotoInput" class="hidden" onchange="document.getElementById('childPhotoForm').submit()">
-                        <label for="childPhotoInput" class="cursor-pointer w-full h-full flex items-center justify-center">
-                            <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white text-xl">
-                                <i class="fa-solid fa-camera"></i>
-                            </div>
+                        <label for="childPhotoInput" class="cursor-pointer flex flex-col items-center justify-center w-full h-full text-white">
+                            <i class="fa-solid fa-camera text-2xl mb-1"></i>
+                            <span class="text-[9px] font-black uppercase tracking-widest">Update</span>
                         </label>
                     </form>
                     {% endif %}
                 </div>
-                <div class="absolute -bottom-2 -right-2 w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-lg border-2 border-white dark:border-slate-900
-                    {% if child.status == 'active' %}bg-emerald-500
-                    {% elif child.status == 'waitlist' %}bg-amber-500
-                    {% else %}bg-slate-500{% endif %}" title="{{ child.get_status_display }}">
-                    <i class="fa-solid {% if child.status == 'active' %}fa-check{% elif child.status == 'waitlist' %}fa-clock{% else %}fa-minus{% endif %} text-xs md:text-sm"></i>
+            
+                <div class="absolute -bottom-3 -right-3 w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-2xl border-[5px] border-white dark:border-slate-900 
+                    {% if child.status == 'active' %}bg-emerald-500 shadow-emerald-500/30
+                    {% elif child.status == 'waitlist' %}bg-amber-500 shadow-amber-500/30
+                    {% else %}bg-slate-500 shadow-slate-500/30{% endif %}" title="{{ child.get_status_display }}">
+                    
+                    <i class="fa-solid {% if child.status == 'active' %}fa-check{% elif child.status == 'waitlist' %}fa-clock{% else %}fa-minus{% endif %} text-sm"></i>
+                    
+                    {% if child.status == 'active' %}
+                    <span class="absolute inset-0 rounded-xl bg-emerald-500 animate-ping opacity-50"></span>
+                    {% endif %}
                 </div>
             </div>
 
