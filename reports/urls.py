@@ -18,4 +18,36 @@ urlpatterns = [
         views.download_enrollment_pdf,
         name="download_enrollment_pdf",
     ),
+    # Illness Reports (Annexe 11)
+    path(
+        "illness/create/<uuid:child_id>/",
+        views.create_illness_report,
+        name="create_illness_report",
+    ),
+    path(
+        "illness/sign/<uuid:report_id>/",
+        views.sign_illness_report,
+        name="sign_illness_report",
+    ),
+    path(
+        "illness/view/<uuid:report_id>/",
+        views.view_illness_report,
+        name="view_illness_report",
+    ),
+    # Reintegration Forms (Annexe 12)
+    path(
+        "reintegration/create/<uuid:child_id>/",
+        views.create_reintegration_form,
+        name="create_reintegration_form",
+    ),
+    path(
+        "reintegration/sign/<uuid:form_id>/",
+        views.sign_reintegration_form,
+        name="sign_reintegration_form",
+    ),
+    path(
+        "reintegration/view/<uuid:form_id>/",
+        views.view_reintegration_form,
+        name="view_reintegration_form",
+    ),
 ]

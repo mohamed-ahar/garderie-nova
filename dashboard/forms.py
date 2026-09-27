@@ -39,15 +39,26 @@ class ViceDirectorForm(forms.ModelForm):
 class CenterCreationForm(forms.ModelForm):
     class Meta:
         model = Center
-        fields = ['name'] 
+        fields = ['name', 'address', 'permit_number'] 
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all',
                 'placeholder': 'Smiyt l-center (masalan: Center El Amal)'
             }),
+            'address': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all',
+                'placeholder': "L-onwan d l-center",
+                'rows': 3
+            }),
+            'permit_number': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all',
+                'placeholder': 'Numéro de permis (ex: 123456)'
+            }),
         }
         labels = {
             'name': 'Center Name',
+            'address': 'Address',
+            'permit_number': 'Permit Number',
         }
 
 class DirectorCreationForm(forms.ModelForm):

@@ -108,3 +108,90 @@ class UnauthorizedContact(models.Model):
     """
     enrollment_form = models.ForeignKey(EnrollmentForm, on_delete=models.CASCADE, related_name="unauthorized_contacts")
     name = models.CharField(max_length=255)
+
+class IllnessReport(models.Model):
+    """
+    Represents 'Annexe 11 - Formulaire de signalement de maladie possible'
+    """
+    SYMPTOM_CHOICES = [
+        ('diarrhea', 'Diarrhée'),
+        ('fever', 'Fièvre'),
+        ('cold_symptoms', 'Symptômes de rhume'),
+        ('skin_problems', 'Troubles de la peau'),
+        ('vomiting', 'Vomissements'),
+        ('others', 'Autres'),
+    ]
+
+    report_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name="illness_reports")
+    date = models.DateField(default=timezone.now)
+
+    # Symptoms
+    symptoms = models.JSONField(default=list, help_text="Liste des codes de symptômes sélectionnés")
+    explanation = models.TextField(blank=True)
+
+    # Vital signs / Meds
+    temperature = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
+    time_taken = models.TimeField(null=True, blank=True)
+    medication_administered = models.BooleanField(default=False)
+    medication_details = models.TextField(blank=True, help_text="Médicament et dose administrée")
+
+    # Public Health
+    reported_to_public_health = models.BooleanField(default=False)
+    public_health_communication_date = models.DateField(null=True, blank=True)
+    recent_illness_report_exists = models.BooleanField(default=False, help_text="Formulaire rempli dans les 24h précédentes?")
+
+    # Parent notification & Pickup
+    parent_notified_at = models.TimeField(null=True, blank=True, help_text="Heure à laquelle le parent a été avisé")
+    departure_time = models.TimeField(null=True, blank=True, help_text="Heure de départ")
+
+    # Signatures
+    staff_member = models.ForeignKey("accounts.Educator", on_delete=models.PROTECT, related_name="filed_illness_reports")
+    staff_signature_data = models.TextField(blank=True, help_text="Base64 encoded staff signature")
+
+    parent_signature_data = models.TextField(blank=True, help_text="Base64 encoded parent signature")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Illness Report: {self.child} - {self.date}"
+
+class ReintegrationForm(models.Model):
+    """
+    Represents 'Annexe 12 - Formulaire de réintégration après exclusion'
+    """
+    form_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    center = models.ForeignKey("dashboard.Center", on_delete=models.CASCADE, related_name="reintegration_forms")
+    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name="reintegration_forms")
+    date = models.DateField(default=timezone.now)
+
+    # Section B - Child Info
+    illness_name = models.CharField(max_length=255)
+    illness_start_date = models.DateField()
+    diagnosis_date = models.DateField(null=True, blank=True)
+    treatment_start_date = models.DateField(null=True, blank=True)
+
+    # Section C - Confirmation of Exclusion (General)
+    staff_member = models.ForeignKey("accounts.User", on_delete=models.PROTECT, related_name="signed_reintegration_staff", null=True, blank=True)
+    staff_signature_data = models.TextField(blank=True, help_text="Base64 encoded staff signature")
+    staff_signature_date = models.DateField(null=True, blank=True)
+
+    parent = models.ForeignKey("accounts.User", on_delete=models.PROTECT, related_name="signed_reintegration_parent", null=True, blank=True)
+    parent_signature_data = models.TextField(blank=True, help_text="Base64 encoded parent signature")
+    parent_signature_date = models.DateField(null=True, blank=True)
+
+    # Section D - Public Health Confirmation
+    is_public_health_required = models.BooleanField(default=False, help_text="Required for E. coli, Shigella, or Salmonella typhi")
+    ph_ecoli_shigella_negative = models.BooleanField(default=False, help_text="Negative results of two stool samples 24h apart")
+    ph_salmonella_negative = models.BooleanField(default=False, help_text="Negative results of multiple stool samples")
+    
+    ph_representative_name = models.CharField(max_length=255, blank=True)
+    ph_signature_data = models.TextField(blank=True, help_text="Base64 encoded Public Health signature")
+    ph_signature_date = models.DateField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Reintegration Form: {self.child} - {self.date}"

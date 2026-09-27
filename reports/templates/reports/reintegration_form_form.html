@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                        <i class="fa-solid fa-file-circle-check text-emerald-500"></i>
+                        Réintégration après exclusion
+                    </h1>
+                    <p class="text-slate-500 dark:text-slate-400 mt-1">Annexe 12 - Formulaire de réintégration</p>
+                </div>
+                <div class="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
+                    <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Nouveau Formulaire</span>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" id="reintegration-form" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Section A: General Info (Auto-filled) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
+                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-building-user text-blue-500"></i> Établissement
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between py-2 border-b border-slate-50 dark:border-slate-800">
+                            <span class="text-slate-500 dark:text-slate-400 text-sm">Nom:</span>
+                            <span class="font-bold text-slate-900 dark:text-white text-right">{{ child.center.name }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-slate-50 dark:border-slate-800">
+                            <span class="text-slate-500 dark:text-slate-400 text-sm">Lieu:</span>
+                            <span class="font-bold text-slate-900 dark:text-white text-right">{{ child.center.address }}</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-slate-500 dark:text-slate-400 text-sm">Numéro de permis:</span>
+                            <span class="font-bold text-slate-900 dark:text-white">{{ child.center.permit_number|default:"N/A" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
+                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-child text-emerald-500"></i> Enfant
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between py-2 border-b border-slate-50 dark:border-slate-800">
+                            <span class="text-slate-500 dark:text-slate-400 text-sm">Nom:</span>
+                            <span class="font-bold text-slate-900 dark:text-white">{{ child.first_name }} {{ child.last_name }}</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-slate-500 dark:text-slate-400 text-sm">Date de naissance:</span>
+                            <span class="font-bold text-slate-900 dark:text-white">{{ child.birth_date }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section B: Illness Details -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
+                <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-virus-slash text-rose-500"></i> Renseignements sur la maladie
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nom de la maladie</label>
+                        <input type="text" name="illness_name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none transition-all" placeholder="Ex: Gastroentérite, Grippe, etc.">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Date du début de la maladie</label>
+                        <input type="date" name="illness_start_date" required class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Date du diagnostic (s'il y a lieu)</label>
+                        <input type="date" name="diagnosis_date" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Date du début du traitement (s'il y a lieu)</label>
+                        <input type="date" name="treatment_start_date" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="mt-8 p-4 rounded-2xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30">
+                    <label class="flex items-start gap-4 cursor-pointer">
+                        <input type="checkbox" name="is_public_health_required" class="mt-1 w-6 h-6 text-amber-600 rounded-lg border-amber-300 focus:ring-amber-500">
+                        <div class="space-y-1">
+                            <span class="font-bold text-amber-900 dark:text-amber-400">Maladie à déclaration obligatoire ?</span>
+                            <p class="text-sm text-amber-700 dark:text-amber-500/80 leading-relaxed">
+                                Cochez cette case s'il s'agit du <strong>E. coli</strong>, de la <strong>Shigella</strong> ou de la <strong>Salmonella typhi</strong> (fièvre typhoïde).
+                                Dans ce cas, la Section D devra être remplie par Santé publique.
+                            </p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Section C: Staff Signature -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
+                <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-signature text-blue-500"></i> Signature du membre du personnel
+                </h2>
+
+                <div class="max-w-md">
+                    <div class="mb-4 flex justify-between items-end">
+                        <div>
+                            <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ request.user.full_name }}</p>
+                            <p class="text-xs text-slate-500">Membre du personnel</p>
+                        </div>
+                        <button type="button" id="clear-signature" class="text-[10px] uppercase tracking-wider font-bold text-slate-400 hover:text-rose-500 transition-all">
+                            Effacer
+                        </button>
+                    </div>
+
+                    <div class="relative bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 h-48 overflow-hidden group">
+                        <canvas id="signature-canvas" class="w-full h-full cursor-crosshair"></canvas>
+                    </div>
+                    <input type="hidden" name="staff_signature_data" id="signature-input">
+
+                    <p class="mt-4 text-sm text-slate-500 leading-tight italic">
+                        Je confirme que l'enfant satisfait aux critères de réintégration et ne présente plus de symptômes.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-4">
+                <a href="{% url 'dashboard_redirect' %}" class="flex-1 px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-center">
+                    Annuler
+                </a>
+                <button type="submit" class="flex-[2] px-8 py-4 bg-emerald-600 text-white font-bold rounded-2xl shadow-lg shadow-emerald-200 dark:shadow-none hover:bg-emerald-700 transition-all transform hover:-translate-y-1">
+                    Créer le formulaire et notifier les parents
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Signature Pad Script -->
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const canvas = document.getElementById('signature-canvas');
+        const signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgba(255, 255, 255, 0)',
+            penColor: 'rgb(15, 23, 42)'
+        });
+
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            signaturePad.clear();
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        document.getElementById('clear-signature').addEventListener('click', () => {
+            signaturePad.clear();
+        });
+
+        const form = document.getElementById('reintegration-form');
+        form.addEventListener('submit', function(e) {
+            if (signaturePad.isEmpty()) {
+                e.preventDefault();
+                alert('Veuillez signer le formulaire avant de soumettre.');
+                return;
+            }
+            document.getElementById('signature-input').value = signaturePad.toDataURL();
+        });
+    });
+</script>
+{% endblock %}

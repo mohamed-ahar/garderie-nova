@@ -136,6 +136,21 @@
                     <i class="fa-solid fa-file-pdf w-6"></i> Reports
                 </button>
                 {% endif %}
+
+                <button onclick="switchTab('illness')" id="tab-illness" class="w-full text-left px-6 py-4 rounded-2xl font-bold transition-all text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md">
+                    <div class="flex items-center justify-between">
+                        <span><i class="fa-solid fa-file-medical w-6"></i> Signalements Maladie</span>
+                        {% if child.illness_reports.exists %}
+                            <span class="px-2 py-0.5 rounded text-[10px] bg-rose-500 text-white">{{ child.illness_reports.count }}</span>
+                        {% endif %}
+                    </div>
+                </button>
+                
+                {% if user.role_type == 'educator' or user.role_type == 'director' or user.is_superuser %}
+                <a href="{% url 'create_illness_report' child.child_id %}" class="block w-full mt-4 px-6 py-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-center transition-all shadow-lg shadow-amber-500/30 hover:-translate-y-0.5">
+                    <i class="fa-solid fa-hand-holding-medical mr-2"></i> Signalement Maladie
+                </a>
+                {% endif %}
                 
                 {% if user.role_type == 'parent' %}
                 <a href="{% url 'enrollment_edit' child.child_id %}" class="block w-full mt-6 px-6 py-4 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-center transition-all shadow-lg shadow-rose-500/30 hover:-translate-y-0.5">
@@ -301,7 +316,153 @@
                 {% endif %}
             </div>
 
-            <!-- Health Tab -->
+            <!-- Illness Tab -->
+            <div id="content-illness" class="space-y-6 tab-content hidden">
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 shadow-sm border border-rose-100 dark:border-slate-800">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                        <div>
+                            <h3 class="text-xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 text-sm">
+                                    <i class="fa-solid fa-file-medical"></i>
+                                </div>
+                                Historique des signalements de maladie
+                            </h3>
+                            <p class="text-slate-500 dark:text-slate-400 mt-1">Suivi des maladies et exclusions (Annexe 11)</p>
+                        </div>
+                        
+                        {% if user.role_type == 'educator' or user.role_type == 'director' or user.is_superuser %}
+                        <a href="{% url 'create_illness_report' child.child_id %}" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-amber-500/30 hover:-translate-y-0.5 flex items-center gap-2">
+                            <i class="fa-solid fa-plus-circle"></i> Nouveau Signalement
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="space-y-4">
+                        {% for report in child.illness_reports.all %}
+                        <div class="group p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 hover:border-rose-200 dark:hover:border-rose-900/30 transition-all">
+                            <div class="flex flex-col md:flex-row justify-between gap-6">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-rose-500 shadow-sm border border-slate-100 dark:border-slate-700">
+                                        <i class="fa-solid fa-notes-medical text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-3 mb-1">
+                                            <div class="flex flex-wrap gap-1">
+                                                {% for symptom in report.symptoms %}
+                                                <span class="font-bold text-slate-900 dark:text-white text-xs bg-white dark:bg-slate-700 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-600">
+                                                    {{ symptom }}
+                                                </span>
+                                                {% endfor %}
+                                            </div>
+                                            {% if not report.parent_signature_data %}
+                                            <span class="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wide">Action Requise</span>
+                                            {% else %}
+                                            <span class="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wide">Complété</span>
+                                            {% endif %}
+                                        </div>
+                                        <p class="text-xs text-slate-500 mb-3">Signalé le {{ report.date }} par {{ report.staff_member.user.full_name }}</p>
+                                        <div class="flex gap-4">
+                                            <div class="flex items-center gap-1.5">
+                                                <i class="fa-solid fa-thermometer text-orange-500 text-[10px]"></i>
+                                                <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ report.temperature|default:"--" }}°C</span>
+                                            </div>
+                                            <div class="flex items-center gap-1.5">
+                                                <i class="fa-solid fa-pills text-emerald-500 text-[10px]"></i>
+                                                <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{% if report.medication_administered %}Médicamenté{% else %}Non méd.{% endif %}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <a href="{% url 'view_illness_report' report.report_id %}" class="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-2">
+                                        <i class="fa-solid fa-eye text-rose-500"></i> Voir les détails
+                                    </a>
+                                    {% if user.role_type == 'parent' and not report.parent_signature_data %}
+                                    <a href="{% url 'view_illness_report' report.report_id %}#parent-sign-modal" class="px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 transition-all shadow-lg shadow-rose-200 dark:shadow-none flex items-center gap-2">
+                                        <i class="fa-solid fa-pen-nib"></i> Signer
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-12 px-6 rounded-[2rem] border-2 border-dashed border-slate-100 dark:border-slate-800">
+                            <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
+                                <i class="fa-solid fa-file-medical text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-900 dark:text-white mb-1">Aucun signalement</h3>
+                            <p class="text-sm text-slate-500">Aucun signalement de maladie n'a été effectué pour cet enfant.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Reintegration Section (Annexe 12) -->
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 shadow-sm border border-emerald-100 dark:border-slate-800 mt-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                        <div>
+                            <h3 class="text-xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-sm">
+                                    <i class="fa-solid fa-file-circle-check"></i>
+                                </div>
+                                Formulaires de réintégration
+                            </h3>
+                            <p class="text-slate-500 dark:text-slate-400 mt-1">Confirmation de retour après exclusion (Annexe 12)</p>
+                        </div>
+                        
+                        {% if user.role_type == 'educator' or user.role_type == 'director' or user.is_superuser %}
+                        <a href="{% url 'create_reintegration_form' child.child_id %}" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/30 hover:-translate-y-0.5 flex items-center gap-2">
+                            <i class="fa-solid fa-plus-circle"></i> Nouvelle Réintégration
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="space-y-4">
+                        {% for form in child.reintegration_forms.all %}
+                        <div class="group p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 hover:border-emerald-200 dark:hover:border-emerald-900/30 transition-all">
+                            <div class="flex flex-col md:flex-row justify-between gap-6">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-emerald-500 shadow-sm border border-slate-100 dark:border-slate-700">
+                                        <i class="fa-solid fa-check-double text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-3 mb-1">
+                                            <span class="font-bold text-slate-900 dark:text-white text-sm">{{ form.illness_name }}</span>
+                                            {% if not form.parent_signature_data %}
+                                            <span class="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wide">Action Requise (Parent)</span>
+                                            {% elif form.is_public_health_required and not form.ph_signature_data %}
+                                            <span class="px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 text-[10px] font-bold uppercase tracking-wide">Attente Santé Publique</span>
+                                            {% else %}
+                                            <span class="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wide">Prêt pour le retour</span>
+                                            {% endif %}
+                                        </div>
+                                        <p class="text-xs text-slate-500">Date du début: {{ form.illness_start_date }} • Créé le {{ form.date }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <a href="{% url 'view_reintegration_form' form.form_id %}" class="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-2">
+                                        <i class="fa-solid fa-eye text-emerald-500"></i> Voir les détails
+                                    </a>
+                                    {% if user.role_type == 'parent' and not form.parent_signature_data %}
+                                    <a href="{% url 'view_reintegration_form' form.form_id %}" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 dark:shadow-none flex items-center gap-2">
+                                        <i class="fa-solid fa-pen-nib"></i> Signer
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-12 px-6 rounded-[2rem] border-2 border-dashed border-slate-100 dark:border-slate-800">
+                            <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
+                                <i class="fa-solid fa-file-circle-check text-2xl"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-900 dark:text-white mb-1">Aucun formulaire</h3>
+                            <p class="text-sm text-slate-500">Aucun formulaire de réintégration n'a été créé pour cet enfant.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
             <div id="content-health" class="space-y-6 tab-content hidden">
                 {% if enrollment %}
                 <!-- Critical Alerts -->
@@ -686,7 +847,7 @@ function switchTab(tabId) {
 document.addEventListener('DOMContentLoaded', () => {
     // Check hash on load
     const hash = window.location.hash.replace('#', '');
-    if (hash && ['identity', 'health', 'development', 'reports'].includes(hash)) {
+    if (hash && ['identity', 'health', 'development', 'reports', 'illness'].includes(hash)) {
         switchTab(hash);
     }
 });

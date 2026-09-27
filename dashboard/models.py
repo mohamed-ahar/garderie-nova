@@ -28,6 +28,7 @@ class Center(models.Model):
 
     name = models.CharField(max_length=255)
     address = models.TextField()
+    permit_number = models.CharField(max_length=50, blank=True, null=True, help_text="Numéro de permis de l'établissement")
     timezone = models.CharField(max_length=50, default="America/Moncton")
 
     director = models.OneToOneField(

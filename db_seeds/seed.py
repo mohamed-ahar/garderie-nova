@@ -189,6 +189,7 @@ def run_seed():
         name="Nova Downtown",
         address="500 King St",
         director=directors[0],
+        permit_number="NB-2024-001",
     )
 
     center2 = Center.objects.create(
@@ -196,6 +197,7 @@ def run_seed():
         name="Nova North",
         address="100 Mountain Rd",
         director=directors[1],
+        permit_number="NB-2024-002",
     )
 
     center3 = Center.objects.create(
@@ -203,6 +205,7 @@ def run_seed():
         name="Little Stars West",
         address="50 West Main St",
         director=directors[2],
+        permit_number="NB-2024-003",
     )
 
     centers = [center1, center2, center3]

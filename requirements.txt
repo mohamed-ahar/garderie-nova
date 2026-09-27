@@ -6,3 +6,5 @@ django-cors-headers
 names-generator
 Pillow
 weasyprint
+django-extensions
+pydotplus
