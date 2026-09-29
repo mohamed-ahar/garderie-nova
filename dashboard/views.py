@@ -15,7 +15,8 @@ from .models import (
     User,
     Center,
     ParentProfile,
-    Notification
+    Notification,
+    CenterPermit
 )
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -181,14 +182,26 @@ def edit_center(request, center_id):
     center = get_object_or_404(
         Center, center_id=center_id, organization__owner__user=request.user
     )
-    
+
     if request.method == "POST":
         # 'instance=center' tells Django to update this specific record
         form = CenterCreationForm(request.POST, instance=center)
         if form.is_valid():
-            form.save()
-            messages.success(request, f"Center '{center.name}' updated successfully!")
-            return redirect("owner_centers_list")
+            with transaction.atomic():
+                form.save()
+
+                # Update Permits: Clear and recreate
+                center.permits.all().delete()
+                for i in range(1, 4):
+                    permit_num = form.cleaned_data.get(f'permit_{i}')
+                    if permit_num:
+                        CenterPermit.objects.create(
+                            center=center,
+                            permit_number=permit_num
+                        )
+
+                messages.success(request, f"Center '{center.name}' updated successfully!")
+                return redirect("owner_centers_list")
     else:
         form = CenterCreationForm(instance=center)
 
@@ -197,6 +210,7 @@ def edit_center(request, center_id):
         "core/owner/edit_center.html", 
         {"form": form, "center": center}
     )
+
 
 @login_required
 def delete_center(request, center_id):

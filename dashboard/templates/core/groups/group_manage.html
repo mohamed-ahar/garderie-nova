@@ -27,6 +27,11 @@
                             <i class="fa-solid fa-door-open"></i>
                             {{ group.room.name|default:"Assign Room" }}
                         </button>
+                        <button onclick="document.getElementById('permitModal').classList.remove('hidden')"
+                                class="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-xs font-bold text-slate-600 dark:text-slate-300 ml-2">
+                            <i class="fa-solid fa-id-card"></i>
+                            {{ group.permit.permit_number|default:"Assign Permit" }}
+                        </button>
                     </div>
                     <p class="text-slate-500 font-bold uppercase tracking-wider text-[10px] mt-1">
                         Max Capacity: <span class="text-emerald-600 dark:text-emerald-400">{{ group.calculated_max_capacity }} children</span>
@@ -317,6 +322,51 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+    <!-- Permit Modal -->
+    <div id="permitModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-md p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-slate-900 dark:text-white">Change Permit</h3>
+                <button onclick="document.getElementById('permitModal').classList.add('hidden')"
+                        class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="max-h-80 overflow-y-auto space-y-2">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_details">
+                    <input type="hidden" name="permit_id" value="">
+                    <button type="submit"
+                            class="w-full flex items-center gap-3 p-3 rounded-xl transition-colors text-left group border border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 {% if not group.permit %}bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800{% endif %}">
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold">
+                            <i class="fa-solid fa-ban"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-bold text-slate-800 dark:text-white">No Specific Permit</p>
+                        </div>
+                    </button>
+                </form>
+                {% for permit in permits %}
+                    <form id="change-permit-{{ permit.permit_id }}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_details">
+                        <input type="hidden" name="permit_id" value="{{ permit.permit_id }}">
+                        <button type="submit"
+                                class="w-full flex items-center gap-3 p-3 rounded-xl transition-colors text-left group border border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 {% if group.permit == permit %}bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800{% endif %}">
+                            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold">
+                                <i class="fa-solid fa-id-card"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-bold text-slate-800 dark:text-white">{{ permit.permit_number }}</p>
+                            </div>
+                        </button>
+                    </form>
+                {% endfor %}
+            </div>
         </div>
     </div>
     <!-- Room Modal -->

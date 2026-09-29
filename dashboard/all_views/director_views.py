@@ -15,6 +15,7 @@ from ..models import (
     Notification,
     TransferRequest,
     TransferHistory,
+    CenterPermit,
 )
 
 from ..forms import (
@@ -39,9 +40,20 @@ def create_center(request):
     if request.method == "POST":
         form = CenterCreationForm(request.POST)
         if form.is_valid():
-            center = form.save(commit=False)
-            center.organization = organization
-            center.save()
+            with transaction.atomic():
+                center = form.save(commit=False)
+                center.organization = organization
+                center.save()
+                
+                # Save Permits
+                for i in range(1, 4):
+                    permit_num = form.cleaned_data.get(f'permit_{i}')
+                    if permit_num:
+                        CenterPermit.objects.create(
+                            center=center,
+                            permit_number=permit_num
+                        )
+            
             # Redirect to the success page instead of the dashboard
             return redirect("center_success", center_id=center.center_id)
     else:

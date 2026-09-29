@@ -763,10 +763,11 @@ def view_illness_report(request, report_id):
 @transaction.atomic
 def create_reintegration_form(request, child_id):
     """
-    Step 1: Educator/Director fills in basic info (Annexe 12).
+    Step 1: Educator initiates reintegration form (Annexe 12).
+    Only educators can create the form. Parent will fill in their information later.
     """
-    if request.user.role_type not in ['educator', 'director', 'owner'] and not request.user.is_superuser:
-        messages.error(request, "Permission refusée.")
+    if request.user.role_type != 'educator' and not request.user.is_superuser:
+        messages.error(request, "Seuls les éducateurs peuvent initier un formulaire de réintégration.")
         return redirect('dashboard_redirect')
 
     child = get_object_or_404(Child, pk=child_id)

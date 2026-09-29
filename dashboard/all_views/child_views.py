@@ -45,8 +45,10 @@ def child_profile_view(request, child_id):
         messages.error(request, "Vous n'avez pas la permission de voir ce profil.")
         raise PermissionDenied("Access Denied")
 
-    # --- Handle Photo Upload (for Parents) ---
-    if request.method == 'POST' and is_parent:
+    # --- Handle Photo Upload (for all roles EXCEPT owner) ---
+    # Owner cannot change child profile pictures
+    can_upload_photo = has_access and user.role_type != 'owner'
+    if request.method == 'POST' and can_upload_photo:
         if 'profile_photo' in request.FILES:
             child.profile_photo = request.FILES['profile_photo']
             child.save()

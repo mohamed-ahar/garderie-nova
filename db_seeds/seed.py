@@ -21,6 +21,7 @@ from dashboard.models import (
     Child,
     ParentChildRelationship,
     StaffAssignment,
+    CenterPermit,
 )
 
 FIRST_NAMES = [
@@ -114,8 +115,10 @@ def clean_db():
     print("Cleaning database...")
     ParentChildRelationship.objects.all().delete()
     Child.objects.all().delete()
+    StaffAssignment.objects.all().delete()
     Group.objects.all().delete()
     Room.objects.all().delete()
+    CenterPermit.objects.all().delete()
     Educator.objects.all().delete()
     Center.objects.all().delete()
     Organization.objects.all().delete()
@@ -189,24 +192,25 @@ def run_seed():
         name="Nova Downtown",
         address="500 King St",
         director=directors[0],
-        permit_number="NB-2024-001",
     )
+    CenterPermit.objects.create(center=center1, permit_number="NB-DWT-001")
+    CenterPermit.objects.create(center=center1, permit_number="NB-DWT-002")
 
     center2 = Center.objects.create(
         organization=org1,
         name="Nova North",
         address="100 Mountain Rd",
         director=directors[1],
-        permit_number="NB-2024-002",
     )
+    CenterPermit.objects.create(center=center2, permit_number="NB-NRT-001")
 
     center3 = Center.objects.create(
         organization=org2,
         name="Little Stars West",
         address="50 West Main St",
         director=directors[2],
-        permit_number="NB-2024-003",
     )
+    CenterPermit.objects.create(center=center3, permit_number="NB-WST-001")
 
     centers = [center1, center2, center3]
 
@@ -234,17 +238,20 @@ def run_seed():
 
     print("Creating Groups for Center 1...")
     c1_rooms = list(Room.objects.filter(center=center1))
+    c1_permits = list(CenterPermit.objects.filter(center=center1))
+
     group_data = [
-        ("Les Petits Amis", c1_rooms[0] if c1_rooms else None),
-        ("Les Explorateurs", c1_rooms[1] if len(c1_rooms) > 1 else None),
-        ("Les Aventuriers", c1_rooms[2] if len(c1_rooms) > 2 else None),
+        ("Les Petits Amis", c1_rooms[0] if c1_rooms else None, c1_permits[0] if c1_permits else None),
+        ("Les Explorateurs", c1_rooms[1] if len(c1_rooms) > 1 else None, c1_permits[1] if len(c1_permits) > 1 else None),
+        ("Les Aventuriers", c1_rooms[2] if len(c1_rooms) > 2 else None, c1_permits[0] if c1_permits else None),
     ]
     
     c1_groups = []
-    for g_name, g_room in group_data:
+    for g_name, g_room, g_permit in group_data:
         g = Group.objects.create(
             center=center1,
             room=g_room,
+            permit=g_permit,
             name=g_name,
             current_occupancy=0,
             current_educators=0,

@@ -37,9 +37,34 @@ class ViceDirectorForm(forms.ModelForm):
 
 # -- Center Form
 class CenterCreationForm(forms.ModelForm):
+    permit_1 = forms.CharField(
+        required=True, 
+        label="Permit 1",
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all',
+            'placeholder': 'Numéro de permis (ex: 123456)'
+        })
+    )
+    permit_2 = forms.CharField(
+        required=False, 
+        label="Permit 2",
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all',
+            'placeholder': 'Second permit (optional)'
+        })
+    )
+    permit_3 = forms.CharField(
+        required=False, 
+        label="Permit 3",
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all',
+            'placeholder': 'Third permit (optional)'
+        })
+    )
+
     class Meta:
         model = Center
-        fields = ['name', 'address', 'permit_number'] 
+        fields = ['name', 'address'] 
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all',
@@ -50,16 +75,22 @@ class CenterCreationForm(forms.ModelForm):
                 'placeholder': "L-onwan d l-center",
                 'rows': 3
             }),
-            'permit_number': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all',
-                'placeholder': 'Numéro de permis (ex: 123456)'
-            }),
         }
         labels = {
             'name': 'Center Name',
             'address': 'Address',
-            'permit_number': 'Permit Number',
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            permits = self.instance.permits.all().order_by('permit_id')
+            if permits.count() >= 1:
+                self.fields['permit_1'].initial = permits[0].permit_number
+            if permits.count() >= 2:
+                self.fields['permit_2'].initial = permits[1].permit_number
+            if permits.count() >= 3:
+                self.fields['permit_3'].initial = permits[2].permit_number
 
 class DirectorCreationForm(forms.ModelForm):
     email = forms.EmailField(

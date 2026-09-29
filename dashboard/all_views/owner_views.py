@@ -15,6 +15,7 @@ from ..models import (
     ParentChildRelationship,
     Notification,
     CenterParentAccess,
+    CenterPermit,
 )
 from reports.models import EnrollmentForm
 
@@ -31,6 +32,7 @@ def group_add_view(request):
         name = request.POST.get("name")
         room_id = request.POST.get("room_id")
         center_id = request.POST.get("center_id")
+        permit_id = request.POST.get("permit_id")
 
         # Determine Center
         target_center = None
@@ -44,8 +46,12 @@ def group_add_view(request):
             room = None
             if room_id:
                 room = get_object_or_404(Room, room_id=room_id, center=target_center)
+            
+            permit = None
+            if permit_id:
+                permit = get_object_or_404(CenterPermit, permit_id=permit_id, center=target_center)
 
-            Group.objects.create(name=name, room=room, center=target_center)
+            Group.objects.create(name=name, room=room, center=target_center, permit=permit)
             return redirect("group_list")
         else:
             return render(
@@ -57,18 +63,21 @@ def group_add_view(request):
     # GET
     centers = []
     rooms = []
+    permits = []
     if user.role_type == "owner":
         centers = Center.objects.all()
         # If owner, maybe we need to load rooms via AJAX or just show all for now?
         # Typically rooms depend on center.
         rooms = Room.objects.all()
+        permits = CenterPermit.objects.all()
     elif user.role_type == "director":
         target_center = user.director_profile.managed_center
         if target_center:
             rooms = Room.objects.filter(center=target_center)
+            permits = CenterPermit.objects.filter(center=target_center)
 
     return render(
-        request, "core/groups/group_form.html", {"centers": centers, "rooms": rooms}
+        request, "core/groups/group_form.html", {"centers": centers, "rooms": rooms, "permits": permits}
     )
 
 
@@ -110,12 +119,19 @@ def group_edit_view(request, group_id):
         if action == "update_details":
             name = request.POST.get("name")
             room_id = request.POST.get("room_id")
+            permit_id = request.POST.get("permit_id")
             if name:
                 group.name = name
             if room_id:
                 room = get_object_or_404(Room, room_id=room_id)
                 if room.center == group.center:
                     group.room = room
+            if permit_id:
+                permit = get_object_or_404(CenterPermit, permit_id=permit_id)
+                if permit.center == group.center:
+                    group.permit = permit
+            elif 'permit_id' in request.POST: # Handle explicit unassigning if empty string sent
+                group.permit = None
             group.save()
 
         elif action == "assign_educator":
@@ -310,6 +326,7 @@ def group_edit_view(request, group_id):
     context = {
         "group": group,
         "rooms": all_rooms,
+        "permits": CenterPermit.objects.filter(center=group.center),
         "assigned_educators": assigned_educators,
         "assigned_children": assigned_children,
         "other_educators": other_educators,

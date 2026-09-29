@@ -41,7 +41,20 @@
                     </div>
                     <div class="space-y-1">
                         <p class="text-xs font-bold text-slate-400 uppercase">Affiliated Organization</p>
-                        <p class="text-xl font-black text-slate-900 dark:text-white">{{ center.org.name }}</p>
+                        <p class="text-xl font-black text-slate-900 dark:text-white">{{ center.organization.name }}</p>
+                    </div>
+                    <div class="space-y-3 md:col-span-2">
+                        <p class="text-xs font-bold text-slate-400 uppercase">Active License Permits</p>
+                        <div class="flex flex-wrap gap-3">
+                            {% for permit in center.permits.all %}
+                                <div class="px-4 py-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 rounded-xl flex items-center gap-2">
+                                    <i class="fa-solid fa-id-card text-blue-500 text-xs"></i>
+                                    <span class="text-sm font-black text-slate-900 dark:text-white">{{ permit.permit_number }}</span>
+                                </div>
+                            {% empty %}
+                                <p class="text-sm text-slate-400 font-bold italic">No permits assigned.</p>
+                            {% endfor %}
+                        </div>
                     </div>
                     <div class="space-y-1 md:col-span-2">
                         <p class="text-xs font-bold text-slate-400 uppercase mb-2">Unique Identifier (UUID)</p>

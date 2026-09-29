@@ -44,6 +44,15 @@ class Center(models.Model):
         return f"{self.name} - {self.organization.name}"
 
 
+class CenterPermit(models.Model):
+    permit_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    center = models.ForeignKey(Center, on_delete=models.CASCADE, related_name="permits")
+    permit_number = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.permit_number} ({self.center.name})"
+
+
 class Room(models.Model):
     AGE_GROUP_CHOICES = [
         ('infant', 'Infant (0-23 months)'),
@@ -90,6 +99,9 @@ class Group(models.Model):
     center = models.ForeignKey(Center, on_delete=models.CASCADE, related_name="groups")
     room = models.ForeignKey(
         Room, on_delete=models.SET_NULL, null=True, related_name="active_group"
+    )
+    permit = models.ForeignKey(
+        CenterPermit, on_delete=models.SET_NULL, null=True, related_name="groups"
     )
     name = models.CharField(max_length=100)
 
