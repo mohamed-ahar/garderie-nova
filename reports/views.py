@@ -652,12 +652,16 @@ def create_illness_report(request, child_id):
         time_taken = request.POST.get('time_taken')
         medication_administered = request.POST.get('medication_administered') == 'on'
         medication_details = request.POST.get('medication_details', '')
+        recent_illness_report_exists = request.POST.get('recent_illness_report_exists') == 'True'
+        reported_to_public_health = request.POST.get('reported_to_public_health') == 'True'
+        public_health_communication_date = request.POST.get('public_health_communication_date')
         staff_signature = request.POST.get('staff_signature_data')
 
         if not selected_symptoms or not staff_signature:
             messages.error(request, "Au moins un symptôme et la signature sont obligatoires.")
             return render(request, 'reports/illness_report_form.html', {'child': child, 'SYMPTOM_CHOICES': IllnessReport.SYMPTOM_CHOICES})
 
+        now = timezone.now()
         report = IllnessReport.objects.create(
             child=child,
             staff_member=educator,
@@ -667,8 +671,12 @@ def create_illness_report(request, child_id):
             time_taken=time_taken if time_taken else None,
             medication_administered=medication_administered,
             medication_details=medication_details,
+            recent_illness_report_exists=recent_illness_report_exists,
+            reported_to_public_health=reported_to_public_health,
+            public_health_communication_date=public_health_communication_date if public_health_communication_date else None,
+            parent_notified_at=now.time(),
             staff_signature_data=staff_signature,
-            date=timezone.now().date()
+            date=now.date()
         )
 
         # Notify Parents

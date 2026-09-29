@@ -117,6 +117,32 @@
                     </div>
                 </section>
 
+                <!-- Health History & Notification -->
+                <section class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                            <i class="fa-solid fa-history text-blue-500"></i> Historique
+                        </h2>
+                        <div class="p-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Formulaire rempli dans les dernières 24h?</p>
+                            <p class="font-bold text-slate-900 dark:text-white">
+                                {% if report.recent_illness_report_exists %}OUI{% else %}NON{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                            <i class="fa-solid fa-bell text-blue-500"></i> Notification
+                        </h2>
+                        <div class="p-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Heure à laquelle le parent a été avisé</p>
+                            <p class="font-bold text-slate-900 dark:text-white">
+                                {{ report.parent_notified_at|default:"--" }}
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Public Health Section (Director only can update) -->
                 <section class="p-6 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30 rounded-3xl">
                     <div class="flex justify-between items-start mb-6">
