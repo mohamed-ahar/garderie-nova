@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Q
 import csv
 from datetime import datetime
 
@@ -16,6 +17,7 @@ from ..models import (
     TransferRequest,
     TransferHistory,
     CenterPermit,
+    Group,
 )
 
 from ..forms import (
@@ -26,7 +28,214 @@ from ..forms import (
     CSVUploadForm,
 )
 
-from accounts.models import User, ParentProfile
+from accounts.models import User, ParentProfile, Educator
+
+
+# -----------------------------------------------dashboard---------------------------------------------------------------------------------
+@login_required
+def director_dashboard(request):
+    user = request.user
+    if user.role_type != "director":
+        return redirect("dashboard_redirect")
+
+    try:
+        director = user.director_profile
+        center = director.managed_center
+    except AttributeError:
+        center = None
+
+    groups = []
+    waitlist = []
+    total_educators = 0
+    active_children_count = 0
+    open_alerts = 0
+    overall_ratio = None
+    total_required_educators = 0
+    pending_access_count = 0
+    pending_transfers_count = 0
+    recent_notifications = []
+    
+    # New Intelligence Summary Data
+    principal_educators = []
+    delegated_educators = []
+    attendance_summary = {
+        'in': 0,
+        'out': 0,
+        'absent': 0,
+        'not_arrived': 0
+    }
+    grouping_mode = request.GET.get('summary_by', 'group') # Default grouping
+    intelligence_summary = []
+
+    if center:
+        # Optimization: prefetch related children and assignments
+        groups = (
+            center.groups.all()
+            .order_by("name")
+            .prefetch_related("enrolled_children", "staff_assignments")
+        )
+
+        # Recalculate ratios to ensure fresh data
+        for group in groups:
+            group.recalculate_ratios()
+
+        waitlist = Child.objects.filter(center=center, status="waitlist").order_by(
+            "created_at"
+        )
+
+        all_educators = Educator.objects.filter(center=center).select_related('user')
+        total_educators = all_educators.count()
+        
+        # Identify special staff
+        principal_educators = all_educators.filter(user__role_type='educator_principal')
+        delegated_educators = all_educators.filter(has_dashboard_access=True)
+
+        active_children = Child.objects.filter(center=center, status="active").select_related('assigned_group', 'assigned_educator', 'assigned_educator__user')
+        active_children_count = active_children.count()
+        open_alerts = sum(1 for g in groups if not g.is_compliant)
+
+        # Attendance Calculation for today
+        today = datetime.now().date()
+        from children.models import Attendance
+        # Order by arrival_time ascending so the loop ends with the latest record
+        attendance_today = Attendance.objects.filter(child__center=center, date=today).order_by('arrival_time')
+        
+        # Map children to their latest attendance record
+        child_attendance_map = {}
+        for att in attendance_today:
+            child_attendance_map[att.child_id] = att
+
+        # Calculate overall center ratio and total required educators
+        total_required_educators = sum(g.required_educators for g in groups)
+        if total_educators > 0 and active_children_count > 0:
+            overall_ratio = active_children_count // total_educators
+
+        # Build intelligence summary based on grouping
+        if grouping_mode == 'age':
+            # Categories matching our filter: 0-23M, 2Y, 3Y, 4Y, 5Y+
+            age_groups = {
+                '0-23M': {'label': '0-23 Months', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0},
+                '2Y': {'label': '2 Years', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0},
+                '3Y': {'label': '3 Years', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0},
+                '4Y': {'label': '4 Years', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0},
+                '5Y+': {'label': '5+ Years', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0},
+            }
+            
+            for child in active_children:
+                age_months = (today.year - child.birth_date.year) * 12 + today.month - child.birth_date.month
+                if today.day < child.birth_date.day: age_months -= 1
+                
+                cat = '5Y+'
+                if age_months < 24: cat = '0-23M'
+                elif 24 <= age_months < 36: cat = '2Y'
+                elif 36 <= age_months < 48: cat = '3Y'
+                elif 48 <= age_months < 60: cat = '4Y'
+                
+                att = child_attendance_map.get(child.child_id)
+                status = 'not_arrived'
+                if att:
+                    if att.is_absent: status = 'absent'
+                    elif att.departure_time: status = 'out'
+                    else: status = 'in'
+                
+                age_groups[cat][status] += 1
+                age_groups[cat]['total'] += 1
+                attendance_summary[status] += 1
+            
+            intelligence_summary = [{'key': k, **v} for k, v in age_groups.items() if v['total'] > 0]
+
+        elif grouping_mode == 'educator':
+            educator_data = {}
+            for child in active_children:
+                ed = child.assigned_educator
+                ed_id = ed.user_id if ed else 'unassigned'
+                ed_name = ed.user.full_name if ed else 'Unassigned'
+                
+                if ed_id not in educator_data:
+                    educator_data[ed_id] = {'label': ed_name, 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0}
+                
+                att = child_attendance_map.get(child.child_id)
+                status = 'not_arrived'
+                if att:
+                    if att.is_absent: status = 'absent'
+                    elif att.departure_time: status = 'out'
+                    else: status = 'in'
+                
+                educator_data[ed_id][status] += 1
+                educator_data[ed_id]['total'] += 1
+                attendance_summary[status] += 1
+            
+            intelligence_summary = [{'key': k, **v} for k, v in educator_data.items()]
+
+        else: # Group grouping (default)
+            group_data = {}
+            for group in groups:
+                group_data[group.group_id] = {'label': group.name, 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0}
+                
+                # We can't rely on prefetch_related for status calculation here without manual iteration
+                for child in group.enrolled_children.all():
+                    att = child_attendance_map.get(child.child_id)
+                    status = 'not_arrived'
+                    if att:
+                        if att.is_absent: status = 'absent'
+                        elif att.departure_time: status = 'out'
+                        else: status = 'in'
+                    
+                    group_data[group.group_id][status] += 1
+                    group_data[group.group_id]['total'] += 1
+                    # Don't add to global summary here to avoid double counting if a child is in multiple places (though shouldn't happen)
+            
+            # Global summary calculation from all active children to be safe
+            for child in active_children:
+                att = child_attendance_map.get(child.child_id)
+                status = 'not_arrived'
+                if att:
+                    if att.is_absent: status = 'absent'
+                    elif att.departure_time: status = 'out'
+                    else: status = 'in'
+                attendance_summary[status] += 1
+
+            intelligence_summary = [{'key': k, **v} for k, v in group_data.items()]
+
+        # Enhanced context
+        pending_access_count = CenterParentAccess.objects.filter(
+            center=center, status="pending"
+        ).count()
+
+        pending_transfers_count = TransferRequest.objects.filter(
+            Q(target_center=center, approved_by_incoming=None)
+            | Q(child__center=center, approved_by_outgoing=None)
+        ).exclude(status="rejected").count()
+
+        recent_notifications = Notification.objects.filter(
+            user=user, is_read=False
+        ).order_by("-created_at")[:5]
+
+    context = {
+        "center": center,
+        "groups": groups,
+        "waitlist": waitlist,
+        "user": user,
+        "total_educators": total_educators,
+        "active_children": active_children_count,
+        "open_alerts": open_alerts,
+        "overall_ratio": overall_ratio,
+        "total_required_educators": total_required_educators,
+        "pending_access_count": pending_access_count,
+        "pending_transfers_count": pending_transfers_count,
+        "recent_notifications": recent_notifications,
+        # New operational data
+        "principal_educators": principal_educators,
+        "delegated_educators": delegated_educators,
+        "attendance_summary": attendance_summary,
+        "intelligence_summary": intelligence_summary,
+        "grouping_mode": grouping_mode
+    }
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, "core/director/includes/intelligence_table_partial.html", context)
+
+    return render(request, "director_dashboard.html", context)
 
 
 # -----------------------------------------------center__info---------------------------------------------------------------------------------

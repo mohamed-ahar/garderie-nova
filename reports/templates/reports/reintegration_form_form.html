@@ -60,7 +60,8 @@
                 </div>
             </div>
 
-            <!-- Section B: Illness Details -->
+            {% if user.role_type == 'parent' %}
+            <!-- Section B: Illness Details (Visible only to parents during initiation) -->
             <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
                 <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
                     <i class="fa-solid fa-virus-slash text-rose-500"></i> Renseignements sur la maladie
@@ -68,8 +69,30 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nom de la maladie</label>
-                        <input type="text" name="illness_name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none transition-all" placeholder="Ex: Gastroentérite, Grippe, etc.">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Sélectionnez la/les maladie(s)</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for code, label in SYMPTOM_CHOICES %}
+                            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-all">
+                                <input type="checkbox" name="illnesses" value="{{ code }}" {% if code == 'others' %}id="others-checkbox"{% endif %} class="w-5 h-5 text-emerald-600 rounded">
+                                <span class="text-slate-700 dark:text-slate-200 text-sm font-medium">{{ label }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Dynamic Other Illnesses Container -->
+                        <div id="others-container" class="mt-4 space-y-3 hidden">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Précisez les autres maladies</label>
+                                <button type="button" id="add-other-btn" class="px-2 py-1 bg-emerald-50 text-emerald-600 rounded text-[10px] font-bold hover:bg-emerald-100 transition-all">
+                                    <i class="fa-solid fa-plus"></i> Ajouter
+                                </button>
+                            </div>
+                            <div id="others-inputs-list" class="space-y-2">
+                                <div class="flex gap-2">
+                                    <input type="text" name="other_illnesses[]" class="flex-1 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-sm" placeholder="Nom de la maladie...">
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div>
@@ -95,88 +118,81 @@
                             <span class="font-bold text-amber-900 dark:text-amber-400">Maladie à déclaration obligatoire ?</span>
                             <p class="text-sm text-amber-700 dark:text-amber-500/80 leading-relaxed">
                                 Cochez cette case s'il s'agit du <strong>E. coli</strong>, de la <strong>Shigella</strong> ou de la <strong>Salmonella typhi</strong> (fièvre typhoïde).
-                                Dans ce cas, la Section D devra être remplie par Santé publique.
                             </p>
                         </div>
                     </label>
                 </div>
             </div>
+            {% endif %}
 
-            <!-- Section C: Staff Signature -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
-                <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-signature text-blue-500"></i> Signature du membre du personnel
-                </h2>
-
-                <div class="max-w-md">
-                    <div class="mb-4 flex justify-between items-end">
-                        <div>
-                            <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ request.user.full_name }}</p>
-                            <p class="text-xs text-slate-500">Membre du personnel</p>
-                        </div>
-                        <button type="button" id="clear-signature" class="text-[10px] uppercase tracking-wider font-bold text-slate-400 hover:text-rose-500 transition-all">
-                            Effacer
-                        </button>
-                    </div>
-
-                    <div class="relative bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 h-48 overflow-hidden group">
-                        <canvas id="signature-canvas" class="w-full h-full cursor-crosshair"></canvas>
-                    </div>
-                    <input type="hidden" name="staff_signature_data" id="signature-input">
-
-                    <p class="mt-4 text-sm text-slate-500 leading-tight italic">
-                        Je confirme que l'enfant satisfait aux critères de réintégration et ne présente plus de symptômes.
-                    </p>
-                </div>
+            <!-- Section C: Instructions -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 text-center">
+                <i class="fa-solid fa-circle-info text-blue-500 text-3xl mb-4"></i>
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Prochaine étape</h2>
+                <p class="text-slate-500 dark:text-slate-400 max-w-lg mx-auto">
+                    {% if user.role_type == 'educator' %}
+                    Après avoir initié ce formulaire, les parents recevront une notification pour remplir les informations sur la maladie et signer le document.
+                    {% else %}
+                    Une fois le formulaire soumis, vous devrez le signer. Ensuite, l'éducateur apposera sa signature finale pour valider le retour de l'enfant.
+                    {% endif %}
+                </p>
             </div>
 
             <!-- Actions -->
             <div class="flex gap-4">
-                <a href="{% url 'dashboard_redirect' %}" class="flex-1 px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-center">
+                <a href="{% url 'child_profile' child.child_id %}" class="flex-1 px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-center">
                     Annuler
                 </a>
                 <button type="submit" class="flex-[2] px-8 py-4 bg-emerald-600 text-white font-bold rounded-2xl shadow-lg shadow-emerald-200 dark:shadow-none hover:bg-emerald-700 transition-all transform hover:-translate-y-1">
-                    Créer le formulaire et notifier les parents
+                    Initier le formulaire
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Signature Pad Script -->
-<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const canvas = document.getElementById('signature-canvas');
-        const signaturePad = new SignaturePad(canvas, {
-            backgroundColor: 'rgba(255, 255, 255, 0)',
-            penColor: 'rgb(15, 23, 42)'
-        });
-
-        function resizeCanvas() {
-            const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            canvas.getContext("2d").scale(ratio, ratio);
-            signaturePad.clear();
+    // Simple validation for checkboxes - Only for parents who must fill info
+    {% if user.role_type == 'parent' %}
+    document.getElementById('reintegration-form').addEventListener('submit', function(e) {
+        const checkboxes = document.querySelectorAll('input[name="illnesses"]:checked');
+        if (checkboxes.length === 0) {
+            e.preventDefault();
+            alert('Veuillez sélectionner au moins une maladie.');
         }
-
-        window.addEventListener("resize", resizeCanvas);
-        resizeCanvas();
-
-        document.getElementById('clear-signature').addEventListener('click', () => {
-            signaturePad.clear();
-        });
-
-        const form = document.getElementById('reintegration-form');
-        form.addEventListener('submit', function(e) {
-            if (signaturePad.isEmpty()) {
-                e.preventDefault();
-                alert('Veuillez signer le formulaire avant de soumettre.');
-                return;
-            }
-            document.getElementById('signature-input').value = signaturePad.toDataURL();
-        });
     });
+
+    // Toggle Others Container
+    const othersCheckbox = document.getElementById('others-checkbox');
+    const othersContainer = document.getElementById('others-container');
+    if (othersCheckbox && othersContainer) {
+        othersCheckbox.addEventListener('change', function() {
+            othersContainer.classList.toggle('hidden', !this.checked);
+        });
+    }
+
+    // Add/Remove Other Illnesses
+    const addOtherBtn = document.getElementById('add-other-btn');
+    const othersList = document.getElementById('others-inputs-list');
+    if (addOtherBtn && othersList) {
+        addOtherBtn.addEventListener('click', function() {
+            const div = document.createElement('div');
+            div.className = 'flex gap-2';
+            div.innerHTML = `
+                <input type="text" name="other_illnesses[]" class="flex-1 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-sm" placeholder="Nom de la maladie...">
+                <button type="button" class="remove-other-btn text-rose-500 hover:text-rose-700 px-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            othersList.appendChild(div);
+        });
+
+        othersList.addEventListener('click', function(e) {
+            if (e.target.closest('.remove-other-btn')) {
+                e.target.closest('.flex').remove();
+            }
+        });
+    }
+    {% endif %}
 </script>
 {% endblock %}

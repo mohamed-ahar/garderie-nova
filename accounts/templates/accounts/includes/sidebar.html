@@ -256,6 +256,14 @@
                 <i class="fa-solid fa-user-tie mr-3 opacity-70 text-[11px]"></i>
                 <span class="sidebar-label">Manage Principals</span>
             </a>
+            <a href="{% url 'attendance_board' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                <i class="fa-solid fa-user-clock mr-3 opacity-70 text-[11px]"></i>
+                <span class="sidebar-label">Attendance Board</span>
+            </a>
+            <a href="{% url 'toggle_delegated_access' %}" class="flex items-center px-4 py-2 text-[12px] text-white/80 hover:bg-green-500 hover:text-white rounded-lg transition-all font-bold">
+                <i class="fa-solid fa-users-gear mr-3 opacity-70 text-[11px]"></i>
+                <span class="sidebar-label">Educator Access</span>
+            </a>
             
         </div>
     </div>

@@ -1,0 +1,176 @@
+<div id="attendance-table-container">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-slate-50/50 dark:bg-slate-800/50">
+                    <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Child</th>
+                    <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
+                    <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Arrival</th>
+                    <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Departure</th>
+                    <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                {% for item in attendance_data %}
+                <tr class="group hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors">
+                    <td class="px-8 py-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-slate-700 flex-shrink-0">
+                                {% if item.child.profile_photo %}
+                                    <img src="{{ item.child.profile_photo.url }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="w-full h-full flex items-center justify-center text-lg font-black text-slate-300">
+                                        {{ item.child.first_name|slice:":1" }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <p class="text-sm font-black text-slate-900 dark:text-white">{{ item.child.first_name }} {{ item.child.last_name }}</p>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ item.child.assigned_group.name|default:"No Group" }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-8 py-6">
+                        {% if item.is_currently_in %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 text-[9px] font-black uppercase tracking-wider">
+                                <i class="fa-solid fa-circle text-[6px] animate-pulse"></i>
+                                Currently In
+                            </span>
+                        {% elif item.is_absent %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-500/10 text-rose-600 text-[9px] font-black uppercase tracking-wider">
+                                <i class="fa-solid fa-circle text-[6px]"></i>
+                                Marked Absent
+                            </span>
+                        {% elif item.records %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 text-[9px] font-black uppercase tracking-wider">
+                                <i class="fa-solid fa-circle text-[6px]"></i>
+                                Currently Out
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 text-[9px] font-black uppercase tracking-wider">
+                                <i class="fa-solid fa-circle text-[6px]"></i>
+                                Not Arrived
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-8 py-6">
+                        <div class="flex flex-col gap-1">
+                            {% for record in item.records %}
+                                {% if not record.is_absent %}
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">{{ record.arrival_time|time:"H:i" }}</span>
+                                        {% if record.departure_time %}
+                                            <span class="text-[10px] text-slate-400">→</span>
+                                            <span class="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">{{ record.departure_time|time:"H:i" }}</span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td class="px-8 py-6">
+                        <div class="text-[10px] text-slate-400 font-medium">
+                            {{ item.records.count }} entries
+                        </div>
+                    </td>
+                    <td class="px-8 py-6 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            {% if is_today %}
+                                {% if not item.is_currently_in %}
+                                    <form method="POST" class="inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
+                                        <input type="hidden" name="action" value="quick_arrival">
+                                        <button type="submit" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-sm shadow-emerald-500/20" title="Mark Arrival">
+                                            <i class="fa-solid fa-user-plus text-xs"></i>
+                                            <span class="text-[10px] font-black uppercase tracking-widest">Arrival</span>
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <form method="POST" class="inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
+                                        <input type="hidden" name="action" value="quick_departure">
+                                        <button type="submit" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-sm shadow-orange-500/20" title="Mark Departure">
+                                            <i class="fa-solid fa-user-minus text-xs"></i>
+                                            <span class="text-[10px] font-black uppercase tracking-widest">Departure</span>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                                
+                                {% if not item.records %}
+                                    <a href="{% url 'mark_attendance' item.child.child_id %}?absent=1&date={{ view_date|date:'Y-m-d' }}" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-rose-500 text-white hover:bg-rose-600 transition-all shadow-sm shadow-rose-500/20" title="Mark Absent">
+                                        <i class="fa-solid fa-user-xmark text-xs"></i>
+                                        <span class="text-[10px] font-black uppercase tracking-widest">Absent</span>
+                                    </a>
+                                {% endif %}
+
+                                <a href="{% url 'mark_attendance' item.child.child_id %}?date={{ view_date|date:'Y-m-d' }}" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 transition-all" title="Full History/Edit">
+                                    <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">Edit</span>
+                                </a>
+                            {% else %}
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-3 py-1 bg-slate-50 dark:bg-slate-800 rounded-lg">View Only</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-8 py-20 text-center">
+                        <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa-solid fa-users-slash text-slate-300"></i>
+                        </div>
+                        <p class="text-slate-500 font-medium">No children match the current filters.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    {% if page_obj.has_other_pages %}
+    <div class="px-8 py-6 bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            Showing <span class="text-slate-900 dark:text-white">{{ page_obj.start_index }}</span> to <span class="text-slate-900 dark:text-white">{{ page_obj.end_index }}</span> of <span class="text-slate-900 dark:text-white">{{ page_obj.paginator.count }}</span> children
+        </p>
+        
+        <div class="flex items-center gap-2">
+            {% if page_obj.has_previous %}
+                <button onclick="changePage({{ page_obj.previous_page_number }})" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:border-indigo-500 transition-all shadow-sm">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                </button>
+            {% else %}
+                <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-300 dark:text-slate-600 cursor-not-allowed">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                </div>
+            {% endif %}
+
+            <div class="flex items-center gap-1">
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs font-black shadow-lg shadow-indigo-600/20">
+                            {{ num }}
+                        </div>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <button onclick="changePage({{ num }})" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:border-indigo-500 text-xs font-bold transition-all shadow-sm">
+                            {{ num }}
+                        </button>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            {% if page_obj.has_next %}
+                <button onclick="changePage({{ page_obj.next_page_number }})" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:border-indigo-500 transition-all shadow-sm">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+            {% else %}
+                <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-300 dark:text-slate-600 cursor-not-allowed">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>

@@ -21,6 +21,7 @@ urlpatterns = [
     path("educator/my-children/", educator_assigned_children, name="educator_assigned_children"),
     path("educator/daily-checkups/", daily_checkup_list, name="daily_checkup_list"),
     path("educator/attendance-board/", attendance_board, name="attendance_board"),
+    path("educator/toggle-delegated-access/", toggle_delegated_access, name="toggle_delegated_access"),
     path("educator/weekly-attendance/", weekly_attendance_report, name="weekly_attendance_report"),
     path("educator/weekly-attendance/export/", export_attendance_pdf, name="export_attendance_pdf"),
     path("educator/weekly-report/<uuid:child_id>/export/", export_weekly_daily_report_pdf, name="export_weekly_daily_report_pdf"),

@@ -3,6 +3,7 @@
 {% block content %}
 <div class="relative min-h-screen bg-white dark:bg-slate-950 overflow-hidden">
     
+    <!-- Background Accents -->
     <div class="absolute inset-0 pointer-events-none">
         <div class="absolute top-[-10%] left-[10%] w-[600px] h-[600px] bg-blue-400/10 rounded-full blur-[140px]"></div>
         <div class="absolute bottom-[10%] right-[5%] w-[500px] h-[500px] bg-emerald-400/10 rounded-full blur-[120px]"></div>
@@ -10,6 +11,7 @@
 
     <div class="relative z-10 max-w-7xl mx-auto px-6 py-12 space-y-12">
         
+        <!-- Header Section -->
         <div class="grid lg:grid-cols-12 gap-8 items-end p-8 md:p-12">
             <div class="lg:col-span-8 space-y-8">
                 <div class="inline-flex items-center gap-4 px-6 py-3 rounded-2xl bg-white/50 dark:bg-slate-900/40 backdrop-blur-xl border border-emerald-500/20 shadow-xl">
@@ -36,7 +38,12 @@
                         </span>
                     </h1>
                     <p class="text-sm font-bold text-slate-500 max-w-lg leading-relaxed pt-2">
-                        Currently overseeing <span class="text-slate-900 dark:text-white font-bold">{{ groups|length }} Active Groups</span>. Your center's compliance status is currently <span class="text-emerald-500 font-bold underline decoration-emerald-500/30 underline-offset-4">Optimal</span>.
+                        Currently overseeing <span class="text-slate-900 dark:text-white font-bold">{{ groups|length }} Active Groups</span>. Your center's compliance status is currently 
+                        {% if open_alerts > 0 %}
+                        <span class="text-rose-500 font-bold underline decoration-rose-500/30 underline-offset-4">Attention Required</span>
+                        {% else %}
+                        <span class="text-emerald-500 font-bold underline decoration-emerald-500/30 underline-offset-4">Optimal</span>
+                        {% endif %}.
                     </p>
                 </div>
             </div>
@@ -62,294 +69,380 @@
             </div>
         </div>
 
+        <!-- Action Center -->
+        {% if pending_access_count > 0 or pending_transfers_count > 0 %}
+        <div class="grid md:grid-cols-2 gap-6 px-4">
+            {% if pending_access_count > 0 %}
+            <a href="{% url 'manage_parent_access_requests' %}" class="group relative p-6 bg-white dark:bg-slate-900 rounded-3xl border border-amber-500/20 shadow-lg transition-all hover:scale-[1.02]">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+                        <i class="fa-solid fa-user-plus text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Access Requests</h4>
+                        <p class="text-xs font-bold text-slate-500">{{ pending_access_count }} parents waiting for approval</p>
+                    </div>
+                    <div class="ml-auto">
+                        <span class="px-2 py-1 rounded-md bg-amber-500 text-white text-[10px] font-black uppercase animate-pulse">Pending</span>
+                    </div>
+                </div>
+            </a>
+            {% endif %}
+
+            {% if pending_transfers_count > 0 %}
+            <a href="{% url 'transfer_requests_list' %}" class="group relative p-6 bg-white dark:bg-slate-900 rounded-3xl border border-blue-500/20 shadow-lg transition-all hover:scale-[1.02]">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                        <i class="fa-solid fa-right-left text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Transfer Requests</h4>
+                        <p class="text-xs font-bold text-slate-500">{{ pending_transfers_count }} transfers need your attention</p>
+                    </div>
+                    <div class="ml-auto">
+                        <span class="px-2 py-1 rounded-md bg-blue-500 text-white text-[10px] font-black uppercase animate-pulse">Action</span>
+                    </div>
+                </div>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Center Intelligence & Live Status -->
+        <div class="space-y-8">
+            <div class="flex items-center justify-between px-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                        <i class="fa-solid fa-brain text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Center Intelligence</h2>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Real-time operational summary</p>
+                    </div>
+                </div>
+
+                <div id="grouping-controls" class="flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-2xl border border-slate-200 dark:border-slate-800">
+                    <button data-mode="group" class="grouping-btn px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all {% if grouping_mode == 'group' %}bg-white dark:bg-slate-800 text-indigo-600 shadow-sm{% else %}text-slate-400 hover:text-slate-600{% endif %}">By Group</button>
+                    <button data-mode="age" class="grouping-btn px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all {% if grouping_mode == 'age' %}bg-white dark:bg-slate-800 text-indigo-600 shadow-sm{% else %}text-slate-400 hover:text-slate-600{% endif %}">By Age</button>
+                    <button data-mode="educator" class="grouping-btn px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all {% if grouping_mode == 'educator' %}bg-white dark:bg-slate-800 text-indigo-600 shadow-sm{% else %}text-slate-400 hover:text-slate-600{% endif %}">By Educator</button>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-12 gap-8 px-4 relative">
+                <!-- Loading Overlay -->
+                <div id="intelligence-loading" class="absolute inset-0 bg-white/50 dark:bg-slate-950/50 backdrop-blur-[2px] z-20 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+                    <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+
+                <!-- Left: Attendance Overview -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-sm h-full">
+                        <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Daily Presence Pulse</h3>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]"></div>
+                                    <span class="text-sm font-bold text-slate-600 dark:text-slate-300">Currently In</span>
+                                </div>
+                                <span class="text-xl font-black text-slate-900 dark:text-white">{{ attendance_summary.in }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                                    <span class="text-sm font-bold text-slate-600 dark:text-slate-300">Gone Home</span>
+                                </div>
+                                <span class="text-xl font-black text-slate-900 dark:text-white">{{ attendance_summary.out }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-rose-500"></div>
+                                    <span class="text-sm font-bold text-slate-600 dark:text-slate-300">Absent</span>
+                                </div>
+                                <span class="text-xl font-black text-slate-900 dark:text-white">{{ attendance_summary.absent }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+                                    <span class="text-sm font-bold text-slate-600 dark:text-slate-300">Not Arrived</span>
+                                </div>
+                                <span class="text-xl font-black text-slate-900 dark:text-white">{{ attendance_summary.not_arrived }}</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-10 pt-8 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Key Staff Roles</h4>
+                            <div class="flex flex-wrap gap-2">
+                                {% for principal in principal_educators %}
+                                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20" title="Principal Educator">
+                                    <i class="fa-solid fa-star text-indigo-500 text-[10px]"></i>
+                                    <span class="text-[10px] font-black text-indigo-700 dark:text-indigo-300">{{ principal.user.full_name }}</span>
+                                </div>
+                                {% endfor %}
+                                
+                                {% for delegated in delegated_educators %}
+                                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20" title="Attendance Dashboard Access">
+                                    <i class="fa-solid fa-lock-open text-emerald-500 text-[10px]"></i>
+                                    <span class="text-[10px] font-black text-emerald-700 dark:text-emerald-300">{{ delegated.user.full_name }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Grouped Breakdown -->
+                <div class="lg:col-span-8" id="intelligence-table-wrapper">
+                    {% include "core/director/includes/intelligence_table_partial.html" %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 p-4">
+            <!-- Educators Card -->
             <div class="group relative p-8 bg-gradient-to-br from-emerald-900 to-emerald-800 border border-emerald-700/50 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-emerald-400 hover:shadow-[0_0_40px_-10px_rgba(16,185,129,0.3)]">
-    
                 <div class="absolute top-0 right-0 w-48 h-48 bg-emerald-500/30 rounded-full blur-[100px] -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-700"></div>
-                
                 <div class="relative z-10">
                     <div class="flex items-center justify-between mb-10">
                         <div class="p-3 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-sm">
                             <i class="fa-solid fa-chalkboard-user text-white text-lg"></i>
                         </div>
-                        <span class="px-3 py-1 bg-white/20 text-white text-[9px] font-bold uppercase tracking-widest rounded-full backdrop-blur-md">
-                            Active System
-                        </span>
+                        <span class="px-3 py-1 bg-white/20 text-white text-[9px] font-bold uppercase tracking-widest rounded-full backdrop-blur-md">Active System</span>
                     </div>
-            
                     <div class="flex items-end justify-between">
                         <div>
                             <h3 class="text-5xl font-black text-white tracking-tighter">{{ total_educators }}</h3>
                             <p class="text-[10px] font-bold text-emerald-100 uppercase tracking-widest mt-1">Total Educators</p>
                         </div>
-                        
-                        <div class="flex flex-col items-center">
-                            <div class="text-white font-bold text-xs"></div>
-                            <div class="h-8 w-1 bg-emerald-950/30 rounded-full mt-1 overflow-hidden">
-                                <div class="h-1/2 w-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>
-                            </div>
-                        </div>
                     </div>
-            
                     <div class="mt-8 h-[1px] w-full bg-emerald-600/50"></div>
-                    
-                    <p class="mt-4 text-[10px] text-emerald-100/80 leading-relaxed">
-                        Data is currently synced. All educator metrics are verified and <span class="text-white font-bold">up to date</span>.
-                    </p>
                 </div>
             </div>
         
+            <!-- Children Card -->
             <div class="group relative p-8 bg-gradient-to-br from-emerald-900 to-emerald-800 border border-emerald-700/50 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-emerald-400 hover:shadow-[0_0_40px_-10px_rgba(16,185,129,0.3)]">
-    
                 <div class="absolute top-0 right-0 w-48 h-48 bg-emerald-500/30 rounded-full blur-[100px] -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-700"></div>
-                
                 <div class="relative z-10">
                     <div class="flex items-start justify-between mb-8">
-                        <div class="relative">
-                            <div class="absolute inset-0 bg-emerald-500/50 blur-xl rounded-full"></div>
-                            <div class="relative p-3.5 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-sm text-white">
-                                <i class="fa-solid fa-children text-xl"></i>
-                            </div>
+                        <div class="relative p-3.5 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-sm text-white">
+                            <i class="fa-solid fa-children text-xl"></i>
                         </div>
-                        
-                        <div class="flex flex-col items-end gap-2">
-                            <span class="px-3 py-1 bg-white/20 text-white text-[9px] font-bold uppercase tracking-widest rounded-full backdrop-blur-md">Live</span>
-                            <div class="w-12 h-1.5 bg-emerald-950/30 rounded-full overflow-hidden">
-                                <div class="bg-white h-full w-full animate-pulse"></div>
-                            </div>
-                        </div>
+                        <span class="px-3 py-1 bg-white/20 text-white text-[9px] font-bold uppercase tracking-widest rounded-full backdrop-blur-md">Live</span>
                     </div>
-                    
                     <div class="space-y-1">
-                        <p class="text-[10px] font-bold text-emerald-100/70 uppercase tracking-[0.25em]">
-                            Active Children
-                        </p>
-                        <div class="flex items-baseline gap-3">
-                            <h3 class="text-5xl font-black text-white tracking-tighter">
-                                {{ active_children }}
-                            </h3>
-                            <span class="text-white text-xs font-bold flex items-center bg-white/20 px-2 py-0.5 rounded-full">
-                                <i class="fa-solid fa-arrow-up mr-1 scale-75"></i> 
-                            </span>
-                        </div>
+                        <p class="text-[10px] font-bold text-emerald-100/70 uppercase tracking-[0.25em]">Active Children</p>
+                        <h3 class="text-5xl font-black text-white tracking-tighter">{{ active_children }}</h3>
                     </div>
-                    
                     <div class="mt-8 h-[1px] w-full bg-emerald-600/50"></div>
                 </div>
-                
-                <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-white group-hover:w-full transition-all duration-1000"></div>
             </div>
         
+            <!-- Alerts Card -->
             <div class="group relative p-8 {% if open_alerts > 0 %}bg-gradient-to-br from-rose-600 to-rose-900{% else %}bg-gradient-to-br from-emerald-900 to-emerald-800{% endif %} border {% if open_alerts > 0 %}border-rose-400{% else %}border-emerald-700/50{% endif %} rounded-[2.5rem] overflow-hidden transition-all duration-700 hover:shadow-[0_0_40px_-10px_rgba(244,63,94,0.5)]">
-    
                 <div class="absolute top-0 right-0 w-48 h-48 {% if open_alerts > 0 %}bg-rose-400/30{% else %}bg-emerald-500/20{% endif %} rounded-full blur-[100px] transition-all duration-700"></div>
-                
                 <div class="relative z-10">
                     <div class="flex items-start justify-between mb-8">
-                        <div class="relative">
-                            {% if open_alerts > 0 %}
-                            <span class="absolute inset-0 rounded-2xl bg-white animate-ping"></span>
-                            {% endif %}
-                            <div class="relative p-3.5 {% if open_alerts > 0 %}bg-white text-rose-600 shadow-lg{% else %}bg-white/10 text-white{% endif %} rounded-2xl border border-white/10 backdrop-blur-sm transition-all duration-500">
-                                <i class="fa-solid fa-bell text-xl"></i>
-                            </div>
+                        <div class="relative p-3.5 {% if open_alerts > 0 %}bg-white text-rose-600 shadow-lg{% else %}bg-white/10 text-white{% endif %} rounded-2xl border border-white/10 backdrop-blur-sm transition-all duration-500">
+                            <i class="fa-solid fa-bell text-xl"></i>
                         </div>
-                        
-                        {% if open_alerts > 0 %}
-                        <div class="flex flex-col items-end">
-                            <span class="px-3 py-1 bg-white/20 text-white text-[9px] font-black uppercase tracking-widest rounded-full animate-pulse">
-                                Attention
-                            </span>
-                        </div>
-                        {% endif %}
                     </div>
-                    
                     <div class="space-y-1">
-                        <p class="text-[10px] font-bold {% if open_alerts > 0 %}text-rose-100{% else %}text-emerald-100/70{% endif %} uppercase tracking-[0.25em]">
-                            Open Alerts
-                        </p>
-                        <div class="flex items-center gap-4">
-                            <h3 class="text-5xl font-black text-white tracking-tighter">
-                                {{ open_alerts }}
-                            </h3>
-                            
-                            {% if open_alerts > 0 %}
-                            <div class="flex gap-1">
-                                <span class="w-1.5 h-6 bg-white rounded-full animate-bounce"></span>
-                                <span class="w-1.5 h-6 bg-white/60 rounded-full animate-bounce delay-100"></span>
-                            </div>
-                            {% endif %}
-                        </div>
+                        <p class="text-[10px] font-bold {% if open_alerts > 0 %}text-rose-100{% else %}text-emerald-100/70{% endif %} uppercase tracking-[0.25em]">Compliance Alerts</p>
+                        <h3 class="text-5xl font-black text-white tracking-tighter">{{ open_alerts }}</h3>
                     </div>
-                    
                     <div class="mt-8 h-[1px] w-full {% if open_alerts > 0 %}bg-rose-300/50{% else %}bg-emerald-600/50{% endif %}"></div>
                 </div>
             </div>
+
+            <!-- Ratio Card -->
             <div class="group relative p-8 bg-gradient-to-br from-emerald-900 to-emerald-800 border border-emerald-700/50 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-emerald-400 hover:shadow-[0_0_40px_-10px_rgba(16,185,129,0.3)]">
-    
                 <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-[80px] transition-all duration-700"></div>
-                
-                <div class="relative z-10 text-left">
+                <div class="relative z-10">
                     <div class="flex items-center justify-between mb-8">
                         <div class="p-3 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-sm text-white">
                             <i class="fa-solid fa-scale-balanced text-sm"></i>
                         </div>
                         <span class="px-3 py-1 text-[9px] font-black {% if total_educators >= total_required_educators %}text-white bg-emerald-500/30{% else %}text-amber-300 bg-amber-500/20{% endif %} uppercase tracking-widest rounded-full backdrop-blur-md">
-                            {% if total_educators >= total_required_educators %}Compliant{% else %}Understaffed{% endif %}
+                            {% if total_educators >= total_required_educators %}Compliant{% else %}Staffing Low{% endif %}
                         </span>
                     </div>
-                    
                     <div class="space-y-1">
-                        <p class="text-[10px] font-bold text-emerald-100/70 uppercase tracking-[0.25em] mb-1">Center Ratio</p>
-                        <h3 class="text-4xl font-black text-white tracking-tighter">
-                            {% if overall_ratio %}1:{{ overall_ratio }}{% else %}N/A{% endif %}
-                        </h3>
-                        <p class="text-[10px] text-emerald-100/60 mt-2 font-medium">
-                            {{ total_educators }} / {{ total_required_educators }} staff required
-                        </p>
+                        <p class="text-[10px] font-bold text-emerald-100/70 uppercase tracking-[0.25em]">Center Ratio</p>
+                        <h3 class="text-4xl font-black text-white tracking-tighter">{% if overall_ratio %}1:{{ overall_ratio }}{% else %}N/A{% endif %}</h3>
                     </div>
-                    
                     <div class="mt-8 h-[1px] w-full bg-emerald-600/50"></div>
                 </div>
             </div>
         </div>
 
         <div class="grid lg:grid-cols-12 gap-8 items-start">
-    
-            <div class="lg:col-span-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200/60 dark:border-slate-800/50 shadow-sm overflow-hidden">
-                <div class="relative p-8 border-b border-emerald-500/10 bg-slate-50/50 dark:bg-[#0a0a0c] overflow-hidden">
-                    <div class="absolute top-0 left-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2"></div>
-                    
-                    <div class="relative z-10 flex items-center gap-6">
-                        <div class="relative group">
-                            <div class="absolute -inset-1 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl opacity-20 group-hover:opacity-40 blur transition-opacity"></div>
-                            <div class="relative w-16 h-16 flex items-center justify-center bg-white dark:bg-slate-900 border border-emerald-500/20 rounded-2xl shadow-xl">
-                                <i class="fa-solid fa-layer-group text-2xl text-emerald-500"></i>
+            <!-- Main Content: Groups -->
+            <div class="lg:col-span-8 space-y-8">
+                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200/60 dark:border-slate-800/50 shadow-sm overflow-hidden">
+                    <div class="relative p-8 border-b border-emerald-500/10 bg-slate-50/50 dark:bg-[#0a0a0c]">
+                        <div class="relative z-10 flex items-center justify-between">
+                            <div class="flex items-center gap-6">
+                                <div class="w-16 h-16 flex items-center justify-center bg-white dark:bg-slate-900 border border-emerald-500/20 rounded-2xl shadow-xl text-emerald-500">
+                                    <i class="fa-solid fa-layer-group text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tighter">Groups Overview</h3>
+                                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Real-time occupancy & compliance</p>
+                                </div>
                             </div>
-                        </div>
-                
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tighter">
-                                    Groups Overview
-                                </h3>
-                                <span class="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 text-[9px] font-bold uppercase tracking-widest">Live</span>
-                            </div>
-                            <p class="text-[11px] font-bold text-slate-700 uppercase tracking-[0.25em]">
-                                Real-time occupancy and staffing compliance
-                            </p>
+                            <a href="{% url 'group_add' %}" class="p-4 bg-emerald-500/10 text-emerald-500 rounded-2xl hover:bg-emerald-500 hover:text-white transition-all">
+                                <i class="fa-solid fa-plus"></i>
+                            </a>
                         </div>
                     </div>
-                </div>
-        
-                <div class="divide-y divide-slate-100 dark:divide-slate-800/50">
-                    {% for group in groups %}
-                    <a href="{% url 'group_edit' group.group_id %}" class="group/row block p-6 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10 transition-all cursor-pointer">
-                        <div class="flex flex-col md:flex-row md:items-center gap-6">
-                            
-                            <div class="relative">
-                                <div class="w-14 h-14 rounded-2xl bg-emerald-600 dark:bg-emerald-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-emerald-500/20 group-hover/row:rotate-3 transition-transform">
-                                    {{ group.name|slice:":1" }}
-                                </div>
-                                {% if not group.is_compliant %}
-                                <span class="absolute -top-1 -right-1 flex h-4 w-4">
-                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                    <span class="relative inline-flex rounded-full h-4 w-4 bg-rose-500 border-2 border-white dark:border-slate-900"></span>
-                                </span>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="flex-1 space-y-3">
-                                <div class="flex items-center justify-between">
-                                    <h4 class="font-black text-slate-900 dark:text-white text-lg tracking-tight">{{ group.name }}</h4>
-                                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Capacity</span>
+            
+                    <div class="divide-y divide-slate-100 dark:divide-slate-800/50">
+                        {% for group in groups %}
+                        <a href="{% url 'group_edit' group.group_id %}" class="group/row block p-6 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10 transition-all">
+                            <div class="flex flex-col md:flex-row md:items-center gap-6">
+                                <div class="relative">
+                                    <div class="w-14 h-14 rounded-2xl bg-emerald-600 dark:bg-emerald-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-emerald-500/20 group-hover/row:rotate-3 transition-transform">
+                                        {{ group.name|slice:":1" }}
+                                    </div>
+                                    {% if not group.is_compliant %}
+                                    <span class="absolute -top-1 -right-1 flex h-4 w-4">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-4 w-4 bg-rose-500 border-2 border-white dark:border-slate-900"></span>
+                                    </span>
+                                    {% endif %}
                                 </div>
                                 
-                                <div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                    {% if group.calculated_max_capacity > 0 %}
-                                    <div class="h-full {% if group.is_compliant %}bg-emerald-500{% else %}bg-rose-500{% endif %} transition-all duration-1000" 
-                                         style="width: {% widthratio group.current_occupancy group.calculated_max_capacity 100 %}%"></div>
-                                    {% else %}
-                                    <div class="h-full bg-slate-300 dark:bg-slate-700 transition-all duration-1000" style="width: 0%"></div>
-                                    {% endif %}
+                                <div class="flex-1 space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="font-black text-slate-900 dark:text-white text-lg tracking-tight">{{ group.name }}</h4>
+                                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ group.current_occupancy }} / {{ group.calculated_max_capacity }} Capacity</span>
+                                    </div>
+                                    
+                                    <div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        {% if group.calculated_max_capacity > 0 %}
+                                        <div class="h-full {% if group.is_compliant %}bg-emerald-500{% else %}bg-rose-500{% endif %} transition-all duration-1000" 
+                                             style="width: {% widthratio group.current_occupancy group.calculated_max_capacity 100 %}%"></div>
+                                        {% endif %}
+                                    </div>
+            
+                                    <div class="flex items-center gap-6">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fa-solid fa-child text-emerald-500 text-xs"></i>
+                                            <span class="text-xs font-bold text-slate-600 dark:text-slate-300">{{ group.current_occupancy }} <span class="text-slate-400 font-medium">Children</span></span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <i class="fa-solid fa-user-tie text-emerald-500 text-xs"></i>
+                                            <span class="text-xs font-bold text-slate-600 dark:text-slate-300">{{ group.current_educators }} / {{ group.required_educators }} <span class="text-slate-400 font-medium">Staff</span></span>
+                                        </div>
+                                    </div>
                                 </div>
-        
-                                <div class="flex items-center gap-6">
-                                    <div class="flex items-center gap-2">
-                                        <i class="fa-solid fa-child text-emerald-500 text-xs"></i>
-                                        <span class="text-xs font-bold text-slate-600 dark:text-slate-300">{{ group.current_occupancy }} / {{ group.calculated_max_capacity }} <span class="text-slate-400 font-medium tracking-tight">Children</span></span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <i class="fa-solid fa-user-tie text-emerald-500 text-xs"></i>
-                                        <span class="text-xs font-bold text-slate-600 dark:text-slate-300">{{ group.current_educators }} / {{ group.required_educators }} <span class="text-slate-400 font-medium tracking-tight">Staff</span></span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <i class="fa-solid fa-scale-balanced text-blue-500 text-xs"></i>
-                                        <span class="text-xs font-bold text-slate-600 dark:text-slate-300">
-                                            {% if group.current_educators > 0 and group.current_occupancy > 0 %}
-                                                1:{{ group.current_occupancy|div:group.current_educators }}
-                                            {% else %}
-                                                N/A
-                                            {% endif %}
-                                            <span class="text-slate-400 font-medium tracking-tight">Ratio</span>
-                                        </span>
+            
+                                <div class="md:text-right">
+                                    <div class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter
+                                        {% if group.is_compliant %}bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400
+                                        {% else %}bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400{% endif %}">
+                                        {% if group.is_compliant %}Secure{% else %}Alert{% endif %}
                                     </div>
                                 </div>
                             </div>
-        
-                            <div class="md:text-right flex md:flex-col items-center md:items-end gap-2">
-                                <div class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter
-                                    {% if group.is_compliant %}
-                                        bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400
-                                    {% else %}
-                                        bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400
-                                    {% endif %}">
-                                    {% if group.is_compliant %}
-                                        <i class="fa-solid fa-circle-check mr-1"></i> Secure
-                                    {% else %}
-                                        <i class="fa-solid fa-circle-exclamation mr-1"></i> Alert
-                                    {% endif %}
-                                </div>
-                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.1em]">Updated Just Now</span>
-                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Waitlist Section (Minimized/Standardized) -->
+                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200/60 dark:border-slate-800/50 shadow-sm overflow-hidden">
+                    <div class="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tighter">Waitlist</h3>
+                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{{ waitlist|length }} Pending Applications</p>
                         </div>
-                    </a>
-                    {% endfor %}
+                        <a href="{% url 'waitlist_manage' %}" class="text-xs font-black text-emerald-500 uppercase tracking-widest hover:underline">Manage All</a>
+                    </div>
+                    <div class="divide-y divide-slate-50 dark:divide-slate-800/30">
+                        {% for child in waitlist|slice:":5" %}
+                        <div class="p-6 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 font-black">
+                                    {{ forloop.counter }}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-900 dark:text-white">{{ child.first_name }} {{ child.last_name }}</div>
+                                    <div class="text-xs text-slate-400">{{ child.birth_date }}</div>
+                                </div>
+                            </div>
+                            <a href="#" class="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-colors">Admit</a>
+                        </div>
+                        {% empty %}
+                        <div class="p-12 text-center text-slate-400 italic text-sm">No children currently on the waitlist.</div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         
-            <div class="lg:col-span-4 space-y-6">
-                <h3 class="px-2 text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Quick Management</h3>
-                
-                <div class="grid gap-3">
-                    <a href="#" class="group p-4 bg-emerald-600 hover:bg-emerald-700 rounded-2xl shadow-xl shadow-emerald-600/20 transition-all flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white">
-                                <i class="fa-solid fa-plus text-sm"></i>
+            <!-- Sidebar: Quick Actions & Notifications -->
+            <div class="lg:col-span-4 space-y-8">
+                <!-- Quick Actions -->
+                <div class="space-y-4">
+                    <h3 class="px-2 text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Quick Management</h3>
+                    <div class="grid gap-3">
+                        <a href="{% url 'register_child' %}" class="group p-4 bg-emerald-600 hover:bg-emerald-700 rounded-2xl shadow-xl shadow-emerald-600/20 transition-all flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white">
+                                    <i class="fa-solid fa-baby text-sm"></i>
+                                </div>
+                                <span class="text-white font-bold text-sm tracking-tight">Enroll Child</span>
                             </div>
-                            <span class="text-white font-bold text-sm tracking-tight">Add Staff Member</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-white/50 group-hover:translate-x-1 transition-transform"></i>
-                    </a>
-        
-                    <a href="#" class="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-emerald-500 dark:hover:border-emerald-500 transition-all flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-500/10 flex items-center justify-center text-slate-400 group-hover:text-emerald-500 transition-colors">
-                            <i class="fa-solid fa-baby text-sm"></i>
-                        </div>
-                        <span class="text-slate-700 dark:text-slate-200 font-bold text-sm tracking-tight">New Enrollment</span>
-                    </a>
-        
-                    <a href="#" class="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl transition-all flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-                                <i class="fa-solid fa-file-invoice text-sm"></i>
+                            <i class="fa-solid fa-chevron-right text-white/50 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+            
+                        <a href="{% url 'educator_add' %}" class="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-emerald-500 transition-all flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 group-hover:bg-emerald-500/10 flex items-center justify-center text-slate-400 group-hover:text-emerald-500">
+                                <i class="fa-solid fa-user-plus text-sm"></i>
                             </div>
-                            <span class="text-slate-700 dark:text-slate-200 font-bold text-sm tracking-tight">Reports</span>
-                        </div>
-                        <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                    </a>
+                            <span class="text-slate-700 dark:text-slate-200 font-bold text-sm tracking-tight">Add Staff</span>
+                        </a>
+
+                        <a href="{% url 'attendance_board' %}" class="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-emerald-500 transition-all flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-emerald-500">
+                                <i class="fa-solid fa-clipboard-user text-sm"></i>
+                            </div>
+                            <span class="text-slate-700 dark:text-slate-200 font-bold text-sm tracking-tight">Attendance Board</span>
+                        </a>
+
+                        <a href="{% url 'communication:inbox' %}" class="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-emerald-500 transition-all flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-emerald-500">
+                                <i class="fa-solid fa-envelope text-sm"></i>
+                            </div>
+                            <span class="text-slate-700 dark:text-slate-200 font-bold text-sm tracking-tight">Center Messages</span>
+                        </a>
+                    </div>
                 </div>
-        
+
+                <!-- Recent Notifications (New) -->
+                <div class="space-y-4">
+                    <h3 class="px-2 text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Recent Activity</h3>
+                    <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-6 space-y-6">
+                        {% for notif in recent_notifications %}
+                        <div class="relative pl-6 border-l-2 border-emerald-500/30">
+                            <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-emerald-500"></div>
+                            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{{ notif.created_at|timesince }} ago</div>
+                            <h5 class="text-xs font-black text-slate-900 dark:text-white leading-tight mb-1">{{ notif.title }}</h5>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">{{ notif.message }}</p>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-6">
+                            <div class="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-300 mx-auto mb-3">
+                                <i class="fa-solid fa-bell-slash"></i>
+                            </div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No new activity</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Compliance Badge -->
                 <div class="p-8 bg-slate-900 rounded-[2.5rem] relative overflow-hidden group">
                     <div class="absolute -bottom-6 -right-6">
                         <i class="fa-solid fa-leaf text-emerald-500/10 text-9xl -rotate-12 group-hover:rotate-0 transition-transform duration-700"></i>
@@ -358,261 +451,61 @@
                         <div class="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase mb-4">
                             <i class="fa-solid fa-shield-halved"></i> Verified
                         </div>
-                        <h4 class="text-white font-black text-lg tracking-tight">Healthy Ratios</h4>
+                        <h4 class="text-white font-black text-lg tracking-tight">Compliance Status</h4>
                         <p class="text-slate-400 text-xs mt-2 leading-relaxed">
-                            Your center currently meets all safety requirements for the morning shift.
+                            Your center currently meets all provincial safety requirements and ratios.
                         </p>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="group relative bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 p-8 shadow-2xl transition-all duration-500 mb-8">
-            <div class="relative p-8 border border-emerald-500/20 bg-slate-50/50 dark:bg-[#050a05] rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:shadow-[0_0_50px_-15px_rgba(16,185,129,0.2)]">
-                <div class="absolute -top-20 -right-20 w-64 h-64 bg-emerald-500/10 rounded-full blur-[100px]"></div>
-            
-                <div class="relative z-10 flex items-center justify-between">
-                    <div class="space-y-3">
-                        <div>
-                            <h3 class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">Waitlist Management</h3>
-                            <p class="text-[11px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-[0.25em] mt-1">Pending registrations requiring review</p>
-                        </div>
-                        
-                        <div class="flex items-center gap-3">
-                            <div class="w-32 h-1.5 bg-slate-200 dark:bg-emerald-950 rounded-full overflow-hidden">
-                                <div class="h-full bg-emerald-500 w-2/3 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-                            </div>
-                        </div>
-                    </div>
-            
-                    <div class="flex items-center gap-4">
-                        <a href="{% url 'waitlist_manage' %}" class="group relative px-6 py-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl">
-                            Manage List
-                        </a>
-                        
-                        <div class="relative">
-                            <div class="absolute inset-0 bg-emerald-500/20 blur-xl rounded-2xl"></div>
-                            <div class="relative p-4 bg-white dark:bg-slate-900 border border-emerald-500/20 rounded-2xl text-emerald-500 shadow-xl">
-                                <i class="fa-solid fa-clipboard-list text-2xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse" id="waitlistTable">
-                    <thead>
-                        <tr class="border-b border-slate-100 dark:border-slate-800 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            <th class="py-4 pl-4">Position</th>
-                            <th class="py-4">Child Name</th>
-                            <th class="py-4">Age/Birth Date</th>
-                            <th class="py-4">Registered Date</th>
-                            <th class="py-4">Contact</th>
-                            <th class="py-4 text-right pr-4">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800" id="waitlistTableBody">
-                        {% for child in waitlist %}
-                        <tr class="group/row hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <td class="py-4 pl-4">
-                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500 text-white font-black text-sm shadow-lg shadow-amber-500/20">
-                                    {{ forloop.counter }}
-                                </span>
-                            </td>
-                            <td class="py-4">
-                                <div class="font-bold text-slate-900 dark:text-white">{{ child.first_name }} {{ child.last_name }}</div>
-                            </td>
-                            <td class="py-4">
-                                <div class="text-sm font-medium text-slate-500">{{ child.birth_date }}</div>
-                                <div class="text-xs text-slate-400">{{ child.age_display }}</div>
-                            </td>
-                            <td class="py-4">
-                                <div class="text-sm font-medium text-slate-500">{{ child.created_at|date:"M d, Y" }}</div>
-                            </td>
-                            <td class="py-4">
-                                {% if child.medical_info.waitlist_contact_phone %}
-                                <div class="text-xs font-medium text-slate-500"><i class="fa-solid fa-phone mr-1"></i> {{ child.medical_info.waitlist_contact_phone }}</div>
-                                {% endif %}
-                                {% if child.medical_info.waitlist_contact_email %}
-                                <div class="text-xs font-medium text-slate-500"><i class="fa-solid fa-envelope mr-1"></i> {{ child.medical_info.waitlist_contact_email }}</div>
-                                {% endif %}
-                                {% with parent_rel=child.parent_relationships.first %}
-                                    {% if parent_rel %}
-                                        <div class="text-xs text-slate-400 mt-1">Parent: {{ parent_rel.parent.user.full_name }}</div>
-                                    {% endif %}
-                                {% endwith %}
-                            </td>
-                            <td class="py-4 text-right pr-4">
-                                <a href="#" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-bold hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20">
-                                    Admit
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr class="empty-message">
-                            <td colspan="6" class="py-8 text-center text-slate-400 italic">No children currently on the waitlist.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination Controls -->
-            <div id="paginationContainer" class="border-t border-slate-100 dark:border-slate-800 px-6 py-5 bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-between flex-wrap gap-4 hidden">
-                <div class="flex items-center gap-2">
-                    <button id="prevBtn" onclick="previousPage()" class="px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-sm" title="Previous page">
-                        <i class="fa-solid fa-chevron-left mr-2"></i>Previous
-                    </button>
-                    <div id="pageNumbers" class="flex items-center gap-1"></div>
-                    <button id="nextBtn" onclick="nextPage()" class="px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-sm" title="Next page">
-                        Next<i class="fa-solid fa-chevron-right ml-2"></i>
-                    </button>
-                </div>
-                <div class="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                    Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const paginationContainer = document.getElementById('paginationContainer');
-    const tableBody = document.getElementById('waitlistTableBody');
-    const rows = Array.from(tableBody.querySelectorAll('tr:not(.empty-message)'));
-    const emptyRow = tableBody.querySelector('.empty-message');
-    
-    // Pagination variables
-    let currentPage = 1;
-    let pageSize = 5; 
-    let filteredRows = rows.map(row => ({ element: row })); // No filtering here, just strict mapping
+    const groupingButtons = document.querySelectorAll('.grouping-btn');
+    const intelligenceWrapper = document.getElementById('intelligence-table-wrapper');
+    const intelligenceLoading = document.getElementById('intelligence-loading');
 
-    function updatePagination() {
-        const totalPages = Math.ceil(filteredRows.length / pageSize) || 1;
-        currentPage = Math.min(currentPage, totalPages);
-        
-        // Hide all data rows
-        filteredRows.forEach(row => row.element.style.display = 'none');
+    groupingButtons.forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const mode = this.dataset.mode;
+            
+            // UI Update: Active State
+            groupingButtons.forEach(b => {
+                b.classList.remove('bg-white', 'dark:bg-slate-800', 'text-indigo-600', 'shadow-sm');
+                b.classList.add('text-slate-400', 'hover:text-slate-600');
+            });
+            this.classList.add('bg-white', 'dark:bg-slate-800', 'text-indigo-600', 'shadow-sm');
+            this.classList.remove('text-slate-400', 'hover:text-slate-600');
 
-        // Show rows for current page
-        const startIdx = (currentPage - 1) * pageSize;
-        const endIdx = startIdx + pageSize;
-        const visibleRows = filteredRows.slice(startIdx, endIdx);
-        
-        visibleRows.forEach(row => row.element.style.display = '');
-
-        // Update pagination controls
-        updatePaginationControls(totalPages);
-        
-        // Show/hide empty state
-        if (filteredRows.length === 0 && emptyRow) {
-            emptyRow.style.display = '';
-            paginationContainer.classList.add('hidden');
-            paginationContainer.classList.remove('flex');
-        } else if (emptyRow) {
-            emptyRow.style.display = 'none';
-        }
-    }
-
-    function updatePaginationControls(totalPages) {
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const pageNumbersDiv = document.getElementById('pageNumbers');
-        const currentPageSpan = document.getElementById('currentPage');
-        const totalPagesSpan = document.getElementById('totalPages');
-
-        // Update current and total page display
-        currentPageSpan.textContent = currentPage;
-        totalPagesSpan.textContent = totalPages;
-
-        // Update button states
-        prevBtn.disabled = currentPage === 1;
-        nextBtn.disabled = currentPage === totalPages;
-
-        // Generate page numbers
-        pageNumbersDiv.innerHTML = '';
-        const maxPageButtons = 5;
-        let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
-        let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
-        
-        if (endPage - startPage < maxPageButtons - 1) {
-            startPage = Math.max(1, endPage - maxPageButtons + 1);
-        }
-
-        if (startPage > 1) {
-            const btn = createPageButton(1);
-            pageNumbersDiv.appendChild(btn);
-            if (startPage > 2) {
-                const dots = document.createElement('span');
-                dots.textContent = '...';
-                dots.className = 'px-2 text-slate-400';
-                pageNumbersDiv.appendChild(dots);
+            // Data Fetch: AJAX
+            intelligenceLoading.classList.remove('opacity-0', 'pointer-events-none');
+            
+            try {
+                const response = await fetch(`?summary_by=${mode}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                if (response.ok) {
+                    const html = await response.text();
+                    intelligenceWrapper.innerHTML = html;
+                    
+                    // Update URL without reload
+                    window.history.pushState({}, '', `?summary_by=${mode}`);
+                }
+            } catch (error) {
+                console.error('Operational Summary Error:', error);
+            } finally {
+                intelligenceLoading.classList.add('opacity-0', 'pointer-events-none');
             }
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            const btn = createPageButton(i);
-            pageNumbersDiv.appendChild(btn);
-        }
-
-        if (endPage < totalPages) {
-            if (endPage < totalPages - 1) {
-                const dots = document.createElement('span');
-                dots.textContent = '...';
-                dots.className = 'px-2 text-slate-400';
-                pageNumbersDiv.appendChild(dots);
-            }
-            const btn = createPageButton(totalPages);
-            pageNumbersDiv.appendChild(btn);
-        }
-
-        // Show/Hide pagination container
-        if (filteredRows.length > pageSize) {
-            paginationContainer.classList.remove('hidden');
-            paginationContainer.classList.add('flex');
-        } else {
-            paginationContainer.classList.add('hidden');
-            paginationContainer.classList.remove('flex');
-        }
-    }
-
-    function createPageButton(pageNum) {
-        const btn = document.createElement('button');
-        btn.textContent = pageNum;
-        btn.onclick = () => goToPage(pageNum);
-        btn.className = `px-3 py-2 rounded-lg border transition-colors font-semibold text-sm ${
-            currentPage === pageNum
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
-        }`;
-        return btn;
-    }
-
-    function goToPage(pageNum) {
-        currentPage = pageNum;
-        updatePagination();
-    }
-
-    // Make functions globally available
-    window.previousPage = () => {
-        if (currentPage > 1) {
-            currentPage--;
-            updatePagination();
-        }
-    };
-    window.nextPage = () => {
-        const totalPages = Math.ceil(filteredRows.length / pageSize) || 1;
-        if (currentPage < totalPages) {
-            currentPage++;
-            updatePagination();
-        }
-    };
-    window.goToPage = goToPage;
-
-    // Initialize pagination on page load
-    updatePagination();
+        });
+    });
 });
 </script>
 {% endblock %}

@@ -2,12 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-from ..models import Child, ParentChildRelationship
+from ..models import Child, ParentChildRelationship, Group, Center
 from datetime import date, timedelta, datetime
 from children.models import WeeklyChildReport, DailyActivityLog, Attendance
 from children.forms import DailyCheckupForm, AttendanceForm
 from django.template.loader import render_to_string
 from django.http import HttpResponse
+from accounts.models import Educator
 
 @login_required(login_url="login")
 def export_weekly_daily_report_pdf(request, child_id):
@@ -253,16 +254,53 @@ def parent_export_attendance_pdf(request, child_id):
         return HttpResponse("WeasyPrint not installed", status=500)
 
 @login_required(login_url="login")
+def toggle_delegated_access(request):
+    if request.user.role_type != "director":
+        return render(request, "core/403.html", status=403)
+        
+    try:
+        center = request.user.director_profile.managed_center
+    except AttributeError:
+        messages.error(request, "No center assigned.")
+        return redirect("dashboard_redirect")
+
+    if request.method == "POST":
+        educator_id = request.POST.get('educator_id')
+        educator = get_object_or_404(Educator, user_id=educator_id, center=center)
+        educator.has_dashboard_access = not educator.has_dashboard_access
+        educator.save()
+        status = "granted" if educator.has_dashboard_access else "revoked"
+        messages.success(request, f"Global dashboard access {status} for {educator.user.full_name}.")
+        return redirect("attendance_board")
+
+    educators = Educator.objects.filter(center=center).select_related('user')
+    return render(request, "core/director/manage_delegation.html", {
+        "educators": educators,
+        "center": center
+    })
+
+@login_required(login_url="login")
 def attendance_board(request):
     user = request.user
-    if user.role_type != "educator":
-        return render(request, "core/403.html", status=403)
+    is_director = user.role_type == "director"
+    is_delegated = False
     
-    try:
-        educator_profile = user.educator_profile
-    except AttributeError:
-        messages.error(request, "Educator profile not found.")
-        return redirect("dashboard_redirect")
+    if not is_director:
+        if user.role_type != "educator":
+            return render(request, "core/403.html", status=403)
+        try:
+            educator_profile = user.educator_profile
+            is_delegated = educator_profile.has_dashboard_access
+        except AttributeError:
+            messages.error(request, "Educator profile not found.")
+            return redirect("dashboard_redirect")
+    else:
+        try:
+            director_profile = user.director_profile
+            center = director_profile.managed_center
+        except AttributeError:
+            messages.error(request, "Director profile not found.")
+            return redirect("dashboard_redirect")
 
     # Date handling
     date_str = request.GET.get('date')
@@ -277,6 +315,12 @@ def attendance_board(request):
 
     is_today = view_date == today
     
+    # Identify the center to work with
+    if is_director:
+        target_center = center
+    else:
+        target_center = educator_profile.center
+
     if request.method == "POST":
         if not is_today:
             messages.error(request, "You cannot modify attendance for previous dates.")
@@ -284,15 +328,15 @@ def attendance_board(request):
 
         child_id = request.POST.get('child_id')
         action = request.POST.get('action')
-        child = get_object_or_404(Child, child_id=child_id, assigned_educator=educator_profile)
+        
+        # Security check: Ensure child is in the same center
+        child = get_object_or_404(Child, child_id=child_id, center=target_center)
         
         if action == "quick_arrival":
-            # Check if there's already an open record
             open_record = Attendance.objects.filter(child=child, date=view_date, departure_time__isnull=True, is_absent=False).exists()
             if open_record:
                 messages.warning(request, f"{child.first_name} is already marked as present.")
             else:
-                # Check if they were previously marked absent
                 absence_record = Attendance.objects.filter(child=child, date=view_date, is_absent=True).first()
                 if absence_record:
                     absence_record.is_absent = False
@@ -325,38 +369,116 @@ def attendance_board(request):
         
         return redirect(f"/educator/attendance-board/?date={view_date}")
 
-    children = Child.objects.filter(assigned_educator=educator_profile).select_related('center', 'assigned_group')
+    # Filtering Logic
+    from django.db.models import Q
+    from django.core.paginator import Paginator
+
+    children_query = Child.objects.filter(center=target_center).select_related('assigned_group', 'assigned_educator', 'assigned_educator__user')
+    
+    # If not director and not delegated, only show assigned children
+    if not is_director and not is_delegated:
+        children_query = children_query.filter(assigned_educator=educator_profile)
+
+    # Filters from GET
+    group_filters = [f for f in request.GET.getlist('group') if f]
+    educator_filters = [f for f in request.GET.getlist('educator') if f]
+    age_group_filters = [f for f in request.GET.getlist('age_group') if f]
+    search_query = request.GET.get('q', '').strip()
+
+    if group_filters:
+        children_query = children_query.filter(assigned_group_id__in=group_filters)
+    if educator_filters:
+        children_query = children_query.filter(assigned_educator_id__in=educator_filters)
+    
+    if search_query:
+        children_query = children_query.filter(
+            Q(first_name__icontains=search_query) | 
+            Q(last_name__icontains=search_query)
+        )
+    
+    if age_group_filters:
+        age_query = Q()
+        today = date.today()
+        for ag in age_group_filters:
+            if ag == '0-23M':
+                cutoff = today - timedelta(days=24*30.44)
+                age_query |= Q(birth_date__gt=cutoff)
+            elif ag == '2Y':
+                c_start = today - timedelta(days=36*30.44)
+                c_end = today - timedelta(days=24*30.44)
+                age_query |= Q(birth_date__gt=c_start, birth_date__lte=c_end)
+            elif ag == '3Y':
+                c_start = today - timedelta(days=48*30.44)
+                c_end = today - timedelta(days=36*30.44)
+                age_query |= Q(birth_date__gt=c_start, birth_date__lte=c_end)
+            elif ag == '4Y':
+                c_start = today - timedelta(days=60*30.44)
+                c_end = today - timedelta(days=48*30.44)
+                age_query |= Q(birth_date__gt=c_start, birth_date__lte=c_end)
+            elif ag == '5Y+':
+                cutoff = today - timedelta(days=60*30.44)
+                age_query |= Q(birth_date__lte=cutoff)
+        
+        children_query = children_query.filter(age_query)
+
+    children_list = children_query.order_by('first_name')
+    
+    # Pagination
+    paginator = Paginator(children_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     attendance_data = []
-    for child in children:
+    for child in page_obj:
         records = Attendance.objects.filter(child=child, date=view_date).order_by('arrival_time')
-        
-        # A child is present if they have ANY record where is_absent=False
         has_present_record = records.filter(is_absent=False).exists()
-        
-        # A child is only truly absent if all records for the day say they are absent
-        # OR if they have an absence record and NO presence records
         is_absent = records.filter(is_absent=True).exists() and not has_present_record
         
-        current_record = records.filter(departure_time__isnull=True, is_absent=False).last()
+        # Determine if currently in based on the absolute last record
+        latest_record = records.last()
+        is_currently_in = False
+        if is_today and latest_record:
+            if not latest_record.is_absent and not latest_record.departure_time:
+                is_currently_in = True
         
         attendance_data.append({
             'child': child,
             'records': records.filter(is_absent=False),
-            'is_currently_in': current_record is not None if is_today else False,
+            'is_currently_in': is_currently_in,
             'is_absent': is_absent,
             'absence_record': records.filter(is_absent=True).first() if is_absent else None,
-            'latest_record': records.last()
+            'latest_record': latest_record
         })
+
+    # Data for filters
+    available_groups = Group.objects.filter(center=target_center).order_by('name')
+    available_educators = Educator.objects.filter(center=target_center).select_related('user').order_by('user__full_name')
+    age_groups = [('0-23M', '0-23M'), ('2Y', '2Y'), ('3Y', '3Y'), ('4Y', '4Y'), ('5Y+', '5Y+')]
 
     context = {
         "attendance_data": attendance_data,
+        "page_obj": page_obj,
         "view_date": view_date,
         "today": today,
         "is_today": is_today,
         "prev_day": view_date - timedelta(days=1),
         "next_day": view_date + timedelta(days=1) if view_date < today else None,
+        "is_director": is_director,
+        "is_delegated": is_delegated,
+        "available_groups": available_groups,
+        "available_educators": available_educators,
+        "age_groups": age_groups,
+        "current_filters": {
+            "group": group_filters,
+            "educator": educator_filters,
+            "age_group": age_group_filters,
+            "q": search_query
+        }
     }
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, "core/educators/includes/attendance_table_partial.html", context)
+
     return render(request, "core/educators/attendance_board.html", context)
 
 @login_required(login_url="login")

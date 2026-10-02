@@ -4,12 +4,12 @@ from .views import (
     login_view,
     dashboard_redirect,
     owner_dashboard,
-    director_dashboard,
     educator_dashboard,
     parent_dashboard,
     personal_profile,
     get_me,
 )
+from dashboard.all_views.director_views import director_dashboard
 from accounts import views
 
 urlpatterns = [

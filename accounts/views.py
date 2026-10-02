@@ -122,58 +122,6 @@ def owner_dashboard(request):
 
 
 @login_required
-def director_dashboard(request):
-    user = request.user
-    if user.role_type != 'director':
-        return redirect('dashboard_redirect')
-        
-    try:
-        director = user.director_profile
-        center = director.managed_center
-    except:
-        center = None
-    
-    groups = []
-    waitlist = []
-    total_educators = 0
-    active_children = 0
-    open_alerts = 0
-    overall_ratio = None
-    total_required_educators = 0
-
-    if center:
-        groups = center.groups.all().order_by('name')
-        # Recalculate ratios to ensure fresh data
-        for group in groups:
-            group.recalculate_ratios()
-            
-        waitlist = Child.objects.filter(center=center, status='waitlist').order_by('created_at')
-        
-        from .models import Educator
-        total_educators = Educator.objects.filter(center=center).count()
-        active_children = Child.objects.filter(center=center, status='active').count()
-        open_alerts = groups.filter(is_compliant=False).count()
-        
-        # Calculate overall center ratio and total required educators
-        total_required_educators = sum(g.required_educators for g in groups)
-        if total_educators > 0 and active_children > 0:
-            overall_ratio = active_children // total_educators
-
-    context = {
-        'center': center,
-        'groups': groups,
-        'waitlist': waitlist,
-        'user': user,
-        'total_educators': total_educators,
-        'active_children': active_children,
-        'open_alerts': open_alerts,
-        'overall_ratio': overall_ratio,
-        'total_required_educators': total_required_educators,
-    }
-    return render(request, "director_dashboard.html", context)
-
-
-@login_required(login_url="login")
 def educator_dashboard(request):
     user = request.user
     

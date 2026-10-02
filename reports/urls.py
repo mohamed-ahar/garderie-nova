@@ -34,6 +34,11 @@ urlpatterns = [
         views.view_illness_report,
         name="view_illness_report",
     ),
+    path(
+        "illness/download/<uuid:report_id>/",
+        views.download_illness_report_pdf,
+        name="download_illness_report_pdf",
+    ),
     # Reintegration Forms (Annexe 12)
     path(
         "reintegration/create/<uuid:child_id>/",
@@ -49,5 +54,10 @@ urlpatterns = [
         "reintegration/view/<uuid:form_id>/",
         views.view_reintegration_form,
         name="view_reintegration_form",
+    ),
+    path(
+        "reintegration/download/<uuid:form_id>/",
+        views.download_reintegration_form_pdf,
+        name="download_reintegration_form_pdf",
     ),
 ]

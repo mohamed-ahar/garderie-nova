@@ -159,6 +159,7 @@ class Educator(models.Model):
     )
     is_active_in_ratio = models.BooleanField(default=True)
     is_compliant = models.BooleanField(default=True)
+    has_dashboard_access = models.BooleanField(default=False, help_text="Allows educator to view global dashboard/attendance board")
     compliance_errors = models.JSONField(default=list, blank=True)
 
     def get_age_group_errors(self):

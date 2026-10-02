@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Signalement de maladie possible - {{ report.child.first_name }} {{ report.child.last_name }}</title>
+    <style>
+        @page { size: A4; margin: 1.5cm 1cm 1.5cm 1cm; }
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 10pt; line-height: 1.4; color: black; }
+        .header { text-align: center; border-bottom: 2px solid #e11d48; padding-bottom: 10px; margin-bottom: 20px; }
+        .title { font-size: 18pt; font-weight: bold; color: #e11d48; }
+        .subtitle { font-size: 11pt; color: #64748b; }
+        .section { margin-bottom: 20px; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; }
+        .section-title { background-color: #f8fafc; padding: 8px 12px; font-weight: bold; border-bottom: 1px solid #cbd5e1; text-transform: uppercase; font-size: 9pt; color: #475569; }
+        .section-content { padding: 12px; }
+        .grid { display: flex; flex-wrap: wrap; }
+        .col { flex: 1; min-width: 200px; padding: 5px; }
+        .label { font-size: 8pt; color: #64748b; text-transform: uppercase; font-weight: bold; }
+        .value { font-size: 11pt; font-weight: bold; margin-top: 2px; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 8px; border: 1px solid #e2e8f0; }
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
+        .checkbox-item { display: flex; align-items: center; margin-right: 15px; margin-bottom: 5px; }
+        .checkbox { display: inline-block; width: 14px; height: 14px; border: 1px solid black; margin-right: 8px; text-align: center; line-height: 14px; font-weight: bold; }
+        .checked::after { content: "X"; }
+        .signature-box { margin-top: 30px; display: flex; justify-content: space-between; }
+        .signature-item { width: 45%; border-top: 1px solid black; padding-top: 10px; text-align: center; }
+        .signature-img { max-height: 80px; max-width: 100%; margin-bottom: 5px; }
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; font-size: 8pt; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="subtitle">Annexe 11</div>
+        <div class="title">Signalement de maladie possible</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Informations de l'enfant et de l'établissement</div>
+        <div class="section-content">
+            <table style="border: none;">
+                <tr style="border: none;">
+                    <td style="border: none; width: 50%;">
+                        <span class="label">Enfant</span>
+                        <div class="value">{{ report.child.first_name }} {{ report.child.last_name }}</div>
+                        <span class="label" style="margin-top: 10px; display: block;">Date de naissance</span>
+                        <div class="value">{{ report.child.birth_date|date:"d F Y" }}</div>
+                    </td>
+                    <td style="border: none; width: 50%;">
+                        <span class="label">Établissement</span>
+                        <div class="value">{{ center.name }}</div>
+                        <span class="label" style="margin-top: 10px; display: block;">Numéro de permis</span>
+                        <div class="value">{{ center.permit_number|default:"N/A" }}</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Symptômes observés</div>
+        <div class="section-content">
+            <div class="label" style="margin-bottom: 10px;">Symptômes :</div>
+            <div class="checkbox-group">
+                {% for label in symptom_labels %}
+                    <div class="checkbox-item">
+                        <span class="checkbox checked"></span> {{ label }}
+                    </div>
+                {% endfor %}
+            </div>
+            {% if report.explanation %}
+                <div class="label" style="margin-top: 15px;">Explications détaillées :</div>
+                <div style="margin-top: 5px; border: 1px solid #e2e8f0; padding: 10px; background-color: #f8fafc; border-radius: 4px;">
+                    {{ report.explanation|linebreaks }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Signes vitaux et Médicaments</div>
+        <div class="section-content">
+            <table>
+                <tr>
+                    <td style="width: 33%;">
+                        <span class="label">Température</span>
+                        <div class="value">{{ report.temperature|default:"--" }} °C</div>
+                    </td>
+                    <td style="width: 33%;">
+                        <span class="label">Heure de la prise</span>
+                        <div class="value">{{ report.time_taken|time:"H:i"|default:"--" }}</div>
+                    </td>
+                    <td style="width: 33%;">
+                        <span class="label">Médicament administré ?</span>
+                        <div class="value">{% if report.medication_administered %}OUI{% else %}NON{% endif %}</div>
+                    </td>
+                </tr>
+                {% if report.medication_administered %}
+                <tr>
+                    <td colspan="3">
+                        <span class="label">Détails du médicament (nom et dose)</span>
+                        <div class="value">{{ report.medication_details }}</div>
+                    </td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Santé Publique</div>
+        <div class="section-content">
+            <table style="border: none;">
+                <tr style="border: none;">
+                    <td style="border: none; width: 50%;">
+                        <span class="label">Signalé à Santé publique ?</span>
+                        <div class="value">{% if report.reported_to_public_health %}OUI{% else %}NON{% endif %}</div>
+                    </td>
+                    <td style="border: none; width: 50%;">
+                        <span class="label">Date de communication</span>
+                        <div class="value">{{ report.public_health_communication_date|date:"d F Y"|default:"N/A" }}</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div style="margin-top: 40px;">
+        <div style="display: flex; justify-content: space-between;">
+            <div style="width: 45%;">
+                <span class="label">Signature du membre du personnel</span>
+                <div style="height: 100px; border-bottom: 1px solid black; margin-top: 10px; position: relative;">
+                    {% if report.staff_signature_data %}
+                        <img src="{{ report.staff_signature_data }}" class="signature-img">
+                    {% endif %}
+                </div>
+                <div style="font-size: 9pt; font-weight: bold; margin-top: 5px;">{{ report.staff_member.user.full_name }}</div>
+                <div style="font-size: 8pt; color: #64748b;">Le {{ report.date|date:"d F Y" }} à {{ report.parent_notified_at|time:"H:i" }}</div>
+            </div>
+            
+            <div style="width: 45%;">
+                <span class="label">Signature du parent (à la récupération)</span>
+                <div style="height: 100px; border-bottom: 1px solid black; margin-top: 10px;">
+                    {% if report.parent_signature_data %}
+                        <img src="{{ report.parent_signature_data }}" class="signature-img">
+                    {% endif %}
+                </div>
+                <div style="font-size: 8pt; color: #64748b; margin-top: 5px;">
+                    Heure de départ: {{ report.departure_time|time:"H:i"|default:"____:____" }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Généré par GarderieNova le {{ generated_date|date:"d/m/Y H:i" }} - Page 1/1
+    </div>
+</body>
+</html>

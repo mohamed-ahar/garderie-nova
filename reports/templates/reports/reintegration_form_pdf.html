@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulaire de réintégration après exclusion - {{ form.child.first_name }} {{ form.child.last_name }}</title>
+    <style>
+        @page { size: A4; margin: 1.5cm 1cm 1.5cm 1cm; }
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 10pt; line-height: 1.4; color: black; }
+        .header { text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 10px; margin-bottom: 20px; }
+        .title { font-size: 18pt; font-weight: bold; color: #10b981; }
+        .subtitle { font-size: 11pt; color: #64748b; }
+        .section { margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; }
+        .section-title { background-color: #f8fafc; padding: 8px 12px; font-weight: bold; border-bottom: 1px solid #cbd5e1; text-transform: uppercase; font-size: 9pt; color: #475569; }
+        .section-content { padding: 12px; }
+        .label { font-size: 8pt; color: #64748b; text-transform: uppercase; font-weight: bold; }
+        .value { font-size: 11pt; font-weight: bold; margin-top: 2px; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 8px; border: 1px solid #e2e8f0; }
+        .signature-box { margin-top: 20px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+        .signature-img { max-height: 70px; max-width: 100%; margin-bottom: 5px; }
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; font-size: 8pt; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 5px; }
+        .checkbox { display: inline-block; width: 14px; height: 14px; border: 1px solid black; margin-right: 8px; text-align: center; line-height: 14px; font-weight: bold; }
+        .checked::after { content: "X"; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="subtitle">Annexe 12</div>
+        <div class="title">Réintégration après exclusion</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Section A : Établissement et Enfant</div>
+        <div class="section-content">
+            <table>
+                <tr style="border: none;">
+                    <td style="border: none; width: 50%;">
+                        <span class="label">Établissement</span>
+                        <div class="value">{{ center.name }}</div>
+                        <div class="value" style="font-size: 9pt; font-weight: normal;">{{ center.address }}</div>
+                        <span class="label" style="margin-top: 10px; display: block;">Numéro de permis</span>
+                        <div class="value">{{ center.permit_number|default:"N/A" }}</div>
+                    </td>
+                    <td style="border: none; width: 50%;">
+                        <span class="label">Enfant</span>
+                        <div class="value">{{ form.child.first_name }} {{ form.child.last_name }}</div>
+                        <span class="label" style="margin-top: 10px; display: block;">Date de naissance</span>
+                        <div class="value">{{ form.child.birth_date|date:"d F Y" }}</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Section B : Renseignements sur la maladie</div>
+        <div class="section-content">
+            <div class="label" style="margin-bottom: 5px;">Maladie(s) :</div>
+            <div style="margin-bottom: 15px;">
+                {% for label in illness_labels %}
+                    <span style="display: inline-block; background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-weight: bold; margin-right: 5px; border: 1px solid #e2e8f0;">{{ label }}</span>
+                {% endfor %}
+            </div>
+            <table>
+                <tr>
+                    <td style="width: 33%;">
+                        <span class="label">Date du début</span>
+                        <div class="value">{{ form.illness_start_date|date:"d F Y" }}</div>
+                    </td>
+                    <td style="width: 33%;">
+                        <span class="label">Date du diagnostic</span>
+                        <div class="value">{{ form.diagnosis_date|date:"d F Y"|default:"N/A" }}</div>
+                    </td>
+                    <td style="width: 33%;">
+                        <span class="label">Début du traitement</span>
+                        <div class="value">{{ form.treatment_start_date|date:"d F Y"|default:"N/A" }}</div>
+                    </td>
+                </tr>
+            </table>
+            <div style="margin-top: 10px; padding: 8px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 4px;">
+                <span class="checkbox {% if form.is_public_health_required %}checked{% endif %}"></span>
+                <span style="font-size: 9pt; font-weight: bold;">Maladie à déclaration obligatoire</span>
+                <div style="font-size: 8pt; color: #92400e; margin-left: 25px;">(E. coli, Shigella ou Salmonella typhi)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Section C : Confirmation (Membre du personnel et Parent)</div>
+        <div class="section-content">
+            <p style="font-size: 9pt; font-style: italic; margin-bottom: 15px;">
+                Nous confirmons que l'enfant satisfait aux critères de réintégration prévus dans le document Gestion de la maladie dans les garderies éducatives – Rôle du parent.
+            </p>
+            <div style="display: flex; justify-content: space-between;">
+                <div style="width: 48%;">
+                    <span class="label">Membre du personnel</span>
+                    <div style="border-bottom: 1px solid black; min-height: 80px; margin-top: 5px; position: relative;">
+                        {% if form.staff_signature_data %}
+                            <img src="{{ form.staff_signature_data }}" class="signature-img">
+                        {% endif %}
+                    </div>
+                    <div style="font-weight: bold; font-size: 9pt; margin-top: 5px;">{{ form.staff_member.full_name }}</div>
+                    <div style="font-size: 8pt; color: #64748b;">Date: {{ form.staff_signature_date|date:"d/m/Y" }}</div>
+                </div>
+                <div style="width: 48%;">
+                    <span class="label">Parent</span>
+                    <div style="border-bottom: 1px solid black; min-height: 80px; margin-top: 5px; position: relative;">
+                        {% if form.parent_signature_data %}
+                            <img src="{{ form.parent_signature_data }}" class="signature-img">
+                        {% endif %}
+                    </div>
+                    <div style="font-weight: bold; font-size: 9pt; margin-top: 5px;">{{ form.parent.full_name|default:"________________" }}</div>
+                    <div style="font-size: 8pt; color: #64748b;">Date: {{ form.parent_signature_date|date:"d/m/Y"|default:"____/____/____" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if form.is_public_health_required %}
+    <div class="section" style="border-color: #fde68a;">
+        <div class="section-title" style="background-color: #fffbeb; color: #92400e;">Section D : Confirmation de Santé Publique</div>
+        <div class="section-content">
+            <div style="margin-bottom: 10px;">
+                <span class="checkbox {% if form.ph_ecoli_shigella_negative %}checked{% endif %}"></span>
+                <span style="font-size: 9pt;">E. coli ou Shigella : Résultats négatifs de deux prélèvements de selles effectués à au moins 24 h d'intervalle.</span>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <span class="checkbox {% if form.ph_salmonella_negative %}checked{% endif %}"></span>
+                <span style="font-size: 9pt;">Salmonella typhi : Résultats négatifs de prélèvements de selles conformément aux directives de Santé publique.</span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div style="width: 60%;">
+                    <span class="label">Représentant de Santé publique</span>
+                    <div style="border-bottom: 1px solid black; min-height: 60px; margin-top: 5px;">
+                         {% if form.ph_signature_data %}
+                            <img src="{{ form.ph_signature_data }}" class="signature-img">
+                        {% endif %}
+                    </div>
+                    <div style="font-weight: bold; font-size: 9pt; margin-top: 5px;">{{ form.ph_representative_name|default:"________________" }}</div>
+                </div>
+                <div style="width: 35%;">
+                    <span class="label">Date</span>
+                    <div class="value">{{ form.ph_signature_date|date:"d F Y"|default:"____/____/____" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        Généré par GarderieNova le {{ generated_date|date:"d/m/Y H:i" }} - Page 1/1
+    </div>
+</body>
+</html>

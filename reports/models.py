@@ -167,8 +167,8 @@ class ReintegrationForm(models.Model):
     date = models.DateField(default=timezone.now)
 
     # Section B - Child Info
-    illness_name = models.CharField(max_length=255)
-    illness_start_date = models.DateField()
+    illnesses = models.JSONField(default=list, help_text="Liste des maladies sélectionnées")
+    illness_start_date = models.DateField(null=True, blank=True)
     diagnosis_date = models.DateField(null=True, blank=True)
     treatment_start_date = models.DateField(null=True, blank=True)
 
