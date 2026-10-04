@@ -26,7 +26,8 @@ class CustomUserManager(BaseUserManager):
 
 def user_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return '{0}/{1}/{2}'.format(instance.role_type, instance.user_id, filename)
+    return "{0}/{1}/{2}".format(instance.role_type, instance.user_id, filename)
+
 
 class User(AbstractUser):
     """
@@ -47,7 +48,9 @@ class User(AbstractUser):
     email = models.EmailField(_("email address"), unique=True)
     full_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
-    profile_photo = models.ImageField(upload_to=user_directory_path, blank=True, null=True)
+    profile_photo = models.ImageField(
+        upload_to=user_directory_path, blank=True, null=True
+    )
 
     role_type = models.CharField(max_length=20, choices=ROLE_CHOICES)
 
@@ -104,7 +107,11 @@ class Director(models.Model):
     qualification_cert = models.CharField(max_length=100, blank=True)
     hired_at = models.DateField(null=True, blank=True)
     organization = models.ForeignKey(
-        "dashboard.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="directors"
+        "dashboard.Organization",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="directors",
     )
 
     def __str__(self):
@@ -119,23 +126,23 @@ class ViceDirector(models.Model):
         primary_key=True,
         related_name="vice_director_profile",
     )
-    
+
     # Organization: Darouriya bach n-3rfo l-staff dyal ay Owner
     organization = models.ForeignKey(
-        "dashboard.Organization", 
-        on_delete=models.CASCADE, 
+        "dashboard.Organization",
+        on_delete=models.CASCADE,
         related_name="vice_directors",
-        null=True, 
-        blank=True
+        null=True,
+        blank=True,
     )
-    
+
     # Center: Optional (null=True) bach n-qdro n-creeyohom "Pending"
     center = models.ForeignKey(
-        "dashboard.Center", 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True, 
-        related_name="vice_directors"
+        "dashboard.Center",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="vice_directors",
     )
 
     # Permissions khassin (JSON) bach ila bghina n-3tiwhom access l-chi 7aja khassa
@@ -147,6 +154,8 @@ class ViceDirector(models.Model):
 
     def __str__(self):
         return f"Vice Director: {self.user.full_name}"
+
+
 class Educator(models.Model):
     user = models.OneToOneField(
         User,
@@ -159,7 +168,10 @@ class Educator(models.Model):
     )
     is_active_in_ratio = models.BooleanField(default=True)
     is_compliant = models.BooleanField(default=True)
-    has_dashboard_access = models.BooleanField(default=False, help_text="Allows educator to view global dashboard/attendance board")
+    has_dashboard_access = models.BooleanField(
+        default=False,
+        help_text="Allows educator to view global dashboard/attendance board",
+    )
     compliance_errors = models.JSONField(default=list, blank=True)
 
     def get_age_group_errors(self):
@@ -169,10 +181,10 @@ class Educator(models.Model):
         """
         children = self.assigned_children.all()
         errors = []
-        
+
         if not children.exists():
             return errors
-        
+
         has_under_24m = False
         has_over_24m = False
         today = date.today()
@@ -192,8 +204,10 @@ class Educator(models.Model):
                 has_over_24m = True
 
         if has_under_24m and has_over_24m:
-            errors.append("Educator cannot supervise both children under 24 months and older children.")
-        
+            errors.append(
+                "Educator cannot supervise both children under 24 months and older children."
+            )
+
         return errors
 
     def get_ratio_errors(self):
@@ -203,7 +217,7 @@ class Educator(models.Model):
         """
         children = self.assigned_children.all()
         errors = []
-        
+
         if not children.exists():
             return errors
 
@@ -230,18 +244,20 @@ class Educator(models.Model):
                 factor = 0.100
             else:
                 factor = 0.067
-            
+
             total_factor += factor
 
         if total_factor > 1.05:
-            errors.append(f"Ratio exceeded for this educator (Points: {total_factor:.3f} / 1.05 max).")
+            errors.append(
+                f"Ratio exceeded for this educator (Points: {total_factor:.3f} / 1.05 max)."
+            )
 
         return errors
 
     def recalculate_compliance(self):
         children = self.assigned_children.all()
         errors = []
-        
+
         if not children.exists():
             self.is_compliant = True
             self.compliance_errors = []
@@ -263,7 +279,7 @@ class Educator(models.Model):
         """
         Returns the active group this educator is currently assigned to.
         """
-        # Note: We use .all() and filter in-memory if prefetched, 
+        # Note: We use .all() and filter in-memory if prefetched,
         # but for simplicity we can just use the manager if not prefetched.
         # If prefetched, assignments.all() will be populated.
         active_assignments = [a for a in self.assignments.all() if a.is_active]
@@ -282,6 +298,8 @@ class ParentProfile(models.Model):
 
     def __str__(self):
         return f"Parent: {self.user.full_name}"
+
+
 class EducatorPrincipal(models.Model):
     user = models.OneToOneField(
         User,
@@ -290,9 +308,7 @@ class EducatorPrincipal(models.Model):
         related_name="educator_principal_profile",
     )
     center = models.ForeignKey(
-        "dashboard.Center", 
-        on_delete=models.CASCADE, 
-        related_name="principals"
+        "dashboard.Center", on_delete=models.CASCADE, related_name="principals"
     )
 
     def get_center_compliance_report(self):
@@ -302,15 +318,17 @@ class EducatorPrincipal(models.Model):
         """
         # Fetch all educators in the same center
         educators = self.center.educators.all()
-        
+
         report = []
         for educator in educators:
-            report.append({
-                "name": educator.user.full_name,
-                "is_compliant": educator.is_compliant,
-                "errors": educator.compliance_errors,
-                # Triggering recalculation if necessary
-            })
+            report.append(
+                {
+                    "name": educator.user.full_name,
+                    "is_compliant": educator.is_compliant,
+                    "errors": educator.compliance_errors,
+                    # Triggering recalculation if necessary
+                }
+            )
         return report
 
     def __str__(self):

@@ -302,9 +302,9 @@ class Group(models.Model):
             if today.day < child.birth_date.day:
                 age_months -= 1
 
-            if age_months <= 24:
+            if age_months < 24:
                 dist["De la naissance à 24 mois"] += 1
-            elif 24 < age_months < 36:
+            elif 24 <= age_months < 36:
                 dist["Deux ans"] += 1
             elif 36 <= age_months < 48:
                 dist["Trois ans"] += 1

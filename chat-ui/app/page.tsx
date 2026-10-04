@@ -15,6 +15,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useChat } from "@/hooks/use-chat";
 import { getCookie } from "@/lib/utils";
 import { MediaPreview } from "@/components/media-preview";
+import { FeedView } from "@/components/feed-view";
 
 export default function Home() {
   const [currentUser, setCurrentUser] = useState<{ id: string; name: string; role: string; profile_photo?: string | null } | null>(null);
@@ -22,6 +23,8 @@ export default function Home() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isContactsLoading, setIsContactsLoading] = useState(true);
   const [onlineStatuses, setOnlineStatuses] = useState<Record<string, {is_online: boolean, last_seen?: string}>>({});
+  const [activeView, setActiveView] = useState<"chat" | "feed">("chat");
+  const [activeFeedFilter, setActiveFeedFilter] = useState("all");
   
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
@@ -363,7 +366,7 @@ export default function Home() {
     // Updated container: using bg-muted/20 to give a slight contrast to the white chat area
     <main className="flex h-screen w-full bg-muted/20 overflow-hidden font-sans">
 
-      {/* 1. LEFT SIDEBAR - The sidebar component should automatically pick up the 'dark' sidebar vars from globals.css */}
+      {/* 1. LEFT SIDEBAR */}
       <ChatSidebar
         onSelectChat={(id) => { }}
         onSelectContact={handleSelectChat}
@@ -372,13 +375,24 @@ export default function Home() {
         contacts={contacts}
         loading={isContactsLoading}
         onRefreshContacts={fetchContacts}
+        activeView={activeView}
+        onViewChange={(v) => {
+          setActiveView(v);
+          if (v === "feed") setSelectedContact(null);
+        }}
+        activeFeedFilter={activeFeedFilter}
+        onFeedFilterChange={setActiveFeedFilter}
       />
 
       {/* 2. MAIN CONTENT AREA */}
       <div className="flex flex-1 flex-col h-full relative">
 
-        {/* Top Decorative Header (Optional, mimics the dashboard header space) */}
-        {!selectedContact && currentUser && (
+        {activeView === "feed" ? (
+          <FeedView currentUser={currentUser} activeFeedFilter={activeFeedFilter} />
+        ) : (
+          <>
+            {/* Top Decorative Header (Optional, mimics the dashboard header space) */}
+            {!selectedContact && currentUser && (
           <div className="absolute top-8 left-8 right-8 z-0 opacity-50 pointer-events-none">
             <h1 className="text-4xl font-bold tracking-tight text-foreground">
               Welcome back, <br />
@@ -629,9 +643,11 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </div>
+      </>
+    )}
+  </div>
 
-      {/* Media Preview Overlay */}
+  {/* Media Preview Overlay */}
       <MediaPreview
         isOpen={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}

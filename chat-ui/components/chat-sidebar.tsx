@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquare, Plus, Search, Settings, Filter, FilterX } from "lucide-react";
+import { MessageSquare, Plus, Search, Settings, Filter, FilterX, LayoutGrid, Bell, Image as ImageIcon, Calendar, FileText, Video } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -59,6 +59,10 @@ interface ChatSidebarProps {
   loading: boolean;
 
   onRefreshContacts?: () => void;
+  activeView?: "chat" | "feed";
+  onViewChange?: (view: "chat" | "feed") => void;
+  activeFeedFilter?: string;
+  onFeedFilterChange?: (filter: string) => void;
 
 }
 
@@ -68,7 +72,7 @@ type FilterRole = "all" | "director" | "educator" | "parent";
 
 
 
-export function ChatSidebar({ onSelectChat, onSelectContact, currentUser, selectedId, contacts, loading, onRefreshContacts }: ChatSidebarProps) {
+export function ChatSidebar({ onSelectChat, onSelectContact, currentUser, selectedId, contacts, loading, onRefreshContacts, activeView = "chat", onViewChange, activeFeedFilter = "all", onFeedFilterChange }: ChatSidebarProps) {
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -77,8 +81,6 @@ export function ChatSidebar({ onSelectChat, onSelectContact, currentUser, select
   const [activeTab, setActiveTab] = useState<FilterRole>("all");
 
   const [isFilterEnabled, setIsFilterEnabled] = useState(true);
-
-
 
   const filteredContacts = contacts.filter(c => {
 
@@ -110,13 +112,31 @@ export function ChatSidebar({ onSelectChat, onSelectContact, currentUser, select
 
     <div className="flex flex-col h-full w-80 border-r bg-muted/20">
 
-      
+      {/* View Switcher Tabs */}
+      <div className="flex p-2 gap-2 bg-background border-b shrink-0">
+        <Button 
+          variant={activeView === "chat" ? "default" : "ghost"} 
+          className={cn("flex-1 h-10 gap-2 font-bold uppercase tracking-widest text-[10px]", activeView === "chat" ? "shadow-md" : "")}
+          onClick={() => onViewChange?.("chat")}
+        >
+          <MessageSquare className="h-4 w-4" />
+          Messages
+        </Button>
+        <Button 
+          variant={activeView === "feed" ? "default" : "ghost"} 
+          className={cn("flex-1 h-10 gap-2 font-bold uppercase tracking-widest text-[10px]", activeView === "feed" ? "shadow-md" : "")}
+          onClick={() => onViewChange?.("feed")}
+        >
+          <LayoutGrid className="h-4 w-4" />
+          Center Feed
+        </Button>
+      </div>
 
-      {/* Sidebar Header */}
-
-      <div className="p-4 border-b flex items-center justify-between sticky top-0 bg-background z-10">
-
-        <h2 className="font-semibold text-lg tracking-tight">Messages</h2>
+      {activeView === "chat" && (
+        <>
+          {/* Sidebar Header */}
+          <div className="p-4 border-b flex items-center justify-between sticky top-0 bg-background z-10">
+            <h2 className="font-semibold text-lg tracking-tight">Direct Chats</h2>
 
         <div className="flex gap-1">
 
@@ -321,10 +341,81 @@ export function ChatSidebar({ onSelectChat, onSelectContact, currentUser, select
           )}
 
         </div>
-
       </ScrollArea>
+      </>
+      )}
 
+      {activeView === "feed" && (
+        <div className="flex-1 flex flex-col bg-background">
+          <div className="p-4 border-b">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4">Quick Filters</h3>
+            <div className="space-y-1">
+              <Button 
+                variant={activeFeedFilter === "all" ? "secondary" : "ghost"} 
+                onClick={() => onFeedFilterChange?.("all")}
+                className={cn("w-full justify-start gap-3 h-11 px-4 rounded-xl text-sm", activeFeedFilter === "all" ? "shadow-sm border-0 font-semibold" : "font-medium text-muted-foreground hover:text-foreground")}
+              >
+                <LayoutGrid className={cn("h-4 w-4", activeFeedFilter === "all" ? "text-primary" : "")} />
+                All Updates
+              </Button>
+              <Button 
+                variant={activeFeedFilter === "announcements" ? "secondary" : "ghost"} 
+                onClick={() => onFeedFilterChange?.("announcements")}
+                className={cn("w-full justify-start gap-3 h-11 px-4 rounded-xl text-sm", activeFeedFilter === "announcements" ? "shadow-sm border-0 font-semibold" : "font-medium text-muted-foreground hover:text-foreground")}
+              >
+                <Bell className={cn("h-4 w-4", activeFeedFilter === "announcements" ? "text-primary" : "")} />
+                Announcements
+              </Button>
+              <Button 
+                variant={activeFeedFilter === "photos" ? "secondary" : "ghost"} 
+                onClick={() => onFeedFilterChange?.("photos")}
+                className={cn("w-full justify-start gap-3 h-11 px-4 rounded-xl text-sm", activeFeedFilter === "photos" ? "shadow-sm border-0 font-semibold" : "font-medium text-muted-foreground hover:text-foreground")}
+              >
+                <ImageIcon className={cn("h-4 w-4", activeFeedFilter === "photos" ? "text-primary" : "")} />
+                Photos
+              </Button>
+              <Button 
+                variant={activeFeedFilter === "videos" ? "secondary" : "ghost"} 
+                onClick={() => onFeedFilterChange?.("videos")}
+                className={cn("w-full justify-start gap-3 h-11 px-4 rounded-xl text-sm", activeFeedFilter === "videos" ? "shadow-sm border-0 font-semibold" : "font-medium text-muted-foreground hover:text-foreground")}
+              >
+                <Video className={cn("h-4 w-4", activeFeedFilter === "videos" ? "text-primary" : "")} />
+                Videos
+              </Button>
+              <Button 
+                variant={activeFeedFilter === "events" ? "secondary" : "ghost"} 
+                onClick={() => onFeedFilterChange?.("events")}
+                className={cn("w-full justify-start gap-3 h-11 px-4 rounded-xl text-sm", activeFeedFilter === "events" ? "shadow-sm border-0 font-semibold" : "font-medium text-muted-foreground hover:text-foreground")}
+              >
+                <Calendar className={cn("h-4 w-4", activeFeedFilter === "events" ? "text-primary" : "")} />
+                Events
+              </Button>
+            </div>
+          </div>
 
+          <div className="p-4">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4">Resources</h3>
+            <div className="p-4 rounded-2xl bg-muted/30 border border-dashed flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-background flex items-center justify-center border shadow-sm">
+                  <FileText className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <div className="text-xs font-bold truncate">Center Documents</div>
+                  <div className="text-[10px] text-muted-foreground">Rules & Policies</div>
+                </div>
+              </div>
+              <Button variant="outline" size="sm" className="w-full rounded-xl text-[10px] font-bold h-8 uppercase tracking-wider">View Files</Button>
+            </div>
+          </div>
+
+          <div className="mt-auto p-6 text-center">
+            <p className="text-[10px] text-muted-foreground leading-relaxed">
+              Stay updated with the latest news and announcements from your center.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* User Footer */}
 
