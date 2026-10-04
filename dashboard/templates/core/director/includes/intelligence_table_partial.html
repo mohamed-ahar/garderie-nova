@@ -6,13 +6,13 @@
                     <tr class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                         <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{{ grouping_mode|capfirst }} Name</th>
                         <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">In Center</th>
-                        <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status Bar</th>
+                        <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Ratio / Staff</th>
                         <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Total</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
                     {% for item in intelligence_summary %}
-                    <tr class="group hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors">
+                    <tr class="group hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors cursor-pointer clickable-row" data-url="{{ item.url }}">
                         <td class="px-8 py-6">
                             <span class="text-sm font-black text-slate-900 dark:text-white">{{ item.label }}</span>
                         </td>
@@ -23,17 +23,17 @@
                             </div>
                         </td>
                         <td class="px-8 py-6">
-                            <div class="flex h-2.5 w-40 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800">
-                                {% if item.total > 0 %}
-                                <div class="h-full bg-emerald-500" style="width: {% widthratio item.in item.total 100 %}%"></div>
-                                <div class="h-full bg-blue-400" style="width: {% widthratio item.out item.total 100 %}%"></div>
-                                <div class="h-full bg-rose-400" style="width: {% widthratio item.absent item.total 100 %}%"></div>
-                                {% endif %}
-                            </div>
-                            <div class="flex gap-3 mt-2">
-                                <span class="text-[8px] font-bold text-emerald-500 uppercase">{{ item.in }} In</span>
-                                <span class="text-[8px] font-bold text-blue-400 uppercase">{{ item.out }} Out</span>
-                                <span class="text-[8px] font-bold text-rose-400 uppercase">{{ item.absent }} Abs</span>
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-black text-slate-700 dark:text-slate-200">{{ item.total_factor|stringformat:".3f" }} pts</span>
+                                    <span class="text-[10px] font-bold text-slate-400">/ {{ item.required_educators }} Staff</span>
+                                </div>
+                                <div class="text-[10px] font-bold {% if not item.is_compliant %}text-rose-500{% else %}text-slate-400{% endif %} uppercase tracking-widest">
+                                    Cap: {{ item.in }} / {{ item.calculated_max_capacity }}
+                                    {% if not item.is_compliant %}
+                                    <i class="fa-solid fa-triangle-exclamation ml-1"></i>
+                                    {% endif %}
+                                </div>
                             </div>
                         </td>
                         <td class="px-8 py-6 text-right">

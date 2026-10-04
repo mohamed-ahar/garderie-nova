@@ -26,6 +26,11 @@ urlpatterns = [
     path("educator/weekly-attendance/export/", export_attendance_pdf, name="export_attendance_pdf"),
     path("educator/weekly-report/<uuid:child_id>/export/", export_weekly_daily_report_pdf, name="export_weekly_daily_report_pdf"),
     
+    # Temporary Child Transfer URLs
+    path("educator/transfer/<uuid:child_id>/initiate/", initiate_temporary_transfer, name="initiate_temporary_transfer"),
+    path("educator/transfer/<uuid:transfer_id>/request-return/", request_transfer_return, name="request_transfer_return"),
+    path("educator/transfer/<uuid:transfer_id>/accept-return/", accept_transfer_return, name="accept_transfer_return"),
+    
     # Parent export URLs
     path("parent/weekly-report/<uuid:child_id>/export/", parent_export_weekly_report_pdf, name="parent_export_weekly_report_pdf"),
     path("parent/attendance/<uuid:child_id>/export/", parent_export_attendance_pdf, name="parent_export_attendance_pdf"),

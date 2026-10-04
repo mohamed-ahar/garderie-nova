@@ -111,14 +111,17 @@ def director_dashboard(request):
             overall_ratio = active_children_count // total_educators
 
         # Build intelligence summary based on grouping
+        from ..utils import calculate_ratio_stats
+        from django.urls import reverse
+        
         if grouping_mode == 'age':
             # Categories matching our filter: 0-23M, 2Y, 3Y, 4Y, 5Y+
             age_groups = {
-                '0-23M': {'label': '0-23 Months', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0},
-                '2Y': {'label': '2 Years', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0},
-                '3Y': {'label': '3 Years', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0},
-                '4Y': {'label': '4 Years', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0},
-                '5Y+': {'label': '5+ Years', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0},
+                '0-23M': {'label': '0-23 Months', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0, 'children_in': [], 'all_children': []},
+                '2Y': {'label': '2 Years', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0, 'children_in': [], 'all_children': []},
+                '3Y': {'label': '3 Years', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0, 'children_in': [], 'all_children': []},
+                '4Y': {'label': '4 Years', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0, 'children_in': [], 'all_children': []},
+                '5Y+': {'label': '5+ Years', 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0, 'children_in': [], 'all_children': []},
             }
             
             for child in active_children:
@@ -131,71 +134,88 @@ def director_dashboard(request):
                 elif 36 <= age_months < 48: cat = '3Y'
                 elif 48 <= age_months < 60: cat = '4Y'
                 
+                age_groups[cat]['all_children'].append(child)
                 att = child_attendance_map.get(child.child_id)
                 status = 'not_arrived'
                 if att:
                     if att.is_absent: status = 'absent'
                     elif att.departure_time: status = 'out'
-                    else: status = 'in'
+                    else: 
+                        status = 'in'
+                        age_groups[cat]['children_in'].append(child)
                 
                 age_groups[cat][status] += 1
                 age_groups[cat]['total'] += 1
                 attendance_summary[status] += 1
             
-            intelligence_summary = [{'key': k, **v} for k, v in age_groups.items() if v['total'] > 0]
+            for cat, data in age_groups.items():
+                if data['total'] > 0:
+                    stats = calculate_ratio_stats(data['children_in'], data['all_children'])
+                    data.update(stats)
+                    url = f"{reverse('attendance_board')}?date={today}&age_group={cat}"
+                    intelligence_summary.append({'key': cat, 'url': url, **data})
 
         elif grouping_mode == 'educator':
             educator_data = {}
             for child in active_children:
-                ed = child.assigned_educator
+                # Use current educator (considering temp transfers)
+                ed = child.get_current_educator
                 ed_id = ed.user_id if ed else 'unassigned'
                 ed_name = ed.user.full_name if ed else 'Unassigned'
                 
                 if ed_id not in educator_data:
-                    educator_data[ed_id] = {'label': ed_name, 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0}
+                    educator_data[ed_id] = {'label': ed_name, 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0, 'children_in': [], 'all_children': []}
                 
+                educator_data[ed_id]['all_children'].append(child)
                 att = child_attendance_map.get(child.child_id)
                 status = 'not_arrived'
                 if att:
                     if att.is_absent: status = 'absent'
                     elif att.departure_time: status = 'out'
-                    else: status = 'in'
+                    else: 
+                        status = 'in'
+                        educator_data[ed_id]['children_in'].append(child)
                 
                 educator_data[ed_id][status] += 1
                 educator_data[ed_id]['total'] += 1
                 attendance_summary[status] += 1
             
-            intelligence_summary = [{'key': k, **v} for k, v in educator_data.items()]
+            for ed_id, data in educator_data.items():
+                stats = calculate_ratio_stats(data['children_in'], data['all_children'])
+                data.update(stats)
+                url = reverse('educator_detail', kwargs={'user_id': ed_id}) if ed_id != 'unassigned' else "#"
+                intelligence_summary.append({'key': ed_id, 'url': url, **data})
 
         else: # Group grouping (default)
-            group_data = {}
-            for group in groups:
-                group_data[group.group_id] = {'label': group.name, 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0}
-                
-                # We can't rely on prefetch_related for status calculation here without manual iteration
-                for child in group.enrolled_children.all():
-                    att = child_attendance_map.get(child.child_id)
-                    status = 'not_arrived'
-                    if att:
-                        if att.is_absent: status = 'absent'
-                        elif att.departure_time: status = 'out'
-                        else: status = 'in'
-                    
-                    group_data[group.group_id][status] += 1
-                    group_data[group.group_id]['total'] += 1
-                    # Don't add to global summary here to avoid double counting if a child is in multiple places (though shouldn't happen)
+            group_presence = {} # group_id -> data dict
             
-            # Global summary calculation from all active children to be safe
             for child in active_children:
+                group = child.get_current_group
+                group_id = group.group_id if group else 'unassigned'
+                
+                if group_id not in group_presence:
+                    group_label = group.name if group else 'Unassigned'
+                    group_presence[group_id] = {'label': group_label, 'in': 0, 'out': 0, 'absent': 0, 'not_arrived': 0, 'total': 0, 'children_in': [], 'all_children': []}
+                
+                group_presence[group_id]['all_children'].append(child)
                 att = child_attendance_map.get(child.child_id)
                 status = 'not_arrived'
                 if att:
                     if att.is_absent: status = 'absent'
                     elif att.departure_time: status = 'out'
-                    else: status = 'in'
+                    else: 
+                        status = 'in'
+                        group_presence[group_id]['children_in'].append(child)
+                
+                group_presence[group_id][status] += 1
+                group_presence[group_id]['total'] += 1
                 attendance_summary[status] += 1
 
-            intelligence_summary = [{'key': k, **v} for k, v in group_data.items()]
+            for g_id, data in group_presence.items():
+                stats = calculate_ratio_stats(data['children_in'], data['all_children'])
+                data.update(stats)
+                url = reverse('group_edit', kwargs={'group_id': g_id}) if g_id != 'unassigned' else "#"
+                intelligence_summary.append({'key': g_id, 'url': url, **data})
 
         # Enhanced context
         pending_access_count = CenterParentAccess.objects.filter(

@@ -25,7 +25,16 @@
                                 {% endif %}
                             </div>
                             <div>
-                                <p class="text-sm font-black text-slate-900 dark:text-white">{{ item.child.first_name }} {{ item.child.last_name }}</p>
+                                <div class="flex items-center gap-2">
+                                    <p class="text-sm font-black text-slate-900 dark:text-white">{{ item.child.first_name }} {{ item.child.last_name }}</p>
+                                    {% if item.transfer_status == "transferred_in" %}
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-500 text-white text-[8px] font-black uppercase tracking-widest">Temp. In</span>
+                                    {% elif item.transfer_status == "transferred_in_return_requested" %}
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest animate-pulse">Return Requested</span>
+                                    {% elif item.transfer_status == "transferred_out" %}
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-500 text-white text-[8px] font-black uppercase tracking-widest">Temp. Out</span>
+                                    {% endif %}
+                                </div>
                                 <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ item.child.assigned_group.name|default:"No Group" }}</p>
                             </div>
                         </div>
@@ -76,6 +85,7 @@
                     <td class="px-8 py-6 text-right">
                         <div class="flex items-center justify-end gap-2">
                             {% if is_today %}
+                                <!-- Attendance Actions -->
                                 {% if not item.is_currently_in %}
                                     <form method="POST" class="inline">
                                         {% csrf_token %}
@@ -98,16 +108,52 @@
                                     </form>
                                 {% endif %}
                                 
-                                {% if not item.records %}
-                                    <a href="{% url 'mark_attendance' item.child.child_id %}?absent=1&date={{ view_date|date:'Y-m-d' }}" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-rose-500 text-white hover:bg-rose-600 transition-all shadow-sm shadow-rose-500/20" title="Mark Absent">
-                                        <i class="fa-solid fa-user-xmark text-xs"></i>
-                                        <span class="text-[10px] font-black uppercase tracking-widest">Absent</span>
-                                    </a>
+                                <!-- Transfer Actions -->
+                                {% if item.transfer_status == None and not is_director and not is_delegated %}
+                                    <!-- Only show transfer if age >= 2y (approx check via years) -->
+                                    <div class="relative inline-block group/transfer">
+                                        <button class="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-indigo-500 text-white hover:bg-indigo-600 transition-all shadow-sm shadow-indigo-500/20">
+                                            <i class="fa-solid fa-share-from-square text-xs"></i>
+                                            <span class="text-[10px] font-black uppercase tracking-widest">Transfer</span>
+                                        </button>
+                                        <div class="absolute right-0 bottom-full mb-2 hidden group-hover/transfer:block w-48 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50">
+                                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2 py-1 mb-1">Select Target</p>
+                                            <div class="max-h-32 overflow-y-auto">
+                                                {% for ed in available_educators %}
+                                                    {% if ed.user_id != user.user_id %}
+                                                    <form action="{% url 'initiate_temporary_transfer' item.child.child_id %}" method="POST">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="target_educator_id" value="{{ ed.user_id }}">
+                                                        <button type="submit" class="w-full text-left px-3 py-2 text-[10px] font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                                                            {{ ed.user.full_name }}
+                                                        </button>
+                                                    </form>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% elif item.transfer_status == "transferred_out" %}
+                                    <form action="{% url 'request_transfer_return' item.active_transfer.transfer_id %}" method="POST" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-all shadow-sm" title="Request Return">
+                                            <i class="fa-solid fa-rotate-left text-xs"></i>
+                                            <span class="text-[10px] font-black uppercase tracking-widest">Ask Back</span>
+                                        </button>
+                                    </form>
+                                {% elif item.transfer_status == "transferred_in_return_requested" %}
+                                    <form action="{% url 'accept_transfer_return' item.active_transfer.transfer_id %}" method="POST" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-sm" title="Accept Return">
+                                            <i class="fa-solid fa-check text-xs"></i>
+                                            <span class="text-[10px] font-black uppercase tracking-widest">Accept Return</span>
+                                        </button>
+                                    </form>
                                 {% endif %}
 
+                                <!-- Standard Edit -->
                                 <a href="{% url 'mark_attendance' item.child.child_id %}?date={{ view_date|date:'Y-m-d' }}" class="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 transition-all" title="Full History/Edit">
                                     <i class="fa-solid fa-clock-rotate-left text-xs"></i>
-                                    <span class="text-[10px] font-black uppercase tracking-widest">Edit</span>
                                 </a>
                             {% else %}
                                 <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-3 py-1 bg-slate-50 dark:bg-slate-800 rounded-lg">View Only</span>

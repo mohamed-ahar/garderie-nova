@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-from ..models import Child, ParentChildRelationship, Group, Center
+from ..models import Child, ParentChildRelationship, Group, Center, TemporaryChildTransfer
 from datetime import date, timedelta, datetime
 from children.models import WeeklyChildReport, DailyActivityLog, Attendance
 from children.forms import DailyCheckupForm, AttendanceForm
@@ -373,11 +373,22 @@ def attendance_board(request):
     from django.db.models import Q
     from django.core.paginator import Paginator
 
-    children_query = Child.objects.filter(center=target_center).select_related('assigned_group', 'assigned_educator', 'assigned_educator__user')
-    
-    # If not director and not delegated, only show assigned children
     if not is_director and not is_delegated:
-        children_query = children_query.filter(assigned_educator=educator_profile)
+        # Identify children currently with this educator (assigned OR temporary)
+        # 1. Assigned children who are NOT currently transferred out
+        assigned_query = Child.objects.filter(center=target_center, assigned_educator=educator_profile).exclude(
+            temp_transfers__status__in=['active', 'return_requested'],
+            temp_transfers__source_educator=educator_profile
+        )
+        
+        # 2. Children transferred IN to this educator
+        transferred_in_query = Child.objects.filter(
+            temp_transfers__status__in=['active', 'return_requested'],
+            temp_transfers__target_educator=educator_profile
+        )
+        children_query = (assigned_query | transferred_in_query).distinct().select_related('assigned_group', 'assigned_educator', 'assigned_educator__user')
+    else:
+        children_query = Child.objects.filter(center=target_center).select_related('assigned_group', 'assigned_educator', 'assigned_educator__user')
 
     # Filters from GET
     group_filters = [f for f in request.GET.getlist('group') if f]
@@ -829,3 +840,71 @@ def export_attendance_pdf(request):
         return response
     except ImportError:
         return HttpResponse("WeasyPrint not installed", status=500)
+
+@login_required(login_url="login")
+def initiate_temporary_transfer(request, child_id):
+    user = request.user
+    if user.role_type != "educator":
+        return render(request, "core/403.html", status=403)
+
+    child = get_object_or_404(Child, child_id=child_id, assigned_educator=user.educator_profile)
+
+    # Age Check: Only 2 years and more (24 months)
+    today = date.today()
+    age_months = (today.year - child.birth_date.year) * 12 + today.month - child.birth_date.month
+    if today.day < child.birth_date.day: age_months -= 1
+
+    if age_months < 24:
+        messages.error(request, "Only children 24 months or older can be temporarily transferred.")
+        return redirect("attendance_board")
+
+    if request.method == "POST":
+        target_educator_id = request.POST.get("target_educator_id")
+        target_educator = get_object_or_404(Educator, user_id=target_educator_id, center=user.educator_profile.center)
+
+        # Check if already transferred
+        if child.temp_transfers.filter(status="active").exists():
+            messages.warning(request, f"{child.first_name} is already transferred.")
+            return redirect("attendance_board")
+
+        TemporaryChildTransfer.objects.create(
+            child=child,
+            source_educator=user.educator_profile,
+            target_educator=target_educator,
+            status="active"
+        )
+        messages.success(request, f"{child.first_name} has been transferred to {target_educator.user.full_name}.")
+        return redirect("attendance_board")
+
+    return redirect("attendance_board")
+
+
+@login_required(login_url="login")
+def request_transfer_return(request, transfer_id):
+    user = request.user
+    transfer = get_object_or_404(TemporaryChildTransfer, transfer_id=transfer_id, status="active")
+
+    # Only source educator can request return
+    if transfer.source_educator != user.educator_profile:
+        return render(request, "core/403.html", status=403)
+
+    transfer.status = "return_requested"
+    transfer.save()
+    messages.success(request, f"Return requested for {transfer.child.first_name}.")
+    return redirect("attendance_board")
+
+
+@login_required(login_url="login")
+def accept_transfer_return(request, transfer_id):
+    user = request.user
+    transfer = get_object_or_404(TemporaryChildTransfer, transfer_id=transfer_id, status="return_requested")
+
+    # Only target educator can accept return
+    if transfer.target_educator != user.educator_profile:
+        return render(request, "core/403.html", status=403)
+
+    transfer.status = "completed"
+    transfer.returned_at = timezone.now()
+    transfer.save()
+    messages.success(request, f"{transfer.child.first_name} has been returned to {transfer.source_educator.user.full_name}.")
+    return redirect("attendance_board")

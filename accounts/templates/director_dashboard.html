@@ -208,43 +208,66 @@ document.addEventListener('DOMContentLoaded', function() {
     const groupingButtons = document.querySelectorAll('.grouping-btn');
     const intelligenceWrapper = document.getElementById('intelligence-table-wrapper');
     const intelligenceLoading = document.getElementById('intelligence-loading');
+    let currentMode = '{{ grouping_mode }}';
 
-    groupingButtons.forEach(btn => {
-        btn.addEventListener('click', async function() {
-            const mode = this.dataset.mode;
-            
-            // UI Update: Active State
-            groupingButtons.forEach(b => {
+    // Clickable Row Handler (Delegated)
+    intelligenceWrapper.addEventListener('click', function(e) {
+        const row = e.target.closest('.clickable-row');
+        if (row && row.dataset.url && row.dataset.url !== '#') {
+            window.location.href = row.dataset.url;
+        }
+    });
+
+    const updateUI = (mode) => {
+        groupingButtons.forEach(b => {
+            if (b.dataset.mode === mode) {
+                b.classList.add('bg-white', 'dark:bg-slate-800', 'text-indigo-600', 'shadow-sm');
+                b.classList.remove('text-slate-400', 'hover:text-slate-600');
+            } else {
                 b.classList.remove('bg-white', 'dark:bg-slate-800', 'text-indigo-600', 'shadow-sm');
                 b.classList.add('text-slate-400', 'hover:text-slate-600');
-            });
-            this.classList.add('bg-white', 'dark:bg-slate-800', 'text-indigo-600', 'shadow-sm');
-            this.classList.remove('text-slate-400', 'hover:text-slate-600');
-
-            // Data Fetch: AJAX
-            intelligenceLoading.classList.remove('opacity-0', 'pointer-events-none');
-            
-            try {
-                const response = await fetch(`?summary_by=${mode}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-                
-                if (response.ok) {
-                    const html = await response.text();
-                    intelligenceWrapper.innerHTML = html;
-                    
-                    // Update URL without reload
-                    window.history.pushState({}, '', `?summary_by=${mode}`);
-                }
-            } catch (error) {
-                console.error('Operational Summary Error:', error);
-            } finally {
-                intelligenceLoading.classList.add('opacity-0', 'pointer-events-none');
             }
         });
+    };
+
+    const fetchSummary = async (mode, showLoading = true) => {
+        if (showLoading) intelligenceLoading.classList.remove('opacity-0', 'pointer-events-none');
+        
+        try {
+            const response = await fetch(`?summary_by=${mode}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                const html = await response.text();
+                intelligenceWrapper.innerHTML = html;
+                currentMode = mode;
+                updateUI(mode);
+                
+                // Update URL without reload if it was a manual click
+                if (showLoading) {
+                    window.history.pushState({}, '', `?summary_by=${mode}`);
+                }
+            }
+        } catch (error) {
+            console.error('Operational Summary Error:', error);
+        } finally {
+            if (showLoading) intelligenceLoading.classList.add('opacity-0', 'pointer-events-none');
+        }
+    };
+
+    groupingButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            fetchSummary(this.dataset.mode);
+        });
     });
+
+    // Auto Refresh every 30 seconds
+    setInterval(() => {
+        fetchSummary(currentMode, false);
+    }, 30000);
 });
 </script>
 {% endblock %}

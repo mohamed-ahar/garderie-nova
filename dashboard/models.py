@@ -390,8 +390,53 @@ class Child(models.Model):
 
         return ", ".join(parts) if parts else "0d"
 
+    @property
+    def get_current_educator(self):
+        """Returns the current educator, considering temporary transfers."""
+        active_temp = self.temp_transfers.filter(status='active').first()
+        if active_temp:
+            return active_temp.target_educator
+        return self.assigned_educator
+
+    @property
+    def get_current_group(self):
+        """Returns the current group, considering temporary transfers (if any)."""
+        # For now, we assume a temporary transfer to an educator also moves the child 
+        # to that educator's active group.
+        active_temp = self.temp_transfers.filter(status='active').first()
+        if active_temp:
+            # Get target educator's active group
+            target_ed = active_temp.target_educator
+            assignment = StaffAssignment.objects.filter(educator=target_ed, is_active=True).first()
+            return assignment.group if assignment else self.assigned_group
+        return self.assigned_group
+
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
+
+class TemporaryChildTransfer(models.Model):
+    STATUS_CHOICES = (
+        ("active", "Active"),
+        ("return_requested", "Return Requested"),
+        ("completed", "Completed"),
+    )
+    transfer_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    child = models.ForeignKey(
+        Child, on_delete=models.CASCADE, related_name="temp_transfers"
+    )
+    source_educator = models.ForeignKey(
+        "accounts.Educator", on_delete=models.CASCADE, related_name="transferred_out_children"
+    )
+    target_educator = models.ForeignKey(
+        "accounts.Educator", on_delete=models.CASCADE, related_name="transferred_in_children"
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
+    returned_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Temp Transfer: {self.child} from {self.source_educator} to {self.target_educator}"
 
 
 class ParentChildRelationship(models.Model):
