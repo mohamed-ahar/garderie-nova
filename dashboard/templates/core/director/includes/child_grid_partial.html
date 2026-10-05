@@ -1,0 +1,131 @@
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-4">
+    {% for item in child_grid_data %}
+    <div class="relative bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full">
+        
+        <!-- Status Indicator Bar -->
+        <div class="h-1.5 w-full 
+            {% if item.status == 'in' %}bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]
+            {% elif item.status == 'out' %}bg-blue-500
+            {% elif item.status == 'absent' %}bg-rose-500
+            {% else %}bg-slate-300 dark:bg-slate-700{% endif %}">
+        </div>
+
+        <!-- Card Content -->
+        <div class="p-5 flex flex-col flex-grow items-center text-center">
+            
+            <!-- Avatar -->
+            <div class="relative w-20 h-20 mb-4">
+                <div class="w-full h-full rounded-full overflow-hidden border-2 
+                    {% if item.status == 'in' %}border-emerald-500
+                    {% elif item.status == 'out' %}border-blue-500
+                    {% elif item.status == 'absent' %}border-rose-500
+                    {% else %}border-slate-200 dark:border-slate-700{% endif %}">
+                    {% if item.child.profile_photo %}
+                        <img src="{{ item.child.profile_photo.url }}" alt="{{ item.child.first_name }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-2xl font-black text-slate-300">
+                            {{ item.child.first_name|slice:":1" }}
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- Status Icon Badge -->
+                <div class="absolute bottom-0 right-0 w-6 h-6 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center text-[10px] text-white shadow-sm
+                    {% if item.status == 'in' %}bg-emerald-500{% elif item.status == 'out' %}bg-blue-500{% elif item.status == 'absent' %}bg-rose-500{% else %}bg-slate-400{% endif %}">
+                    {% if item.status == 'in' %}<i class="fa-solid fa-check"></i>
+                    {% elif item.status == 'out' %}<i class="fa-solid fa-person-walking-arrow-right"></i>
+                    {% elif item.status == 'absent' %}<i class="fa-solid fa-xmark"></i>
+                    {% else %}<i class="fa-solid fa-minus"></i>{% endif %}
+                </div>
+            </div>
+
+            <!-- Info -->
+            <h4 class="text-base font-black text-slate-900 dark:text-white truncate w-full mb-1">
+                {{ item.child.first_name }} {{ item.child.last_name }}
+            </h4>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate w-full mb-4">
+                {{ item.child.assigned_educator.user.full_name|default:"Unassigned" }}
+            </p>
+
+            <!-- Status Label -->
+            <div class="mt-auto mb-4">
+                {% if item.status == 'in' %}
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                        In Class
+                    </span>
+                {% elif item.status == 'out' %}
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-black uppercase tracking-wider">
+                        Went Home
+                    </span>
+                {% elif item.status == 'absent' %}
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-[10px] font-black uppercase tracking-wider">
+                        Absent
+                    </span>
+                {% else %}
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-wider">
+                        Not Here
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="bg-slate-50 dark:bg-slate-800/50 p-3 border-t border-slate-100 dark:border-slate-800 grid gap-2">
+            {% if item.status == 'in' %}
+                <form method="POST" action="" class="ajax-action-form w-full">
+                    {% csrf_token %}
+                    <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
+                    <input type="hidden" name="action" value="quick_departure">
+                    <button type="submit" class="w-full py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 dark:hover:border-blue-800 transition-all active:scale-95 shadow-sm">
+                        Mark Out
+                    </button>
+                </form>
+            {% elif item.status == 'out' %}
+                <form method="POST" action="" class="ajax-action-form w-full">
+                    {% csrf_token %}
+                    <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
+                    <input type="hidden" name="action" value="quick_arrival">
+                    <button type="submit" class="w-full py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400 dark:hover:border-emerald-800 transition-all active:scale-95 shadow-sm">
+                        Return
+                    </button>
+                </form>
+            {% elif item.status == 'absent' %}
+                <form method="POST" action="" class="ajax-action-form w-full">
+                    {% csrf_token %}
+                    <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
+                    <input type="hidden" name="action" value="quick_arrival">
+                    <button type="submit" class="w-full py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400 dark:hover:border-emerald-800 transition-all active:scale-95 shadow-sm">
+                        Mark Present
+                    </button>
+                </form>
+            {% else %}
+                <div class="grid grid-cols-2 gap-2">
+                    <form method="POST" action="" class="ajax-action-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
+                        <input type="hidden" name="action" value="quick_arrival">
+                        <button type="submit" class="w-full py-2 rounded-xl bg-emerald-500 text-white text-xs font-bold hover:bg-emerald-600 transition-all active:scale-95 shadow-sm shadow-emerald-500/20">
+                            Check In
+                        </button>
+                    </form>
+                    <form method="POST" action="" class="ajax-action-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="child_id" value="{{ item.child.child_id }}">
+                        <input type="hidden" name="action" value="mark_absent">
+                        <button type="submit" class="w-full py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 dark:hover:bg-rose-900/20 dark:hover:text-rose-400 dark:hover:border-rose-800 transition-all active:scale-95 shadow-sm">
+                            Absent
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full py-16 flex flex-col items-center justify-center text-center">
+        <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center mb-6 shadow-sm border border-slate-100 dark:border-slate-800">
+            <i class="fa-solid fa-child-reaching text-3xl text-slate-300 dark:text-slate-600"></i>
+        </div>
+        <h3 class="text-lg font-black text-slate-900 dark:text-white mb-2">No Children Found</h3>
+        <p class="text-sm font-medium text-slate-500 dark:text-slate-400 max-w-xs">There are no children matching the current filter criteria.</p>
+    </div>
+    {% endfor %}
+</div>

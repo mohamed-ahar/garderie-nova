@@ -1,3 +1,4 @@
+{% load dashboard_tags %}
 <div id="intelligence-table-container">
     <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
@@ -23,19 +24,28 @@
                             </div>
                         </td>
                         <td class="px-8 py-6">
-                            <div class="space-y-1">
-                                <div class="flex items-center gap-2">
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between gap-4">
                                     <span class="text-xs font-black text-slate-700 dark:text-slate-200">{{ item.total_factor|stringformat:".3f" }} pts</span>
                                     <span class="text-[10px] font-bold text-slate-400">/ {{ item.required_educators }} Staff</span>
                                 </div>
-                                <div class="text-[10px] font-bold {% if not item.is_compliant %}text-rose-500{% else %}text-slate-400{% endif %} uppercase tracking-widest">
-                                    Cap: {{ item.in }} / {{ item.calculated_max_capacity }}
+                                <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-500 
+                                        {% if not item.is_compliant %}bg-rose-500{% elif item.in > item.calculated_max_capacity %}bg-rose-500{% else %}bg-emerald-500{% endif %}"
+                                        style="width: {% widthratio item.in item.calculated_max_capacity 100 %}%">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest">
+                                    <span class="{% if not item.is_compliant %}text-rose-500{% else %}text-slate-400{% endif %}">
+                                        {{ item.in }} / {{ item.calculated_max_capacity }} Cap
+                                    </span>
                                     {% if not item.is_compliant %}
-                                    <i class="fa-solid fa-triangle-exclamation ml-1"></i>
+                                    <i class="fa-solid fa-triangle-exclamation text-rose-500" title="Non-compliant"></i>
                                     {% endif %}
                                 </div>
                             </div>
                         </td>
+
                         <td class="px-8 py-6 text-right">
                             <span class="text-sm font-bold text-slate-500">{{ item.total }} Students</span>
                         </td>

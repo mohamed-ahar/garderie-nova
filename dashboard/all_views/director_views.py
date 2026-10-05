@@ -4,7 +4,8 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models import Q
 import csv
-from datetime import datetime
+from datetime import datetime, date, timedelta
+from django.utils import timezone
 
 from ..models import (
     Room,
@@ -44,6 +45,77 @@ def director_dashboard(request):
     except AttributeError:
         center = None
 
+    # Handle Attendance POST actions
+    if request.method == "POST":
+        child_id = request.POST.get('child_id')
+        action = request.POST.get('action')
+        
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+        
+        if child_id and action and center:
+            child = get_object_or_404(Child, child_id=child_id, center=center)
+            today = timezone.now().date()
+            from children.models import Attendance
+            
+            message_text = ""
+            message_tag = "success"
+
+            if action == "quick_arrival":
+                open_record = Attendance.objects.filter(child=child, date=today, departure_time__isnull=True, is_absent=False).exists()
+                if open_record:
+                    message_text = f"{child.first_name} is already marked as present."
+                    message_tag = "warning"
+                else:
+                    absence_record = Attendance.objects.filter(child=child, date=today, is_absent=True).first()
+                    if absence_record:
+                        absence_record.is_absent = False
+                        absence_record.arrival_time = timezone.now().time()
+                        absence_record.save()
+                        message_text = f"Arrival marked for {child.first_name} (updated from absence)."
+                    else:
+                        Attendance.objects.create(
+                            child=child, 
+                            date=today,
+                            arrival_time=timezone.now().time(), 
+                            is_absent=False
+                        )
+                        message_text = f"Arrival marked for {child.first_name}."
+            
+            elif action == "quick_departure":
+                latest_open = Attendance.objects.filter(
+                    child=child, 
+                    date=today, 
+                    departure_time__isnull=True, 
+                    is_absent=False
+                ).last()
+                
+                if latest_open:
+                    latest_open.departure_time = timezone.now().time()
+                    latest_open.save()
+                    message_text = f"Departure marked for {child.first_name}."
+                else:
+                    message_text = f"No open attendance record found for {child.first_name}."
+                    message_tag = "error"
+            
+            elif action == "mark_absent":
+                 Attendance.objects.create(
+                    child=child,
+                    date=today,
+                    is_absent=True,
+                    absence_reason_code='8' # Default to non-illness
+                )
+                 message_text = f"{child.first_name} marked as absent."
+
+            if is_ajax:
+                from django.http import JsonResponse
+                return JsonResponse({"success": True, "message": message_text, "tag": message_tag})
+            
+            if message_tag == "success": messages.success(request, message_text)
+            elif message_tag == "warning": messages.warning(request, message_text)
+            else: messages.error(request, message_text)
+
+            return redirect("director_dashboard")
+
     groups = []
     waitlist = []
     total_educators = 0
@@ -66,6 +138,12 @@ def director_dashboard(request):
     }
     grouping_mode = request.GET.get('summary_by', 'group') # Default grouping
     intelligence_summary = []
+    
+    # Child Grid Filters
+    grid_age_filter = request.GET.get('grid_age')
+    grid_educator_filter = request.GET.get('grid_educator')
+    child_grid_data = []
+    available_educators_for_filter = []
 
     if center:
         # Optimization: prefetch related children and assignments
@@ -85,6 +163,7 @@ def director_dashboard(request):
 
         all_educators = Educator.objects.filter(center=center).select_related('user')
         total_educators = all_educators.count()
+        available_educators_for_filter = all_educators
         
         # Identify special staff
         principal_educators = all_educators.filter(user__role_type='educator_principal')
@@ -105,6 +184,57 @@ def director_dashboard(request):
         for att in attendance_today:
             child_attendance_map[att.child_id] = att
 
+        # --- Child Grid Logic ---
+        grid_query = active_children
+        
+        # If age filtered, we must first filter the children, then find educators who have these children
+        if grid_age_filter:
+            today_date = date.today()
+            age_query = Q()
+            if grid_age_filter == '0-23M':
+                cutoff = today_date - timedelta(days=24*30.44)
+                age_query |= Q(birth_date__gt=cutoff)
+            elif grid_age_filter == '2Y':
+                c_start = today_date - timedelta(days=36*30.44)
+                c_end = today_date - timedelta(days=24*30.44)
+                age_query |= Q(birth_date__gt=c_start, birth_date__lte=c_end)
+            elif grid_age_filter == '3Y':
+                c_start = today_date - timedelta(days=48*30.44)
+                c_end = today_date - timedelta(days=36*30.44)
+                age_query |= Q(birth_date__gt=c_start, birth_date__lte=c_end)
+            elif grid_age_filter == '4Y':
+                c_start = today_date - timedelta(days=60*30.44)
+                c_end = today_date - timedelta(days=48*30.44)
+                age_query |= Q(birth_date__gt=c_start, birth_date__lte=c_end)
+            elif grid_age_filter == '5Y+':
+                cutoff = today_date - timedelta(days=60*30.44)
+                age_query |= Q(birth_date__lte=cutoff)
+            
+            grid_query = grid_query.filter(age_query)
+            
+            # Update available educators based on the filtered children
+            # Get distinct educators from the filtered children
+            educator_ids = grid_query.values_list('assigned_educator__user__user_id', flat=True).distinct()
+            available_educators_for_filter = available_educators_for_filter.filter(user__user_id__in=educator_ids)
+        
+        if grid_educator_filter:
+            grid_query = grid_query.filter(assigned_educator__user__user_id=grid_educator_filter)
+
+        # Populate child_grid_data with status
+        for child in grid_query:
+            att = child_attendance_map.get(child.child_id)
+            status = 'not_arrived'
+            if att:
+                if att.is_absent: status = 'absent'
+                elif att.departure_time: status = 'out'
+                else: status = 'in'
+            
+            child_grid_data.append({
+                'child': child,
+                'status': status,
+                'attendance_record': att
+            })
+
         # Calculate overall center ratio and total required educators
         total_required_educators = sum(g.required_educators for g in groups)
         if total_educators > 0 and active_children_count > 0:
@@ -113,6 +243,8 @@ def director_dashboard(request):
         # Build intelligence summary based on grouping
         from ..utils import calculate_ratio_stats
         from django.urls import reverse
+        from django.template.loader import render_to_string
+        from django.http import JsonResponse
         
         if grouping_mode == 'age':
             # Categories matching our filter: 0-23M, 2Y, 3Y, 4Y, 5Y+
@@ -249,10 +381,29 @@ def director_dashboard(request):
         "delegated_educators": delegated_educators,
         "attendance_summary": attendance_summary,
         "intelligence_summary": intelligence_summary,
-        "grouping_mode": grouping_mode
+        "grouping_mode": grouping_mode,
+        # Child Grid Data
+        "child_grid_data": child_grid_data,
+        "available_educators": available_educators_for_filter,
+        "grid_age_filter": grid_age_filter,
+        "grid_educator_filter": grid_educator_filter,
     }
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        section = request.GET.get('section')
+        if section == 'child_grid':
+            grid_html = render_to_string("core/director/includes/child_grid_partial.html", context, request)
+            
+            # Serialize educators for dropdown update
+            educators_data = [
+                {"id": str(ed.user.user_id), "name": ed.user.full_name} 
+                for ed in available_educators_for_filter
+            ]
+            
+            return JsonResponse({
+                "html": grid_html,
+                "educators": educators_data
+            })
         return render(request, "core/director/includes/intelligence_table_partial.html", context)
 
     return render(request, "director_dashboard.html", context)
