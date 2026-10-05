@@ -12,6 +12,7 @@ interface Contact {
   role: string;
   profile_photo: string | null;
   is_online: boolean;
+  unread_count: number;
 }
 
 interface FeedWidgetsProps {
@@ -30,7 +31,14 @@ export function FeedWidgets({ onContactClick }: FeedWidgetsProps) {
       try {
         const res = await fetch(`http://localhost:8001/chat/contacts/?q=${searchTerm}`, { credentials: 'include' });
         const data = await res.json();
-        setContacts(data.contacts || []);
+        let filtered = data.contacts || [];
+        
+        // Only apply "Online or Unread" filter if NOT searching
+        if (!searchTerm) {
+          filtered = filtered.filter((c: Contact) => c.is_online || (c.unread_count && c.unread_count > 0));
+        }
+        
+        setContacts(filtered);
       } catch (err) {
         console.error("Failed to fetch contacts", err);
       } finally {
@@ -135,6 +143,11 @@ export function FeedWidgets({ onContactClick }: FeedWidgetsProps) {
                   {contact.is_online && (
                     <span className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-background rounded-full" />
                   )}
+                  {contact.unread_count > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[16px] h-4 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-background shadow-sm">
+                      {contact.unread_count > 9 ? '9+' : contact.unread_count}
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className="text-sm font-medium truncate group-hover:text-primary transition-colors">{contact.name}</span>
@@ -145,7 +158,9 @@ export function FeedWidgets({ onContactClick }: FeedWidgetsProps) {
           )}
           
           {!isLoading && contacts.length === 0 && (
-            <p className="text-center text-xs text-muted-foreground py-4 italic">No contacts found</p>
+            <p className="text-center text-xs text-muted-foreground py-4 italic">
+              {searchTerm ? "No contacts found" : "No active contacts"}
+            </p>
           )}
         </div>
       </div>

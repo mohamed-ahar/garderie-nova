@@ -334,7 +334,7 @@
                     }
                 }" x-init="fetchUnread(); setInterval(() => fetchUnread(), 10000)">
 
-                    <a href="{% url 'communication:chat_app' %}" class="group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 text-white overflow-hidden shadow-lg shadow-green-900/10 transition-all duration-300 active:scale-[0.98] hover:from-green-600 hover:to-green-700">
+                    <div class="group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 text-white overflow-hidden shadow-lg shadow-green-900/10 transition-all duration-300">
                         
                         <template x-if="unreadCount > 0">
                             <div class="absolute inset-0 bg-white/10 animate-pulse"></div>
@@ -344,18 +344,21 @@
                             <i class="fa-solid fa-comments text-[14px]"></i>
                         </div>
                 
-                        <div class="sidebar-label relative z-10 flex flex-col items-start text-left flex-1">
-                            <span class="font-extrabold tracking-wide text-[13.5px]">Messages</span>
-                            <span class="text-[8.5px] font-bold text-emerald-100/90 uppercase tracking-[0.15em]">Chat</span>
+                        <div class="sidebar-label relative z-10 flex flex-1 items-center">
+                            <div class="flex items-center bg-black/20 rounded-xl p-1 w-full gap-1 border border-white/5 shadow-inner">
+                                <a href="http://localhost:3000" target="GarderieNovaChat" class="flex-1 text-center py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-all font-black text-[9px] uppercase tracking-widest text-white/80">Chat</a>
+                                <div class="w-[1px] h-3 bg-white/10"></div>
+                                <a href="http://localhost:3000/feed" target="GarderieNovaFeed" class="flex-1 text-center py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-all font-black text-[9px] uppercase tracking-widest text-white/80">Feed</a>
+                            </div>
                         </div>
                         
-                        <div x-show="unreadCount > 0" x-cloak class="relative flex items-center justify-center mr-2">
+                        <div x-show="unreadCount > 0" x-cloak class="relative flex items-center justify-center ml-2">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-5 w-5 bg-rose-500 text-[9px] items-center justify-center font-black border-2 border-green-600 shadow-sm"
                                   x-text="unreadCount">
                             </span>
                         </div>
-                    </a>
+                    </div>
                 </li>
                 <li class="dropdown-group relative group mt-4">
                     <button onclick="toggleDropdown(this)" data-section-id="curriculum" class="dropdown-trigger group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-green-600 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
@@ -475,7 +478,7 @@
                     }
                 }" x-init="fetchUnread(); setInterval(() => fetchUnread(), 10000)">
                 
-                    <a href="{% url 'communication:chat_app' %}" class="group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                    <div class="group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white overflow-hidden shadow-lg transition-all duration-300">
                         
                         <template x-if="unreadCount > 0">
                             <div class="absolute inset-0 bg-white/10 animate-pulse"></div>
@@ -485,16 +488,19 @@
                             <i class="fa-solid fa-comments text-[14px]"></i>
                         </div>
                 
-                        <div class="sidebar-label relative z-10 flex flex-col items-start text-left flex-1">
-                            <span class="font-extrabold tracking-wide text-[13.5px]">Messages</span>
-                            <span class="text-[8.5px] font-bold text-indigo-200/90 uppercase tracking-[0.15em]">Chat</span>
+                        <div class="sidebar-label relative z-10 flex flex-1 items-center">
+                            <div class="flex items-center bg-black/20 rounded-xl p-1 w-full gap-1 border border-white/5 shadow-inner">
+                                <a href="http://localhost:3000" target="GarderieNovaChat" class="flex-1 text-center py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-all font-black text-[9px] uppercase tracking-widest text-indigo-100">Chat</a>
+                                <div class="w-[1px] h-3 bg-white/10"></div>
+                                <a href="http://localhost:3000/feed" target="GarderieNovaFeed" class="flex-1 text-center py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-all font-black text-[9px] uppercase tracking-widest text-indigo-100">Feed</a>
+                            </div>
                         </div>
                         
                         <div x-show="unreadCount > 0" x-cloak class="relative flex items-center justify-center mr-2">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-5 w-5 bg-white text-indigo-600 text-[10px] items-center justify-center font-black shadow-sm" x-text="unreadCount"></span>
                         </div>
-                    </a>
+                    </div>
                 </li>
                 
                 {% endif %} {% if user.role_type == 'parent' %}
@@ -562,7 +568,7 @@
                         }
                     }" x-init="fetchUnread(); setInterval(() => fetchUnread(), 10000)">
 
-                    <a href="{% url 'communication:chat_app' %}" class="group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-600 to-rose-700 text-white overflow-hidden shadow-lg transition-all duration-300 active:scale-[0.98]">
+                    <div class="group relative z-30 flex items-center w-full gap-3 px-4 py-3 rounded-2xl bg-gradient-to-br from-rose-600 to-rose-700 text-white overflow-hidden shadow-lg transition-all duration-300">
                             <template x-if="unreadCount > 0">
                                 <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
                             </template>
@@ -571,16 +577,19 @@
                                 <i class="fa-solid fa-comments text-[14px]"></i>
                             </div>
                 
-                            <div class="sidebar-label relative z-10 flex flex-col items-start text-left flex-1">
-                                <span class="font-extrabold tracking-wide text-[13.5px]">Messages</span>
-                                <span class="text-[8.5px] font-bold text-rose-200/90 uppercase tracking-[0.15em]">Chat</span>
+                            <div class="sidebar-label relative z-10 flex flex-1 items-center">
+                                <div class="flex items-center bg-black/20 rounded-xl p-1 w-full gap-1 border border-white/5 shadow-inner">
+                                    <a href="http://localhost:3000" target="GarderieNovaChat" class="flex-1 text-center py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-all font-black text-[9px] uppercase tracking-widest text-rose-100">Chat</a>
+                                    <div class="w-[1px] h-3 bg-white/10"></div>
+                                    <a href="http://localhost:3000/feed" target="GarderieNovaFeed" class="flex-1 text-center py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-all font-black text-[9px] uppercase tracking-widest text-rose-100">Feed</a>
+                                </div>
                             </div>
                             
                             <div x-show="unreadCount > 0" x-cloak class="relative flex items-center justify-center mr-2">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                                 <span class="relative inline-flex rounded-full h-5 w-5 bg-white text-rose-600 text-[10px] items-center justify-center font-black shadow-sm" x-text="unreadCount"></span>
                             </div>
-                    </a>
+                    </div>
                 </li>
                 {% endif %}
 

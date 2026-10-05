@@ -5,14 +5,19 @@ import { FeedLayout } from "@/components/feed/feed-layout";
 import { FeedSidebar } from "@/components/feed/feed-sidebar";
 import { FeedWidgets } from "@/components/feed/feed-widgets";
 import { FeedStream } from "@/components/feed/feed-stream";
-import { ChatBoxesContainer } from "@/components/feed/chat-boxes-container";
 import { PushNotificationPrompt } from "@/components/push-notification-prompt";
 
 export default function FeedPage() {
   const [currentUser, setCurrentUser] = useState<{ id: string; name: string; role: string; profile_photo?: string | null } | null>(null);
   const [currentFilter, setCurrentFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [openChats, setOpenChats] = useState<any[]>([]);
+
+  const handleOpenChat = (contactId: string) => {
+    // Open in a named new tab. If 'GarderieNovaChat' exists, it will be focused/navigated.
+    if (typeof window !== 'undefined') {
+      window.open(`/?chat=${contactId}`, "GarderieNovaChat");
+    }
+  };
 
   useEffect(() => {
     fetch("http://localhost:8001/me", {
@@ -40,17 +45,6 @@ export default function FeedPage() {
       .catch(err => console.error("Failed to fetch user info", err));
   }, []);
 
-  const handleOpenChat = (contact: any) => {
-    setOpenChats(prev => {
-      if (prev.some(c => c.id === contact.id)) return prev;
-      return [contact, ...prev].slice(0, 3);
-    });
-  };
-
-  const handleCloseChat = (contactId: string) => {
-    setOpenChats(prev => prev.filter(c => c.id !== contactId));
-  };
-
   if (!currentUser) return null;
 
   return (
@@ -66,18 +60,11 @@ export default function FeedPage() {
             currentUser={currentUser} 
             filter={currentFilter} 
             searchQuery={searchQuery}
-            onPersonClick={handleOpenChat}
+            onPersonClick={(user) => handleOpenChat(user.id)}
           />
         </div>
-        <FeedWidgets onContactClick={handleOpenChat} />
+        <FeedWidgets onContactClick={(contact) => handleOpenChat(contact.id)} />
       </FeedLayout>
-
-      <ChatBoxesContainer 
-        openChats={openChats}
-        currentUserId={currentUser.id}
-        currentUser={currentUser}
-        onCloseChat={handleCloseChat}
-      />
 
       <PushNotificationPrompt />
     </>
