@@ -169,3 +169,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard_redirect'
 LOGOUT_REDIRECT_URL = 'login'
+
+# Web Push Notifications (VAPID)
+VAPID_PUBLIC_KEY = "BOxCGgI_7dafPEGpajQcQFGjfVstyBx92yBInyZWfFhUaDWVfOowYFy9WyfH30RwuFzRkr6deNdlJe9NdnihqSM"
+VAPID_PRIVATE_KEY = "a2l-vf3AvNvEtGdQIg6A34_bEuVnPJJUGYNwEEaBLyM"

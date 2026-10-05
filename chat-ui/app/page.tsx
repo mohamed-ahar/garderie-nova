@@ -11,20 +11,20 @@ import { Button } from "@/components/ui/button";
 import { Send, Loader2, Sparkles, Check, CheckCheck, File as FileIcon, Image as ImageIcon, Video as VideoIcon, Mic, Square, Trash2 } from "lucide-react";
 import { ChatSidebar, Contact } from "@/components/chat-sidebar";
 import { ChatHeader } from "@/components/chat-header";
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useChat } from "@/hooks/use-chat";
 import { getCookie } from "@/lib/utils";
 import { MediaPreview } from "@/components/media-preview";
-import { FeedView } from "@/components/feed-view";
+import { PushNotificationPrompt } from "@/components/push-notification-prompt";
 
-export default function Home() {
+function ChatContent() {
+  const searchParams = useSearchParams();
   const [currentUser, setCurrentUser] = useState<{ id: string; name: string; role: string; profile_photo?: string | null } | null>(null);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isContactsLoading, setIsContactsLoading] = useState(true);
   const [onlineStatuses, setOnlineStatuses] = useState<Record<string, {is_online: boolean, last_seen?: string}>>({});
-  const [activeView, setActiveView] = useState<"chat" | "feed">("chat");
-  const [activeFeedFilter, setActiveFeedFilter] = useState("all");
   
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
@@ -229,6 +229,18 @@ export default function Home() {
     fetchContacts();
   }, [fetchContacts]);
 
+  // Deep Linking: Handle URL param on mount and contact changes
+  useEffect(() => {
+    const chatId = searchParams.get('chat');
+    if (chatId && contacts.length > 0 && (!selectedContact || selectedContact.id !== chatId)) {
+      const contact = contacts.find(c => c.id === chatId);
+      if (contact) {
+        setSelectedContact(contact);
+        setMessages([]);
+      }
+    }
+  }, [searchParams, contacts, selectedContact, setMessages]);
+
   // Perform initial status check for all contacts once connected
   useEffect(() => {
     if (isConnected && contacts.length > 0) {
@@ -354,6 +366,9 @@ export default function Home() {
   const handleSelectChat = (contact: Contact) => {
     setSelectedContact(contact);
     setMessages([]);
+    // Update URL without reload
+    const newUrl = `${window.location.pathname}?chat=${contact.id}`;
+    window.history.pushState({ path: newUrl }, '', newUrl);
   };
 
   useEffect(() => {
@@ -375,37 +390,24 @@ export default function Home() {
         contacts={contacts}
         loading={isContactsLoading}
         onRefreshContacts={fetchContacts}
-        activeView={activeView}
-        onViewChange={(v) => {
-          setActiveView(v);
-          if (v === "feed") setSelectedContact(null);
-        }}
-        activeFeedFilter={activeFeedFilter}
-        onFeedFilterChange={setActiveFeedFilter}
       />
 
       {/* 2. MAIN CONTENT AREA */}
       <div className="flex flex-1 flex-col h-full relative">
 
-        {activeView === "feed" ? (
-          <FeedView currentUser={currentUser} activeFeedFilter={activeFeedFilter} />
-        ) : (
-          <>
-            {/* Top Decorative Header (Optional, mimics the dashboard header space) */}
-            {!selectedContact && currentUser && (
-          <div className="absolute top-8 left-8 right-8 z-0 opacity-50 pointer-events-none">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground">
-              Welcome back, <br />
-              <span className="text-primary">{currentUser.name}</span>.
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              Select a contact from the sidebar to start communication.
-            </p>
-          </div>
-        )}
-
-        {/* Chat Wrapper - styled as a 'Card' floating in the space if desired, or full height */}
         <div className="flex flex-1 flex-col h-full z-10 bg-background/50 backdrop-blur-sm">
+          {/* Top Decorative Header (Optional, mimics the dashboard header space) */}
+          {!selectedContact && currentUser && (
+            <div className="absolute top-8 left-8 right-8 z-0 opacity-50 pointer-events-none">
+              <h1 className="text-4xl font-bold tracking-tight text-foreground">
+                Welcome back, <br />
+                <span className="text-primary">{currentUser.name}</span>.
+              </h1>
+              <p className="text-muted-foreground mt-2">
+                Select a contact from the sidebar to start communication.
+              </p>
+            </div>
+          )}
 
           {/* Chat Header */}
           {selectedContact && (
@@ -462,13 +464,18 @@ export default function Home() {
                             <img 
                               src={msg.attachment} 
                               alt="Attachment" 
-                              className="w-full h-auto object-cover max-h-60 cursor-pointer hover:opacity-90 transition-opacity" 
+                              className="w-full h-auto object-cover max-h-60 cursor-zoom-in hover:opacity-90 transition-opacity select-none" 
                               onClick={() => openPreview(msg.id)}
+                              onContextMenu={(e) => e.preventDefault()}
                             />
                           )}
                           {msg.attachment_type === "video" && (
-                            <div className="relative group cursor-pointer" onClick={() => openPreview(msg.id)}>
-                              <video src={msg.attachment} className="w-full h-auto max-h-60" />
+                            <div className="relative group cursor-zoom-in" onClick={() => openPreview(msg.id)}>
+                              <video 
+                                src={msg.attachment} 
+                                className="w-full h-auto max-h-60" 
+                                onContextMenu={(e) => e.preventDefault()}
+                              />
                               <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
                                 <VideoIcon className="w-12 h-12 text-white/80" />
                               </div>
@@ -643,11 +650,8 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </>
-    )}
-  </div>
+      </div>
 
-  {/* Media Preview Overlay */}
       <MediaPreview
         isOpen={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}
@@ -655,6 +659,16 @@ export default function Home() {
         currentIndex={currentMediaIndex}
         onIndexChange={setCurrentMediaIndex}
       />
+
+      <PushNotificationPrompt />
     </main>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ChatContent />
+    </Suspense>
   );
 }

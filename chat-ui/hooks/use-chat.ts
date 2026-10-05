@@ -84,8 +84,15 @@ export function useChat(
       return;
     }
 
-    // Try localhost instead of localhost for better compatibility
-    const socketUrl = `ws://localhost:8001/ws/chat/`;
+    // Use current host if on 8001, otherwise default to localhost:8001
+    const getSocketUrl = () => {
+      const isSecure = window.location.protocol === 'https:';
+      const protocol = isSecure ? 'wss:' : 'ws:';
+      const host = window.location.port === '8001' ? window.location.host : 'localhost:8001';
+      return `${protocol}//${host}/ws/chat/`;
+    };
+
+    const socketUrl = getSocketUrl();
     console.log("Connecting to WebSocket:", socketUrl);
     const socket = new WebSocket(socketUrl);
     socketRef.current = socket;
@@ -144,6 +151,36 @@ export function useChat(
         console.log("Message filter check:", { isFromMeToHim, isFromHimToMe });
 
         if (isFromMeToHim || isFromHimToMe) {
+          // Play notification sound for incoming messages
+          if (isFromHimToMe) {
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
+            audio.play().catch(e => console.log("Audio play prevented:", e));
+
+            // Browser Notification if not focused
+            const isTabActive = document.hasFocus() && document.visibilityState === 'visible';
+            
+            if (!isTabActive) {
+              if (Notification.permission === 'granted') {
+                const notification = new Notification(`New message from ${newMessage.sender_name}`, {
+                  body: newMessage.content,
+                  icon: newMessage.sender_profile_photo || '/favicon.ico',
+                  tag: `chat_${newMessage.sender_id}`
+                });
+
+                notification.onclick = () => {
+                  window.focus();
+                  // Update URL via history to trigger deep link effect in Home component
+                  const newUrl = `/?chat=${newMessage.sender_id}`;
+                  window.history.pushState({ path: newUrl }, '', newUrl);
+                  // Dispatch a custom event or rely on useSearchParams effect if Home is listening
+                  window.dispatchEvent(new Event('popstate'));
+                };
+              } else {
+                console.warn("Notification skipped: permission is", Notification.permission);
+              }
+            }
+          }
+
           setMessages((prev) => {
             // Check if we have a temp message that needs to be replaced
             const tempIndex = prev.findIndex(m => 
@@ -206,8 +243,11 @@ export function useChat(
     };
 
     socket.onerror = (err) => {
-      console.error("WebSocket error", err);
-      // Let onclose handle reconnection
+      // WebSocket errors are often empty objects in the console. 
+      // We log a more descriptive message while maintaining the error object for inspection.
+      console.warn("WebSocket connection error. The server may be unreachable at ws://localhost:8001/ws/chat/");
+      console.error("Original WebSocket error:", err);
+      // Let onclose handle reconnection logic
     };
   }, []); // Static connect function
 

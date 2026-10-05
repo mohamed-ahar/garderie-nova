@@ -5,13 +5,14 @@ from .views import (
     manage_invitation, get_invitations,
     get_feed, create_post, react_to_post, mark_post_seen,
     get_post_comments, add_comment, get_feed_metadata,
-    delete_post
+    delete_post, subscribe_push
 )
 
 app_name = "chat_back"
 
 urlpatterns = [
     path("contacts/", get_contacts, name="get_contacts"),
+    path("subscribe-push/", subscribe_push, name="subscribe_push"),
     path("messages/<uuid:recipient_id>/", get_messages, name="get_messages"),
     path("messages/<uuid:recipient_id>/read/", mark_messages_as_read, name="mark_messages_as_read"),
     path("upload/", upload_file, name="upload_file"),

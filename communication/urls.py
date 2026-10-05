@@ -6,6 +6,7 @@ app_name = "communication"
 urlpatterns = [
     # --- Chat App (iframe) ---
     path("chat/", views.chat_app, name="chat_app"),
+    path("feed/", views.feed_app, name="feed_app"),
     
     # --- Messaging ---
     path("inbox/", views.inbox, name="inbox"),

@@ -99,25 +99,27 @@ export function FeedView({ currentUser, activeFeedFilter = "all" }: { currentUse
   const canCreatePost = currentUser?.role && ['director', 'vice_director', 'educator', 'owner'].includes(currentUser.role);
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-muted/5 relative">
+    <div className="flex flex-col h-full overflow-hidden bg-muted/5 relative items-center">
       {/* Feed Header */}
-      <div className="bg-background border-b px-6 h-16 flex items-center justify-between shadow-sm sticky top-0 z-20">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <LayoutGrid className="w-5 h-5 text-primary-foreground" />
+      <div className="bg-background border-b px-6 h-16 flex items-center justify-between shadow-sm sticky top-0 z-20 w-full">
+        <div className="flex items-center gap-2 max-w-2xl mx-auto w-full">
+          <div className="flex items-center gap-2 flex-1">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <LayoutGrid className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <h2 className="font-bold text-xl tracking-tight">Center Feed</h2>
           </div>
-          <h2 className="font-bold text-xl tracking-tight">Center Feed</h2>
+          
+          {canCreatePost && (
+            <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2 shadow-md">
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">New Post</span>
+            </Button>
+          )}
         </div>
-        
-        {canCreatePost && (
-          <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2 shadow-md">
-            <Plus className="h-4 w-4" />
-            New Post
-          </Button>
-        )}
       </div>
 
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 w-full">
         <ScrollArea className="h-full w-full">
           <div className="max-w-2xl mx-auto py-8 px-4 space-y-6">
             {posts.map(post => (
@@ -178,10 +180,8 @@ function FeedPostCard({ post, currentUser }: { post: Post, currentUser: any }) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isCommentsLoading, setIsCommentsLoading] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
-  const [mediaPage, setMediaPage] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
-  const MEDIA_PER_PAGE = 4;
 
   useEffect(() => {
     // Mark post as seen after 2 seconds of viewing
@@ -270,46 +270,38 @@ function FeedPostCard({ post, currentUser }: { post: Post, currentUser: any }) {
               </span>
             </div>
             <div className="flex flex-col gap-1.5 mt-1">
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-[10px] text-muted-foreground font-medium">
                 {new Date(post.timestamp).toLocaleDateString()} at {new Date(post.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
               
               <div className="flex items-center gap-1.5 flex-wrap">
-                {/* Visibility Badges */}
-                {post.visibility === 'all_parents' && (
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-blue-500 uppercase tracking-tight bg-blue-50 px-1.5 py-0.5 rounded-sm">
-                    <Globe className="h-3 w-3" />
-                    Center-Wide
-                  </div>
-                )}
-                {post.visibility === 'specific_groups' && (
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-purple-500 uppercase tracking-tight bg-purple-50 px-1.5 py-0.5 rounded-sm">
-                    <Users className="h-3 w-3" />
-                    Group: {post.target_group_names.join(', ')}
-                  </div>
-                )}
-                {post.visibility === 'specific_parents' && (
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-orange-500 uppercase tracking-tight bg-orange-50 px-1.5 py-0.5 rounded-sm">
-                    <User className="h-3 w-3" />
-                    Private Update
-                  </div>
-                )}
+                {/* Toned down Visibility & Tags */}
+                <div className="flex items-center gap-1.5 text-[9px] font-bold text-muted-foreground tracking-tight uppercase">
+                  {post.visibility === 'all_parents' && (
+                    <span className="flex items-center gap-1">
+                      <Globe className="h-3 w-3" />
+                      Center
+                    </span>
+                  )}
+                  {post.visibility === 'specific_groups' && (
+                    <span className="flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      {post.target_group_names.join(', ')}
+                    </span>
+                  )}
+                  {post.visibility === 'specific_parents' && (
+                    <span className="flex items-center gap-1">
+                      <User className="h-3 w-3" />
+                      Private
+                    </span>
+                  )}
 
-                {/* Post Tags Badges */}
-                {post.tags && post.tags.filter(t => t !== 'general').length > 0 && (
-                  <>
-                    <span className="text-[10px] text-muted-foreground opacity-50">•</span>
-                    {post.tags.filter(t => t !== 'general').map((tag, idx) => (
-                      <div key={idx} className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 uppercase tracking-tight bg-emerald-50 px-1.5 py-0.5 rounded-sm">
-                        {tag === 'announcements' && <Bell className="h-3 w-3" />}
-                        {tag === 'photos' && <ImageIcon className="h-3 w-3" />}
-                        {tag === 'videos' && <Video className="h-3 w-3" />}
-                        {tag === 'events' && <Calendar className="h-3 w-3" />}
-                        {tag}
-                      </div>
-                    ))}
-                  </>
-                )}
+                  {post.tags && post.tags.filter(t => t !== 'general').map((tag, idx) => (
+                    <span key={idx} className="flex items-center gap-1 before:content-['•'] before:mx-1 before:opacity-50">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -333,73 +325,61 @@ function FeedPostCard({ post, currentUser }: { post: Post, currentUser: any }) {
           <div className="space-y-2">
             <div className={cn(
               "grid gap-2",
-              Math.min(post.media.length - mediaPage * MEDIA_PER_PAGE, MEDIA_PER_PAGE) === 1 ? "grid-cols-1" : 
-              Math.min(post.media.length - mediaPage * MEDIA_PER_PAGE, MEDIA_PER_PAGE) === 2 ? "grid-cols-2" : 
+              post.media.length === 1 ? "grid-cols-1" : 
+              post.media.length === 2 ? "grid-cols-2" : 
               "grid-cols-2 md:grid-cols-2"
             )}>
-              {post.media.slice(mediaPage * MEDIA_PER_PAGE, (mediaPage + 1) * MEDIA_PER_PAGE).map((mediaItem, index) => (
-                <div key={index} className="rounded-xl overflow-hidden border bg-muted/20 relative group aspect-square">
-                  {mediaItem.type === 'image' ? (
-                    <img src={mediaItem.url} alt={`Post media ${index}`} className="w-full h-full object-cover" />
-                  ) : (
-                    <video src={mediaItem.url} controls className="w-full h-full object-cover" />
-                  )}
-                  {mediaItem.type === 'image' && (
-                    <a 
-                      href={mediaItem.url} 
-                      download 
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="absolute top-2 right-2 h-10 w-10 bg-background/80 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
-                      title="Download Photo"
-                    >
-                      <Download className="h-5 w-5 text-foreground" />
-                    </a>
-                  )}
-                </div>
-              ))}
+              {post.media.slice(0, 4).map((mediaItem, index) => {
+                const isLastVisible = index === 3 && post.media!.length > 4;
+                return (
+                  <div 
+                    key={index} 
+                    className="rounded-xl overflow-hidden border bg-muted/20 relative group aspect-square cursor-zoom-in hover:opacity-95 transition-opacity"
+                    onClick={() => {
+                      setCurrentMediaIndex(index);
+                      setIsPreviewOpen(true);
+                    }}
+                  >
+                    {mediaItem.type === 'image' ? (
+                      <img 
+                        src={mediaItem.url} 
+                        alt={`Post media ${index}`} 
+                        className="w-full h-full object-cover select-none" 
+                        onContextMenu={(e) => e.preventDefault()}
+                      />
+                    ) : (
+                      <div className="relative w-full h-full">
+                        <video src={mediaItem.url} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors">
+                          <Video className="w-10 h-10 text-white/80" />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {isLastVisible && (
+                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-[2px]">
+                        <span className="text-white text-xl font-bold">+{post.media!.length - 3}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            {post.media.length > MEDIA_PER_PAGE && (
-              <div className="flex items-center justify-between px-2 pt-2 border-t border-muted">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setMediaPage(p => Math.max(0, p - 1))}
-                  disabled={mediaPage === 0}
-                  className="gap-1 h-8 text-xs"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Previous
-                </Button>
-                <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider bg-muted/50 px-2 py-1 rounded-full">
-                  {mediaPage * MEDIA_PER_PAGE + 1} - {Math.min((mediaPage + 1) * MEDIA_PER_PAGE, post.media.length)} of {post.media.length}
-                </span>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setMediaPage(p => Math.min(Math.ceil(post.media!.length / MEDIA_PER_PAGE) - 1, p + 1))}
-                  disabled={mediaPage >= Math.ceil(post.media.length / MEDIA_PER_PAGE) - 1}
-                  className="gap-1 h-8 text-xs"
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
           </div>
         ) : post.image ? (
-          <div className="rounded-xl overflow-hidden border bg-muted/20 relative group">
-            <img src={post.image} alt="Post" className="w-full h-auto max-h-[500px] object-contain mx-auto" />
-            <a 
-              href={post.image} 
-              download 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute top-2 right-2 h-10 w-10 bg-background/80 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
-              title="Download Photo"
-            >
-              <Download className="h-5 w-5 text-foreground" />
-            </a>
+          <div 
+            className="rounded-xl overflow-hidden border bg-muted/20 relative group cursor-zoom-in hover:opacity-95 transition-opacity"
+            onClick={() => {
+              setCurrentMediaIndex(0);
+              setIsPreviewOpen(true);
+            }}
+          >
+            <img 
+              src={post.image} 
+              alt="Post" 
+              className="w-full h-auto max-h-[500px] object-contain mx-auto select-none" 
+              onContextMenu={(e) => e.preventDefault()}
+            />
           </div>
         ) : null}
       </div>
@@ -435,34 +415,17 @@ function FeedPostCard({ post, currentUser }: { post: Post, currentUser: any }) {
           </Button>
         </div>
         
-        {post.media && post.media.length === 1 && post.media[0].type === 'image' ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-2 rounded-full px-4 h-9 text-primary hover:text-primary hover:bg-primary/10"
-            asChild
-          >
-            <a href={post.media[0].url} download target="_blank" rel="noopener noreferrer">
-              <Download className="h-4 w-4" />
-              <span className="text-xs font-bold">Download</span>
-            </a>
-          </Button>
-        ) : post.image && (!post.media || post.media.length === 0) ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-2 rounded-full px-4 h-9 text-primary hover:text-primary hover:bg-primary/10"
-            asChild
-          >
-            <a href={post.image} download target="_blank" rel="noopener noreferrer">
-              <Download className="h-4 w-4" />
-              <span className="text-xs font-bold">Download</span>
-            </a>
-          </Button>
-        ) : (
-          <div />
-        )}
+        <div />
         </div>
+
+        {/* Media Preview Overlay */}
+        <MediaPreview
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          mediaItems={post.media || (post.image ? [{ url: post.image, type: 'image', id: 'single' }] : [])}
+          currentIndex={currentMediaIndex}
+          onIndexChange={setCurrentMediaIndex}
+        />
 
         {/* Comments Section */}      {showComments && (
         <div className="border-t bg-muted/10 p-4 space-y-4 animate-in slide-in-from-top-2 duration-300">
@@ -591,8 +554,8 @@ function CommentInput({ postId, onCommentAdded }: { postId: number, onCommentAdd
       <div className="flex gap-2 items-end">
         <div className="flex-1 relative">
           <Textarea 
-            placeholder="Write a comment... use @ to mention" 
-            className="min-h-[40px] max-h-32 py-2 pr-10 resize-none text-xs rounded-xl shadow-inner bg-background"
+            placeholder="Write a thoughtful comment... Use @ to mention someone." 
+            className="min-h-[40px] max-h-32 py-3 pr-10 resize-none text-sm rounded-2xl shadow-inner bg-background border-muted focus:ring-1 focus:ring-primary"
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />

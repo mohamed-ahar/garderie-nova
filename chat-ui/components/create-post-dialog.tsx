@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Image as ImageIcon, Loader2, X, Users, User, Globe, Bell, Calendar, LayoutGrid, Video } from "lucide-react";
 import { getCookie, cn } from "@/lib/utils";
 
@@ -146,18 +146,18 @@ export function CreatePostDialog({ isOpen, onClose, onSuccess }: CreatePostDialo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Create Center Announcement</DialogTitle>
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 overflow-hidden rounded-2xl shadow-2xl border-0">
+        <DialogHeader className="px-8 pt-8 pb-4 bg-background">
+          <DialogTitle className="text-2xl font-bold tracking-tight">New Announcement</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex-1 overflow-y-auto px-8 py-2 space-y-8 scrollbar-hide">
           {/* Center Selection */}
           {metadata.length > 1 && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Select Center</label>
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Select Center</label>
               <select 
-                className="w-full p-2 rounded-md border bg-background"
+                className="w-full p-3 rounded-xl border bg-muted/30 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer hover:bg-muted/50"
                 value={selectedCenter}
                 onChange={(e) => setSelectedCenter(e.target.value)}
               >
@@ -168,205 +168,166 @@ export function CreatePostDialog({ isOpen, onClose, onSuccess }: CreatePostDialo
             </div>
           )}
 
-          {/* Post Type Tabs */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Post Tags</label>
-            <div className="flex gap-2 p-1 bg-muted rounded-lg flex-wrap sm:flex-nowrap">
-              <Button
-                variant={tags.includes("general") ? "default" : "ghost"}
-                size="sm"
-                className="flex-1 gap-2 whitespace-nowrap"
-                onClick={() => toggleTag("general")}
-              >
-                <LayoutGrid className="h-4 w-4" />
-                General
-              </Button>
-              <Button
-                variant={tags.includes("announcements") ? "default" : "ghost"}
-                size="sm"
-                className="flex-1 gap-2 whitespace-nowrap"
-                onClick={() => toggleTag("announcements")}
-              >
-                <Bell className="h-4 w-4" />
-                Announcement
-              </Button>
-              <Button
-                variant={tags.includes("photos") ? "default" : "ghost"}
-                size="sm"
-                className="flex-1 gap-2 whitespace-nowrap"
-                onClick={() => toggleTag("photos")}
-              >
-                <ImageIcon className="h-4 w-4" />
-                Photo
-              </Button>
-              <Button
-                variant={tags.includes("videos") ? "default" : "ghost"}
-                size="sm"
-                className="flex-1 gap-2 whitespace-nowrap"
-                onClick={() => toggleTag("videos")}
-              >
-                <Video className="h-4 w-4" />
-                Video
-              </Button>
-              <Button
-                variant={tags.includes("events") ? "default" : "ghost"}
-                size="sm"
-                className="flex-1 gap-2 whitespace-nowrap"
-                onClick={() => toggleTag("events")}
-              >
-                <Calendar className="h-4 w-4" />
-                Event
-              </Button>
-            </div>
+          {/* Visibility Segmented Control */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Audience</label>
+            <Tabs value={visibility} onValueChange={(v: any) => setVisibility(v)} className="w-full">
+              <TabsList className="w-full h-12 bg-muted/40 p-1.5 rounded-xl border border-muted/50">
+                <TabsTrigger value="all_parents" className="flex-1 gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md transition-all">
+                  <Globe className="h-4 w-4" />
+                  <span className="text-xs font-semibold">All Parents</span>
+                </TabsTrigger>
+                <TabsTrigger value="specific_groups" className="flex-1 gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md transition-all">
+                  <Users className="h-4 w-4" />
+                  <span className="text-xs font-semibold">Groups</span>
+                </TabsTrigger>
+                <TabsTrigger value="specific_parents" className="flex-1 gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md transition-all">
+                  <User className="h-4 w-4" />
+                  <span className="text-xs font-semibold">Specific</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
 
-          {/* Visibility Tabs */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Who can see this?</label>
-            <div className="flex gap-2 p-1 bg-muted rounded-lg">
-              <Button
-                variant={visibility === "all_parents" ? "default" : "ghost"}
-                size="sm"
-                className="flex-1 gap-2"
-                onClick={() => setVisibility("all_parents")}
-              >
-                <Globe className="h-4 w-4" />
-                All Parents
-              </Button>
-              <Button
-                variant={visibility === "specific_groups" ? "default" : "ghost"}
-                size="sm"
-                className="flex-1 gap-2"
-                onClick={() => setVisibility("specific_groups")}
-              >
-                <Users className="h-4 w-4" />
-                Groups
-              </Button>
-              <Button
-                variant={visibility === "specific_parents" ? "default" : "ghost"}
-                size="sm"
-                className="flex-1 gap-2"
-                onClick={() => setVisibility("specific_parents")}
-              >
-                <User className="h-4 w-4" />
-                Specific
-              </Button>
-            </div>
-          </div>
+          {/* Target Selection Areas (Conditional) */}
+          {(visibility === "specific_groups" || visibility === "specific_parents") && (
+            <div className="space-y-4 p-4 rounded-2xl bg-muted/20 border border-muted/50 animate-in fade-in slide-in-from-top-2 duration-300">
+              {visibility === "specific_groups" && currentCenterMetadata && (
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-muted-foreground">Select Target Groups</label>
+                  <div className="flex flex-wrap gap-2">
+                    {currentCenterMetadata.groups.map(g => (
+                      <button
+                        key={g.id}
+                        onClick={() => setSelectedGroups(prev => prev.includes(g.id) ? prev.filter(id => id !== g.id) : [...prev, g.id])}
+                        className={cn(
+                          "px-4 py-2 rounded-xl text-xs font-semibold border transition-all",
+                          selectedGroups.includes(g.id) 
+                            ? "bg-primary text-primary-foreground border-primary shadow-sm scale-105" 
+                            : "bg-background hover:bg-muted border-muted-foreground/10"
+                        )}
+                      >
+                        {g.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-          {/* Target Group Selection */}
-          {visibility === "specific_groups" && currentCenterMetadata && (
-            <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
-              <label className="text-sm font-medium">Select Groups</label>
-              <div className="flex flex-wrap gap-2">
-                {currentCenterMetadata.groups.map(g => (
-                  <button
-                    key={g.id}
-                    onClick={() => {
-                      setSelectedGroups(prev => 
-                        prev.includes(g.id) ? prev.filter(id => id !== g.id) : [...prev, g.id]
-                      )
-                    }}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-                      selectedGroups.includes(g.id) 
-                        ? "bg-primary text-primary-foreground border-primary" 
-                        : "bg-background hover:bg-muted"
-                    )}
-                  >
-                    {g.name}
-                  </button>
-                ))}
-              </div>
+              {visibility === "specific_parents" && currentCenterMetadata && (
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-muted-foreground">Select Individual Parents</label>
+                  <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1">
+                    {currentCenterMetadata.parents.map(p => (
+                      <button
+                        key={p.id}
+                        onClick={() => setSelectedParents(prev => prev.includes(p.id) ? prev.filter(id => id !== p.id) : [...prev, p.id])}
+                        className={cn(
+                          "px-4 py-2 rounded-xl text-xs font-semibold border transition-all",
+                          selectedParents.includes(p.id) 
+                            ? "bg-primary text-primary-foreground border-primary shadow-sm scale-105" 
+                            : "bg-background hover:bg-muted border-muted-foreground/10"
+                        )}
+                      >
+                        {p.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Target Parent Selection */}
-          {visibility === "specific_parents" && currentCenterMetadata && (
-            <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
-              <label className="text-sm font-medium">Select Parents</label>
-              <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-2 border rounded-md">
-                {currentCenterMetadata.parents.map(p => (
-                  <button
-                    key={p.id}
-                    onClick={() => {
-                      setSelectedParents(prev => 
-                        prev.includes(p.id) ? prev.filter(id => id !== p.id) : [...prev, p.id]
-                      )
-                    }}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-                      selectedParents.includes(p.id) 
-                        ? "bg-primary text-primary-foreground border-primary" 
-                        : "bg-background hover:bg-muted"
-                    )}
-                  >
-                    {p.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Message Area */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Message</label>
+            <Textarea 
+              placeholder="What would you like to share?" 
+              className="min-h-[140px] resize-none rounded-2xl border-muted/60 focus:ring-2 focus:ring-primary/10 p-5 text-sm leading-relaxed shadow-inner"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
+          </div>
 
-          <Textarea 
-            placeholder="Share something with the center..." 
-            className="min-h-[150px] resize-none"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
-
+          {/* Media Previews (1:1 Aspect Ratio) */}
           {mediaFiles.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-4">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
               {mediaFiles.map((media, index) => (
-                <div key={index} className="relative rounded-lg overflow-hidden border bg-muted aspect-square">
+                <div key={index} className="relative rounded-2xl overflow-hidden border border-muted/50 bg-muted aspect-square group shadow-md transition-transform hover:scale-[1.02]">
                   {media.type === 'image' ? (
                     <img src={media.preview} alt={`Preview ${index}`} className="w-full h-full object-cover" />
                   ) : (
                     <video src={media.preview} className="w-full h-full object-cover" />
                   )}
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-80 hover:opacity-100 transition-opacity"
+                  <button
+                    className="absolute top-2 right-2 h-7 w-7 rounded-full bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-black/90 shadow-xl"
                     onClick={() => removeMedia(index)}
                   >
-                    <X className="h-3 w-3" />
-                  </Button>
+                    <X className="h-4 w-4" strokeWidth={3} />
+                  </button>
                 </div>
               ))}
             </div>
           )}
 
-          <div className="flex items-center gap-2">
-            <input 
-              type="file" 
-              id="post-media" 
-              className="hidden" 
-              multiple
-              accept="image/*,video/*"
-              onChange={handleMediaChange}
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              onClick={() => document.getElementById('post-media')?.click()}
-            >
-              <ImageIcon className="h-4 w-4" />
-              Add Photo / Video
-            </Button>
+          {/* Footer Controls / Tag Selector */}
+          <div className="flex flex-col gap-6 pb-8">
+            <div className="flex flex-wrap gap-2">
+              {[
+                { id: 'announcements', label: 'Announcement', icon: Bell },
+                { id: 'photos', label: 'Photo', icon: ImageIcon },
+                { id: 'videos', label: 'Video', icon: Video },
+                { id: 'events', label: 'Event', icon: Calendar },
+              ].map((tag) => (
+                <button
+                  key={tag.id}
+                  onClick={() => toggleTag(tag.id)}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border transition-all",
+                    tags.includes(tag.id)
+                      ? "bg-primary/10 text-primary border-primary/20"
+                      : "bg-muted/30 hover:bg-muted border-transparent text-muted-foreground/70"
+                  )}
+                >
+                  <tag.icon className="h-3.5 w-3.5" />
+                  {tag.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <input 
+                type="file" 
+                id="post-media" 
+                className="hidden" 
+                multiple
+                accept="image/*,video/*"
+                onChange={handleMediaChange}
+              />
+              <Button
+                variant="outline"
+                className="flex-1 rounded-2xl h-14 border-dashed border-muted-foreground/30 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all text-sm font-bold gap-3"
+                onClick={() => document.getElementById('post-media')?.click()}
+              >
+                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <ImageIcon className="h-4 w-4 text-primary" />
+                </div>
+                Attach Photos or Videos
+              </Button>
+            </div>
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+        <DialogFooter className="px-8 py-6 bg-muted/10 border-t flex items-center sm:justify-between gap-4">
+          <Button variant="ghost" onClick={onClose} className="rounded-xl px-6 h-12 font-bold text-muted-foreground hover:text-foreground">
+            Cancel
+          </Button>
           <Button 
             disabled={isLoading || (!content.trim() && mediaFiles.length === 0)} 
             onClick={handleSubmit}
-            className="px-8"
+            className="flex-1 sm:flex-none px-10 h-12 rounded-xl shadow-lg shadow-primary/20 font-bold tracking-tight transition-all active:scale-95"
           >
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Post Announcement
+            {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Post Announcement"}
           </Button>
         </DialogFooter>
       </DialogContent>

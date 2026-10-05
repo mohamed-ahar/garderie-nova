@@ -45,9 +45,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.channel_name
             )
 
-        # Also join own status group so others can find us if needed
-        # (Actually others join OUR status group, so we send TO it)
-
         await self.accept()
         
         # Mark all received messages as delivered when user connects
@@ -78,15 +75,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.user_group_name,
                 self.channel_name
             )
-        
-        # Clean up status group subscriptions if needed
-        # (Channel layer usually handles this on disconnect)
 
     async def receive(self, text_data):
         data = json.loads(text_data)
         message_type = data.get("type", "chat_message")
 
-        # Get the host from the scope for URL building
         headers = dict(self.scope.get('headers', []))
         host = headers.get(b'host', b'localhost:8001').decode()
 
@@ -97,7 +90,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if not recipient_id or not content:
                 return
 
-            # CHECK PERMISSION
             can_message = await self.check_permission(recipient_id)
             if not can_message:
                 await self.send(text_data=json.dumps({
@@ -106,19 +98,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }))
                 return
 
-            # Save message to database
             message = await self.save_message(recipient_id, content)
 
             if message:
                 recipient_group_name = f"user_{recipient_id}"
                 sender_group_name = f"user_{self.user.user_id}"
                 
-                # Build attachment info with full URL
-                attachment_url = None
-                if message.attachment:
-                    attachment_url = f"http://{host}/media/{message.attachment.name}"
-                
-                # Build profile photo URL
                 profile_photo_url = None
                 try:
                     if self.user.profile_photo:
@@ -135,7 +120,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         "sender_name": self.user.full_name,
                         "sender_profile_photo": profile_photo_url,
                         "content": content,
-                        "attachment": attachment_url,
+                        "attachment": None,
                         "attachment_type": message.attachment_type,
                         "timestamp": message.timestamp.isoformat(),
                         "is_delivered": message.is_delivered,
@@ -143,17 +128,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     }
                 }
 
-                # Send to recipient
-                await self.channel_layer.group_send(
-                    recipient_group_name,
-                    message_data
-                )
-                
-                # Send to sender (all tabs)
-                await self.channel_layer.group_send(
-                    sender_group_name,
-                    message_data
-                )
+                await self.channel_layer.group_send(recipient_group_name, message_data)
+                await self.channel_layer.group_send(sender_group_name, message_data)
+
+                # TRIGGER PUSH IF OFFLINE
+                is_online = await self.get_user_online_status(recipient_id)
+                if not is_online:
+                    await self.trigger_push_notification(recipient_id, content)
 
         elif message_type == "mark_read":
             recipient_id = data.get("recipient_id")
@@ -172,12 +153,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }))
 
     async def online_status(self, event):
-        # This is called when someone we are 'subscribed' to changes status
         await self.send(text_data=json.dumps(event))
 
     async def broadcast_status(self, is_online):
-        # Send our status to our own status group
-        # Anyone who has us as a contact will be in this group
         await self.channel_layer.group_send(
             f"status_{self.user.user_id}",
             {
@@ -203,13 +181,35 @@ class ChatConsumer(AsyncWebsocketConsumer):
         except User.DoesNotExist:
             return {"is_online": False, "last_seen": None}
 
+    @database_sync_to_async
+    def get_user_online_status(self, user_id):
+        try:
+            return User.objects.get(user_id=user_id).is_online
+        except User.DoesNotExist:
+            return False
+
+    async def trigger_push_notification(self, recipient_id, content):
+        """
+        Triggers a Web Push notification for the recipient.
+        """
+        from .push_utils import send_push_notification
+        
+        # Run synchronous push logic in separate thread
+        import asyncio
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            None, 
+            send_push_notification, 
+            recipient_id, 
+            f"New message from {self.user.full_name}", 
+            content,
+            f"/?chat={self.user.user_id}" # Deep link to specific chat
+        )
+
     async def chat_message(self, event):
-        # If this is an incoming message (not sent by us in another tab)
-        # mark it as delivered immediately
         msg_data = event.get("message", {})
         if msg_data.get("sender_id") != str(self.user.user_id):
             await self.mark_single_delivered(msg_data.get("id"))
-            # Notify the sender that it was delivered
             await self.channel_layer.group_send(
                 f"user_{msg_data.get('sender_id')}",
                 {
@@ -217,7 +217,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "recipient_id": str(self.user.user_id)
                 }
             )
-        
         await self.send(text_data=json.dumps(event))
 
     async def messages_delivered(self, event):
@@ -227,7 +226,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(event))
 
     async def ping(self, event):
-        # Respond to ping with pong to keep connection alive
         await self.send(text_data=json.dumps({
             "type": "pong",
             "timestamp": timezone.now().isoformat()
@@ -320,9 +318,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def mark_as_read(self, sender_id):
         Message.objects.filter(sender_id=sender_id, recipient=self.user, is_read=False).update(is_read=True, is_delivered=True)
-        
-        # Notify sender that their messages were read
-        import asyncio
         from asgiref.sync import async_to_sync
         from channels.layers import get_channel_layer
         channel_layer = get_channel_layer()

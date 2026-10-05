@@ -39,6 +39,15 @@ def get_feed(request):
     # Posts from these centers
     posts_qs = FeedPost.objects.filter(center__in=user_centers).distinct()
 
+    # Filter by search query
+    query = request.GET.get('q', '')
+    if query:
+        posts_qs = posts_qs.filter(
+            Q(content__icontains=query) |
+            Q(author__full_name__icontains=query) |
+            Q(tags__icontains=query)
+        )
+
     # Filter by visibility
     is_staff = user.role_type in ['director', 'vice_director', 'educator', 'owner'] or user.is_staff
     
@@ -314,6 +323,8 @@ def get_feed_metadata(request):
 def get_contacts(request):
     user = request.user
     allowed_user_ids = get_allowed_contact_ids(user)
+    
+    query = request.GET.get('q', '')
 
     last_msg_subquery = Message.objects.filter(
         (Q(sender=OuterRef('pk')) & Q(recipient=user)) |
@@ -326,7 +337,12 @@ def get_contacts(request):
         is_read=False
     ).values('sender').annotate(cnt=Count('pk')).values('cnt')
 
-    contacts_qs = User.objects.filter(user_id__in=allowed_user_ids).annotate(
+    contacts_qs = User.objects.filter(user_id__in=allowed_user_ids)
+    
+    if query:
+        contacts_qs = contacts_qs.filter(full_name__icontains=query)
+
+    contacts_qs = contacts_qs.annotate(
         last_message_text=Subquery(last_msg_subquery.values('content')[:1]),
         last_message_type=Subquery(last_msg_subquery.values('attachment_type')[:1]),
         unread_count=Coalesce(Subquery(unread_count_subquery), 0),
@@ -573,6 +589,26 @@ def get_messages(request, recipient_id):
         "next_page": page_obj.next_page_number() if page_obj.has_next() else None,
         "total_pages": paginator.num_pages,
     })
+
+@login_required
+@csrf_exempt
+def subscribe_push(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            from .models import PushSubscription
+            PushSubscription.objects.update_or_create(
+                endpoint=data['endpoint'],
+                defaults={
+                    'user': request.user,
+                    'p256dh': data['p256dh'],
+                    'auth': data['auth']
+                }
+            )
+            return JsonResponse({"status": "success"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Invalid request"}, status=400)
 
 @login_required
 @csrf_exempt

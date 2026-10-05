@@ -182,3 +182,9 @@ def unread_count_api(request):
 def chat_app(request):
     """View that renders the chat app in a full-screen iframe."""
     return render(request, "chat_app.html")
+
+
+@login_required
+def feed_app(request):
+    """View that renders the social feed app in a full-screen iframe."""
+    return render(request, "feed_app.html")
