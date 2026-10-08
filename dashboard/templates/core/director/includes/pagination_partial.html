@@ -1,0 +1,13 @@
+{% if page_obj.has_other_pages %}
+<div class="flex items-center gap-1">
+    <button data-page="{% if page_obj.has_previous %}{{ page_obj.previous_page_number }}{% else %}1{% endif %}" class="grid-page-btn w-10 h-10 rounded-xl flex items-center justify-center transition-all {% if page_obj.has_previous %}bg-white dark:bg-slate-800 text-slate-600 hover:bg-rose-50 hover:text-rose-600 shadow-sm border border-slate-100 dark:border-slate-800{% else %}bg-slate-50 dark:bg-slate-900/50 text-slate-300 pointer-events-none border border-transparent{% endif %}" {% if not page_obj.has_previous %}disabled{% endif %}>
+        <i class="fa-solid fa-chevron-left text-[10px]"></i>
+    </button>
+    <div class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 shadow-sm">
+        <span class="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    </div>
+    <button data-page="{% if page_obj.has_next %}{{ page_obj.next_page_number }}{% else %}{{ page_obj.paginator.num_pages }}{% endif %}" class="grid-page-btn w-10 h-10 rounded-xl flex items-center justify-center transition-all {% if page_obj.has_next %}bg-white dark:bg-slate-800 text-slate-600 hover:bg-rose-50 hover:text-rose-600 shadow-sm border border-slate-100 dark:border-slate-800{% else %}bg-slate-50 dark:bg-slate-900/50 text-slate-300 pointer-events-none border border-transparent{% endif %}" {% if not page_obj.has_next %}disabled{% endif %}>
+        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+    </button>
+</div>
+{% endif %}

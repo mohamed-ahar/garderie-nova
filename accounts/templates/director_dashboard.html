@@ -201,13 +201,20 @@
         <!-- Child Roster Grid Section -->
         <div class="space-y-8">
             <div class="flex flex-col gap-6 px-4">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500">
-                        <i class="fa-solid fa-shapes text-xl"></i>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500">
+                            <i class="fa-solid fa-shapes text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Child Roster</h2>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Live Attendance & Quick Actions</p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">Child Roster</h2>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Live Attendance & Quick Actions</p>
+                    
+                    <!-- Top Pagination -->
+                    <div id="grid-pagination-top" class="flex items-center gap-2">
+                        {% include "core/director/includes/pagination_partial.html" with page_obj=page_obj %}
                     </div>
                 </div>
 
@@ -246,6 +253,11 @@
                 
                 <div id="child-grid-wrapper">
                     {% include "core/director/includes/child_grid_partial.html" %}
+                </div>
+
+                <!-- Bottom Pagination -->
+                <div id="grid-pagination-bottom" class="flex justify-center mt-8 pb-12">
+                    {% include "core/director/includes/pagination_partial.html" with page_obj=page_obj %}
                 </div>
             </div>
         </div>
@@ -319,6 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let currentGridAge = '';
     let currentGridEducator = '';
+    let currentGridPage = 1;
 
     const updateGridUI = (age) => {
         gridAgeButtons.forEach(b => {
@@ -345,12 +358,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    const fetchGrid = async () => {
+    const fetchGrid = async (page = 1) => {
         gridLoading.classList.remove('opacity-0', 'pointer-events-none');
+        currentGridPage = page;
         const params = new URLSearchParams({
             section: 'child_grid',
             grid_age: currentGridAge,
-            grid_educator: currentGridEducator
+            grid_educator: currentGridEducator,
+            page: page
         });
 
         try {
@@ -362,6 +377,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
                 gridWrapper.innerHTML = data.html;
                 
+                // Update Pagination Controls
+                const updatePagination = (containerId) => {
+                    const container = document.getElementById(containerId);
+                    if (!container) return;
+                    
+                    if (data.num_pages > 1) {
+                        const prevPage = Math.max(1, data.current_page - 1);
+                        const nextPage = Math.min(data.num_pages, data.current_page + 1);
+                        
+                        let paginationHtml = `
+                            <div class="flex items-center gap-1">
+                                <button data-page="${prevPage}" class="grid-page-btn w-10 h-10 rounded-xl flex items-center justify-center transition-all ${data.current_page > 1 ? 'bg-white dark:bg-slate-800 text-slate-600 hover:bg-rose-50 hover:text-rose-600 shadow-sm border border-slate-100 dark:border-slate-800' : 'bg-slate-50 dark:bg-slate-900/50 text-slate-300 pointer-events-none border border-transparent'}" ${data.current_page <= 1 ? 'disabled' : ''}>
+                                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                                </button>
+                                <div class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 shadow-sm">
+                                    <span class="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">${data.current_page} / ${data.num_pages}</span>
+                                </div>
+                                <button data-page="${nextPage}" class="grid-page-btn w-10 h-10 rounded-xl flex items-center justify-center transition-all ${data.current_page < data.num_pages ? 'bg-white dark:bg-slate-800 text-slate-600 hover:bg-rose-50 hover:text-rose-600 shadow-sm border border-slate-100 dark:border-slate-800' : 'bg-slate-50 dark:bg-slate-900/50 text-slate-300 pointer-events-none border border-transparent'}" ${data.current_page >= data.num_pages ? 'disabled' : ''}>
+                                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                                </button>
+                            </div>
+                        `;
+                        container.innerHTML = paginationHtml;
+                    } else {
+                        container.innerHTML = '';
+                    }
+                };
+                
+                updatePagination('grid-pagination-top');
+                updatePagination('grid-pagination-bottom');
+
                 // Update Educator Buttons
                 if (data.educators) {
                     educatorButtonsContainer.innerHTML = '';
@@ -397,9 +443,26 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.classList.contains('grid-educator-btn')) {
             currentGridEducator = e.target.dataset.educator;
             updateEducatorUI(currentGridEducator);
-            fetchGrid();
+            fetchGrid(1); // Reset to page 1 when filtering
         }
     });
+
+    // Event Delegation for Pagination
+    const handlePaginationClick = function(e) {
+        const btn = e.target.closest('.grid-page-btn');
+        if (btn && !btn.disabled) {
+            let page = parseInt(btn.dataset.page);
+            if (!isNaN(page)) {
+                page = Math.max(1, page);
+                fetchGrid(page);
+                // Scroll to top of grid section
+                document.getElementById('grid-age-controls').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    };
+
+    document.getElementById('grid-pagination-top').addEventListener('click', handlePaginationClick);
+    document.getElementById('grid-pagination-bottom').addEventListener('click', handlePaginationClick);
 
     // AJAX Form Handler (Delegated)
     gridWrapper.addEventListener('submit', async function(e) {
@@ -440,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
                             }
                         }).showToast();
-                        fetchGrid(); // Refresh grid
+                        fetchGrid(currentGridPage); // Refresh grid on same page
                         fetchSummary(currentMode, false); // Refresh stats
                     } else {
                          Toastify({
@@ -479,7 +542,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // UI update handled by fetchGrid rebuilding buttons, but let's visually reset current one before fetch
             // Actually fetchGrid rebuilds them, so we just reset the var.
             
-            fetchGrid();
+            fetchGrid(1);
         });
     });
 
@@ -488,7 +551,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchSummary(currentMode, false);
         // Only refresh grid if user has interacted (optional, or always refresh)
         // Refreshing grid always for now to show live attendance
-        fetchGrid();
+        fetchGrid(currentGridPage);
     }, 30000);
 });
 </script>

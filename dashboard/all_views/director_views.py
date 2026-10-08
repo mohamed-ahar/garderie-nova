@@ -236,6 +236,21 @@ def director_dashboard(request):
                 'attendance_record': att
             })
 
+        # Pagination for Child Grid
+        paginator = Paginator(child_grid_data, 12) # 12 children per page
+        page_number = request.GET.get('page', '1')
+        
+        # Robustly handle page_number
+        try:
+            if not page_number or int(page_number) < 1:
+                page_number = 1
+            else:
+                page_number = int(page_number)
+        except (ValueError, TypeError):
+            page_number = 1
+            
+        page_obj = paginator.get_page(page_number)
+        
         # Calculate overall center ratio and total required educators
         total_required_educators = sum(g.required_educators for g in groups)
         if total_educators > 0 and active_children_count > 0:
@@ -384,7 +399,8 @@ def director_dashboard(request):
         "intelligence_summary": intelligence_summary,
         "grouping_mode": grouping_mode,
         # Child Grid Data
-        "child_grid_data": child_grid_data,
+        "child_grid_data": page_obj.object_list,
+        "page_obj": page_obj,
         "available_educators": available_educators_for_filter,
         "grid_age_filter": grid_age_filter,
         "grid_educator_filter": grid_educator_filter,
@@ -403,7 +419,10 @@ def director_dashboard(request):
             
             return JsonResponse({
                 "html": grid_html,
-                "educators": educators_data
+                "educators": educators_data,
+                "has_other_pages": page_obj.has_other_pages(),
+                "current_page": page_obj.number,
+                "num_pages": paginator.num_pages,
             })
         return render(request, "core/director/includes/intelligence_table_partial.html", context)
 
