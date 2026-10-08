@@ -5,7 +5,7 @@ from .views import (
     manage_invitation, get_invitations,
     get_feed, create_post, react_to_post, mark_post_seen,
     get_post_comments, add_comment, get_feed_metadata,
-    delete_post, subscribe_push
+    delete_post, subscribe_push, toggle_bookmark, react_to_comment
 )
 
 app_name = "chat_back"
@@ -26,7 +26,9 @@ urlpatterns = [
     path("feed/create/", create_post, name="create_post"),
     path("feed/<int:post_id>/delete/", delete_post, name="delete_post"),
     path("feed/<int:post_id>/react/", react_to_post, name="react_to_post"),
+    path("feed/<int:post_id>/bookmark/", toggle_bookmark, name="toggle_bookmark"),
     path("feed/<int:post_id>/seen/", mark_post_seen, name="mark_post_seen"),
+    path("feed/comment/<int:comment_id>/react/", react_to_comment, name="react_to_comment"),
     path("feed/<int:post_id>/comments/", get_post_comments, name="get_post_comments"),
     path("feed/<int:post_id>/comments/add/", add_comment, name="add_comment"),
     path("feed/metadata/", get_feed_metadata, name="get_feed_metadata"),

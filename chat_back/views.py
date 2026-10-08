@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from accounts.models import User, Educator, Director
 from dashboard.models import Child, ParentChildRelationship, Group, Center
 from communication.models import DirectorConnection
-from .models import Message, ChatInvitation, FeedPost, PostReaction, Comment, CommentReaction, PostView
+from .models import Message, ChatInvitation, FeedPost, PostReaction, Comment, CommentReaction, PostView, BookmarkedPost
 from .utils import get_allowed_contact_ids
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -39,6 +39,11 @@ def get_feed(request):
     # Posts from these centers
     posts_qs = FeedPost.objects.filter(center__in=user_centers).distinct()
 
+    # Filter by author (for profile view)
+    author_id = request.GET.get('author_id')
+    if author_id:
+        posts_qs = posts_qs.filter(author__user_id=author_id)
+
     # Filter by search query
     query = request.GET.get('q', '')
     if query:
@@ -62,8 +67,6 @@ def get_feed(request):
 
     filter_type = request.GET.get('type', 'all')
     if filter_type != 'all':
-        # Simple string matching in json field or json contains if needed.
-        # SQLite json filtering on list: contains can be used in Django 3.1+ 
         posts_qs = posts_qs.filter(tags__icontains=filter_type)
 
     posts_qs = posts_qs.order_by('-timestamp')
@@ -76,6 +79,7 @@ def get_feed(request):
     posts = []
     for post in page_obj:
         user_reaction = PostReaction.objects.filter(post=post, user=user).first()
+        is_bookmarked = BookmarkedPost.objects.filter(post=post, user=user).exists()
         
         media_items = []
         if post.image:
@@ -105,8 +109,9 @@ def get_feed(request):
             "target_group_names": list(post.target_groups.values_list('name', flat=True)),
             "timestamp": post.timestamp.isoformat(),
             "reactions_count": post.reactions.count(),
-            "comments_count": post.comments.count(),
+            "comments_count": post.comments.filter(parent=None).count(), # Only top-level count
             "user_reaction": user_reaction.reaction_type if user_reaction else None,
+            "is_bookmarked": is_bookmarked,
             "center_name": post.center.name
         }
         
@@ -120,6 +125,34 @@ def get_feed(request):
         "has_next": page_obj.has_next(),
         "total_pages": paginator.num_pages
     })
+
+@login_required
+@csrf_exempt
+def toggle_bookmark(request, post_id):
+    if request.method == 'POST':
+        post = get_object_or_404(FeedPost, id=post_id)
+        bookmark, created = BookmarkedPost.objects.get_or_create(user=request.user, post=post)
+        if not created:
+            bookmark.delete()
+            return JsonResponse({"status": "unbookmarked"})
+        return JsonResponse({"status": "bookmarked"})
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+@login_required
+@csrf_exempt
+def react_to_comment(request, comment_id):
+    if request.method == 'POST':
+        comment = get_object_or_404(Comment, id=comment_id)
+        reaction, created = CommentReaction.objects.get_or_create(
+            comment=comment, 
+            user=request.user,
+            defaults={'reaction_type': 'like'}
+        )
+        if not created:
+            reaction.delete()
+            return JsonResponse({"status": "unreacted"})
+        return JsonResponse({"status": "reacted"})
+    return JsonResponse({"error": "Invalid request"}, status=400)
 
 @login_required
 @csrf_exempt
@@ -233,10 +266,12 @@ def react_to_post(request, post_id):
 @login_required
 @csrf_exempt
 def get_post_comments(request, post_id):
-    comments_qs = Comment.objects.filter(post_id=post_id).order_by('timestamp')
+    # Only get top level comments
+    comments_qs = Comment.objects.filter(post_id=post_id, parent=None).select_related('author').prefetch_related('replies', 'replies__author', 'reactions')
+    
     comments = []
     for c in comments_qs:
-        comments.append({
+        comment_data = {
             "id": c.id,
             "author": {
                 "id": str(c.author.user_id),
@@ -246,7 +281,24 @@ def get_post_comments(request, post_id):
             "content": c.content,
             "timestamp": c.timestamp.isoformat(),
             "reactions_count": c.reactions.count(),
-        })
+            "user_has_reacted": c.reactions.filter(user=request.user).exists(),
+            "replies": [
+                {
+                    "id": r.id,
+                    "author": {
+                        "id": str(r.author.user_id),
+                        "name": r.author.full_name,
+                        "profile_photo": request.build_absolute_uri(r.author.profile_photo.url) if r.author.profile_photo else None,
+                    },
+                    "content": r.content,
+                    "timestamp": r.timestamp.isoformat(),
+                    "reactions_count": r.reactions.count(),
+                    "user_has_reacted": r.reactions.filter(user=request.user).exists(),
+                } for r in c.replies.all().order_by('timestamp')
+            ]
+        }
+        comments.append(comment_data)
+        
     return JsonResponse({"comments": comments})
 
 @login_required
@@ -254,14 +306,20 @@ def get_post_comments(request, post_id):
 def add_comment(request, post_id):
     if request.method == 'POST':
         content = request.POST.get('content')
+        parent_id = request.POST.get('parent_id')
         tagged_users_ids = request.POST.getlist('tagged_users')
         
         try:
             post = FeedPost.objects.get(id=post_id)
+            parent = None
+            if parent_id:
+                parent = Comment.objects.get(id=parent_id, post=post)
+
             comment = Comment.objects.create(
                 post=post,
                 author=request.user,
-                content=content
+                content=content,
+                parent=parent
             )
             if tagged_users_ids:
                 comment.tagged_users.set(tagged_users_ids)
@@ -270,13 +328,13 @@ def add_comment(request, post_id):
                 "status": "success",
                 "comment": {
                     "id": comment.id,
-                    "author_name": request.user.full_name,
                     "content": comment.content,
-                    "timestamp": comment.timestamp.isoformat()
+                    "timestamp": comment.timestamp.isoformat(),
+                    "parent_id": parent_id
                 }
             })
-        except FeedPost.DoesNotExist:
-            return JsonResponse({"error": "Post not found"}, status=404)
+        except (FeedPost.DoesNotExist, Comment.DoesNotExist):
+            return JsonResponse({"error": "Post or parent comment not found"}, status=404)
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 @login_required

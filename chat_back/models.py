@@ -167,6 +167,13 @@ class Comment(models.Model):
         on_delete=models.CASCADE, 
         related_name='comments'
     )
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='replies'
+    )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE,
@@ -219,3 +226,19 @@ class PostView(models.Model):
 
     class Meta:
         unique_together = ('post', 'user')
+
+class BookmarkedPost(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='bookmarked_posts'
+    )
+    post = models.ForeignKey(
+        FeedPost,
+        on_delete=models.CASCADE,
+        related_name='bookmarked_by'
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'post')

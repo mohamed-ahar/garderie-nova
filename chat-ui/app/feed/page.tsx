@@ -11,6 +11,7 @@ export default function FeedPage() {
   const [currentUser, setCurrentUser] = useState<{ id: string; name: string; role: string; profile_photo?: string | null } | null>(null);
   const [currentFilter, setCurrentFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewAuthorId, setViewAuthorId] = useState<string | null>(null);
 
   const handleOpenChat = (contactId: string) => {
     // Open in a named new tab. If 'GarderieNovaChat' exists, it will be focused/navigated.
@@ -53,14 +54,19 @@ export default function FeedPage() {
         <FeedSidebar 
           currentUser={currentUser} 
           currentFilter={currentFilter} 
-          onFilterChange={setCurrentFilter} 
+          onFilterChange={(f) => {
+            setCurrentFilter(f);
+            setViewAuthorId(null);
+          }} 
         />
         <div className="flex-1 max-w-[680px] w-full min-w-0">
           <FeedStream 
             currentUser={currentUser} 
             filter={currentFilter} 
             searchQuery={searchQuery}
-            onPersonClick={(user) => handleOpenChat(user.id)}
+            authorId={viewAuthorId || undefined}
+            onPersonClick={(user) => setViewAuthorId(user.id)}
+            onBack={() => setViewAuthorId(null)}
           />
         </div>
         <FeedWidgets onContactClick={(contact) => handleOpenChat(contact.id)} />

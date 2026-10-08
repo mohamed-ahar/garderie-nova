@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Image as ImageIcon, Loader2, X, Users, User, Globe, Bell, Calendar, LayoutGrid, Video } from "lucide-react";
 import { getCookie, cn } from "@/lib/utils";
@@ -13,6 +15,12 @@ interface Metadata {
   center_name: string;
   groups: { id: string; name: string }[];
   parents: { id: string; name: string }[];
+}
+
+interface MentionUser {
+  id: string;
+  name: string;
+  profile_photo: string | null;
 }
 
 interface CreatePostDialogProps {
@@ -33,6 +41,12 @@ export function CreatePostDialog({ isOpen, onClose, onSuccess }: CreatePostDialo
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
 
+  // Mention State
+  const [mentionQuery, setMentionQuery] = useState("");
+  const [mentionResults, setMentionResults] = useState<MentionUser[]>([]);
+  const [showMentionList, setShowMentionList] = useState(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
   useEffect(() => {
     if (isOpen) {
       setIsFetchingMetadata(true);
@@ -51,6 +65,49 @@ export function CreatePostDialog({ isOpen, onClose, onSuccess }: CreatePostDialo
         });
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!mentionQuery) {
+      setMentionResults([]);
+      setShowMentionList(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`http://localhost:8001/chat/search-users/?q=${mentionQuery}`, { credentials: 'include' });
+        const data = await res.json();
+        setMentionResults(data.users || []);
+        setShowMentionList(true);
+      } catch (err) {
+        console.error("Failed to fetch mentions", err);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [mentionQuery]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newVal = e.target.value;
+    setContent(newVal);
+
+    const match = newVal.match(/@([\w\s]*)$/);
+    if (match) {
+      setMentionQuery(match[1]);
+    } else {
+      setMentionQuery("");
+      setShowMentionList(false);
+    }
+  };
+
+  const insertMention = (user: MentionUser) => {
+    // Use @[Name] format for precise parsing
+    const newVal = content.replace(/@([\w\s]*)$/, `@[${user.name}] `);
+    setContent(newVal);
+    setShowMentionList(false);
+    setMentionQuery("");
+    inputRef.current?.focus();
+  };
 
   const toggleTag = (tag: string) => {
     setTags(prev => {
@@ -151,7 +208,7 @@ export function CreatePostDialog({ isOpen, onClose, onSuccess }: CreatePostDialo
           <DialogTitle className="text-2xl font-bold tracking-tight">New Announcement</DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-8 py-2 space-y-8 scrollbar-hide">
+        <div className="flex-1 overflow-y-auto px-8 py-2 space-y-8 scrollbar-hide relative">
           {/* Center Selection */}
           {metadata.length > 1 && (
             <div className="space-y-3">
@@ -239,13 +296,40 @@ export function CreatePostDialog({ isOpen, onClose, onSuccess }: CreatePostDialo
           )}
 
           {/* Message Area */}
-          <div className="space-y-3">
+          <div className="space-y-3 relative">
             <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">Message</label>
+            
+            {showMentionList && mentionResults.length > 0 && (
+              <div className="absolute bottom-full left-0 mb-2 w-64 bg-background border rounded-lg shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-bottom-2">
+                <ScrollArea className="max-h-48">
+                  <div className="p-1">
+                    <div className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b mb-1">Suggested People</div>
+                    {mentionResults.map(user => (
+                      <button
+                        key={user.id}
+                        className="flex items-center gap-2 w-full p-2 hover:bg-muted text-left text-sm rounded-md transition-colors group"
+                        onClick={() => insertMention(user)}
+                      >
+                        <Avatar className="h-7 w-7 border group-hover:border-primary/30 transition-colors">
+                          <AvatarImage src={user.profile_photo || undefined} />
+                          <AvatarFallback>{user.name[0]}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold truncate group-hover:text-primary transition-colors text-xs">{user.name}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            )}
+
             <Textarea 
-              placeholder="What would you like to share?" 
+              ref={inputRef}
+              placeholder="What would you like to share? Use @ to mention someone." 
               className="min-h-[140px] resize-none rounded-2xl border-muted/60 focus:ring-2 focus:ring-primary/10 p-5 text-sm leading-relaxed shadow-inner"
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={handleInputChange}
             />
           </div>
 
